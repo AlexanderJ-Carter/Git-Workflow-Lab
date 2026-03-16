@@ -1,0 +1,58 @@
+# Git Workflow Lab - VS Code Server (增强版)
+# 提供完整的在线 IDE 体验
+
+FROM codercom/code-server:latest
+
+LABEL maintainer="Git Workflow Lab"
+LABEL description="VS Code Server with Git extensions for enhanced learning"
+
+USER root
+
+# 安装额外工具
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    openssh-client \
+    zsh \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装 Oh My Zsh
+RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
+    && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc
+
+# 配置 Git
+RUN git config --global user.name "Playground User" \
+    && git config --global user.email "playground@example.com" \
+    && git config --global init.defaultBranch main \
+    && git config --global core.editor "code --wait"
+
+# 创建工作目录
+RUN mkdir -p /home/coder/projects \
+    && chown -R coder:coder /home/coder
+
+# 预安装 VS Code 扩展
+USER coder
+RUN code-server --install-extension eamodio.gitlens \
+    && code-server --install-extension mhutchie.git-graph \
+    && code-server --install-extension donjayamanne.githistory \
+    && code-server --install-extension ms-vscode.vscode-json \
+    && code-server --install-extension redhat.vscode-yaml
+
+# 配置 VS Code 设置
+RUN mkdir -p /home/coder/.local/share/code-server/User
+COPY settings.json /home/coder/.local/share/code-server/User/settings.json
+
+USER root
+
+# 暴露端口
+EXPOSE 8443
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8443/healthz || exit 1
+
+# 启动 code-server
+USER coder
+WORKDIR /home/coder/projects
+CMD ["code-server", "--bind-addr", "0.0.0.0:8443", "--auth", "password", "/home/coder/projects"]

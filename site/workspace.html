@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Git Workflow Lab · 学习工作台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f3f4f6;
+        color: #111827;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      .workspace-header {
+        padding: 14px 20px;
+        border-bottom: 1px solid #dbe4f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        background: linear-gradient(135deg, #eff6ff, #ecfeff);
+      }
+
+      .workspace-header-left h1 {
+        font-size: 18px;
+        margin: 0 0 4px;
+      }
+
+      .workspace-header-left p {
+        margin: 0;
+        font-size: 12px;
+        color: #4b5563;
+      }
+
+      .workspace-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .workspace-actions a {
+        text-decoration: none;
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+        background: #ffffffcc;
+      }
+
+      .workspace-layout {
+        display: grid;
+        grid-template-columns: 42% 58%;
+        height: calc(100vh - 68px);
+      }
+
+      .pane {
+        border-right: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+      }
+
+      .pane:last-child {
+        border-right: none;
+      }
+
+      .pane-header {
+        padding: 10px 12px;
+        font-size: 12px;
+        color: #6b7280;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .pane-header span.title {
+        color: #111827;
+      }
+
+      .pane-body {
+        flex: 1;
+        background: #ffffff;
+      }
+
+      .pane-body iframe {
+        border: none;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+      }
+
+      @media (max-width: 1100px) {
+        .workspace-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .workspace-actions {
+          justify-content: flex-start;
+        }
+
+        .workspace-layout {
+          grid-template-columns: 100%;
+          grid-template-rows: 52vh 52vh;
+          height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="workspace-header">
+      <div class="workspace-header-left">
+        <h1>Git Workflow Lab · 学习工作台</h1>
+        <p>左侧阅读课程，右侧直接练习命令；Gitea 通过新标签页单独打开会更顺手。</p>
+      </div>
+      <div class="workspace-actions">
+        <a href="/docs/viewer.html?file=lessons-overview.md" target="_blank" rel="noreferrer">课程总览</a>
+        <a href="/docs/viewer.html?file=learning-path.md" target="_blank" rel="noreferrer">学习路径</a>
+        <a href="http://localhost:3000" target="_blank" rel="noreferrer">打开 Gitea</a>
+        <a href="http://localhost:8080" target="_blank" rel="noreferrer">单独打开终端</a>
+      </div>
+    </header>
+
+    <main class="workspace-layout">
+      <section class="pane">
+        <div class="pane-header">
+          <span class="title">课程文档</span>
+          <span>建议从关卡总览开始</span>
+        </div>
+        <div class="pane-body">
+          <iframe
+            src="/docs/viewer.html?file=lessons-overview.md"
+            title="Docs Viewer"
+          ></iframe>
+        </div>
+      </section>
+
+      <section class="pane">
+        <div class="pane-header">
+          <span class="title">Web 终端</span>
+          <span>试试 git status / git log --oneline / git diff</span>
+        </div>
+        <div class="pane-body">
+          <iframe
+            src="http://localhost:8080"
+            title="Web Terminal"
+          ></iframe>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+

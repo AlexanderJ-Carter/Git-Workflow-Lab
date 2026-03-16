@@ -1,0 +1,14 @@
+{
+    "workbench.colorTheme": "Default Dark+",
+    "editor.fontSize": 14,
+    "editor.minimap.enabled": false,
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.fontSize": 14,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "workbench.startupEditor": "readme",
+    "workbench.welcomePage.walkthroughs.openOnInstall": false
+}

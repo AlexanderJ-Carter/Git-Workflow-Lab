@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Git Workflow Lab 文档中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../site/assets/css/style.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f3f4f6;
+        color: #111827;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+        padding: 20px 16px;
+      }
+
+      .sidebar-header {
+        margin-bottom: 20px;
+      }
+
+      .sidebar-title {
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .sidebar-subtitle {
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .lesson-group-title {
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin: 12px 0 4px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .lesson-group-title span.chevron {
+        font-size: 10px;
+        color: #9ca3af;
+        transition: transform 0.15s;
+      }
+
+      .lesson-group-title.collapsed span.chevron {
+        transform: rotate(-90deg);
+      }
+
+      .lesson-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .lesson-item {
+        margin-bottom: 4px;
+      }
+
+      .lesson-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        color: #111827;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+      }
+
+      .lesson-link span.badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .lesson-link.active {
+        background: #e0f2fe;
+        color: #1d4ed8;
+      }
+
+      .lesson-link:hover {
+        background: #f3f4f6;
+      }
+
+      .content {
+        padding: 20px 32px 40px;
+        max-width: 920px;
+      }
+
+      .doc-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .doc-meta-left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .doc-breadcrumb {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+
+      .doc-title {
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .doc-meta-right {
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .doc-shell {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      }
+
+      #doc-error {
+        color: #b91c1c;
+        background: #fee2e2;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      #doc-content {
+        line-height: 1.7;
+        font-size: 14px;
+      }
+
+      #doc-content h1,
+      #doc-content h2,
+      #doc-content h3 {
+        margin-top: 1.4em;
+        margin-bottom: 0.6em;
+      }
+
+      #doc-content pre {
+        background: #111827;
+        color: #e5e7eb;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        overflow: auto;
+      }
+
+      #doc-content code {
+        font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+
+      #doc-content a {
+        color: #2563eb;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">Git Workflow Lab</div>
+          <div class="sidebar-subtitle">文档 · 关卡导航</div>
+        </div>
+        <div id="lesson-nav"></div>
+      </aside>
+      <main class="content">
+        <div class="doc-meta">
+          <div class="doc-meta-left">
+            <div class="doc-breadcrumb" id="doc-breadcrumb"></div>
+            <div class="doc-title" id="doc-title">加载中...</div>
+          </div>
+          <div class="doc-meta-right" id="doc-meta-right"></div>
+        </div>
+        <div class="doc-shell">
+          <div id="doc-error" style="display: none"></div>
+          <article id="doc-content">加载中...</article>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const LESSONS = [
+        {
+          group: "总览 / 阶段导航",
+          items: [
+            {
+              id: "lessons-overview",
+              file: "lessons-overview.md",
+              title: "总览：课程和阶段规划",
+              badge: "OV",
+            },
+          ],
+        },
+        {
+          group: "阶段 0-1 · 基础入门",
+          items: [
+            {
+              id: "lesson-00",
+              file: "lesson-00-install-and-config.md",
+              title: "关卡 00：安装与配置",
+              badge: "00",
+            },
+            {
+              id: "lesson-00-terminal",
+              file: "lesson-00-terminal-basics.md",
+              title: "关卡 00b：命令行基础（可选）",
+              badge: "00b",
+            },
+            {
+              id: "lesson-01",
+              file: "lesson-01-init-push.md",
+              title: "关卡 01：init + push",
+              badge: "01",
+            },
+            {
+              id: "lesson-02",
+              file: "lesson-02-workspace-staging-history.md",
+              title: "关卡 02：工作区 / 暂存区 / 历史",
+              badge: "02",
+            },
+            {
+              id: "lesson-03",
+              file: "lesson-03-remote-and-sync.md",
+              title: "关卡 03：远程与同步",
+              badge: "03",
+            },
+          ],
+        },
+        {
+          group: "阶段 2 · 分支与协作",
+          items: [
+            {
+              id: "lesson-04",
+              file: "lesson-04-branches-and-pr.md",
+              title: "关卡 04：分支与 PR",
+              badge: "04",
+            },
+            {
+              id: "lesson-05",
+              file: "lesson-05-merge-conflict.md",
+              title: "关卡 05：合并冲突",
+              badge: "05",
+            },
+            {
+              id: "lesson-06",
+              file: "lesson-06-rebase-clean-history.md",
+              title: "关卡 06：rebase 整理历史",
+              badge: "06",
+            },
+            {
+              id: "lesson-06a",
+              file: "lesson-06a-ssh-setup-and-clone.md",
+              title: "关卡 06a：SSH 密钥与 clone",
+              badge: "06a",
+            },
+            {
+              id: "lesson-06b",
+              file: "lesson-06b-collaboration-conventions.md",
+              title: "关卡 06b：协作规则与约定",
+              badge: "06b",
+            },
+          ],
+        },
+        {
+          group: "阶段 3 · 救火与历史修复",
+          items: [
+            {
+              id: "lesson-07",
+              file: "lesson-07-cherry-pick-and-revert.md",
+              title: "关卡 07：cherry-pick / revert",
+              badge: "07",
+            },
+            {
+              id: "lesson-08",
+              file: "lesson-08-reflog-and-recovery.md",
+              title: "关卡 08：reflog 恢复历史",
+              badge: "08",
+            },
+            {
+              id: "lesson-09",
+              file: "lesson-09-stash-usage.md",
+              title: "关卡 09：stash 使用姿势",
+              badge: "09",
+            },
+          ],
+        },
+        {
+          group: "阶段 4-5 · CI/CD 与进阶",
+          items: [
+            {
+              id: "lesson-10",
+              file: "lesson-10-first-ci-workflow.md",
+              title: "关卡 10：第一个 CI 工作流",
+              badge: "10",
+            },
+            {
+              id: "lesson-11",
+              file: "lesson-11-fix-broken-pipeline.md",
+              title: "关卡 11：修复失败流水线",
+              badge: "11",
+            },
+            {
+              id: "lesson-12",
+              file: "lesson-12-multi-stage-pipeline-and-secrets.md",
+              title: "关卡 12：多阶段流水线与 Secrets",
+              badge: "12",
+            },
+            {
+              id: "lesson-13",
+              file: "lesson-13-tags-and-releases.md",
+              title: "关卡 13：标签与版本发布",
+              badge: "13",
+            },
+            {
+              id: "lesson-14",
+              file: "lesson-14-project-files.md",
+              title: "关卡 14：项目文件规范",
+              badge: "14",
+            },
+            {
+              id: "lesson-15",
+              file: "lesson-15-git-hooks.md",
+              title: "关卡 15：Git Hooks 与自动化",
+              badge: "15",
+            },
+            {
+              id: "lesson-16",
+              file: "lesson-16-large-repo.md",
+              title: "关卡 16：大仓库与性能优化",
+              badge: "16",
+            },
+          ],
+        },
+      ];
+
+      function getQueryParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+      }
+
+      function setQueryParam(name, value) {
+        const params = new URLSearchParams(window.location.search);
+        params.set(name, value);
+        const newUrl =
+          window.location.pathname + "?" + params.toString() + window.location.hash;
+        history.pushState(null, "", newUrl);
+      }
+
+      const initialFile = getQueryParam("file") || "lessons-overview.md";
+      const breadcrumbEl = document.getElementById("doc-breadcrumb");
+      const titleEl = document.getElementById("doc-title");
+      const metaRightEl = document.getElementById("doc-meta-right");
+      const errorEl = document.getElementById("doc-error");
+      const contentEl = document.getElementById("doc-content");
+      const navEl = document.getElementById("lesson-nav");
+
+      function renderNav(currentFile) {
+        const frag = document.createDocumentFragment();
+        LESSONS.forEach((group, index) => {
+          const header = document.createElement("div");
+          header.className = "lesson-group-title";
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = group.group;
+          const chev = document.createElement("span");
+          chev.className = "chevron";
+          chev.textContent = "▾";
+          header.appendChild(titleSpan);
+          header.appendChild(chev);
+
+          const ul = document.createElement("ul");
+          ul.className = "lesson-list";
+          // 默认展开第一个分组，其余折叠
+          if (index !== 0) {
+            ul.style.display = "none";
+            header.classList.add("collapsed");
+          }
+
+          header.onclick = () => {
+            const collapsed = header.classList.toggle("collapsed");
+            ul.style.display = collapsed ? "none" : "block";
+          };
+
+          frag.appendChild(header);
+
+          group.items.forEach((item) => {
+            const li = document.createElement("li");
+            li.className = "lesson-item";
+            const a = document.createElement("a");
+            a.href = `?file=${encodeURIComponent(item.file)}`;
+            a.className = "lesson-link" + (item.file === currentFile ? " active" : "");
+            a.onclick = (e) => {
+              e.preventDefault();
+              loadDoc(item.file, item.title);
+            };
+            const badge = document.createElement("span");
+            badge.className = "badge";
+            badge.textContent = item.badge;
+            const text = document.createElement("span");
+            text.textContent = item.title;
+            a.appendChild(badge);
+            a.appendChild(text);
+            li.appendChild(a);
+            ul.appendChild(li);
+          });
+
+          frag.appendChild(ul);
+        });
+        navEl.innerHTML = "";
+        navEl.appendChild(frag);
+      }
+
+      function loadDoc(file, displayTitle, extraMeta) {
+        setQueryParam("file", file);
+        renderNav(file);
+
+        breadcrumbEl.textContent = `docs / ${file}`;
+        titleEl.textContent = displayTitle || file;
+        metaRightEl.textContent = extraMeta || "";
+        errorEl.style.display = "none";
+        errorEl.textContent = "";
+        contentEl.textContent = "加载中...";
+
+        fetch(`/docs/${file}`)
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`HTTP ${res.status}`);
+            }
+            return res.text();
+          })
+          .then((md) => {
+            contentEl.innerHTML = marked.parse(md);
+          })
+          .catch((err) => {
+            errorEl.style.display = "block";
+            errorEl.textContent =
+              "加载文档失败，请确认文件存在于 docs/ 目录中。错误信息：" +
+              err.message;
+            contentEl.textContent = "";
+          });
+      }
+
+      // 初始化
+      const flatLessons = LESSONS.flatMap((g) => g.items);
+      const initialLesson =
+        flatLessons.find((i) => i.file === initialFile) || flatLessons[0];
+      renderNav(initialLesson.file);
+      // 简单的“课程感”：右上角显示阶段/预计用时（先用占位信息，后续可按需细化）
+      const metaText =
+        initialLesson.file === "lessons-overview.md"
+          ? "课程总览 · 建议先通读一遍"
+          : "关卡练习 · 建议 20–40 分钟完成";
+      loadDoc(initialLesson.file, initialLesson.title, metaText);
+    </script>
+  </body>
+</html>
+

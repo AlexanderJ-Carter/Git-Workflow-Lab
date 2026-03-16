@@ -1,0 +1,81 @@
+name: Check Lessons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/lesson-*.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/lesson-*.md'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check lesson files
+        run: |
+          echo "Checking lesson files..."
+
+          # 检查课程文件格式
+          for file in docs/lesson-*.md; do
+            if [ -f "$file" ]; then
+              echo "Checking $file"
+
+              # 检查是否包含必要的标题
+              if ! grep -q "^# 关卡" "$file"; then
+                echo "Error: $file missing title"
+                exit 1
+              fi
+
+              # 检查是否包含目标部分
+              if ! grep -q "## 一、本关目标" "$file"; then
+                echo "Error: $file missing '本关目标' section"
+                exit 1
+              fi
+
+              # 检查是否包含步骤部分
+              if ! grep -q "## 三、边看边做" "$file"; then
+                echo "Warning: $file missing '边看边做' section"
+              fi
+
+              echo "✓ $file passed checks"
+            fi
+          done
+
+          echo "All lesson files checked!"
+
+      - name: Check lesson numbering
+        run: |
+          echo "Checking lesson numbering..."
+
+          # 提取所有课程编号
+          numbers=$(grep -ohP 'lesson-\K\d+' docs/lesson-*.md | sort -n)
+
+          # 检查是否有重复
+          duplicates=$(echo "$numbers" | uniq -d)
+          if [ -n "$duplicates" ]; then
+            echo "Error: Duplicate lesson numbers found: $duplicates"
+            exit 1
+          fi
+
+          echo "✓ Lesson numbering is valid"
+
+      - name: Check Markdown format
+        uses: DavidAnson/markdownlint-cli2-action@v15
+        with:
+          globs: 'docs/*.md'
+          config: '.markdownlint.json'
+        continue-on-error: true
+
+      - name: Check links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          config-file: '.mlc_config.json'
+        continue-on-error: true

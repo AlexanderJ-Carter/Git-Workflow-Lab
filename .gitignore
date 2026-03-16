@@ -1,0 +1,17 @@
+data/
+_site/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Logs and runtime files
+*.log
+*.pid
+*.tmp
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/

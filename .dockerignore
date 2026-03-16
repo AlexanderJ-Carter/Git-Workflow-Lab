@@ -1,0 +1,12 @@
+data
+_site
+.git
+.gitignore
+.github
+docs
+site
+README.md
+CONTRIBUTING.md
+SECURITY.md
+CODE_OF_CONDUCT.md
+LICENSE

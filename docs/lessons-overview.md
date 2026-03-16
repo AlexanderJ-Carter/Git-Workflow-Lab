@@ -99,6 +99,9 @@
 16. **关卡 16：Git 性能优化与大仓库**
     - 位置：`docs/lesson-16-large-repo.md`
     - 内容：浅克隆、Git LFS、性能调优
+17. **关卡 17：自动维护版本与 Changelog**
+   - 位置：`docs/lesson-17-release-automation.md`
+   - 内容：Release Please、自动版本号、GitHub Release、Changelog 自动化
 
 ### 阶段 5：CI/CD
 
@@ -168,6 +171,8 @@
     - 内容：阅读日志 → 找到报错 → 修改代码或配置 → 让它变绿
 12. **关卡 12：多阶段流水线与简单部署模拟**
     - 内容：把测试、构建、部署拆成多个 Job/Stage，了解依赖关系
+17. **关卡 17：自动维护版本与 Changelog**
+   - 内容：用 Release Please 自动生成 Release PR、Tag、Release 和 Changelog
 
 ---
 

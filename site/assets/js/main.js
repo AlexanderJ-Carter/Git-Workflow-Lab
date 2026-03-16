@@ -1,12 +1,17 @@
 // Git Workflow Lab - 主脚本
 
-// 主题切换
+function updateThemeIcon(theme) {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+}
+
 function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
     const savedTheme = localStorage.getItem('theme');
 
-    // 设置初始主题
     if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
@@ -15,83 +20,74 @@ function initTheme() {
         updateThemeIcon('dark');
     }
 
-    // 切换主题
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
+            const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('theme', nextTheme);
+            updateThemeIcon(nextTheme);
         });
     }
 }
 
-function updateThemeIcon(theme) {
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-    }
-}
-
-// 平滑滚动
 function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (event) => {
+            const targetSelector = anchor.getAttribute('href');
+            const target = targetSelector ? document.querySelector(targetSelector) : null;
+
+            if (!target) {
+                return;
             }
+
+            event.preventDefault();
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
         });
     });
 }
 
-// 侧边栏活动项
 function initSidebarActive() {
     const sections = document.querySelectorAll('h2[id]');
     const navLinks = document.querySelectorAll('.lesson-nav-list a');
 
-    if (sections.length === 0 || navLinks.length === 0) return;
+    if (sections.length === 0 || navLinks.length === 0) {
+        return;
+    }
 
     window.addEventListener('scroll', () => {
-        let current = '';
+        let currentSectionId = '';
 
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-
-            if (scrollY >= sectionTop - 100) {
-                current = section.getAttribute('id');
+        sections.forEach((section) => {
+            if (window.scrollY >= section.offsetTop - 100) {
+                currentSectionId = section.getAttribute('id');
             }
         });
 
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
+        navLinks.forEach((link) => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${currentSectionId}`);
         });
     });
 }
 
-// 代码复制
 function initCodeCopy() {
-    document.querySelectorAll('pre').forEach(pre => {
+    document.querySelectorAll('pre').forEach((pre) => {
+        const codeElement = pre.querySelector('code');
+        if (!codeElement) {
+            return;
+        }
+
         const button = document.createElement('button');
         button.className = 'copy-button';
         button.textContent = '复制';
-
         pre.style.position = 'relative';
         pre.appendChild(button);
 
         button.addEventListener('click', async () => {
-            const code = pre.querySelector('code').textContent;
-            await navigator.clipboard.writeText(code);
+            await navigator.clipboard.writeText(codeElement.textContent);
             button.textContent = '已复制!';
             setTimeout(() => {
                 button.textContent = '复制';
@@ -100,12 +96,14 @@ function initCodeCopy() {
     });
 }
 
-// 移动端导航
 function initMobileNav() {
     const nav = document.querySelector('.nav');
     const navLinks = document.querySelector('.nav-links');
 
-    // 创建汉堡菜单按钮
+    if (!nav || !navLinks) {
+        return;
+    }
+
     const hamburger = document.createElement('button');
     hamburger.className = 'hamburger';
     hamburger.innerHTML = '☰';
@@ -118,41 +116,49 @@ function initMobileNav() {
         padding: 8px;
     `;
 
-    // 响应式显示
     const mediaQuery = window.matchMedia('(max-width: 768px)');
-    function handleMediaChange(e) {
-        if (e.matches) {
+    function handleMediaChange(eventOrQuery) {
+        if (eventOrQuery.matches) {
             hamburger.style.display = 'block';
             navLinks.style.display = 'none';
         } else {
             hamburger.style.display = 'none';
             navLinks.style.display = 'flex';
+            navLinks.style.position = '';
+            navLinks.style.top = '';
+            navLinks.style.left = '';
+            navLinks.style.right = '';
+            navLinks.style.background = '';
+            navLinks.style.flexDirection = '';
+            navLinks.style.padding = '';
+            navLinks.style.borderBottom = '';
         }
     }
 
-    mediaQuery.addListener(handleMediaChange);
+    if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', handleMediaChange);
+    } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(handleMediaChange);
+    }
+
     handleMediaChange(mediaQuery);
 
     hamburger.addEventListener('click', () => {
         const isVisible = navLinks.style.display === 'flex';
         navLinks.style.display = isVisible ? 'none' : 'flex';
-        navLinks.style.cssText = `
-            display: ${isVisible ? 'none' : 'flex'};
-            position: absolute;
-            top: 64px;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            flex-direction: column;
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-        `;
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '64px';
+        navLinks.style.left = '0';
+        navLinks.style.right = '0';
+        navLinks.style.background = 'var(--bg-primary)';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.padding = '16px';
+        navLinks.style.borderBottom = '1px solid var(--border-color)';
     });
 
     nav.insertBefore(hamburger, nav.querySelector('.theme-toggle'));
 }
 
-// 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initSmoothScroll();

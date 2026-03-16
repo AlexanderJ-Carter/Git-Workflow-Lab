@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/lesson-*.md'
+      - "docs/lesson-*.md"
   pull_request:
     branches: [main]
     paths:
-      - 'docs/lesson-*.md'
+      - "docs/lesson-*.md"
 
 jobs:
   check:
@@ -20,6 +20,7 @@ jobs:
       - name: Check lesson files
         run: |
           echo "Checking lesson files..."
+          has_error=0
 
           # 检查课程文件格式
           for file in docs/lesson-*.md; do
@@ -29,13 +30,13 @@ jobs:
               # 检查是否包含必要的标题
               if ! grep -q "^# 关卡" "$file"; then
                 echo "Error: $file missing title"
-                exit 1
+                has_error=1
               fi
 
               # 检查是否包含目标部分
               if ! grep -q "## 一、本关目标" "$file"; then
                 echo "Error: $file missing '本关目标' section"
-                exit 1
+                has_error=1
               fi
 
               # 检查是否包含步骤部分
@@ -46,6 +47,11 @@ jobs:
               echo "✓ $file passed checks"
             fi
           done
+
+          if [ "$has_error" -ne 0 ]; then
+            echo "Lesson checks failed. Please fix the errors above."
+            exit 1
+          fi
 
           echo "All lesson files checked!"
 
@@ -68,14 +74,14 @@ jobs:
       - name: Check Markdown format
         uses: DavidAnson/markdownlint-cli2-action@v15
         with:
-          globs: 'docs/*.md'
-          config: '.markdownlint.json'
+          globs: "docs/*.md"
+          config: ".markdownlint.json"
         continue-on-error: true
 
       - name: Check links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
-          use-quiet-mode: 'yes'
-          use-verbose-mode: 'yes'
-          config-file: '.mlc_config.json'
+          use-quiet-mode: "yes"
+          use-verbose-mode: "yes"
+          config-file: ".mlc_config.json"
         continue-on-error: true

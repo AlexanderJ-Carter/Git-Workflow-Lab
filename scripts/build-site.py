@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Git Workflow Lab - 静态网站构建脚本。"""
 
-import os
 import re
 import shutil
 from pathlib import Path

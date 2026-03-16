@@ -30,6 +30,27 @@
       .sidebar-header {
         margin-bottom: 20px;
       }
+      
+      .lesson-search {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+        margin-top: 12px;
+        outline: none;
+      }
+      
+      .lesson-search:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.16);
+      }
+      
+      .sidebar-tip {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 8px;
+      }
 
       .sidebar-title {
         font-weight: 700;
@@ -137,8 +158,32 @@
       }
 
       .doc-meta-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
         font-size: 12px;
         color: #6b7280;
+      }
+      
+      .doc-nav-actions {
+        display: flex;
+        gap: 8px;
+      }
+      
+      .doc-nav-actions button {
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      
+      .doc-nav-actions button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
       }
 
       .doc-shell {
@@ -193,6 +238,16 @@
           border-right: none;
           border-bottom: 1px solid rgba(148, 163, 184, 0.3);
         }
+
+        .doc-meta {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .doc-meta-right {
+          align-items: flex-start;
+        }
       }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -203,6 +258,8 @@
         <div class="sidebar-header">
           <div class="sidebar-title">Git Workflow Lab</div>
           <div class="sidebar-subtitle">文档 · 关卡导航</div>
+          <input id="lesson-search" class="lesson-search" type="search" placeholder="筛选课程，例如：rebase / CI / release" />
+          <div class="sidebar-tip">输入关键字快速过滤课程标题</div>
         </div>
         <div id="lesson-nav"></div>
       </aside>
@@ -212,7 +269,13 @@
             <div class="doc-breadcrumb" id="doc-breadcrumb"></div>
             <div class="doc-title" id="doc-title">加载中...</div>
           </div>
-          <div class="doc-meta-right" id="doc-meta-right"></div>
+          <div class="doc-meta-right">
+            <div id="doc-meta-right"></div>
+            <div class="doc-nav-actions">
+              <button id="prev-lesson" type="button">上一课</button>
+              <button id="next-lesson" type="button">下一课</button>
+            </div>
+          </div>
         </div>
         <div class="doc-shell">
           <div id="doc-error" style="display: none"></div>
@@ -372,9 +435,40 @@
               title: "关卡 16：大仓库与性能优化",
               badge: "16",
             },
+            {
+              id: "lesson-17",
+              file: "lesson-17-release-automation.md",
+              title: "关卡 17：自动维护版本与 Changelog",
+              badge: "17",
+            },
           ],
         },
       ];
+      
+      const LESSON_DETAILS = {
+        "lessons-overview.md": "课程总览 · 建议先通读一遍",
+        "lesson-00-install-and-config.md": "阶段 0 · 20 分钟 · 安装与全局配置",
+        "lesson-00-terminal-basics.md": "阶段 0 · 15 分钟 · 终端基础操作",
+        "lesson-01-init-push.md": "阶段 1 · 20 分钟 · 第一次 clone / commit / push",
+        "lesson-02-workspace-staging-history.md": "阶段 1 · 30 分钟 · 工作区与暂存区",
+        "lesson-03-remote-and-sync.md": "阶段 1 · 35 分钟 · 远程同步与协作前提",
+        "lesson-04-branches-and-pr.md": "阶段 2 · 30 分钟 · 分支与 PR 基础",
+        "lesson-05-merge-conflict.md": "阶段 2 · 30 分钟 · 合并冲突实战",
+        "lesson-06-rebase-clean-history.md": "阶段 2 · 35 分钟 · rebase 整理历史",
+        "lesson-06a-ssh-setup-and-clone.md": "阶段 2 · 30 分钟 · SSH 认证与 clone",
+        "lesson-06b-collaboration-conventions.md": "阶段 2 · 20 分钟 · 协作规范与团队约定",
+        "lesson-07-cherry-pick-and-revert.md": "阶段 3 · 30 分钟 · 错误提交补救",
+        "lesson-08-reflog-and-recovery.md": "阶段 3 · 35 分钟 · 历史恢复与救火",
+        "lesson-09-stash-usage.md": "阶段 3 · 25 分钟 · stash 正确姿势",
+        "lesson-10-first-ci-workflow.md": "阶段 5 · 30 分钟 · 第一个 CI 工作流",
+        "lesson-11-fix-broken-pipeline.md": "阶段 5 · 30 分钟 · 读日志与修流水线",
+        "lesson-12-multi-stage-pipeline-and-secrets.md": "阶段 5 · 35 分钟 · 多阶段流水线",
+        "lesson-13-tags-and-releases.md": "阶段 4 · 25 分钟 · Tag 与 Release",
+        "lesson-14-project-files.md": "阶段 4 · 25 分钟 · 项目规范文件",
+        "lesson-15-git-hooks.md": "阶段 4 · 30 分钟 · Hooks 与自动化",
+        "lesson-16-large-repo.md": "阶段 4 · 30 分钟 · 大仓库与性能",
+        "lesson-17-release-automation.md": "阶段 5 · 35 分钟 · 自动版本与 Changelog",
+      };
 
       function getQueryParam(name) {
         const params = new URLSearchParams(window.location.search);
@@ -396,10 +490,32 @@
       const errorEl = document.getElementById("doc-error");
       const contentEl = document.getElementById("doc-content");
       const navEl = document.getElementById("lesson-nav");
+      const searchEl = document.getElementById("lesson-search");
+      const prevLessonEl = document.getElementById("prev-lesson");
+      const nextLessonEl = document.getElementById("next-lesson");
 
-      function renderNav(currentFile) {
+      function getFlatLessons() {
+        return LESSONS.flatMap((group) => group.items);
+      }
+
+      function renderNav(currentFile, searchTerm = "") {
         const frag = document.createDocumentFragment();
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+
         LESSONS.forEach((group, index) => {
+          const visibleItems = group.items.filter((item) => {
+            if (!normalizedSearch) {
+              return true;
+            }
+
+            const haystack = `${item.title} ${item.badge} ${item.file}`.toLowerCase();
+            return haystack.includes(normalizedSearch);
+          });
+
+          if (visibleItems.length === 0) {
+            return;
+          }
+
           const header = document.createElement("div");
           header.className = "lesson-group-title";
           const titleSpan = document.createElement("span");
@@ -412,8 +528,10 @@
 
           const ul = document.createElement("ul");
           ul.className = "lesson-list";
-          // 默认展开第一个分组，其余折叠
-          if (index !== 0) {
+          const shouldExpand =
+            normalizedSearch || visibleItems.some((item) => item.file === currentFile) || index === 0;
+
+          if (!shouldExpand) {
             ul.style.display = "none";
             header.classList.add("collapsed");
           }
@@ -425,7 +543,7 @@
 
           frag.appendChild(header);
 
-          group.items.forEach((item) => {
+          visibleItems.forEach((item) => {
             const li = document.createElement("li");
             li.className = "lesson-item";
             const a = document.createElement("a");
@@ -452,13 +570,31 @@
         navEl.appendChild(frag);
       }
 
+      function updateLessonButtons(file) {
+        const flatLessons = getFlatLessons();
+        const currentIndex = flatLessons.findIndex((item) => item.file === file);
+        const previousLesson = currentIndex > 0 ? flatLessons[currentIndex - 1] : null;
+        const nextLesson = currentIndex >= 0 && currentIndex < flatLessons.length - 1 ? flatLessons[currentIndex + 1] : null;
+
+        prevLessonEl.disabled = !previousLesson;
+        nextLessonEl.disabled = !nextLesson;
+
+        prevLessonEl.onclick = previousLesson
+          ? () => loadDoc(previousLesson.file, previousLesson.title)
+          : null;
+        nextLessonEl.onclick = nextLesson
+          ? () => loadDoc(nextLesson.file, nextLesson.title)
+          : null;
+      }
+
       function loadDoc(file, displayTitle, extraMeta) {
         setQueryParam("file", file);
-        renderNav(file);
+        renderNav(file, searchEl.value);
+        updateLessonButtons(file);
 
         breadcrumbEl.textContent = `docs / ${file}`;
         titleEl.textContent = displayTitle || file;
-        metaRightEl.textContent = extraMeta || "";
+        metaRightEl.textContent = extraMeta || LESSON_DETAILS[file] || "";
         errorEl.style.display = "none";
         errorEl.textContent = "";
         contentEl.textContent = "加载中...";
@@ -483,15 +619,22 @@
       }
 
       // 初始化
-      const flatLessons = LESSONS.flatMap((g) => g.items);
+      const flatLessons = getFlatLessons();
       const initialLesson =
         flatLessons.find((i) => i.file === initialFile) || flatLessons[0];
-      renderNav(initialLesson.file);
-      // 简单的“课程感”：右上角显示阶段/预计用时（先用占位信息，后续可按需细化）
-      const metaText =
-        initialLesson.file === "lessons-overview.md"
-          ? "课程总览 · 建议先通读一遍"
-          : "关卡练习 · 建议 20–40 分钟完成";
+
+      searchEl.addEventListener("input", () => {
+        renderNav(getQueryParam("file") || initialLesson.file, searchEl.value);
+      });
+
+      window.addEventListener("popstate", () => {
+        const currentFile = getQueryParam("file") || "lessons-overview.md";
+        const currentLesson = flatLessons.find((item) => item.file === currentFile) || flatLessons[0];
+        loadDoc(currentLesson.file, currentLesson.title);
+      });
+
+      renderNav(initialLesson.file, searchEl.value);
+      const metaText = LESSON_DETAILS[initialLesson.file];
       loadDoc(initialLesson.file, initialLesson.title, metaText);
     </script>
   </body>

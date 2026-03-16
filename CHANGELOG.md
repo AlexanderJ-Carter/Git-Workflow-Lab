@@ -6,6 +6,13 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.0.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.0.0...v1.0.1) (2026-03-16)
+
+
+### Documentation
+
+* simplify public README and prune unused files ([f4c501d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/f4c501dcbd8931eb68b3058d8afb2539b4d66220))
+
 ## 1.0.0 (2026-03-16)
 
 

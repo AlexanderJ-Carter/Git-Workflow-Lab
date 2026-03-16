@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discussions
+    url: https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/discussions
+    about: Ask questions, share course ideas, or discuss broader improvements.

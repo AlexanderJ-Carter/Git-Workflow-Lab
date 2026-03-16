@@ -24,20 +24,20 @@
 
 ---
 
-## 三、分支命名规范
+## 三、边看边做前先理解的分支命名规范
 
 ### 常见的分支前缀
 
-| 前缀 | 用途 | 示例 |
-|------|------|------|
-| `feature/` | 新功能开发 | `feature/user-auth` |
-| `bugfix/` | 修复 Bug | `bugfix/login-error` |
-| `hotfix/` | 紧急线上修复 | `hotfix/security-patch` |
-| `release/` | 发布准备 | `release/v1.2.0` |
-| `docs/` | 文档更新 | `docs/api-reference` |
-| `refactor/` | 代码重构 | `refactor/user-service` |
-| `test/` | 测试相关 | `test/integration-tests` |
-| `chore/` | 杂项（依赖更新等） | `chore/update-dependencies` |
+| 前缀        | 用途               | 示例                        |
+| ----------- | ------------------ | --------------------------- |
+| `feature/`  | 新功能开发         | `feature/user-auth`         |
+| `bugfix/`   | 修复 Bug           | `bugfix/login-error`        |
+| `hotfix/`   | 紧急线上修复       | `hotfix/security-patch`     |
+| `release/`  | 发布准备           | `release/v1.2.0`            |
+| `docs/`     | 文档更新           | `docs/api-reference`        |
+| `refactor/` | 代码重构           | `refactor/user-service`     |
+| `test/`     | 测试相关           | `test/integration-tests`    |
+| `chore/`    | 杂项（依赖更新等） | `chore/update-dependencies` |
 
 ### 命名最佳实践
 
@@ -77,15 +77,15 @@ git switch -c hotfix/critical-security-fix
 
 常见类型：
 
-| 类型 | 用途 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | Bug 修复 |
-| `docs` | 文档变更 |
-| `style` | 代码格式（不影响逻辑） |
-| `refactor` | 重构 |
-| `test` | 测试相关 |
-| `chore` | 构建/工具/依赖 |
+| 类型       | 用途                   |
+| ---------- | ---------------------- |
+| `feat`     | 新功能                 |
+| `fix`      | Bug 修复               |
+| `docs`     | 文档变更               |
+| `style`    | 代码格式（不影响逻辑） |
+| `refactor` | 重构                   |
+| `test`     | 测试相关               |
+| `chore`    | 构建/工具/依赖         |
 
 **示例**：
 

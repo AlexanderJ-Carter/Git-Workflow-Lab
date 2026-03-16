@@ -24,7 +24,7 @@
 
 ---
 
-## 三、核心概念
+## 三、边看边做前先理解的核心概念
 
 ### 什么是 stash？
 
@@ -41,12 +41,12 @@ git stash
 
 ### stash 与 commit 的区别
 
-| 对比项 | stash | commit |
-|--------|-------|--------|
-| 目的 | 临时保存 | 永久记录 |
-| 是否创建提交 | 否 | 是 |
-| 是否影响历史 | 否 | 是 |
-| 适用场景 | 临时中断、切换分支 | 完成一个逻辑单元 |
+| 对比项       | stash              | commit           |
+| ------------ | ------------------ | ---------------- |
+| 目的         | 临时保存           | 永久记录         |
+| 是否创建提交 | 否                 | 是               |
+| 是否影响历史 | 否                 | 是               |
+| 适用场景     | 临时中断、切换分支 | 完成一个逻辑单元 |
 
 ### stash 的典型场景
 
@@ -480,15 +480,15 @@ git stash push -m "partial stash" -- path/to/file.txt
 
 ## 十三、最佳实践总结
 
-| 场景 | 推荐命令 |
-|------|---------|
-| 临时保存工作 | `git stash push -m "message"` |
-| 恢复并删除 stash | `git stash pop` |
-| 恢复但保留 stash | `git stash apply` |
-| 包含未跟踪文件 | `git stash -u` |
-| 只 stash 部分文件 | `git stash push -- <path>` |
-| 查看 stash 详情 | `git stash show -p` |
-| 从 stash 创建分支 | `git stash branch <name>` |
+| 场景              | 推荐命令                      |
+| ----------------- | ----------------------------- |
+| 临时保存工作      | `git stash push -m "message"` |
+| 恢复并删除 stash  | `git stash pop`               |
+| 恢复但保留 stash  | `git stash apply`             |
+| 包含未跟踪文件    | `git stash -u`                |
+| 只 stash 部分文件 | `git stash push -- <path>`    |
+| 查看 stash 详情   | `git stash show -p`           |
+| 从 stash 创建分支 | `git stash branch <name>`     |
 
 ### 建议
 

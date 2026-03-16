@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git Workflow Lab - Git 与 CI/CD 浏览器实验室</title>
-    <meta name="description" content="一个面向 Git、Gitea 和 CI/CD 教学的浏览器实验室，本地启动完整练习环境，公开发布课程文档。">
+    <title>Git Workflow Lab - Git 与 CI/CD 教学仓库</title>
+    <meta name="description" content="一个围绕 Git、Gitea、协作流程和 CI/CD 的教学型仓库，包含课程体系、浏览器实验室和完整的发布自动化示例。">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        .entry-page {
+        .landing-page {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        .entry-hero {
-            padding: 72px 0 32px;
+        .hero {
+            padding: 88px 0 56px;
             text-align: center;
             background:
                 radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%),
-                radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.16), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 32%),
                 linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
 
-        .entry-hero h1 {
-            font-size: 46px;
+        .hero h1 {
+            font-size: 52px;
             margin-bottom: 16px;
             background: linear-gradient(135deg, #2563eb, #0ea5e9);
             -webkit-background-clip: text;
@@ -31,170 +31,130 @@
             background-clip: text;
         }
 
-        .entry-hero p {
-            font-size: 18px;
+        .hero p {
+            font-size: 19px;
             color: var(--text-secondary);
-            max-width: 760px;
-            margin: 0 auto;
+            max-width: 860px;
+            margin: 0 auto 28px;
         }
 
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
-            padding: 40px 0 24px;
-            max-width: 980px;
-            margin: 0 auto;
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        .service-card {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 18px;
-            padding: 28px;
-            text-align: center;
-            transition: all 0.25s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .service-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-primary);
-        }
-
-        .service-card.disabled {
-            opacity: 0.78;
-        }
-
-        .service-icon {
-            font-size: 46px;
-            margin-bottom: 14px;
-            display: block;
-        }
-
-        .service-card h3 {
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
-
-        .service-card p {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 16px;
-            min-height: 42px;
-        }
-
-        .service-status {
+        .hero-link {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            justify-content: center;
+            padding: 12px 20px;
+            border-radius: 999px;
+            border: 1px solid #bfdbfe;
+            background: #ffffffcc;
+            color: #1d4ed8;
             font-weight: 600;
+            text-decoration: none;
         }
 
-        .service-status.ready {
+        .hero-link.primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .section {
+            padding: 48px 0;
+        }
+
+        .section h2 {
+            font-size: 32px;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .section-intro {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 760px;
+            margin: 0 auto 28px;
+        }
+
+        .highlights-grid,
+        .course-grid,
+        .repo-grid,
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .info-card p,
+        .info-card li {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-card ul {
+            padding-left: 18px;
+            margin-top: 10px;
+        }
+
+        .stage-pill {
+            display: inline-flex;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
             background: #dbeafe;
             color: #1d4ed8;
         }
 
-        .service-status.local {
-            background: #fef3c7;
+        .lab-section {
+            display: none;
+        }
+
+        .lab-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .lab-card:hover {
+            transform: translateY(-3px);
+            transition: transform 0.2s ease;
+        }
+
+        .lab-meta {
+            margin-top: 12px;
+            font-size: 12px;
             color: #92400e;
+            background: #fef3c7;
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 999px;
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.8;
-        }
-
-        .quick-start {
-            background: var(--bg-secondary);
-            padding: 36px;
-            border-radius: 18px;
-            margin: 24px auto;
-            max-width: 920px;
-        }
-
-        .quick-start h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .quick-start p.lead {
+        .project-note {
             text-align: center;
             color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-
-        .command-box {
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 16px 18px;
-            border-radius: 10px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .copy-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-
-        .copy-btn:hover {
-            background: #1d4ed8;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-top: 24px;
-        }
-
-        .info-item {
-            text-align: center;
-            padding: 16px;
-            background: var(--bg-primary);
-            border-radius: 10px;
-        }
-
-        .info-item .label {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .info-item .value {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .setup-note {
-            max-width: 920px;
-            margin: 0 auto 32px;
-            padding: 0 12px;
-            color: var(--text-secondary);
-            font-size: 14px;
+            max-width: 760px;
+            margin: 24px auto 0;
         }
 
         footer {
@@ -206,89 +166,119 @@
         }
 
         @media (max-width: 640px) {
-            .command-box {
-                flex-direction: column;
-                align-items: stretch;
+            .hero h1 {
+                font-size: 36px;
             }
 
-            .entry-hero h1 {
-                font-size: 34px;
+            .hero p {
+                font-size: 16px;
             }
         }
     </style>
 </head>
-<body class="entry-page">
+<body class="landing-page">
     <div class="container">
-        <section class="entry-hero">
+        <section class="hero">
             <h1>Git Workflow Lab</h1>
-            <p>面向 Git、Gitea 和 CI/CD 的浏览器教学实验室。公开站点用于展示课程，本地 Docker 环境用于真正动手练习。</p>
-        </section>
-
-        <section class="services-grid" id="features">
-            <a href="/workspace.html" class="service-card" id="tutorial-card">
-                <span class="service-icon">📚</span>
-                <h3 id="tutorial-title">学习工作台</h3>
-                <p id="tutorial-desc">左侧教程，右侧终端，是本地练习时的推荐入口。</p>
-                <span class="service-status ready" id="tutorial-status">
-                    <span class="status-dot"></span>
-                    推荐入口
-                </span>
-            </a>
-
-            <a href="http://localhost:3000" target="_blank" rel="noreferrer" class="service-card" id="gitea-card">
-                <span class="service-icon">🐙</span>
-                <h3>Gitea 平台</h3>
-                <p id="gitea-desc">创建仓库、分支、PR 和 Release，配合课程完成协作练习。</p>
-                <span class="service-status local" id="gitea-status">
-                    <span class="status-dot"></span>
-                    本地服务
-                </span>
-            </a>
-
-            <a href="http://localhost:8080" target="_blank" rel="noreferrer" class="service-card" id="terminal-card">
-                <span class="service-icon">💻</span>
-                <h3>Web 终端</h3>
-                <p id="terminal-desc">浏览器内的 Linux + Git 环境，用来执行课程里的命令。</p>
-                <span class="service-status local" id="terminal-status">
-                    <span class="status-dot"></span>
-                    本地服务
-                </span>
-            </a>
-        </section>
-
-        <section class="quick-start" id="setup-note">
-            <h2>快速开始</h2>
-
-            <p class="lead">如果你要体验完整实验环境，请在本机执行下面的命令；如果你正在访问公开文档站点，则可直接阅读课程内容。</p>
-
-            <div class="command-box">
-                <code>docker compose up -d --build</code>
-                <button class="copy-btn" onclick="copyCommand(this, 'docker compose up -d --build')">复制命令</button>
-            </div>
-
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="label">推荐仓库名</div>
-                    <div class="value">git-workflow-lab</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">教程地址</div>
-                    <div class="value">http://localhost:8081</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Gitea SSH</div>
-                    <div class="value">localhost:2222</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">默认管理员</div>
-                    <div class="value">playground</div>
-                </div>
+            <p>一个把 Git 课程、浏览器实验室、仓库工程化和自动发布串在一起的教学型项目。公开站点聚焦课程与仓库本身，本地环境则提供完整的 Gitea + 终端练习体验。</p>
+            <div class="hero-actions">
+                <a class="hero-link primary" id="primary-link" href="./lessons/index.html">查看课程目录</a>
+                <a class="hero-link" id="overview-link" href="./pages/lessons-overview.html">课程总览</a>
+                <a class="hero-link" id="path-link" href="./pages/learning-path.html">学习路径</a>
+                <a class="hero-link" href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub 仓库</a>
             </div>
         </section>
 
-        <div class="setup-note">
-            说明：Gitea 和 Web 终端是本地实验服务。若你正在 GitHub Pages 或其他公开域名上查看本页面，这两个入口不会在线，完整体验请在本地启动 Docker 环境。
-        </div>
+        <section class="section" id="highlights">
+            <h2>项目亮点</h2>
+            <p class="section-intro">这个仓库不是单纯的文档集合，而是一个把课程内容、练习环境和自动化流程放在同一个项目里的完整样例。</p>
+            <div class="highlights-grid">
+                <article class="info-card">
+                    <h3>系统课程</h3>
+                    <p>当前课程覆盖 Git 基础、分支协作、历史修复、标签发布、CI/CD、自动发布等内容，并且按阶段组织学习路径。</p>
+                </article>
+                <article class="info-card">
+                    <h3>浏览器实验室</h3>
+                    <p>本地模式下可组合教程、Gitea 和 Web 终端，适合教学、培训和自学演示。</p>
+                </article>
+                <article class="info-card">
+                    <h3>真实自动化</h3>
+                    <p>仓库内置课程检查、GitHub Pages、Release Please 和 GHCR 发布流程，适合拿来直接参考和改造。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>课程展开方式</h2>
+            <p class="section-intro">课程不是按命令列表堆起来的，而是围绕真实协作与发布场景来设计。</p>
+            <div class="course-grid">
+                <article class="info-card">
+                    <span class="stage-pill">阶段 0-1</span>
+                    <h3>基础与同步</h3>
+                    <p>从安装、配置、终端基础，到 clone、commit、push、pull，把 Git 日常闭环打通。</p>
+                </article>
+                <article class="info-card">
+                    <span class="stage-pill">阶段 2</span>
+                    <h3>分支与协作</h3>
+                    <p>覆盖分支命名、PR、冲突处理、rebase、SSH 与团队协作约定。</p>
+                </article>
+                <article class="info-card">
+                    <span class="stage-pill">阶段 3</span>
+                    <h3>救火与恢复</h3>
+                    <p>围绕 cherry-pick、revert、reflog、stash 等“出问题后怎么办”的场景设计。</p>
+                </article>
+                <article class="info-card">
+                    <span class="stage-pill">阶段 4-5</span>
+                    <h3>发布与自动化</h3>
+                    <p>从 Tag、Release 到多阶段流水线、Secrets、Release Please 自动发布，逐步形成完整工程化链路。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>仓库里有什么</h2>
+            <div class="repo-grid">
+                <article class="info-card">
+                    <h3>docs/</h3>
+                    <p>课程正文、总览、学习路径和本地文档查看器。</p>
+                </article>
+                <article class="info-card">
+                    <h3>site/</h3>
+                    <p>对外展示首页和本地工作台入口。公开模式与本地模式会显示不同重点。</p>
+                </article>
+                <article class="info-card">
+                    <h3>.github/workflows/</h3>
+                    <p>课程检查、Pages、Release Please、容器构建与发布都在这里。</p>
+                </article>
+                <article class="info-card">
+                    <h3>docker-compose.yml</h3>
+                    <p>定义本地浏览器实验环境，是把课程变成可操作平台的关键入口。</p>
+                </article>
+            </div>
+            <p class="project-note">如果你是在 GitHub Pages 上查看此页面，重点入口是课程目录、课程总览和学习路径；如果你在本地打开，则会额外看到实验环境入口。</p>
+        </section>
+
+        <section class="section lab-section" id="lab-section">
+            <h2>本地实验入口</h2>
+            <p class="section-intro">下面这些入口只在本地 Docker 环境启动后才有意义，因此公开 Pages 中不会作为主入口展示。</p>
+            <div class="lab-grid">
+                <a class="info-card lab-card" href="./workspace.html" id="workspace-link">
+                    <h3>学习工作台</h3>
+                    <p>左侧课程、右侧终端，适合边看边练。</p>
+                    <span class="lab-meta">本地入口</span>
+                </a>
+                <a class="info-card lab-card" href="http://localhost:3000" target="_blank" rel="noreferrer">
+                    <h3>Gitea</h3>
+                    <p>仓库、分支、PR、Release 与 SSH 练习都在这里完成。</p>
+                    <span class="lab-meta">本地入口</span>
+                </a>
+                <a class="info-card lab-card" href="http://localhost:8080" target="_blank" rel="noreferrer">
+                    <h3>Web 终端</h3>
+                    <p>执行课程命令、复现实验场景、练习 Git 操作。</p>
+                    <span class="lab-meta">本地入口</span>
+                </a>
+            </div>
+        </section>
     </div>
 
     <footer>
@@ -296,46 +286,19 @@
     </footer>
 
     <script>
-        async function copyCommand(button, cmd) {
-            await navigator.clipboard.writeText(cmd);
-            const originalText = button.textContent;
-            button.textContent = '已复制';
-            setTimeout(() => {
-                button.textContent = originalText;
-            }, 2000);
-        }
-
-        function disableLocalCard(cardId, statusId, descId) {
-            const card = document.getElementById(cardId);
-            const status = document.getElementById(statusId);
-            const desc = document.getElementById(descId);
-
-            card.href = '#setup-note';
-            card.removeAttribute('target');
-            card.classList.add('disabled');
-            status.innerHTML = '<span class="status-dot"></span>本地启动后可用';
-            desc.textContent = '这个入口依赖本地 Docker 服务。公开站点只展示课程说明，不承载运行中的实验服务。';
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-            const tutorialCard = document.getElementById('tutorial-card');
-            const tutorialTitle = document.getElementById('tutorial-title');
-            const tutorialDesc = document.getElementById('tutorial-desc');
-            const tutorialStatus = document.getElementById('tutorial-status');
+            const primaryLink = document.getElementById('primary-link');
+            const overviewLink = document.getElementById('overview-link');
+            const pathLink = document.getElementById('path-link');
+            const labSection = document.getElementById('lab-section');
 
             if (isLocal) {
-                tutorialCard.href = '/workspace.html';
-                tutorialTitle.textContent = '学习工作台';
-                tutorialDesc.textContent = '左侧教程，右侧终端，是本地练习时的推荐入口。';
-                tutorialStatus.innerHTML = '<span class="status-dot"></span>推荐入口';
-            } else {
-                tutorialCard.href = '/lessons/index.html';
-                tutorialTitle.textContent = '课程导航';
-                tutorialDesc.textContent = '公开站点优先展示课程目录、学习路径和部署说明。';
-                tutorialStatus.innerHTML = '<span class="status-dot"></span>公开文档';
-                disableLocalCard('gitea-card', 'gitea-status', 'gitea-desc');
-                disableLocalCard('terminal-card', 'terminal-status', 'terminal-desc');
+                primaryLink.href = './workspace.html';
+                primaryLink.textContent = '打开学习工作台';
+                overviewLink.href = './docs/viewer.html?file=lessons-overview.md';
+                pathLink.href = './docs/viewer.html?file=learning-path.md';
+                labSection.style.display = 'block';
             }
         });
     </script>

@@ -26,7 +26,7 @@
 
 ---
 
-## 三、核心概念：rebase vs merge
+## 三、边看边做前先理解的核心概念：rebase vs merge
 
 ### merge：保留分叉历史
 

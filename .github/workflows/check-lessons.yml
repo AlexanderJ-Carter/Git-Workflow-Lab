@@ -41,7 +41,8 @@ jobs:
 
               # 检查是否包含步骤部分
               if ! grep -q "## 三、边看边做" "$file"; then
-                echo "Warning: $file missing '边看边做' section"
+                echo "Error: $file missing '边看边做' section"
+                has_error=1
               fi
 
               echo "✓ $file passed checks"

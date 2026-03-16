@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a broken page, lesson issue, workflow failure, or lab problem.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please include enough detail to reproduce it.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem and the impact.
+      placeholder: A lesson page returns 404 on GitHub Pages, or a workflow fails unexpectedly.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: List the steps that reproduce the problem.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See error ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: The lesson page should open correctly.
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Related page, file, or workflow
+      placeholder: docs/lesson-10-first-ci-workflow.md or pages.yml
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Lessons
+        - GitHub Pages
+        - Docker lab
+        - Gitea lab
+        - GitHub Actions
+        - Release automation
+        - Other
+    validations:
+      required: true

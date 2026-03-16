@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest a course improvement, workflow enhancement, or repository capability.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for new lessons, UX improvements, workflow automation ideas, or lab features.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      placeholder: The public site explains the project, but it does not yet surface ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      placeholder: Add ..., update ..., or generate ...
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and constraints
+      description: Mention related files, workflows, or compatibility concerns if you know them.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Lessons
+        - Public site
+        - Local lab
+        - GitHub Actions
+        - Release automation
+        - Containers and GHCR
+        - Documentation
+        - Other
+    validations:
+      required: true

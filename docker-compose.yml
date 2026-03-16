@@ -86,23 +86,6 @@ services:
       retries: 3
 
   # ============================================
-  # VS Code Server - 增强版 IDE (可选)
-  # 取消注释以下内容来启用
-  # ============================================
-  # codeserver:
-  #   build:
-  #     context: ./docker/terminal
-  #     dockerfile: Dockerfile.codeserver
-  #   container_name: git-playground-codeserver
-  #   restart: always
-  #   ports:
-  #     - "8443:8443"
-  #   volumes:
-  #     - codeserver-data:/home/coder
-  #   environment:
-  #     - PASSWORD=${CODESERVER_PASSWORD:-change_me}
-
-  # ============================================
   # PostgreSQL - Gitea 数据库
   # ============================================
   db:
@@ -131,8 +114,6 @@ volumes:
     name: git-workflow-lab-gitea-data
   postgres-data:
     name: git-workflow-lab-postgres-data
-  # codeserver-data:
-  #   name: git-playground-codeserver-data
 
 # ============================================
 # 网络

@@ -71,7 +71,7 @@ README.md 标准结构：
 
 ## 徽章
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![Build](https://github.com/user/repo/actions/workflows/ci.yml/badge.svg)](https://github.com/user/repo/actions)
 
 ## 特性
@@ -105,7 +105,7 @@ myProject.doSomething();
 
 ## 许可证
 
-[MIT](LICENSE) © Your Name
+[MIT](../LICENSE) © Your Name
 ```
 
 ### 步骤 2：添加徽章

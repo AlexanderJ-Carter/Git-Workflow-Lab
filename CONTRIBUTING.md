@@ -8,7 +8,7 @@
 
 如果你发现了 Bug 或有功能建议：
 
-1. 在 [Issues](../../issues) 中搜索是否已有相同问题
+1. 在 [Issues](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues) 中搜索是否已有相同问题
 2. 如果没有，创建新 Issue：
    - 使用清晰的标题描述问题
    - 提供复现步骤（如果是 Bug）
@@ -138,7 +138,7 @@ feat: add learning path visualization
 
 如果你有任何问题：
 
-- 在 [Discussions](../../discussions) 中提问
+- 在 [Discussions](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/discussions) 中提问
 - 在 Issue 中 @ 维护者
 - 查看现有课程作为参考
 

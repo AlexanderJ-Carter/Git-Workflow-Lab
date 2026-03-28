@@ -5,7 +5,17 @@
     },
     {
       "pattern": "^http://127\\.0\\.0\\.1(:\\d+)?(/.*)?$"
+    },
+    {
+      "pattern": "^https://alexanderj-carter\\.github\\.io/Git-Workflow-Lab/.*$"
+    },
+    {
+      "pattern": "^https://github\\.com/[^/]+/[^/]+/discussions.*$"
     }
   ],
-  "replacementPatterns": []
+  "replacementPatterns": [],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s"
 }

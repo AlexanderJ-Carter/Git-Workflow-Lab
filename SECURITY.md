@@ -18,7 +18,7 @@
 请通过以下方式之一报告安全漏洞：
 
 1. **GitHub Security Advisories**（推荐）
-   - 访问 [Security Advisories](../../security/advisories)
+   - 访问 [Security Advisories](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/security/advisories)
    - 点击 "Report a vulnerability"
    - 填写漏洞详情
 

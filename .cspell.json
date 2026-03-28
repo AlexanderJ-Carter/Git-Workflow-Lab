@@ -1,0 +1,35 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "gitea",
+    "cherry-pick",
+    "reflog",
+    "stash",
+    "rebase",
+    "markdownlint",
+    "hadolint",
+    "codeql",
+    "sarif",
+    "ghcr",
+    "dockerhub",
+    "playground",
+    "worktree",
+    "monorepo",
+    "polyrepo",
+    "gitops",
+    "codeowners",
+    "precommit",
+    "commitlint",
+    "husky",
+    "trivy",
+    "yamllint",
+    "cspell"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    ".venv/**",
+    "_site/**",
+    "vendor/**"
+  ]
+}

@@ -1,0 +1,41 @@
+name: Documentation Issue
+description: Report problems with documentation, lessons, or guides
+title: "[Docs] "
+labels:
+  - documentation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation!
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation type
+      options:
+        - Lesson content
+        - README
+        - CONTRIBUTING guide
+        - Code comments
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's the issue?
+      description: Describe what's missing, incorrect, or unclear
+      placeholder: The lesson mentions X but doesn't explain Y...
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: How should we fix it?
+      placeholder: Add an example showing Y...
+  - type: input
+    id: location
+    attributes:
+      label: File location
+      placeholder: docs/lesson-05-merge-conflict.md

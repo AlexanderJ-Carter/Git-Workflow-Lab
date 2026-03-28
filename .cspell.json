@@ -41,7 +41,16 @@
     "refspec",
     "newfile",
     "pathspec",
-    "nums"
+    "nums",
+    "fsmonitor",
+    "pycache",
+    "venv",
+    "ehthumbs",
+    "objectsize",
+    "objectname",
+    "objecttype",
+    "unshallow",
+    "mainwork"
   ],
   "ignorePaths": [
     "node_modules/**",

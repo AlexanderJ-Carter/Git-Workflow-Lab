@@ -7,7 +7,10 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(gh run:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(gh pr:*)",
+      "Bash(xargs -I {} gh run view {})",
+      "Bash(gh issue:*)"
     ]
   }
 }

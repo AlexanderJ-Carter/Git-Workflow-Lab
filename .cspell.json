@@ -24,12 +24,25 @@
     "husky",
     "trivy",
     "yamllint",
-    "cspell"
+    "cspell",
+    "autocrlf",
+    "defaultbranch",
+    "excludesfile",
+    "publickey",
+    "usermod",
+    "findstr",
+    "ed25519",
+    "Gitea's",
+    "ttyd",
+    "zshrc",
+    "robbyrussell",
+    "ohmyzsh"
   ],
   "ignorePaths": [
     "node_modules/**",
     ".venv/**",
     "_site/**",
-    "vendor/**"
+    "vendor/**",
+    "**/CHANGELOG.md"
   ]
 }

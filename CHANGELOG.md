@@ -8,13 +8,11 @@ After the first automated release PR is merged, this file will be maintained by 
 
 ## [1.0.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.0.0...v1.0.1) (2026-03-16)
 
-
 ### Documentation
 
 * simplify public README and prune unused files ([f4c501d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/f4c501dcbd8931eb68b3058d8afb2539b4d66220))
 
 ## 1.0.0 (2026-03-16)
-
 
 ### Features
 
@@ -25,13 +23,16 @@ After the first automated release PR is merged, this file will be maintained by 
 ## [Unreleased]
 
 ### Added
-- Initial public release preparation.
-- Added release automation and a dedicated lesson about automated versioning and changelog generation.
+
+* Initial public release preparation.
+* Added release automation and a dedicated lesson about automated versioning and changelog generation.
 
 ### Changed
-- Repository naming, documentation, publishing workflow, and local lab defaults were aligned.
-- Improved the lesson structure and documentation browsing experience.
+
+* Repository naming, documentation, publishing workflow, and local lab defaults were aligned.
+* Improved the lesson structure and documentation browsing experience.
 
 ### Fixed
-- GitHub Actions and local teaching flow inconsistencies were cleaned up.
-- Fixed the lesson format mismatch that caused the lesson-check workflow to fail.
+
+* GitHub Actions and local teaching flow inconsistencies were cleaned up.
+* Fixed the lesson format mismatch that caused the lesson-check workflow to fail.

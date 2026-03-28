@@ -36,7 +36,9 @@
     "ttyd",
     "zshrc",
     "robbyrussell",
-    "ohmyzsh"
+    "ohmyzsh",
+    "oneline",
+    "refspec"
   ],
   "ignorePaths": [
     "node_modules/**",

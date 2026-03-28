@@ -38,7 +38,10 @@
     "robbyrussell",
     "ohmyzsh",
     "oneline",
-    "refspec"
+    "refspec",
+    "newfile",
+    "pathspec",
+    "nums"
   ],
   "ignorePaths": [
     "node_modules/**",

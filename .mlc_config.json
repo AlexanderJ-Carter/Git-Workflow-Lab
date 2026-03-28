@@ -11,6 +11,12 @@
     },
     {
       "pattern": "^https://github\\.com/[^/]+/[^/]+/discussions.*$"
+    },
+    {
+      "pattern": "^https://example\\.com/.*$"
+    },
+    {
+      "pattern": "^[^/]+\\.md$"
     }
   ],
   "replacementPatterns": [],

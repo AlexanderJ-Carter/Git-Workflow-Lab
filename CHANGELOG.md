@@ -6,6 +6,13 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.2.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.2.0...v1.2.1) (2026-03-30)
+
+
+### Bug Fixes
+
+* 修复 Pages 构建脚本未复制所有页面的问题 ([34b9a9c](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/34b9a9c45b6f913faebbfde041fa716c103dc40e))
+
 ## [1.2.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.1.0...v1.2.0) (2026-03-30)
 
 

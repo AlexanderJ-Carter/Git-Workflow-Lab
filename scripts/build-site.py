@@ -283,6 +283,13 @@ def build_site():
         shutil.copy("site/assets/css/style.css", ASSETS_DIR / "css" / "style.css")
     if Path("site/assets/js/main.js").exists():
         shutil.copy("site/assets/js/main.js", ASSETS_DIR / "js" / "main.js")
+
+    # 复制所有 site 目录下的 HTML 页面（除了 docs 和 lessons 子目录）
+    for html_file in Path("site").glob("*.html"):
+        shutil.copy(html_file, SITE_DIR / html_file.name)
+        print(f"  Copied {html_file.name}")
+
+    # 复制 site/index.html 作为主页面
     if Path("site/index.html").exists():
         shutil.copy("site/index.html", SITE_DIR / "index.html")
 

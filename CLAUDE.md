@@ -47,16 +47,19 @@ Project: Git Workflow Lab - Git 与 CI/CD 教学仓库
 ### 本地开发命令
 
 ### 启动实验环境
+
 ```bash
 docker-compose up -d
 ```
 
 ### 停止环境
+
 ```bash
 docker-compose down
 ```
 
 ### 查看日志
+
 ```bash
 docker-compose logs -f
 ```
@@ -73,6 +76,7 @@ docker-compose logs -f
 ## 工作流
 
 ### GitHub Actions
+
 - `pages.yml` - GitHub Pages 部署
 - `check-lessons.yml` - 课程内容检查
 - `release-please.yml` - 自动版本发布

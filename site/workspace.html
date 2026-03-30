@@ -5,35 +5,127 @@
     <title>Git Workflow Lab · 学习工作台</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --ws-primary: #6366f1;
+        --ws-primary-dark: #4f46e5;
+        --ws-secondary: #8b5cf6;
+        --ws-bg: #f8fafc;
+        --ws-border: #e2e8f0;
+        --ws-text: #1e293b;
+        --ws-text-muted: #64748b;
+        --ws-success: #10b981;
+        --ws-warning: #f59e0b;
+        --ws-radius: 16px;
+      }
+
+      [data-theme="dark"] {
+        --ws-bg: #0f172a;
+        --ws-border: #334155;
+        --ws-text: #f1f5f9;
+        --ws-text-muted: #94a3b8;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
         margin: 0;
         padding: 0;
-        background: #f3f4f6;
-        color: #111827;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
+        background: var(--ws-bg);
+        color: var(--ws-text);
+        font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
       }
 
       .workspace-header {
-        padding: 14px 20px;
-        border-bottom: 1px solid #dbe4f0;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--ws-border);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 20px;
+        background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+        flex-wrap: wrap;
+      }
+
+      [data-theme="dark"] .workspace-header {
+        background: linear-gradient(135deg, #1e1b4b, #312e81);
+      }
+
+      .workspace-header-left {
+        display: flex;
+        align-items: center;
         gap: 16px;
-        background: linear-gradient(135deg, #eff6ff, #ecfeff);
+      }
+
+      .workspace-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .workspace-logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--ws-primary), var(--ws-secondary));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
       }
 
       .workspace-header-left h1 {
-        font-size: 18px;
-        margin: 0 0 4px;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--ws-text);
       }
 
       .workspace-header-left p {
-        margin: 0;
-        font-size: 12px;
-        color: #4b5563;
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--ws-text-muted);
+      }
+
+      .workspace-progress {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 16px;
+        background: var(--bg-primary, #fff);
+        border-radius: 12px;
+        border: 1px solid var(--ws-border);
+      }
+
+      .progress-bar {
+        width: 120px;
+        height: 8px;
+        background: var(--ws-border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--ws-primary), var(--ws-secondary));
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+
+      .progress-text {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ws-text-muted);
+        white-space: nowrap;
       }
 
       .workspace-actions {
@@ -45,25 +137,41 @@
 
       .workspace-actions a {
         text-decoration: none;
-        font-size: 12px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid #bfdbfe;
-        color: #1d4ed8;
-        background: #ffffffcc;
+        font-size: 13px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--ws-border);
+        color: var(--ws-text);
+        background: var(--bg-primary, #fff);
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .workspace-actions a:hover {
+        border-color: var(--ws-primary);
+        color: var(--ws-primary);
+        transform: translateY(-1px);
+      }
+
+      .workspace-actions a svg {
+        width: 16px;
+        height: 16px;
       }
 
       .workspace-layout {
         display: grid;
         grid-template-columns: 42% 58%;
-        height: calc(100vh - 68px);
+        height: calc(100vh - 85px);
       }
 
       .pane {
-        border-right: 1px solid #e5e7eb;
+        border-right: 1px solid var(--ws-border);
         display: flex;
         flex-direction: column;
-        background: #ffffff;
+        background: var(--bg-primary, #fff);
       }
 
       .pane:last-child {
@@ -71,29 +179,108 @@
       }
 
       .pane-header {
-        padding: 10px 12px;
-        font-size: 12px;
-        color: #6b7280;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--ws-text-muted);
+        border-bottom: 1px solid var(--ws-border);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: var(--ws-bg);
       }
 
       .pane-header span.title {
-        color: #111827;
+        color: var(--ws-text);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .pane-header span.title svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .pane-hint {
+        font-size: 12px;
+        color: var(--ws-text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
       .pane-body {
         flex: 1;
-        background: #ffffff;
+        background: var(--bg-primary, #fff);
+        position: relative;
       }
 
       .pane-body iframe {
         border: none;
         width: 100%;
         height: 100%;
-        background: #ffffff;
+        background: var(--bg-primary, #fff);
+      }
+
+      .pane-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: var(--ws-text-muted);
+      }
+
+      .pane-loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--ws-border);
+        border-top-color: var(--ws-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 12px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .terminal-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .terminal-status.connected {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .terminal-status.disconnected {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .terminal-status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      [data-theme="dark"] .terminal-status.connected {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+      }
+
+      [data-theme="dark"] .terminal-status.disconnected {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
       }
 
       @media (max-width: 1100px) {
@@ -104,12 +291,18 @@
 
         .workspace-actions {
           justify-content: flex-start;
+          width: 100%;
         }
 
         .workspace-layout {
           grid-template-columns: 100%;
-          grid-template-rows: 52vh 52vh;
+          grid-template-rows: 50vh 50vh;
           height: auto;
+        }
+
+        .workspace-progress {
+          width: 100%;
+          justify-content: center;
         }
       }
     </style>
@@ -117,44 +310,157 @@
   <body>
     <header class="workspace-header">
       <div class="workspace-header-left">
-        <h1>Git Workflow Lab · 学习工作台</h1>
-        <p>左侧阅读课程，右侧直接练习命令；Gitea 通过新标签页单独打开会更顺手。</p>
+        <div class="workspace-logo">
+          <div class="workspace-logo-icon">G</div>
+          <div>
+            <h1>Git Workflow Lab · 学习工作台</h1>
+            <p>左侧阅读课程，右侧直接练习命令</p>
+          </div>
+        </div>
       </div>
+
+      <div class="workspace-progress">
+        <span class="progress-text" id="progress-text">0/17 完成</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+
       <div class="workspace-actions">
-        <a href="/docs/viewer.html?file=lessons-overview.md" target="_blank" rel="noreferrer">课程总览</a>
-        <a href="/docs/viewer.html?file=learning-path.md" target="_blank" rel="noreferrer">学习路径</a>
-        <a href="http://localhost:3000" target="_blank" rel="noreferrer">打开 Gitea</a>
-        <a href="http://localhost:8080" target="_blank" rel="noreferrer">单独打开终端</a>
+        <a href="/docs/viewer.html?file=lessons-overview.md" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          课程总览
+        </a>
+        <a href="/docs/viewer.html?file=learning-path.md" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          学习路径
+        </a>
+        <a href="http://localhost:3000" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          打开 Gitea
+        </a>
+        <a href="http://localhost:8080" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          单独打开终端
+        </a>
       </div>
     </header>
 
     <main class="workspace-layout">
       <section class="pane">
         <div class="pane-header">
-          <span class="title">课程文档</span>
-          <span>建议从关卡总览开始</span>
+          <span class="title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            课程文档
+          </span>
+          <span class="pane-hint">建议从关卡总览开始</span>
         </div>
         <div class="pane-body">
+          <div class="pane-loading">
+            <div class="pane-loading-spinner"></div>
+            加载中...
+          </div>
           <iframe
+            id="docs-frame"
             src="/docs/viewer.html?file=lessons-overview.md"
             title="Docs Viewer"
+            onload="this.parentElement.querySelector('.pane-loading').style.display='none'"
           ></iframe>
         </div>
       </section>
 
       <section class="pane">
         <div class="pane-header">
-          <span class="title">Web 终端</span>
-          <span>试试 git status / git log --oneline / git diff</span>
+          <span class="title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Web 终端
+          </span>
+          <div class="terminal-status disconnected" id="terminal-status">
+            <span class="terminal-status-dot"></span>
+            <span>未连接</span>
+          </div>
         </div>
         <div class="pane-body">
+          <div class="pane-loading">
+            <div class="pane-loading-spinner"></div>
+            连接终端中...
+          </div>
           <iframe
+            id="terminal-frame"
             src="http://localhost:8080"
             title="Web Terminal"
+            onload="this.parentElement.querySelector('.pane-loading').style.display='none'; updateTerminalStatus(true)"
+            onerror="updateTerminalStatus(false)"
           ></iframe>
         </div>
       </section>
     </main>
+
+    <script>
+      // 学习进度追踪
+      const LearningProgress = {
+        STORAGE_KEY: 'git-workflow-lab-progress',
+        TOTAL_LESSONS: 17,
+
+        getProgress() {
+          const data = localStorage.getItem(this.STORAGE_KEY);
+          return data ? JSON.parse(data) : {};
+        },
+
+        getCompletedCount() {
+          const progress = this.getProgress();
+          return Object.values(progress).filter(p => p.completed).length;
+        },
+
+        updateUI() {
+          const completed = this.getCompletedCount();
+          const percentage = Math.round((completed / this.TOTAL_LESSONS) * 100);
+
+          document.getElementById('progress-text').textContent = `${completed}/${this.TOTAL_LESSONS} 完成`;
+          document.getElementById('progress-fill').style.width = `${percentage}%`;
+        },
+
+        init() {
+          this.updateUI();
+
+          // 监听 localStorage 变化以更新进度
+          window.addEventListener('storage', () => {
+            this.updateUI();
+          });
+        }
+      };
+
+      // 终端状态更新
+      function updateTerminalStatus(connected) {
+        const statusEl = document.getElementById('terminal-status');
+        if (connected) {
+          statusEl.classList.remove('disconnected');
+          statusEl.classList.add('connected');
+          statusEl.querySelector('span:last-child').textContent = '已连接';
+        } else {
+          statusEl.classList.remove('connected');
+          statusEl.classList.add('disconnected');
+          statusEl.querySelector('span:last-child').textContent = '未连接';
+        }
+      }
+
+      // 初始化
+      document.addEventListener('DOMContentLoaded', () => {
+        LearningProgress.init();
+
+        // 定期检查终端状态
+        setInterval(() => {
+          const terminalFrame = document.getElementById('terminal-frame');
+          if (terminalFrame && terminalFrame.contentWindow) {
+            try {
+              updateTerminalStatus(true);
+            } catch (e) {
+              updateTerminalStatus(false);
+            }
+          }
+        }, 5000);
+      });
+    </script>
   </body>
 </html>
 

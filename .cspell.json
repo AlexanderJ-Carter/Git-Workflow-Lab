@@ -50,7 +50,10 @@
     "objectname",
     "objecttype",
     "unshallow",
-    "mainwork"
+    "mainwork",
+    "cheatsheet",
+    "flashcards",
+    "gamification"
   ],
   "ignorePaths": [
     "node_modules/**",

@@ -20,6 +20,12 @@
     },
     {
       "pattern": "^https://training\\.github\\.com/.*$"
+    },
+    {
+      "pattern": "^https://github\\.com/.*/pkgs/.*$"
+    },
+    {
+      "pattern": "^https://github\\.com/.*/packages/.*$"
     }
   ],
   "replacementPatterns": [],

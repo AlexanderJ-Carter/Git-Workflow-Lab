@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 最佳实践 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bp-bg: #f8fafc;
+            --bp-bg-card: #ffffff;
+            --bp-border: #e2e8f0;
+            --bp-text: #1e293b;
+            --bp-text-muted: #64748b;
+            --bp-primary: #6366f1;
+            --bp-secondary: #8b5cf6;
+            --bp-success: #10b981;
+            --bp-warning: #f59e0b;
+            --bp-error: #ef4444;
+            --bp-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --bp-bg: #0f172a;
+            --bp-bg-card: #1e293b;
+            --bp-border: #334155;
+            --bp-text: #f1f5f9;
+            --bp-text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--bp-bg);
+            color: var(--bp-text);
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        .bp-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .bp-header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--bp-border);
+        }
+
+        .bp-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--bp-primary), var(--bp-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bp-header p {
+            color: var(--bp-text-muted);
+            font-size: 16px;
+        }
+
+        /* 章节 */
+        .bp-section {
+            background: var(--bp-bg-card);
+            border: 1px solid var(--bp-border);
+            border-radius: var(--bp-radius);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .bp-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bp-section-title .icon {
+            font-size: 24px;
+        }
+
+        .bp-section-title .tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .bp-tag-important {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--bp-warning);
+        }
+
+        .bp-tag-warning {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--bp-error);
+        }
+
+        .bp-tag-tip {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--bp-success);
+        }
+
+        /* 列表样式 */
+        .bp-list {
+            list-style: none;
+        }
+
+        .bp-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bp-border);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .bp-list li:last-child {
+            border-bottom: none;
+        }
+
+        .bp-list-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .bp-list-content {
+            flex: 1;
+        }
+
+        .bp-list-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .bp-list-desc {
+            font-size: 14px;
+            color: var(--bp-text-muted);
+        }
+
+        /* 代码块 */
+        .bp-code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .bp-code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        /* 表格 */
+        .bp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .bp-table th,
+        .bp-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--bp-border);
+        }
+
+        .bp-table th {
+            background: var(--bp-bg);
+            font-weight: 600;
+        }
+
+        .bp-table tr:nth-child(even) {
+            background: var(--bp-bg);
+        }
+
+        /* 警告框 */
+        .bp-alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            display: flex;
+            gap: 12px;
+        }
+
+        .bp-alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--bp-warning);
+        }
+
+        .bp-alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--bp-error);
+        }
+
+        .bp-alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--bp-success);
+        }
+
+        .bp-alert-icon {
+            font-size: 20px;
+        }
+
+        .bp-alert-content {
+            flex: 1;
+        }
+
+        /* 检查清单 */
+        .bp-checklist {
+            list-style: none;
+        }
+
+        .bp-checklist li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bp-checklist input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--bp-primary);
+        }
+
+        /* 流程图样式 */
+        .bp-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+            justify-content: center;
+        }
+
+        .bp-flow-step {
+            background: var(--bp-bg);
+            border: 2px solid var(--bp-border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .bp-flow-step:first-child {
+            background: var(--bp-primary);
+            color: white;
+            border-color: var(--bp-primary);
+        }
+
+        .bp-flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--bp-text-muted);
+        }
+
+        /* 分隔符 */
+        .bp-divider {
+            height: 1px;
+            background: var(--bp-border);
+            margin: 32px 0;
+        }
+
+        @media (max-width: 600px) {
+            .bp-flow {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .bp-flow-arrow {
+                justify-content: center;
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bp-container">
+        <header class="bp-header">
+            <h1>Git 最佳实践</h1>
+            <p>让团队协作更高效，代码管理更规范的实用指南</p>
+        </header>
+
+        <!-- 提交信息规范 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">📝</span>
+                提交信息规范
+                <span class="tag bp-tag-important">重要</span>
+            </h2>
+
+            <div class="bp-alert bp-alert-warning">
+                <span class="bp-alert-icon">⚠️</span>
+                <div class="bp-alert-content">
+                    <strong>为什么规范重要？</strong> 清晰的提交信息让团队成员快速理解代码变更，也便于自动化工具生成 CHANGELOG。
+                </div>
+            </div>
+
+            <h3 style="margin: 20px 0 12px; font-size: 16px;">推荐：Conventional Commits 格式</h3>
+            <div class="bp-code-block">
+type(scope): description
+
+[optional body]
+
+[optional footer(s)]</div>
+
+            <h3 style="margin: 20px 0 12px; font-size: 16px;">常用 type 类型</h3>
+            <table class="bp-table">
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                    <th>示例</th>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">feat</code></td>
+                    <td>新功能</td>
+                    <td>feat: 添加用户登录功能</td>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">fix</code></td>
+                    <td>Bug 修复</td>
+                    <td>fix: 修复登录超时问题</td>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">docs</code></td>
+                    <td>文档更新</td>
+                    <td>docs: 更新 API 文档</td>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">style</code></td>
+                    <td>代码格式</td>
+                    <td>style: 格式化代码</td>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">refactor</code></td>
+                    <td>重构</td>
+                    <td>refactor: 重构用户认证模块</td>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">test</code></td>
+                    <td>测试</td>
+                    <td>test: 添加单元测试</td>
+                </tr>
+                <tr>
+                    <td><code class="bp-code">chore</code></td>
+                    <td>杂项</td>
+                    <td>chore: 更新依赖版本</td>
+                </tr>
+            </table>
+
+            <ul class="bp-checklist" style="margin-top: 20px;">
+                <li><input type="checkbox"> 使用祈使句（动词开头，现在时）</li>
+                <li><input type="checkbox"> 首字母小写，结尾不加句号</li>
+                <li><input type="checkbox"> 保持简洁，正文必要时才写</li>
+                <li><input type="checkbox"> 50 字符内描述提交</li>
+            </ul>
+        </section>
+
+        <!-- 分支管理策略 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">🌿</span>
+                分支管理策略
+            </h2>
+
+            <h3 style="margin: 0 0 12px; font-size: 16px;">常用分支命名规范</h3>
+            <table class="bp-table">
+                <tr>
+                    <th>分支类型</th>
+                    <th>命名格式</th>
+                    <th>示例</th>
+                </tr>
+                <tr>
+                    <td>功能分支</td>
+                    <td><code class="bp-code">feature/</code></td>
+                    <td>feature/user-login</td>
+                </tr>
+                <tr>
+                    <td>修复分支</td>
+                    <td><code class="bp-code">fix/</code></td>
+                    <td>fix/login-timeout</td>
+                </tr>
+                <tr>
+                    <td>热修复分支</td>
+                    <td><code class="bp-code">hotfix/</code></td>
+                    <td>hotfix/security-patch</td>
+                </tr>
+                <tr>
+                    <td>发布分支</td>
+                    <td><code class="bp-code">release/</code></td>
+                    <td>release/v1.0.0</td>
+                </tr>
+                <tr>
+                    <td>实验分支</td>
+                    <td><code class="bp-code">experiment/</code></td>
+                    <td>experiment/new-ui</td>
+                </tr>
+            </table>
+
+            <div class="bp-divider"></div>
+
+            <h3 style="margin: 0 0 12px; font-size: 16px;">Git Flow 工作流</h3>
+            <div class="bp-flow">
+                <div class="bp-flow-step">main (生产)</div>
+                <div class="bp-flow-arrow">→</div>
+                <div class="bp-flow-step">develop (开发)</div>
+                <div class="bp-flow-arrow">→</div>
+                <div class="bp-flow-step">feature/*</div>
+                <div class="bp-flow-arrow">→</div>
+                <div class="bp-flow-step">develop</div>
+                <div class="bp-flow-arrow">→</div>
+                <div class="bp-flow-step">release/*</div>
+                <div class="bp-flow-arrow">→</div>
+                <div class="bp-flow-step">main</div>
+            </div>
+
+            <div class="bp-alert bp-alert-success" style="margin-top: 16px;">
+                <span class="bp-alert-icon">💡</span>
+                <div class="bp-alert-content">
+                    <strong>简化版：GitHub Flow</strong><br>
+                    适合小团队：只保留 <code class="bp-code">main</code> + <code class="bp-code">feature/*</code> 分支，所有功能通过 PR 合并。
+                </div>
+            </div>
+        </section>
+
+        <!-- 日常操作规范 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">✅</span>
+                日常操作规范
+            </h2>
+
+            <ul class="bp-list">
+                <li>
+                    <span class="bp-list-icon">🔄</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">每天开始工作前先 pull</div>
+                        <div class="bp-list-desc">确保本地代码是最新的，减少合并冲突</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">📦</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">切换分支前 stash 当前工作</div>
+                        <div class="bp-list-desc">未完成的修改先暂存，避免丢失或携带到其他分支</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">🎯</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">一个提交只做一件事</div>
+                        <div class="bp-list-desc">功能、修复、格式化分开提交，便于回溯和 Code Review</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">📋</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">使用 PR 进行代码审查</div>
+                        <div class="bp-list-desc">不要直接 push 到 main，所有代码通过 Pull Request 审核合并</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">🧹</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">定期清理本地分支</div>
+                        <div class="bp-list-desc">合并后删除已合并的本地分支，保持工作区整洁</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 安全规范 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">🔒</span>
+                安全规范
+                <span class="tag bp-tag-warning">必须注意</span>
+            </h2>
+
+            <div class="bp-alert bp-alert-danger">
+                <span class="bp-alert-icon">🚫</span>
+                <div class="bp-alert-content">
+                    <strong>永远不要做的事情：</strong>
+                </div>
+            </div>
+
+            <ul class="bp-list">
+                <li>
+                    <span class="bp-list-icon">❌</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">不要强制 push（git push --force）</div>
+                        <div class="bp-list-desc">强制推送会覆盖他人代码，造成历史丢失。必要时先沟通。</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">❌</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">不要在公共分支执行 rebase</div>
+                        <div class="bp-list-desc">rebase 会改写历史，影响团队其他成员的本地仓库。</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">❌</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">不要提交敏感信息</div>
+                        <div class="bp-list-desc">密码、API Key、证书等敏感信息切勿提交到仓库，使用环境变量或 Secrets。</div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="bp-alert bp-alert-warning">
+                <span class="bp-alert-icon">⚠️</span>
+                <div class="bp-alert-content">
+                    <strong>敏感信息泄露了？</strong> 立即：1) 修改所有暴露的密码/密钥 2) 从历史中清除 3) 通知安全团队
+                </div>
+            </div>
+        </section>
+
+        <!-- 冲突解决 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">⚔️</span>
+                冲突解决指南
+            </h2>
+
+            <h3 style="margin: 0 0 12px; font-size: 16px;">解决冲突的步骤</h3>
+            <ol style="padding-left: 20px; margin-bottom: 20px;">
+                <li style="padding: 6px 0;">运行 <code class="bp-code">git status</code> 查看冲突文件</li>
+                <li style="padding: 6px 0;">打开冲突文件，Git 会用 <code class="bp-code">&lt;&lt;&lt;&lt;&lt;&lt;</code> 标记冲突位置</li>
+                <li style="padding: 6px 0;">保留需要的代码，删除冲突标记</li>
+                <li style="padding: 6px 0;">运行 <code class="bp-code">git add &lt;file&gt;</code> 标记已解决</li>
+                <li style="padding: 6px 0;">运行 <code class="bp-code">git commit</code> 完成合并</li>
+            </ol>
+
+            <div class="bp-alert bp-alert-tip">
+                <span class="bp-alert-icon">💡</span>
+                <div class="bp-alert-content">
+                    <strong>最佳实践：</strong> 解决冲突时，优先与相关同事沟通，确保理解双方的修改意图。
+                </div>
+            </div>
+        </section>
+
+        <!-- 回滚操作 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">↩️</span>
+                回滚操作指南
+            </h2>
+
+            <table class="bp-table">
+                <tr>
+                    <th>场景</th>
+                    <th>推荐命令</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>撤销未提交的修改</td>
+                    <td><code class="bp-code">git checkout .</code></td>
+                    <td>丢弃工作区所有修改</td>
+                </tr>
+                <tr>
+                    <td>撤销已暂存的文件</td>
+                    <td><code class="bp-code">git reset HEAD .</code></td>
+                    <td>文件回到工作区</td>
+                </tr>
+                <tr>
+                    <td>撤销本地最后几次提交</td>
+                    <td><code class="bp-code">git reset --soft HEAD~n</code></td>
+                    <td>保留修改在暂存区</td>
+                </tr>
+                <tr>
+                    <td>撤销已推送的提交</td>
+                    <td><code class="bp-code">git revert HEAD~n</code></td>
+                    <td>创建新提交来撤销 <span class="bp-tag-tip tag">安全</span></td>
+                </tr>
+                <tr>
+                    <td>恢复误删的分支</td>
+                    <td><code class="bp-code">git reflog</code></td>
+                    <td>从日志中找回</td>
+                </tr>
+            </table>
+
+            <div class="bp-alert bp-alert-warning">
+                <span class="bp-alert-icon">⚠️</span>
+                <div class="bp-alert-content">
+                    <strong>关于 git reset --hard：</strong> 此命令会丢失所有修改，<strong>不可逆</strong>。执行前请确保不需要这些修改，或先 <code class="bp-code">git stash</code>。
+                </div>
+            </div>
+        </section>
+
+        <!-- 自动化工具 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">🤖</span>
+                推荐工具配置
+            </h2>
+
+            <ul class="bp-list">
+                <li>
+                    <span class="bp-list-icon">⚡</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">Git 补全</div>
+                        <div class="bp-list-desc">Bash: 添加 git-completion；Zsh: 使用 oh-my-zsh git 插件</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">🎨</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">更友好的 diff</div>
+                        <div class="bp-list-desc">使用 <code class="bp-code">git difftool</code> 配合 IDE 或 vimdiff</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">📊</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">git aliases（提升效率）</div>
+                        <div class="bp-list-desc">建议配置：<code class="bp-code">co = checkout</code>, <code class="bp-code">br = branch</code>, <code class="bp-code">st = status</code>, <code class="bp-code">unstage = reset HEAD --</code></div>
+                    </div>
+                </li>
+                <li>
+                    <span class="bp-list-icon">🔍</span>
+                    <div class="bp-list-content">
+                        <div class="bp-list-title">.gitignore 模板</div>
+                        <div class="bp-list-desc">使用 <code class="bp-code">gitignore.io</code> 生成适合项目的模板</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 总结清单 -->
+        <section class="bp-section">
+            <h2 class="bp-section-title">
+                <span class="icon">📋</span>
+                每日检查清单
+            </h2>
+
+            <ul class="bp-checklist">
+                <li><input type="checkbox"> 提交前检查 <code class="bp-code">git status</code> 和 <code class="bp-code">git diff</code></li>
+                <li><input type="checkbox"> 确认提交信息符合规范</li>
+                <li><input type="checkbox"> 提交前确认没有敏感信息</li>
+                <li><input type="checkbox"> 推送前确保本地代码已测试</li>
+                <li><input type="checkbox"> 合并后及时删除已合并的分支</li>
+                <li><input type="checkbox"> 定期执行 <code class="bp-code">git gc</code> 清理仓库</li>
+            </ul>
+        </section>
+
+        <div style="text-align: center; margin-top: 40px; color: var(--bp-text-muted); font-size: 14px;">
+            <p>Git Workflow Lab - 让 Git 学习更简单</p>
+        </div>
+    </div>
+</body>
+</html>

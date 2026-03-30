@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记忆闪卡 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --flash-primary: #6366f1;
+            --flash-secondary: #8b5cf6;
+            --flash-success: #10b981;
+            --flash-warning: #f59e0b;
+            --flash-error: #ef4444;
+            --flash-bg: #f8fafc;
+            --flash-bg-card: #ffffff;
+            --flash-border: #e2e8f0;
+            --flash-text: #1e293b;
+            --flash-text-muted: #64748b;
+            --flash-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --flash-bg: #0f172a;
+            --flash-bg-card: #1e293b;
+            --flash-border: #334155;
+            --flash-text: #f1f5f9;
+            --flash-text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--flash-bg);
+            color: var(--flash-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .flash-header {
+            background: var(--flash-bg-card);
+            border-bottom: 1px solid var(--flash-border);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .flash-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .flash-header-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--flash-primary), var(--flash-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .flash-header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .flash-header-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .flash-stat {
+            text-align: center;
+        }
+
+        .flash-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--flash-primary);
+        }
+
+        .flash-stat-label {
+            font-size: 12px;
+            color: var(--flash-text-muted);
+        }
+
+        /* 主内容 */
+        .flash-main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* 分类导航 */
+        .flash-categories {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .flash-category {
+            padding: 10px 20px;
+            background: var(--flash-bg-card);
+            border: 2px solid var(--flash-border);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .flash-category:hover {
+            border-color: var(--flash-primary);
+        }
+
+        .flash-category.active {
+            background: var(--flash-primary);
+            color: white;
+            border-color: var(--flash-primary);
+        }
+
+        /* 闪卡容器 */
+        .flash-card-container {
+            perspective: 1000px;
+            margin-bottom: 32px;
+        }
+
+        .flash-card {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flash-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flash-card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--flash-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .flash-card-front {
+            background: var(--flash-bg-card);
+            border: 1px solid var(--flash-border);
+        }
+
+        .flash-card-back {
+            background: linear-gradient(135deg, var(--flash-primary), var(--flash-secondary));
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flash-card-type {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .flash-card-type.command {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--flash-primary);
+        }
+
+        .flash-card-type.concept {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--flash-success);
+        }
+
+        .flash-card-type.scenario {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--flash-warning);
+        }
+
+        .flash-card-content {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .flash-card-content.command {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px 20px;
+            border-radius: 8px;
+        }
+
+        .flash-card-back .flash-card-content {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .flash-card-hint {
+            position: absolute;
+            bottom: 16px;
+            font-size: 12px;
+            color: var(--flash-text-muted);
+        }
+
+        .flash-card-back .flash-card-hint {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .flash-flip-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 20px;
+            opacity: 0.5;
+        }
+
+        /* 评分按钮 */
+        .flash-rating {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .flash-rating-btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flash-rating-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .flash-rating-btn.again {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--flash-error);
+        }
+
+        .flash-rating-btn.hard {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--flash-warning);
+        }
+
+        .flash-rating-btn.good {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--flash-success);
+        }
+
+        .flash-rating-btn.easy {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        /* 进度条 */
+        .flash-progress {
+            margin-bottom: 32px;
+        }
+
+        .flash-progress-bar {
+            height: 8px;
+            background: var(--flash-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .flash-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--flash-primary), var(--flash-secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .flash-progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--flash-text-muted);
+        }
+
+        /* 完成状态 */
+        .flash-complete {
+            text-align: center;
+            padding: 60px 24px;
+        }
+
+        .flash-complete-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .flash-complete-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .flash-complete-desc {
+            color: var(--flash-text-muted);
+            margin-bottom: 32px;
+        }
+
+        /* 开始按钮 */
+        .flash-start {
+            text-align: center;
+            padding: 60px 24px;
+        }
+
+        .flash-start-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .flash-start-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .flash-start-desc {
+            color: var(--flash-text-muted);
+            margin-bottom: 32px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .flash-start-btn {
+            padding: 16px 48px;
+            background: linear-gradient(135deg, var(--flash-primary), var(--flash-secondary));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .flash-start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        /* 统计卡片 */
+        .flash-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .flash-stat-card {
+            background: var(--flash-bg-card);
+            border: 1px solid var(--flash-border);
+            border-radius: var(--flash-radius);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .flash-stat-card-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .flash-stat-card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--flash-primary);
+            margin-bottom: 4px;
+        }
+
+        .flash-stat-card-label {
+            font-size: 13px;
+            color: var(--flash-text-muted);
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flash-card-container {
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .flash-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .flash-card {
+                height: 280px;
+            }
+
+            .flash-rating {
+                flex-wrap: wrap;
+            }
+
+            .flash-rating-btn {
+                flex: 1;
+                min-width: 80px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="flash-header">
+        <div class="flash-header-left">
+            <div class="flash-header-logo">🧠</div>
+            <h1 class="flash-header-title">记忆闪卡</h1>
+        </div>
+        <div class="flash-header-stats">
+            <div class="flash-stat">
+                <div class="flash-stat-value" id="total-cards">0</div>
+                <div class="flash-stat-label">总卡片</div>
+            </div>
+            <div class="flash-stat">
+                <div class="flash-stat-value" id="learned-cards">0</div>
+                <div class="flash-stat-label">已掌握</div>
+            </div>
+            <div class="flash-stat">
+                <div class="flash-stat-value" id="streak-days">0</div>
+                <div class="flash-stat-label">连续天数</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="flash-main">
+        <!-- 统计概览 -->
+        <div class="flash-stats-grid" id="stats-grid">
+            <div class="flash-stat-card">
+                <div class="flash-stat-card-icon">📚</div>
+                <div class="flash-stat-card-value" id="stat-today">0</div>
+                <div class="flash-stat-card-label">今日学习</div>
+            </div>
+            <div class="flash-stat-card">
+                <div class="flash-stat-card-icon">🎯</div>
+                <div class="flash-stat-card-value" id="stat-due">0</div>
+                <div class="flash-stat-card-label">待复习</div>
+            </div>
+            <div class="flash-stat-card">
+                <div class="flash-stat-card-icon">✅</div>
+                <div class="flash-stat-card-value" id="stat-mastered">0</div>
+                <div class="flash-stat-card-label">完全掌握</div>
+            </div>
+            <div class="flash-stat-card">
+                <div class="flash-stat-card-icon">🔥</div>
+                <div class="flash-stat-card-value" id="stat-accuracy">0%</div>
+                <div class="flash-stat-card-label">正确率</div>
+            </div>
+        </div>
+
+        <!-- 分类选择 -->
+        <div class="flash-categories" id="category-list">
+            <div class="flash-category active" data-category="all">全部</div>
+            <div class="flash-category" data-category="command">命令卡</div>
+            <div class="flash-category" data-category="concept">概念卡</div>
+            <div class="flash-category" data-category="scenario">场景卡</div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="flash-progress" id="progress-section" style="display: none;">
+            <div class="flash-progress-bar">
+                <div class="flash-progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="flash-progress-text">
+                <span id="progress-current">0</span>
+                <span id="progress-total">0</span>
+            </div>
+        </div>
+
+        <!-- 开始学习 -->
+        <div class="flash-start" id="start-section">
+            <div class="flash-start-icon">🎴</div>
+            <h2 class="flash-start-title">开始你的记忆之旅</h2>
+            <p class="flash-start-desc">
+                使用间隔重复学习法，高效记忆 Git 命令和概念。每天复习已学过的卡片，理解更深刻。
+            </p>
+            <button class="flash-start-btn" id="start-btn">开始学习</button>
+        </div>
+
+        <!-- 闪卡区域 -->
+        <div class="flash-card-container" id="card-section" style="display: none;">
+            <div class="flash-card" id="flash-card">
+                <div class="flash-card-face flash-card-front">
+                    <span class="flash-card-type" id="card-type">命令</span>
+                    <span class="flash-flip-icon">🔄</span>
+                    <div class="flash-card-content" id="card-front">git status</div>
+                    <span class="flash-card-hint">点击卡片查看答案</span>
+                </div>
+                <div class="flash-card-face flash-card-back">
+                    <span class="flash-card-type" style="background: rgba(255,255,255,0.2); color: white;">答案</span>
+                    <div class="flash-card-content" id="card-back">查看工作区状态，显示修改、暂存和未跟踪文件</div>
+                </div>
+            </div>
+
+            <div class="flash-rating" id="rating-section" style="display: none;">
+                <button class="flash-rating-btn again" data-rating="again">
+                    <span>😕</span> 不认识
+                </button>
+                <button class="flash-rating-btn hard" data-rating="hard">
+                    <span>🤔</span> 有印象
+                </button>
+                <button class="flash-rating-btn good" data-rating="good">
+                    <span>😊</span> 记得
+                </button>
+                <button class="flash-rating-btn easy" data-rating="easy">
+                    <span>🎯</span> 完全掌握
+                </button>
+            </div>
+        </div>
+
+        <!-- 完成状态 -->
+        <div class="flash-complete" id="complete-section" style="display: none;">
+            <div class="flash-complete-icon">🎉</div>
+            <h2 class="flash-complete-title">今日学习完成！</h2>
+            <p class="flash-complete-desc">太棒了！你已经完成了今天的复习任务。</p>
+            <button class="flash-start-btn" id="restart-btn">再学一遍</button>
+        </div>
+    </main>
+
+    <script>
+        // 闪卡数据
+        const FLASHCARDS = [
+            // 命令卡
+            { type: 'command', category: 'command', front: 'git status', back: '显示工作区状态，包括修改的文件、暂存区的文件和未跟踪的文件' },
+            { type: 'command', category: 'command', front: 'git add .', back: '将所有修改添加到暂存区（不包括删除）' },
+            { type: 'command', category: 'command', front: 'git add -A', back: '将所有修改（包括删除）添加到暂存区' },
+            { type: 'command', category: 'command', front: 'git commit -m "message"', back: '提交暂存区的修改，-m 指定提交信息' },
+            { type: 'command', category: 'command', front: 'git push origin main', back: '将本地 main 分支的提交推送到远程 origin' },
+            { type: 'command', category: 'command', front: 'git pull origin main', back: '从远程拉取并合并 main 分支的更新' },
+            { type: 'command', category: 'command', front: 'git fetch origin', back: '从远程获取最新版本但不自动合并' },
+            { type: 'command', category: 'command', front: 'git branch', back: '列出本地所有分支，当前分支标有 *' },
+            { type: 'command', category: 'command', front: 'git branch -r', back: '列出远程所有分支' },
+            { type: 'command', category: 'command', front: 'git checkout -b branch-name', back: '创建并切换到新分支' },
+            { type: 'command', category: 'command', front: 'git switch branch-name', back: '切换到指定分支（Git 2.23+）' },
+            { type: 'command', category: 'command', front: 'git merge branch-name', back: '将指定分支合并到当前分支' },
+            { type: 'command', category: 'command', front: 'git rebase main', back: '将当前分支变基到 main 分支上' },
+            { type: 'command', category: 'command', front: 'git reset --soft HEAD~1', back: '撤销最后一次提交，保留修改在暂存区' },
+            { type: 'command', category: 'command', front: 'git reset --hard HEAD~1', back: '撤销最后一次提交，丢弃所有修改（危险！）' },
+            { type: 'command', category: 'command', front: 'git revert HEAD', back: '创建新提交来撤销上一次提交' },
+            { type: 'command', category: 'command', front: 'git reflog', back: '显示所有操作的引用日志，用于恢复' },
+            { type: 'command', category: 'command', front: 'git stash', back: '暂存当前未提交的修改' },
+            { type: 'command', category: 'command', front: 'git stash pop', back: '恢复最近一次 stash 的修改并删除 stash' },
+            { type: 'command', category: 'command', front: 'git log --oneline', back: '以简洁格式查看提交历史' },
+            { type: 'command', category: 'command', front: 'git log --graph', back: '以图形化方式查看分支结构' },
+            { type: 'command', category: 'command', front: 'git diff', back: '显示未暂存的修改内容' },
+            { type: 'command', category: 'command', front: 'git diff --cached', back: '显示已暂存的修改内容' },
+            { type: 'command', category: 'command', front: 'git cherry-pick commit-hash', back: '将指定提交复制到当前分支' },
+            { type: 'command', category: 'command', front: 'git tag v1.0.0', back: '在当前提交创建轻量标签' },
+            { type: 'command', category: 'command', front: 'git tag -a v1.0.0 -m "message"', back: '创建附注标签（推荐），包含标注信息' },
+
+            // 概念卡
+            { type: 'concept', category: 'concept', front: '工作区 (Working Directory)', back: '你正在编辑文件的地方，就是电脑里的文件夹' },
+            { type: 'concept', category: 'concept', front: '暂存区 (Staging Area)', back: '一个临时区域，保存准备下次提交的文件快照' },
+            { type: 'concept', category: 'concept', front: '本地仓库 (Local Repository)', back: '你电脑上的 .git 目录，保存所有版本历史' },
+            { type: 'concept', category: 'concept', front: '远程仓库 (Remote Repository)', back: '托管在服务器上的仓库，如 GitHub、Gitea' },
+            { type: 'concept', category: 'concept', front: '分支 (Branch)', back: '一个独立的开发线，从主分支分离出来' },
+            { type: 'concept', category: 'concept', front: '提交 (Commit)', back: '一个快照，保存暂存区内容到仓库历史' },
+            { type: 'concept', category: 'concept', front: 'Merge (合并)', back: '将两个分支的修改合并到一起' },
+            { type: 'concept', category: 'concept', front: 'Rebase (变基)', back: '将一系列提交"移动"到另一个基点上，使历史更线性' },
+            { type: 'concept', category: 'concept', front: '冲突 (Conflict)', back: '两个分支修改了同一行代码，需要手动解决' },
+            { type: 'concept', category: 'concept', front: 'Fetch vs Pull', back: 'Fetch 只下载不合并；Pull = Fetch + Merge' },
+            { type: 'concept', category: 'concept', front: 'Git 三个区域', back: '工作区 → 暂存区 → 本地仓库' },
+            { type: 'concept', category: 'concept', front: 'HEAD', back: '一个指针，指向当前检出的分支或提交' },
+            { type: 'concept', category: 'concept', front: 'Origin', back: '默认的远程仓库名称' },
+            { type: 'concept', category: 'concept', front: 'Tag', back: '标记特定提交，通常用于版本发布' },
+            { type: 'concept', category: 'concept', front: 'Fork', back: '在远程复制别人的仓库到自己账号' },
+
+            // 场景卡
+            { type: 'scenario', category: 'scenario', front: '想把多个 commit 合并成一个？', back: '使用 git rebase -i HEAD~n，然后在交互式界面 squash' },
+            { type: 'scenario', category: 'scenario', front: '想修改最后一个 commit 的 message？', back: 'git commit --amend -m "新信息"' },
+            { type: 'scenario', category: 'scenario', front: '不小心 git reset --hard 了怎么找回？', back: 'git reflog 找到丢失的 commit，然后用 git reset --hard 恢复' },
+            { type: 'scenario', category: 'scenario', front: '想删除本地分支但提示未合并？', back: 'git branch -D branch-name (强制删除) 或先合并再删除' },
+            { type: 'scenario', category: 'scenario', front: '远程分支已删除本地还显示？', back: 'git remote prune origin 清理远程跟踪分支' },
+            { type: 'scenario', category: 'scenario', front: '想看某个文件的历史？', back: 'git log -p filename 或 git log --follow filename' },
+            { type: 'scenario', category: 'scenario', front: '想把某个 commit 应用到其他分支？', back: 'git cherry-pick commit-hash' },
+            { type: 'scenario', category: 'scenario', front: 'Git 操作错了想撤销？', back: 'git reflog 查看操作历史，然后 git reset 到正确位置' },
+            { type: 'scenario', category: 'scenario', front: '合并冲突了怎么解决？', back: '1. 手动编辑冲突文件 2. git add 标记已解决 3. git commit 完成合并' },
+            { type: 'scenario', category: 'scenario', front: '想查看某次 commit 的修改？', back: 'git show commit-hash 或 git diff commit-hash^..commit-hash' }
+        ];
+
+        // 状态管理
+        const state = {
+            currentCategory: 'all',
+            cards: [],
+            currentIndex: 0,
+            learned: 0,
+            stats: {
+                today: 0,
+                total: 0,
+                mastered: 0,
+                correct: 0,
+                streak: 0,
+                lastDate: null
+            }
+        };
+
+        // DOM 元素
+        const elements = {
+            categoryList: document.getElementById('category-list'),
+            startSection: document.getElementById('start-section'),
+            cardSection: document.getElementById('card-section'),
+            progressSection: document.getElementById('progress-section'),
+            completeSection: document.getElementById('complete-section'),
+            flashCard: document.getElementById('flash-card'),
+            cardType: document.getElementById('card-type'),
+            cardFront: document.getElementById('card-front'),
+            cardBack: document.getElementById('card-back'),
+            ratingSection: document.getElementById('rating-section'),
+            progressFill: document.getElementById('progress-fill'),
+            progressCurrent: document.getElementById('progress-current'),
+            progressTotal: document.getElementById('progress-total'),
+            startBtn: document.getElementById('start-btn'),
+            restartBtn: document.getElementById('restart-btn'),
+            totalCards: document.getElementById('total-cards'),
+            learnedCards: document.getElementById('learned-cards'),
+            streakDays: document.getElementById('streak-days'),
+            statToday: document.getElementById('stat-today'),
+            statDue: document.getElementById('stat-due'),
+            statMastered: document.getElementById('stat-mastered'),
+            statAccuracy: document.getElementById('stat-accuracy')
+        };
+
+        // 初始化
+        function init() {
+            loadStats();
+            updateStats();
+            bindEvents();
+        }
+
+        // 加载统计数据
+        function loadStats() {
+            const saved = localStorage.getItem('flashcard-stats');
+            if (saved) {
+                state.stats = JSON.parse(saved);
+            }
+        }
+
+        // 保存统计数据
+        function saveStats() {
+            localStorage.setItem('flashcard-stats', JSON.stringify(state.stats));
+        }
+
+        // 更新统计显示
+        function updateStats() {
+            const { stats } = state;
+
+            // 计算连续天数
+            const today = new Date().toDateString();
+            if (stats.lastDate !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                if (stats.lastDate === yesterday.toDateString()) {
+                    stats.streak++;
+                } else if (stats.lastDate !== today) {
+                    stats.streak = stats.today > 0 ? 1 : 0;
+                }
+                stats.lastDate = today;
+                saveStats();
+            }
+
+            elements.totalCards.textContent = FLASHCARDS.length;
+            elements.learnedCards.textContent = stats.mastered;
+            elements.streakDays.textContent = stats.streak;
+            elements.statToday.textContent = stats.today;
+            elements.statDue.textContent = FLASHCARDS.length - stats.today;
+            elements.statMastered.textContent = stats.mastered;
+            elements.statAccuracy.textContent = stats.total > 0
+                ? Math.round((stats.correct / stats.total) * 100) + '%'
+                : '0%';
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 分类选择
+            elements.categoryList.addEventListener('click', (e) => {
+                const category = e.target.dataset.category;
+                if (category) {
+                    state.currentCategory = category;
+                    document.querySelectorAll('.flash-category').forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+
+            // 卡片点击翻转
+            elements.flashCard.addEventListener('click', () => {
+                elements.flashCard.classList.toggle('flipped');
+                if (elements.flashCard.classList.contains('flipped')) {
+                    elements.ratingSection.style.display = 'flex';
+                }
+            });
+
+            // 评分按钮
+            elements.ratingSection.addEventListener('click', (e) => {
+                const btn = e.target.closest('.flash-rating-btn');
+                if (btn) {
+                    rateCard(btn.dataset.rating);
+                }
+            });
+
+            // 开始学习
+            elements.startBtn.addEventListener('click', startLearning);
+            elements.restartBtn.addEventListener('click', startLearning);
+        }
+
+        // 开始学习
+        function startLearning() {
+            // 根据分类筛选卡片
+            state.cards = state.currentCategory === 'all'
+                ? [...FLASHCARDS]
+                : FLASHCARDS.filter(card => card.category === state.currentCategory);
+
+            // 随机打乱
+            shuffleArray(state.cards);
+
+            state.currentIndex = 0;
+
+            if (state.cards.length === 0) {
+                alert('没有可学习的卡片');
+                return;
+            }
+
+            // 显示学习界面
+            elements.startSection.style.display = 'none';
+            elements.cardSection.style.display = 'block';
+            elements.progressSection.style.display = 'block';
+            elements.completeSection.style.display = 'none';
+
+            // 更新进度
+            elements.progressTotal.textContent = state.cards.length;
+            elements.progressCurrent.textContent = state.currentIndex + 1;
+
+            showCard();
+        }
+
+        // 显示卡片
+        function showCard() {
+            const card = state.cards[state.currentIndex];
+
+            // 重置翻转状态
+            elements.flashCard.classList.remove('flipped');
+            elements.ratingSection.style.display = 'none';
+
+            // 设置卡片内容
+            elements.cardType.textContent = card.type === 'command' ? '命令' : card.type === 'concept' ? '概念' : '场景';
+            elements.cardType.className = `flash-card-type ${card.type}`;
+            elements.cardFront.textContent = card.front;
+            elements.cardFront.className = `flash-card-content ${card.type === 'command' ? 'command' : ''}`;
+            elements.cardBack.textContent = card.back;
+
+            // 更新进度
+            elements.progressCurrent.textContent = state.currentIndex + 1;
+            elements.progressFill.style.width = ((state.currentIndex + 1) / state.cards.length * 100) + '%';
+        }
+
+        // 评分
+        function rateCard(rating) {
+            // 更新统计
+            state.stats.total++;
+            state.stats.today++;
+
+            if (rating === 'good' || rating === 'easy') {
+                state.stats.correct++;
+            }
+
+            if (rating === 'easy') {
+                state.stats.mastered = Math.min(state.stats.mastered + 1, FLASHCARDS.length);
+            }
+
+            saveStats();
+            updateStats();
+
+            // 下一张卡片
+            state.currentIndex++;
+
+            if (state.currentIndex >= state.cards.length) {
+                showComplete();
+            } else {
+                showCard();
+            }
+        }
+
+        // 完成学习
+        function showComplete() {
+            elements.cardSection.style.display = 'none';
+            elements.progressSection.style.display = 'none';
+            elements.completeSection.style.display = 'block';
+        }
+
+        // 随机打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>

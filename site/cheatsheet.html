@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 命令速查表 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cheat-bg: #f8fafc;
+            --cheat-bg-card: #ffffff;
+            --cheat-border: #e2e8f0;
+            --cheat-text: #1e293b;
+            --cheat-text-muted: #64748b;
+            --cheat-primary: #6366f1;
+            --cheat-secondary: #8b5cf6;
+            --cheat-success: #10b981;
+            --cheat-warning: #f59e0b;
+            --cheat-code-bg: #1e293b;
+            --cheat-code-text: #e2e8f0;
+            --cheat-radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --cheat-bg: #0f172a;
+            --cheat-bg-card: #1e293b;
+            --cheat-border: #334155;
+            --cheat-text: #f1f5f9;
+            --cheat-text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--cheat-bg);
+            color: var(--cheat-text);
+            line-height: 1.7;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .cheat-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .cheat-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            border-bottom: 1px solid var(--cheat-border);
+        }
+
+        .cheat-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--cheat-primary), var(--cheat-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cheat-header p {
+            color: var(--cheat-text-muted);
+            font-size: 16px;
+        }
+
+        /* 分类标签 */
+        .cheat-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cheat-tab {
+            padding: 10px 24px;
+            background: var(--cheat-bg-card);
+            border: 2px solid var(--cheat-border);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cheat-tab:hover {
+            border-color: var(--cheat-primary);
+        }
+
+        .cheat-tab.active {
+            background: var(--cheat-primary);
+            color: white;
+            border-color: var(--cheat-primary);
+        }
+
+        /* 命令卡片 */
+        .cheat-section {
+            margin-bottom: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cheat-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cheat-section-title .icon {
+            font-size: 24px;
+        }
+
+        .cheat-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .cheat-card {
+            background: var(--cheat-bg-card);
+            border: 1px solid var(--cheat-border);
+            border-radius: var(--cheat-radius);
+            padding: 16px 20px;
+            transition: all 0.2s;
+        }
+
+        .cheat-card:hover {
+            border-color: var(--cheat-primary);
+            transform: translateX(4px);
+        }
+
+        .cheat-command {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--cheat-code-bg);
+            color: var(--cheat-code-text);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .cheat-desc {
+            font-size: 14px;
+            color: var(--cheat-text-muted);
+        }
+
+        .cheat-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .cheat-tag.basic {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--cheat-primary);
+        }
+
+        .cheat-tag.important {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--cheat-warning);
+        }
+
+        .cheat-tag.advanced {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* 搜索 */
+        .cheat-search {
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .cheat-search input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border: 2px solid var(--cheat-border);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--cheat-bg-card);
+            color: var(--cheat-text);
+            transition: border-color 0.2s;
+        }
+
+        .cheat-search input:focus {
+            outline: none;
+            border-color: var(--cheat-primary);
+        }
+
+        .cheat-search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0.5;
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .cheat-card {
+                break-inside: avoid;
+                border: 1px solid #ddd;
+            }
+
+            .cheat-tabs {
+                display: none;
+            }
+
+            .cheat-search {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cheat-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 8px;
+            }
+
+            .cheat-tab {
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cheat-container">
+        <header class="cheat-header">
+            <h1>Git 命令速查表</h1>
+            <p>常用 Git 命令快速参考，点击命令即可复制</p>
+        </header>
+
+        <!-- 搜索 -->
+        <div class="cheat-search">
+            <span class="cheat-search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="搜索命令或描述...">
+        </div>
+
+        <!-- 分类导航 -->
+        <div class="cheat-tabs">
+            <div class="cheat-tab active" data-category="all">全部</div>
+            <div class="cheat-tab" data-category="init">初始化</div>
+            <div class="cheat-tab" data-category="status">状态</div>
+            <div class="cheat-tab" data-category="commit">提交</div>
+            <div class="cheat-tab" data-category="branch">分支</div>
+            <div class="cheat-tab" data-category="remote">远程</div>
+            <div class="cheat-tab" data-category="history">历史</div>
+            <div class="cheat-tab" data-category="stash">暂存</div>
+            <div class="cheat-tab" data-category="advanced">高级</div>
+        </div>
+
+        <!-- 初始化 -->
+        <section class="cheat-section" data-category="init">
+            <h2 class="cheat-section-title"><span class="icon">🚀</span> 初始化与克隆</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="init new create repository">
+                    <code class="cheat-command">git init</code>
+                    <p class="cheat-desc">在当前目录初始化 Git 仓库</p>
+                </div>
+                <div class="cheat-card" data-keywords="clone copy download repository">
+                    <code class="cheat-command">git clone &lt;url&gt;</code>
+                    <p class="cheat-desc">克隆远程仓库到本地</p>
+                </div>
+                <div class="cheat-card" data-keywords="config setup global username email">
+                    <code class="cheat-command">git config --global user.name "名称"</code>
+                    <p class="cheat-desc">设置全局用户名</p>
+                </div>
+                <div class="cheat-card" data-keywords="config setup email">
+                    <code class="cheat-command">git config --global user.email "邮箱"</code>
+                    <p class="cheat-desc">设置全局邮箱</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 状态查看 -->
+        <section class="cheat-section" data-category="status">
+            <h2 class="cheat-section-title"><span class="icon">📋</span> 状态查看</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="status state check">
+                    <code class="cheat-command">git status</code>
+                    <p class="cheat-desc">查看工作区状态 <span class="cheat-tag basic">最常用</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="status short brief">
+                    <code class="cheat-command">git status -s</code>
+                    <p class="cheat-desc">简洁格式显示状态</p>
+                </div>
+                <div class="cheat-card" data-keywords="diff changes difference">
+                    <code class="cheat-command">git diff</code>
+                    <p class="cheat-desc">查看未暂存的修改</p>
+                </div>
+                <div class="cheat-card" data-keywords="diff staged cached">
+                    <code class="cheat-command">git diff --cached</code>
+                    <p class="cheat-desc">查看已暂存的修改</p>
+                </div>
+                <div class="cheat-card" data-keywords="diff file specific">
+                    <code class="cheat-command">git diff &lt;file&gt;</code>
+                    <p class="cheat-desc">查看指定文件的修改</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 提交操作 -->
+        <section class="cheat-section" data-category="commit">
+            <h2 class="cheat-section-title"><span class="icon">💾</span> 提交操作</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="add stage file">
+                    <code class="cheat-command">git add &lt;file&gt;</code>
+                    <p class="cheat-desc">添加文件到暂存区</p>
+                </div>
+                <div class="cheat-card" data-keywords="add all dot">
+                    <code class="cheat-command">git add .</code>
+                    <p class="cheat-desc">添加所有修改（不含删除）</p>
+                </div>
+                <div class="cheat-card" data-keywords="add all delete">
+                    <code class="cheat-command">git add -A</code>
+                    <p class="cheat-desc">添加所有修改（含删除） <span class="cheat-tag important">推荐</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="add interactive">
+                    <code class="cheat-command">git add -i</code>
+                    <p class="cheat-desc">交互式添加</p>
+                </div>
+                <div class="cheat-card" data-keywords="commit save message">
+                    <code class="cheat-command">git commit -m "消息"</code>
+                    <p class="cheat-desc">提交暂存区内容 <span class="cheat-tag basic">最常用</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="commit add all">
+                    <code class="cheat-command">git commit -am "消息"</code>
+                    <p class="cheat-desc">添加并提交（仅限已跟踪文件）</p>
+                </div>
+                <div class="cheat-card" data-keywords="commit amend change last">
+                    <code class="cheat-command">git commit --amend -m "新消息"</code>
+                    <p class="cheat-desc">修改最后一次提交</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分支操作 -->
+        <section class="cheat-section" data-category="branch">
+            <h2 class="cheat-section-title"><span class="icon">🌿</span> 分支操作</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="branch list">
+                    <code class="cheat-command">git branch</code>
+                    <p class="cheat-desc">列出本地分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="branch list remote">
+                    <code class="cheat-command">git branch -r</code>
+                    <p class="cheat-desc">列出远程分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="branch list all">
+                    <code class="cheat-command">git branch -a</code>
+                    <p class="cheat-desc">列出所有分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="branch create new">
+                    <code class="cheat-command">git branch &lt;name&gt;</code>
+                    <p class="cheat-desc">创建新分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="branch create switch checkout">
+                    <code class="cheat-command">git checkout -b &lt;name&gt;</code>
+                    <p class="cheat-desc">创建并切换分支 <span class="cheat-tag basic">常用</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="switch checkout change">
+                    <code class="cheat-command">git checkout &lt;branch&gt;</code>
+                    <p class="cheat-desc">切换到指定分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="switch new">
+                    <code class="cheat-command">git switch -c &lt;name&gt;</code>
+                    <p class="cheat-desc">创建并切换（Git 2.23+）</p>
+                </div>
+                <div class="cheat-card" data-keywords="merge combine">
+                    <code class="cheat-command">git merge &lt;branch&gt;</code>
+                    <p class="cheat-desc">合并指定分支到当前分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="rebase base">
+                    <code class="cheat-command">git rebase &lt;branch&gt;</code>
+                    <p class="cheat-desc">变基到指定分支 <span class="cheat-tag important">重要</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="branch delete">
+                    <code class="cheat-command">git branch -d &lt;name&gt;</code>
+                    <p class="cheat-desc">删除本地分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="branch delete force">
+                    <code class="cheat-command">git branch -D &lt;name&gt;</code>
+                    <p class="cheat-desc">强制删除本地分支</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 远程操作 -->
+        <section class="cheat-section" data-category="remote">
+            <h2 class="cheat-section-title"><span class="icon">☁️</span> 远程操作</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="remote list">
+                    <code class="cheat-command">git remote -v</code>
+                    <p class="cheat-desc">查看远程仓库</p>
+                </div>
+                <div class="cheat-card" data-keywords="fetch download">
+                    <code class="cheat-command">git fetch</code>
+                    <p class="cheat-desc">获取远程更新（不合并）</p>
+                </div>
+                <div class="cheat-card" data-keywords="pull fetch merge">
+                    <code class="cheat-command">git pull</code>
+                    <p class="cheat-desc">拉取并合并 <span class="cheat-tag basic">最常用</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="pull rebase">
+                    <code class="cheat-command">git pull --rebase</code>
+                    <p class="cheat-desc">使用 rebase 方式拉取</p>
+                </div>
+                <div class="cheat-card" data-keywords="push upload">
+                    <code class="cheat-command">git push</code>
+                    <p class="cheat-desc">推送到远程 <span class="cheat-tag basic">最常用</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="push set upstream">
+                    <code class="cheat-command">git push -u origin &lt;branch&gt;</code>
+                    <p class="cheat-desc">推送并设置上游分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="push delete remote">
+                    <code class="cheat-command">git push origin --delete &lt;branch&gt;</code>
+                    <p class="cheat-desc">删除远程分支</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 历史查看 -->
+        <section class="cheat-section" data-category="history">
+            <h2 class="cheat-section-title"><span class="icon">📜</span> 历史查看</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="log history">
+                    <code class="cheat-command">git log</code>
+                    <p class="cheat-desc">查看提交历史</p>
+                </div>
+                <div class="cheat-card" data-keywords="log oneline short">
+                    <code class="cheat-command">git log --oneline</code>
+                    <p class="cheat-desc">简洁格式 <span class="cheat-tag basic">最常用</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="log graph branch">
+                    <code class="cheat-command">git log --graph --oneline --all</code>
+                    <p class="cheat-desc">图形化显示分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="log pretty format">
+                    <code class="cheat-command">git log --pretty=format:"%h %s"</code>
+                    <p class="cheat-desc">自定义格式显示</p>
+                </div>
+                <div class="cheat-card" data-keywords="show commit">
+                    <code class="cheat-command">git show &lt;commit&gt;</code>
+                    <p class="cheat-desc">查看指定提交详情</p>
+                </div>
+                <div class="cheat-card" data-keywords="blame annotate">
+                    <code class="cheat-command">git blame &lt;file&gt;</code>
+                    <p class="cheat-desc">查看文件每行最后修改</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 暂存操作 -->
+        <section class="cheat-section" data-category="stash">
+            <h2 class="cheat-section-title"><span class="icon">📦</span> 暂存操作</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="stash save">
+                    <code class="cheat-command">git stash</code>
+                    <p class="cheat-desc">暂存当前修改</p>
+                </div>
+                <div class="cheat-card" data-keywords="stash list">
+                    <code class="cheat-command">git stash list</code>
+                    <p class="cheat-desc">查看暂存列表</p>
+                </div>
+                <div class="cheat-card" data-keywords="stash pop restore">
+                    <code class="cheat-command">git stash pop</code>
+                    <p class="cheat-desc">恢复并删除最近暂存</p>
+                </div>
+                <div class="cheat-card" data-keywords="stash apply restore">
+                    <code class="cheat-command">git stash apply</code>
+                    <p class="cheat-desc">恢复但保留暂存</p>
+                </div>
+                <div class="cheat-card" data-keywords="stash drop delete">
+                    <code class="cheat-command">git stash drop</code>
+                    <p class="cheat-desc">删除最近暂存</p>
+                </div>
+                <div class="cheat-card" data-keywords="stash clear delete all">
+                    <code class="cheat-command">git stash clear</code>
+                    <p class="cheat-desc">清空所有暂存</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 高级操作 -->
+        <section class="cheat-section" data-category="advanced">
+            <h2 class="cheat-section-title"><span class="icon">⚡</span> 高级操作</h2>
+            <div class="cheat-grid">
+                <div class="cheat-card" data-keywords="reset undo">
+                    <code class="cheat-command">git reset HEAD~1</code>
+                    <p class="cheat-desc">撤销最后一次提交（保留修改）</p>
+                </div>
+                <div class="cheat-card" data-keywords="reset hard undo">
+                    <code class="cheat-command">git reset --hard HEAD~1</code>
+                    <p class="cheat-desc">撤销最后一次提交（丢弃修改）<span class="cheat-tag advanced">危险</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="revert undo safe">
+                    <code class="cheat-command">git revert &lt;commit&gt;</code>
+                    <p class="cheat-desc">安全撤销指定提交 <span class="cheat-tag important">重要</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="reflog log history">
+                    <code class="cheat-command">git reflog</code>
+                    <p class="cheat-desc">查看操作历史（找回丢失的提交）<span class="cheat-tag important">重要</span></p>
+                </div>
+                <div class="cheat-card" data-keywords="cherry pick">
+                    <code class="cheat-command">git cherry-pick &lt;commit&gt;</code>
+                    <p class="cheat-desc">复制指定提交到当前分支</p>
+                </div>
+                <div class="cheat-card" data-keywords="rebase interactive">
+                    <code class="cheat-command">git rebase -i HEAD~n</code>
+                    <p class="cheat-desc">交互式变基（修改最近 n 个提交）</p>
+                </div>
+                <div class="cheat-card" data-keywords="tag release version">
+                    <code class="cheat-command">git tag -a v1.0.0 -m "版本说明"</code>
+                    <p class="cheat-desc">创建附注标签</p>
+                </div>
+                <div class="cheat-card" data-keywords="clean remove untracked">
+                    <code class="cheat-command">git clean -fd</code>
+                    <p class="cheat-desc">清理未跟踪文件</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 搜索功能
+        const searchInput = document.getElementById('search-input');
+        const cards = document.querySelectorAll('.cheat-card');
+        const sections = document.querySelectorAll('.cheat-section');
+
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+
+            cards.forEach(card => {
+                const keywords = card.dataset.keywords || '';
+                const command = card.querySelector('.cheat-command').textContent.toLowerCase();
+                const desc = card.querySelector('.cheat-desc').textContent.toLowerCase();
+
+                if (keywords.includes(keyword) || command.includes(keyword) || desc.includes(keyword)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 分类切换
+        const tabs = document.querySelectorAll('.cheat-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const category = tab.dataset.category;
+
+                // 更新选中状态
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // 显示/隐藏部分
+                sections.forEach(section => {
+                    if (category === 'all' || section.dataset.category === category) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 点击复制命令
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const command = card.querySelector('.cheat-command').textContent;
+                navigator.clipboard.writeText(command).then(() => {
+                    // 视觉反馈
+                    card.style.borderColor = 'var(--cheat-success)';
+                    setTimeout(() => {
+                        card.style.borderColor = '';
+                    }, 500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 技能测验 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --quiz-primary: #6366f1;
+            --quiz-secondary: #8b5cf6;
+            --quiz-success: #10b981;
+            --quiz-error: #ef4444;
+            --quiz-warning: #f59e0b;
+            --quiz-bg: #f8fafc;
+            --quiz-bg-card: #ffffff;
+            --quiz-border: #e2e8f0;
+            --quiz-text: #1e293b;
+            --quiz-text-muted: #64748b;
+            --quiz-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --quiz-bg: #0f172a;
+            --quiz-bg-card: #1e293b;
+            --quiz-border: #334155;
+            --quiz-text: #f1f5f9;
+            --quiz-text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--quiz-bg);
+            color: var(--quiz-text);
+            line-height: 1.7;
+            padding: 24px;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .quiz-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--quiz-primary), var(--quiz-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-header p {
+            color: var(--quiz-text-muted);
+            font-size: 16px;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .quiz-progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--quiz-border);
+            transition: all 0.3s;
+        }
+
+        .quiz-progress-dot.active {
+            background: var(--quiz-primary);
+            transform: scale(1.2);
+        }
+
+        .quiz-progress-dot.correct {
+            background: var(--quiz-success);
+        }
+
+        .quiz-progress-dot.wrong {
+            background: var(--quiz-error);
+        }
+
+        .quiz-card {
+            background: var(--quiz-bg-card);
+            border: 1px solid var(--quiz-border);
+            border-radius: var(--quiz-radius);
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .quiz-question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .quiz-question-number {
+            background: linear-gradient(135deg, var(--quiz-primary), var(--quiz-secondary));
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            background: var(--quiz-bg);
+            border: 2px solid var(--quiz-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--quiz-primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--quiz-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--quiz-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .quiz-option.wrong {
+            border-color: var(--quiz-error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .quiz-option.disabled {
+            pointer-events: none;
+        }
+
+        .quiz-option-marker {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--quiz-border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .quiz-option.selected .quiz-option-marker {
+            border-color: var(--quiz-primary);
+            background: var(--quiz-primary);
+            color: white;
+        }
+
+        .quiz-option.correct .quiz-option-marker {
+            border-color: var(--quiz-success);
+            background: var(--quiz-success);
+            color: white;
+        }
+
+        .quiz-option.wrong .quiz-option-marker {
+            border-color: var(--quiz-error);
+            background: var(--quiz-error);
+            color: white;
+        }
+
+        .quiz-explanation {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(99, 102, 241, 0.08);
+            border-radius: 12px;
+            border-left: 4px solid var(--quiz-primary);
+            font-size: 14px;
+            display: none;
+        }
+
+        .quiz-explanation.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quiz-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .quiz-btn {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .quiz-btn-primary {
+            background: linear-gradient(135deg, var(--quiz-primary), var(--quiz-secondary));
+            color: white;
+        }
+
+        .quiz-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .quiz-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-btn-secondary {
+            background: var(--quiz-bg-card);
+            color: var(--quiz-text);
+            border: 1px solid var(--quiz-border);
+        }
+
+        .quiz-btn-secondary:hover {
+            border-color: var(--quiz-primary);
+        }
+
+        .quiz-result {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .quiz-result-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+        }
+
+        .quiz-result-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--quiz-success);
+        }
+
+        .quiz-result-icon.partial {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--quiz-warning);
+        }
+
+        .quiz-result-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .quiz-result-score {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--quiz-primary);
+            margin-bottom: 8px;
+        }
+
+        .quiz-result-msg {
+            color: var(--quiz-text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* 命令填空题样式 */
+        .quiz-fill-blank {
+            font-family: 'JetBrains Mono', monospace;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin: 16px 0;
+            line-height: 1.8;
+        }
+
+        .quiz-fill-blank input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fbbf24;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            width: 150px;
+            outline: none;
+        }
+
+        .quiz-fill-blank input:focus {
+            border-color: var(--quiz-primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container" id="quiz-app">
+        <!-- 测验内容将由 JavaScript 渲染 -->
+    </div>
+
+    <script>
+        // 测验题库
+        const QUIZ_BANK = {
+            'lesson-01': {
+                title: 'Git 基础操作',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '下面哪个命令用于将文件添加到暂存区？',
+                        options: [
+                            { text: 'git commit', correct: false },
+                            { text: 'git add', correct: true },
+                            { text: 'git push', correct: false },
+                            { text: 'git status', correct: false }
+                        ],
+                        explanation: 'git add 命令将文件添加到暂存区，准备提交。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '执行 git commit -m "message" 后，代码发生了什么变化？',
+                        options: [
+                            { text: '代码被删除', correct: false },
+                            { text: '代码被提交到本地仓库', correct: true },
+                            { text: '代码被推送到远程仓库', correct: false },
+                            { text: '没有任何变化', correct: false }
+                        ],
+                        explanation: 'git commit 将暂存区的更改提交到本地仓库，形成一个提交记录。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '将本地仓库的代码推送到远程仓库的命令是：git ____ main',
+                        answer: 'push',
+                        explanation: 'git push 命令将本地仓库的提交推送到远程仓库。'
+                    }
+                ]
+            },
+            'lesson-02': {
+                title: '工作区与暂存区',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git status 命令显示的文件状态中，哪个表示文件已修改但未暂存？',
+                        options: [
+                            { text: 'Changes to be committed', correct: false },
+                            { text: 'Changes not staged for commit', correct: true },
+                            { text: 'Untracked files', correct: false },
+                            { text: 'Nothing to commit', correct: false }
+                        ],
+                        explanation: '"Changes not staged for commit" 表示文件已修改但还没有添加到暂存区。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '哪个命令可以查看文件的具体修改内容？',
+                        options: [
+                            { text: 'git log', correct: false },
+                            { text: 'git status', correct: false },
+                            { text: 'git diff', correct: true },
+                            { text: 'git show', correct: false }
+                        ],
+                        explanation: 'git diff 可以显示文件的具体修改内容，包括哪些行被添加、删除或修改。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '将文件从暂存区撤销的命令是：git ____ -- file.txt',
+                        answer: 'reset',
+                        explanation: 'git reset -- file.txt 可以将文件从暂存区撤销。'
+                    }
+                ]
+            },
+            'lesson-03': {
+                title: '远程仓库操作',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git fetch 和 git pull 的主要区别是什么？',
+                        options: [
+                            { text: '两者没有区别', correct: false },
+                            { text: 'fetch 只下载不合并，pull 会下载并合并', correct: true },
+                            { text: 'fetch 用于上传，pull 用于下载', correct: false },
+                            { text: 'fetch 需要认证，pull 不需要', correct: false }
+                        ],
+                        explanation: 'git fetch 从远程获取最新版本但不会自动合并，git pull 则会下载并自动合并到当前分支。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '如何查看远程仓库的地址？',
+                        options: [
+                            { text: 'git remote show', correct: false },
+                            { text: 'git remote -v', correct: true },
+                            { text: 'git remote add', correct: false },
+                            { text: 'git remote remove', correct: false }
+                        ],
+                        explanation: 'git remote -v 可以显示所有远程仓库的详细信息，包括名称和 URL。'
+                    }
+                ]
+            },
+            'lesson-04': {
+                title: '分支操作',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '创建并切换到新分支的正确命令是？',
+                        options: [
+                            { text: 'git branch new-branch', correct: false },
+                            { text: 'git checkout new-branch', correct: false },
+                            { text: 'git checkout -b new-branch', correct: true },
+                            { text: 'git switch new-branch', correct: false }
+                        ],
+                        explanation: 'git checkout -b new-branch 可以创建并立即切换到新分支。git switch -c 也有同样效果。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '合并分支的命令是：git ____ branch-name',
+                        answer: 'merge',
+                        explanation: 'git merge branch-name 将指定分支合并到当前分支。'
+                    }
+                ]
+            },
+            'lesson-05': {
+                title: '合并冲突处理',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '合并分支时遇到冲突，Git 会怎么做？',
+                        options: [
+                            { text: '自动选择最新版本', correct: false },
+                            { text: '暂停合并，让你手动解决冲突', correct: true },
+                            { text: '直接回滚到合并前', correct: false },
+                            { text: '忽略冲突继续合并', correct: false }
+                        ],
+                        explanation: 'Git 会暂停合并过程，让你手动解决冲突后再次提交。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '解决冲突后，需要执行什么命令继续合并？',
+                        options: [
+                            { text: 'git merge --continue', correct: false },
+                            { text: 'git add + git commit', correct: true },
+                            { text: 'git resolve', correct: false },
+                            { text: 'git conflict --solved', correct: false }
+                        ],
+                        explanation: '解决冲突后，需要 git add 标记文件为已解决，然后 git commit 完成合并。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '冲突文件中的 <<<<<<< HEAD 标记表示什么？',
+                        options: [
+                            { text: '冲突的结束位置', correct: false },
+                            { text: '当前分支的修改', correct: true },
+                            { text: '需要删除的代码', correct: false },
+                            { text: '远程分支的修改', correct: false }
+                        ],
+                        explanation: '<<<<<<< HEAD 到 ======= 之间的内容是你当前分支的修改。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '查看冲突文件内容的命令是：git ____',
+                        answer: 'diff',
+                        explanation: 'git diff 可以显示冲突文件的具体冲突内容。'
+                    }
+                ]
+            },
+            'lesson-06': {
+                title: 'Rebase 变基',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git rebase 的主要目的是什么？',
+                        options: [
+                            { text: '删除分支', correct: false },
+                            { text: '让提交历史更线性整洁', correct: true },
+                            { text: '合并远程分支', correct: false },
+                            { text: '撤销提交', correct: false }
+                        ],
+                        explanation: 'rebase 会将一系列提交移动到另一个基点上，使历史更线性。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'rebase 和 merge 最大的区别是什么？',
+                        options: [
+                            { text: 'rebase 会删除历史', correct: false },
+                            { text: 'rebase 会改写历史，merge 不会', correct: true },
+                            { text: 'rebase 只能用于本地分支', correct: false },
+                            { text: 'reverse 没有区别', correct: false }
+                        ],
+                        explanation: 'rebase 会改写提交历史，创建一个新的线性历史；merge 会保留完整历史。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '在公共分支上执行 rebase 会导致什么问题？',
+                        options: [
+                            { text: '没有影响', correct: false },
+                            { text: '可能造成历史混乱，影响团队协作', correct: true },
+                        ],
+                        explanation: '公共分支的 rebase 会改写已推送的历史，导致团队成员的历史不一致。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '交互式变基的命令是：git rebase ____',
+                        answer: '-i',
+                        explanation: 'git rebase -i 可以交互式地修改、合并、删除提交。'
+                    }
+                ]
+            },
+            'lesson-07': {
+                title: 'Cherry-pick 与 Revert',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git cherry-pick 的作用是什么？',
+                        options: [
+                            { text: '删除提交', correct: false },
+                            { text: '将指定提交复制到当前分支', correct: true },
+                            { text: '合并整个分支', correct: false },
+                            { text: '撤销提交', correct: false }
+                        ],
+                        explanation: 'cherry-pick 可以选择性地将某个分支的特定提交复制到当前分支。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'git revert 和 git reset --hard 的区别是什么？',
+                        options: [
+                            { text: '两者没有区别', correct: false },
+                            { text: 'revert 创建新提交来撤销，不改写历史', correct: true },
+                            { text: 'reset 更安全', correct: false },
+                            { text: 'revert 会删除提交', correct: false }
+                        ],
+                        explanation: 'revert 通过创建新提交来撤销修改，不会改写历史，适合公共分支。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '你在错误的分支上提交了代码，应该使用什么命令拯救？',
+                        options: [
+                            { text: 'git reset', correct: false },
+                            { text: 'git cherry-pick', correct: true },
+                            { text: 'git delete', correct: false },
+                            { text: 'git undo', correct: false }
+                        ],
+                        explanation: '可以用 cherry-pick 将错误分支上的提交复制到正确分支，然后 reset 撤销。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '撤销倒数第2个提交的命令是：git revert HEAD~____',
+                        answer: '2',
+                        explanation: 'git revert HEAD~2 会撤销倒数第2个提交（即倒数第2个之前的提交）。'
+                    }
+                ]
+            },
+            'lesson-08': {
+                title: 'Reflog 恢复',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git reflog 记录的是什么？',
+                        options: [
+                            { text: '文件修改历史', correct: false },
+                            { text: 'HEAD 指针的移动历史', correct: true },
+                            { text: '远程仓库历史', correct: false },
+                            { text: '分支创建历史', correct: false }
+                        ],
+                        explanation: 'reflog 记录了 HEAD 指针的所有移动操作，可以用来恢复丢失的提交。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '不小心执行了 git reset --hard 丢失了提交，应该怎么找回？',
+                        options: [
+                            { text: '无法找回', correct: false },
+                            { text: '使用 git reflog 找到丢失的提交并恢复', correct: true },
+                            { text: '重新开发', correct: false },
+                            { text: '从远程拉取', correct: false }
+                        ],
+                        explanation: '虽然 reset --hard 丢弃了工作区修改，但 reflog 记录了操作历史。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '查看最近10条 reflog 的命令是：git reflog show -g ____ 10',
+                        answer: '@{',
+                        explanation: 'git reflog show -g @{0..9} 可以查看最近的引用日志。'
+                    }
+                ]
+            },
+            'lesson-09': {
+                title: 'Stash 暂存',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git stash 的作用是什么？',
+                        options: [
+                            { text: '删除文件', correct: false },
+                            { text: '临时保存未提交的修改', correct: true },
+                            { text: '提交修改', correct: false },
+                            { text: '创建分支', correct: false }
+                        ],
+                        explanation: 'stash 可以临时保存工作区的修改，以便切换分支或做其他操作。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '恢复最近一次 stash 的命令是什么？',
+                        options: [
+                            { text: 'git stash get', correct: false },
+                            { text: 'git stash pop', correct: true },
+                            { text: 'git stash apply', correct: false },
+                            { text: 'git stash back', correct: false }
+                        ],
+                        explanation: 'git stash pop 会恢复最近一次 stash 并从 stash 列表中删除。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'git stash apply 和 git stash pop 的区别是什么？',
+                        options: [
+                            { text: '没有区别', correct: false },
+                            { text: 'pop 会删除 stash，apply 不会', correct: true },
+                            { text: 'apply 只恢复部分', correct: false },
+                            { text: 'pop 只恢复部分', correct: false }
+                        ],
+                        explanation: 'git stash pop 恢复后会删除 stash 记录，git stash apply 会保留。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '查看所有 stash 的命令是：git stash list',
+                        answer: 'list',
+                        explanation: 'git stash list 显示所有暂存的修改列表。'
+                    }
+                ]
+            },
+            'lesson-10': {
+                title: 'CI/CD 基础',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'GitHub Actions 的工作流文件应该放在哪个目录？',
+                        options: [
+                            { text: '.git/workflows', correct: false },
+                            { text: '.github/workflows', correct: true },
+                            { text: 'workflows/', correct: false },
+                            { text: 'actions/', correct: false }
+                        ],
+                        explanation: 'GitHub Actions 的工作流文件必须放在 .github/workflows 目录中。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'CI 的全称是什么？',
+                        options: [
+                            { text: 'Continuous Integration', correct: true },
+                            { text: 'Continuous Implementation', correct: false },
+                            { text: 'Code Integration', correct: false },
+                            { text: 'Center Integration', correct: false }
+                        ],
+                        explanation: 'CI = Continuous Integration，持续集成。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: 'GitHub Actions 的触发器关键词是：____',
+                        answer: 'on',
+                        explanation: 'on 关键字用于定义工作流的触发条件，如 on: push。'
+                    }
+                ]
+            },
+            'lesson-11': {
+                title: '修复 CI 故障',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'CI 流水线失败时，第一步应该做什么？',
+                        options: [
+                            { text: '重新运行流水线', correct: false },
+                            { text: '查看错误日志，定位问题', correct: true },
+                            { text: '修改代码后直接推送', correct: false },
+                            { text: '跳过测试继续', correct: false }
+                        ],
+                        explanation: '首先需要仔细阅读 CI 日志，理解失败原因再针对性修复。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'npm install 失败可能有哪些原因？',
+                        options: [
+                            { text: '网络问题', correct: false },
+                            { text: '依赖版本不兼容', correct: false },
+                            { text: 'node_modules 缓存问题', correct: false },
+                            { text: '以上都是', correct: true }
+                        ],
+                        explanation: 'npm install 失败可能有多种原因，需要查看具体错误信息。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '安装依赖前清理缓存的命令是：npm ____',
+                        answer: 'cache clean',
+                        explanation: 'npm cache clean --force 可以清理 npm 缓存。'
+                    }
+                ]
+            },
+            'lesson-12': {
+                title: '多阶段流水线',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'GitHub Actions 中，什么是 job？',
+                        options: [
+                            { text: '一个单独的步骤', correct: false },
+                            { text: '一组可并行运行的任务', correct: true },
+                            { text: '一个完整的流水线', correct: false },
+                            { text: '一个触发条件', correct: false }
+                        ],
+                        explanation: 'job 是一组运行在同一个 runner 上的步骤，可以并行或串行执行。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '多阶段流水线通常包括哪些阶段？',
+                        options: [
+                            { text: '只有测试', correct: false },
+                            { text: '构建、测试、部署', correct: true },
+                            { text: '只有部署', correct: false },
+                            { text: '只写代码', correct: false }
+                        ],
+                        explanation: '典型流水线包括：构建(build) → 测试(test) → 部署(deploy)。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '定义 job 依赖关系的关键词是：needs',
+                        answer: 'needs',
+                        explanation: 'needs 关键字用于指定 job 之间的依赖关系。'
+                    }
+                ]
+            },
+            'lesson-13': {
+                title: '标签与 Release',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '创建轻量标签的命令是什么？',
+                        options: [
+                            { text: 'git tag -a v1.0', correct: false },
+                            { text: 'git tag v1.0', correct: true },
+                            { text: 'git create tag v1.0', correct: false },
+                            { text: 'git new tag v1.0', correct: false }
+                        ],
+                        explanation: 'git tag v1.0 创建轻量标签，只是一个指向提交的指针。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '带标注的标签（推荐）应该使用什么命令创建？',
+                        options: [
+                            { text: 'git tag v1.0', correct: false },
+                            { text: 'git tag -a v1.0 -m "message"', correct: true },
+                            { text: 'git tag -s v1.0', correct: false },
+                            { text: 'git tag --note v1.0', correct: false }
+                        ],
+                        explanation: 'git tag -a (--annotate) 创建带标注的标签，包含额外元信息。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '推送标签到远程的命令是：git push origin ____ v1.0.0',
+                        answer: 'tags',
+                        explanation: 'git push origin --tags 或 git push origin v1.0.0 推送标签。'
+                    }
+                ]
+            },
+            'lesson-15': {
+                title: 'Git Hooks',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'Git Hooks 文件通常存放在哪个目录？',
+                        options: [
+                            { text: '.hooks', correct: false },
+                            { text: 'hooks/', correct: true },
+                            { text: 'scripts/', correct: false },
+                            { text: 'git/hooks/', correct: false }
+                        ],
+                        explanation: 'Git hooks 存放在 .git/hooks 目录（本地）或 .github/hooks（全局）。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'commit-msg hook 在什么时候运行？',
+                        options: [
+                            { text: '提交前', correct: false },
+                            { text: '提交信息编辑后、提交完成前', correct: true },
+                            { text: '提交后', correct: false },
+                            { text: '推送时', correct: false }
+                        ],
+                        explanation: 'commit-msg 在用户输入提交信息后、提交完成前运行，可用于验证提交信息。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: 'pre-commit hook 在 ____ 之前运行',
+                        answer: 'git commit',
+                        explanation: 'pre-commit 在 git commit 执行前运行，常用于代码检查。'
+                    }
+                ]
+            },
+            'lesson-16': {
+                title: '大型仓库',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '如何减小仓库体积？',
+                        options: [
+                            { text: '删除所有历史', correct: false },
+                            { text: '使用 git gc 清理和压缩', correct: true },
+                            { text: '不要使用 Git', correct: false },
+                        ],
+                        explanation: 'git gc 可以清理无效对象并压缩仓库，有效减小体积。'
+                    },
+                    {
+                        type: 'choice',
+                        question: 'git clone 很慢时可以使用什么参数加速？',
+                        options: [
+                            { text: 'git clone --fast', correct: false },
+                            { text: 'git clone --depth 1', correct: true },
+                            { text: 'git clone --quick', correct: false },
+                            { text: 'git clone --no-history', correct: false }
+                        ],
+                        explanation: '--depth 1 浅克隆，只获取最新版本，大大加速克隆速度。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '查看仓库大小的命令是：du -sh .____',
+                        answer: 'git',
+                        explanation: 'du -sh .git 可以查看 .git 目录的大小。'
+                    }
+                ]
+            }
+        };
+
+        // 测验应用
+        class QuizApp {
+            constructor(containerId, lessonId) {
+                this.container = document.getElementById(containerId);
+                this.lessonId = lessonId;
+                this.quizData = QUIZ_BANK[lessonId] || QUIZ_BANK['lesson-01'];
+                this.currentQuestion = 0;
+                this.answers = [];
+                this.init();
+            }
+
+            init() {
+                this.render();
+            }
+
+            render() {
+                const { title, questions } = this.quizData;
+
+                let html = `
+                    <div class="quiz-header">
+                        <h1>📝 ${title} 小测验</h1>
+                        <p>检验一下你对这部分知识的掌握程度</p>
+                    </div>
+                    <div class="quiz-progress">
+                        ${questions.map((_, i) => `<div class="quiz-progress-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>`).join('')}
+                    </div>
+                `;
+
+                if (this.currentQuestion < questions.length) {
+                    html += this.renderQuestion(questions[this.currentQuestion]);
+                } else {
+                    html += this.renderResult();
+                }
+
+                this.container.innerHTML = html;
+                this.bindEvents();
+            }
+
+            renderQuestion(question) {
+                const { type, question: q, options, answer } = question;
+                const qNum = this.currentQuestion + 1;
+                const total = this.quizData.questions.length;
+
+                let optionsHtml = '';
+                if (type === 'choice' && options) {
+                    optionsHtml = `
+                        <div class="quiz-options">
+                            ${options.map((opt, i) => `
+                                <div class="quiz-option" data-index="${i}" data-correct="${opt.correct}">
+                                    <span class="quiz-option-marker"></span>
+                                    <span>${opt.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (type === 'fill-blank') {
+                    optionsHtml = `
+                        <div class="quiz-fill-blank">
+                            ${q.replace('____', '<input type="text" placeholder="请输入..." data-answer="' + answer.toLowerCase() + '">')}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="quiz-card">
+                        <div class="quiz-question">
+                            <span class="quiz-question-number">${qNum}</span>
+                            <span>${q}</span>
+                        </div>
+                        ${optionsHtml}
+                        <div class="quiz-explanation" id="explanation"></div>
+                    </div>
+                    <div class="quiz-actions">
+                        <button class="quiz-btn quiz-btn-primary" id="submit-btn" disabled>提交答案</button>
+                        ${this.currentQuestion > 0 ? '<button class="quiz-btn quiz-btn-secondary" id="prev-btn">上一题</button>' : ''}
+                        ${qNum < total ? '<button class="quiz-btn quiz-btn-secondary" id="next-btn" style="display:none">下一题</button>' : ''}
+                    </div>
+                `;
+            }
+
+            renderResult() {
+                const { questions } = this.quizData;
+                const correctCount = this.answers.filter(a => a.correct).length;
+                const score = Math.round((correctCount / questions.length) * 100);
+
+                let resultClass = 'partial';
+                let resultIcon = '🎉';
+                let resultTitle = '继续加油！';
+                let resultMsg = '有些知识点还需要再复习一下';
+
+                if (score >= 80) {
+                    resultClass = 'success';
+                    resultIcon = '🎯';
+                    resultTitle = '太棒了！';
+                    resultMsg = '你已经掌握了这部分内容！';
+                }
+
+                return `
+                    <div class="quiz-card">
+                        <div class="quiz-result">
+                            <div class="quiz-result-icon ${resultClass}">${resultIcon}</div>
+                            <div class="quiz-result-title">${resultTitle}</div>
+                            <div class="quiz-result-score">${score}%</div>
+                            <div class="quiz-result-msg">${resultMsg} (${correctCount}/${questions.length} 题正确)</div>
+                            <div class="quiz-actions">
+                                <button class="quiz-btn quiz-btn-primary" onclick="location.reload()">重新测验</button>
+                                <a href="../../docs/viewer.html?file=lesson-01-init-push.md" class="quiz-btn quiz-btn-secondary">返回课程</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            bindEvents() {
+                // 选择题
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+                        opt.classList.add('selected');
+                        document.getElementById('submit-btn').disabled = false;
+                    });
+                });
+
+                // 填空题
+                const input = document.querySelector('.quiz-fill-blank input');
+                if (input) {
+                    input.addEventListener('input', () => {
+                        document.getElementById('submit-btn').disabled = !input.value.trim();
+                    });
+                }
+
+                // 提交按钮
+                const submitBtn = document.getElementById('submit-btn');
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', () => this.submitAnswer());
+                }
+
+                // 导航按钮
+                const prevBtn = document.getElementById('prev-btn');
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => this.prevQuestion());
+                }
+
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => this.nextQuestion());
+                }
+            }
+
+            submitAnswer() {
+                const question = this.quizData.questions[this.currentQuestion];
+                let isCorrect = false;
+                let selectedAnswer = '';
+
+                if (question.type === 'choice') {
+                    const selected = document.querySelector('.quiz-option.selected');
+                    if (selected) {
+                        isCorrect = selected.dataset.correct === 'true';
+                        selectedAnswer = selected.querySelector('span:last-child').textContent;
+
+                        // 显示正确答案
+                        document.querySelectorAll('.quiz-option').forEach(opt => {
+                            opt.classList.add('disabled');
+                            if (opt.dataset.correct === 'true') {
+                                opt.classList.add('correct');
+                            } else if (opt.classList.contains('selected') && !isCorrect) {
+                                opt.classList.add('wrong');
+                            }
+                        });
+                    }
+                } else if (question.type === 'fill-blank') {
+                    const input = document.querySelector('.quiz-fill-blank input');
+                    if (input) {
+                        isCorrect = input.value.trim().toLowerCase() === input.dataset.answer.toLowerCase();
+                        selectedAnswer = input.value.trim();
+
+                        // 显示正确答案
+                        input.value = input.dataset.answer;
+                        input.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
+                    }
+                }
+
+                // 记录答案
+                this.answers.push({ question: this.currentQuestion, correct: isCorrect });
+
+                // 显示解释
+                const explanation = document.getElementById('explanation');
+                if (explanation) {
+                    explanation.innerHTML = isCorrect
+                        ? `<strong>✅ 回答正确！</strong> ${question.explanation}`
+                        : `<strong>❌ 回答错误。</strong> ${question.explanation}`;
+                    explanation.classList.add('show');
+                }
+
+                // 更新进度点
+                const dots = document.querySelectorAll('.quiz-progress-dot');
+                dots[this.currentQuestion].classList.remove('active');
+                dots[this.currentQuestion].classList.add(isCorrect ? 'correct' : 'wrong');
+
+                // 更新按钮状态
+                document.getElementById('submit-btn').style.display = 'none';
+
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn) {
+                    nextBtn.style.display = 'inline-flex';
+                }
+
+                // 如果是最后一题，显示完成
+                if (this.currentQuestion === this.quizData.questions.length - 1) {
+                    nextBtn.textContent = '查看结果';
+                    nextBtn.onclick = () => {
+                        this.currentQuestion++;
+                        this.render();
+                    };
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentQuestion > 0) {
+                    this.currentQuestion--;
+                    this.render();
+                }
+            }
+
+            nextQuestion() {
+                if (this.currentQuestion < this.quizData.questions.length - 1) {
+                    this.currentQuestion++;
+                    this.render();
+                }
+            }
+        }
+
+        // 导出到全局
+        window.QuizApp = QuizApp;
+    </script>
+</body>
+</html>

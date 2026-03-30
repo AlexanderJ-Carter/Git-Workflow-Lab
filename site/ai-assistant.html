@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 问答助手 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ai-primary: #6366f1;
+            --ai-secondary: #8b5cf6;
+            --ai-success: #10b981;
+            --ai-error: #ef4444;
+            --ai-bg: #f8fafc;
+            --ai-bg-card: #ffffff;
+            --ai-border: #e2e8f0;
+            --ai-text: #1e293b;
+            --ai-text-muted: #64748b;
+            --ai-radius: 16px;
+            --sidebar-width: 300px;
+        }
+
+        [data-theme="dark"] {
+            --ai-bg: #0f172a;
+            --ai-bg-card: #1e293b;
+            --ai-border: #334155;
+            --ai-text: #f1f5f9;
+            --ai-text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--ai-bg);
+            color: var(--ai-text);
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .ai-header {
+            background: var(--ai-bg-card);
+            border-bottom: 1px solid var(--ai-border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .ai-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ai-header-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .ai-header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ai-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 主布局 */
+        .ai-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .ai-sidebar {
+            width: var(--sidebar-width);
+            background: var(--ai-bg-card);
+            border-right: 1px solid var(--ai-border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .ai-sidebar-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--ai-border);
+        }
+
+        .ai-sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ai-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        /* 设置表单 */
+        .ai-settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ai-form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ai-text);
+        }
+
+        .ai-form-input {
+            padding: 10px 14px;
+            border: 1px solid var(--ai-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--ai-bg);
+            color: var(--ai-text);
+            transition: border-color 0.2s;
+        }
+
+        .ai-form-input:focus {
+            outline: none;
+            border-color: var(--ai-primary);
+        }
+
+        .ai-form-input::placeholder {
+            color: var(--ai-text-muted);
+        }
+
+        .ai-form-select {
+            padding: 10px 14px;
+            border: 1px solid var(--ai-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--ai-bg);
+            color: var(--ai-text);
+            cursor: pointer;
+        }
+
+        .ai-form-hint {
+            font-size: 11px;
+            color: var(--ai-text-muted);
+        }
+
+        /* 课程选择 */
+        .ai-course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ai-course-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--ai-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .ai-course-item:hover {
+            background: var(--ai-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .ai-course-item.active {
+            background: var(--ai-primary);
+            color: white;
+        }
+
+        .ai-course-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--ai-primary);
+        }
+
+        /* 对话区域 */
+        .ai-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ai-message {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message.assistant {
+            align-self: flex-start;
+            background: var(--ai-bg-card);
+            border: 1px solid var(--ai-border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-message.error {
+            align-self: flex-start;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--ai-error);
+            color: var(--ai-error);
+        }
+
+        .ai-message code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .ai-message pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .ai-message pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* 空状态 */
+        .ai-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--ai-text-muted);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .ai-empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .ai-empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ai-text);
+            margin-bottom: 8px;
+        }
+
+        .ai-empty-desc {
+            font-size: 14px;
+            max-width: 300px;
+        }
+
+        /* 输入区域 */
+        .ai-input-area {
+            padding: 16px 24px;
+            background: var(--ai-bg-card);
+            border-top: 1px solid var(--ai-border);
+        }
+
+        .ai-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .ai-input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .ai-input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid var(--ai-border);
+            border-radius: 12px;
+            font-size: 14px;
+            background: var(--ai-bg);
+            color: var(--ai-text);
+            resize: none;
+            min-height: 52px;
+            max-height: 150px;
+            font-family: inherit;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--ai-primary);
+        }
+
+        .ai-input::placeholder {
+            color: var(--ai-text-muted);
+        }
+
+        .ai-send-btn {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .ai-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ai-send-btn.loading {
+            pointer-events: none;
+        }
+
+        /* 加载动画 */
+        .ai-typing {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .ai-typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--ai-text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
+        /* 上下文提示 */
+        .ai-context-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--ai-primary);
+            border-radius: 20px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .ai-sidebar {
+                display: none;
+            }
+
+            .ai-message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="ai-header">
+        <div class="ai-header-left">
+            <div class="ai-header-logo">🤖</div>
+            <h1 class="ai-header-title">Git AI 问答助手</h1>
+        </div>
+        <div class="ai-header-right">
+            <button class="btn btn-secondary" id="clear-chat-btn" style="font-size: 13px; padding: 8px 16px;">
+                🗑️ 清空对话
+            </button>
+        </div>
+    </header>
+
+    <!-- 主布局 -->
+    <main class="ai-main">
+        <!-- 侧边栏 -->
+        <aside class="ai-sidebar">
+            <!-- API 设置 -->
+            <div class="ai-sidebar-section">
+                <div class="ai-sidebar-title">API 配置</div>
+                <div class="ai-settings-form">
+                    <div class="ai-form-group">
+                        <label class="ai-form-label">API 提供商</label>
+                        <select class="ai-form-select" id="api-provider">
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic (Claude)</option>
+                            <option value="custom">自定义 (OpenAI 兼容)</option>
+                        </select>
+                    </div>
+                    <div class="ai-form-group">
+                        <label class="ai-form-label">API Key</label>
+                        <input type="password" class="ai-form-input" id="api-key" placeholder="sk-...">
+                        <span class="ai-form-hint">Key 仅保存在浏览器本地</span>
+                    </div>
+                    <div class="ai-form-group" id="custom-endpoint-group" style="display: none;">
+                        <label class="ai-form-label">API 端点</label>
+                        <input type="text" class="ai-form-input" id="api-endpoint" placeholder="https://api.openai.com/v1">
+                    </div>
+                    <div class="ai-form-group">
+                        <label class="ai-form-label">模型</label>
+                        <select class="ai-form-select" id="api-model">
+                            <option value="gpt-4o-mini">GPT-4o Mini (推荐)</option>
+                            <option value="gpt-4o">GPT-4o</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="save-settings-btn" style="width: 100%;">保存设置</button>
+                </div>
+            </div>
+
+            <!-- 课程上下文 -->
+            <div class="ai-sidebar-section">
+                <div class="ai-sidebar-title">学习上下文</div>
+                <div class="ai-course-list" id="course-list">
+                    <!-- 动态生成 -->
+                </div>
+                <button class="btn btn-secondary" id="apply-context-btn" style="width: 100%; margin-top: 12px;">
+                    ✓ 应用上下文
+                </button>
+            </div>
+
+            <!-- 快捷提示 -->
+            <div class="ai-sidebar-section">
+                <div class="ai-sidebar-title">快捷问题</div>
+                <div class="ai-course-list">
+                    <div class="ai-course-item" data-prompt="解释 git rebase 和 git merge 的区别">
+                        📌 rebase vs merge
+                    </div>
+                    <div class="ai-course-item" data-prompt="如何撤销最近的 commit？">
+                        ↩️ 撤销 commit
+                    </div>
+                    <div class="ai-course-item" data-prompt="解决合并冲突的步骤是什么？">
+                        🔀 解决冲突
+                    </div>
+                    <div class="ai-course-item" data-prompt="git reset 的三种模式 --soft --mixed --hard 有什么区别？">
+                        🎚️ reset 模式
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 对话区域 -->
+        <section class="ai-chat">
+            <div class="ai-chat-messages" id="chat-messages">
+                <div class="ai-empty" id="empty-state">
+                    <div class="ai-empty-icon">💬</div>
+                    <div class="ai-empty-title">开始你的 Git 问答之旅</div>
+                    <div class="ai-empty-desc">
+                        配置好 API 后，尝试问我关于 Git 的任何问题。我会结合课程内容给你准确的答案。
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-input-area">
+                <div class="ai-input-wrapper">
+                    <div class="ai-input-container">
+                        <textarea
+                            class="ai-input"
+                            id="user-input"
+                            placeholder="输入你的 Git 问题..."
+                            rows="1"
+                        ></textarea>
+                    </div>
+                    <button class="ai-send-btn" id="send-btn">
+                        <span>发送</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 课程内容数据 (简化版 - 实际可从文档加载)
+        const COURSE_CONTENT = {
+            '基础操作': `
+Git 基础操作包括：
+1. git clone - 克隆远程仓库
+2. git add - 添加文件到暂存区
+3. git commit - 提交更改
+4. git push - 推送到远程
+5. git pull - 拉取并合并远程更改
+6. git status - 查看状态
+7. git log - 查看提交历史
+            `,
+            '分支管理': `
+分支管理命令：
+1. git branch - 列出/创建分支
+2. git switch / git checkout - 切换分支
+3. git checkout -b - 创建并切换
+4. git merge - 合并分支
+5. git rebase - 变基操作
+6. git branch -d - 删除分支
+            `,
+            '远程协作': `
+远程协作相关：
+1. git remote - 管理远程仓库
+2. git fetch - 获取远程更新
+3. git pull = fetch + merge
+4. git push - 推送到远程
+5. PR/MR - 拉取请求
+            `,
+            '历史管理': `
+历史管理操作：
+1. git reset - 撤销提交
+   --soft: 保留修改在暂存区
+   --mixed: 保留修改在工作区
+   --hard: 丢弃所有修改
+2. git revert - 撤销提交（创建新提交）
+3. git reflog - 查看引用日志
+4. git cherry-pick - 选择性合并提交
+            `,
+            '暂存管理': `
+暂存相关命令：
+1. git stash - 暂存当前工作
+2. git stash pop - 恢复暂存
+3. git stash list - 查看暂存列表
+4. git stash drop - 删除暂存
+            `,
+            'CI/CD': `
+CI/CD 相关：
+1. GitHub Actions 工作流
+2. .github/workflows 目录
+3. 流水线配置语法
+4. 环境变量和 Secrets
+5. 自动测试和部署
+            `
+        };
+
+        // 课程列表
+        const COURSES = [
+            { id: 'basic', name: '基础操作', key: '基础操作' },
+            { id: 'branch', name: '分支管理', key: '分支管理' },
+            { id: 'remote', name: '远程协作', key: '远程协作' },
+            { id: 'history', name: '历史管理', key: '历史管理' },
+            { id: 'stash', name: '暂存管理', key: '暂存管理' },
+            { id: 'cicd', name: 'CI/CD', key: 'CI/CD' }
+        ];
+
+        // 应用状态
+        const state = {
+            apiProvider: 'openai',
+            apiKey: '',
+            apiEndpoint: 'https://api.openai.com/v1',
+            model: 'gpt-4o-mini',
+            selectedCourses: ['basic', 'branch', 'remote', 'history', 'stash', 'cicd'],
+            messages: [],
+            isLoading: false
+        };
+
+        // DOM 元素
+        const elements = {
+            apiProvider: document.getElementById('api-provider'),
+            apiKey: document.getElementById('api-key'),
+            apiEndpoint: document.getElementById('api-endpoint'),
+            customEndpointGroup: document.getElementById('custom-endpoint-group'),
+            apiModel: document.getElementById('api-model'),
+            saveSettingsBtn: document.getElementById('save-settings-btn'),
+            courseList: document.getElementById('course-list'),
+            applyContextBtn: document.getElementById('apply-context-btn'),
+            chatMessages: document.getElementById('chat-messages'),
+            emptyState: document.getElementById('empty-state'),
+            userInput: document.getElementById('user-input'),
+            sendBtn: document.getElementById('send-btn'),
+            clearChatBtn: document.getElementById('clear-chat-btn')
+        };
+
+        // 初始化
+        function init() {
+            loadSettings();
+            renderCourseList();
+            renderQuickPrompts();
+            bindEvents();
+        }
+
+        // 加载设置
+        function loadSettings() {
+            const saved = localStorage.getItem('git-ai-settings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                state.apiProvider = settings.apiProvider || 'openai';
+                state.apiKey = settings.apiKey || '';
+                state.apiEndpoint = settings.apiEndpoint || 'https://api.openai.com/v1';
+                state.model = settings.model || 'gpt-4o-mini';
+
+                elements.apiProvider.value = state.apiProvider;
+                elements.apiKey.value = state.apiKey;
+                elements.apiEndpoint.value = state.apiEndpoint;
+                elements.apiModel.value = state.model;
+
+                updateEndpointVisibility();
+            }
+
+            // 加载对话历史
+            const savedMessages = localStorage.getItem('git-ai-messages');
+            if (savedMessages) {
+                state.messages = JSON.parse(savedMessages);
+                if (state.messages.length > 0) {
+                    elements.emptyState.style.display = 'none';
+                    state.messages.forEach(msg => renderMessage(msg.role, msg.content));
+                }
+            }
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                apiProvider: elements.apiProvider.value,
+                apiKey: elements.apiKey.value,
+                apiEndpoint: elements.apiEndpoint.value,
+                model: elements.apiModel.value
+            };
+            localStorage.setItem('git-ai-settings', JSON.stringify(settings));
+            Object.assign(state, settings);
+            alert('设置已保存！');
+        }
+
+        // 更新端点显示
+        function updateEndpointVisibility() {
+            const isCustom = elements.apiProvider.value === 'custom';
+            elements.customEndpointGroup.style.display = isCustom ? 'flex' : 'none';
+
+            // 更新模型选项
+            const modelSelect = elements.apiModel;
+            modelSelect.innerHTML = '';
+
+            if (elements.apiProvider.value === 'openai') {
+                modelSelect.innerHTML = `
+                    <option value="gpt-4o-mini">GPT-4o Mini (推荐)</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                `;
+            } else if (elements.apiProvider.value === 'anthropic') {
+                modelSelect.innerHTML = `
+                    <option value="claude-3-5-sonnet-20241022">Claude Sonnet (推荐)</option>
+                    <option value="claude-3-5-haiku-20241022">Claude Haiku</option>
+                    <option value="claude-3-opus-20240229">Claude Opus</option>
+                `;
+            } else {
+                modelSelect.innerHTML = `
+                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="custom">自定义模型</option>
+                `;
+            }
+        }
+
+        // 渲染课程列表
+        function renderCourseList() {
+            elements.courseList.innerHTML = COURSES.map(course => `
+                <label class="ai-course-item ${state.selectedCourses.includes(course.id) ? 'active' : ''}">
+                    <input type="checkbox" value="${course.id}" ${state.selectedCourses.includes(course.id) ? 'checked' : ''}>
+                    <span>${course.name}</span>
+                </label>
+            `).join('');
+
+            // 绑定点击事件
+            elements.courseList.querySelectorAll('.ai-course-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = item.querySelector('input');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    item.classList.toggle('active', checkbox.checked);
+                });
+
+                item.querySelector('input').addEventListener('change', (e) => {
+                    item.classList.toggle('active', e.target.checked);
+                });
+            });
+        }
+
+        // 渲染快捷提示
+        function renderQuickPrompts() {
+            document.querySelectorAll('[data-prompt]').forEach(item => {
+                item.addEventListener('click', () => {
+                    elements.userInput.value = item.dataset.prompt;
+                    elements.userInput.focus();
+                });
+            });
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // API 提供商变更
+            elements.apiProvider.addEventListener('change', updateEndpointVisibility);
+
+            // 保存设置
+            elements.saveSettingsBtn.addEventListener('click', saveSettings);
+
+            // 应用上下文
+            elements.applyContextBtn.addEventListener('click', () => {
+                const checkboxes = elements.courseList.querySelectorAll('input[type="checkbox"]');
+                state.selectedCourses = Array.from(checkboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+                alert(`已选择 ${state.selectedCourses.length} 个学习模块作为上下文`);
+            });
+
+            // 发送消息
+            elements.sendBtn.addEventListener('click', sendMessage);
+            elements.userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // 自动调整输入框高度
+            elements.userInput.addEventListener('input', () => {
+                elements.userInput.style.height = 'auto';
+                elements.userInput.style.height = Math.min(elements.userInput.scrollHeight, 150) + 'px';
+            });
+
+            // 清空对话
+            elements.clearChatBtn.addEventListener('click', () => {
+                if (confirm('确定要清空对话历史吗？')) {
+                    state.messages = [];
+                    localStorage.removeItem('git-ai-messages');
+                    elements.chatMessages.innerHTML = '';
+                    elements.chatMessages.appendChild(elements.emptyState);
+                    elements.emptyState.style.display = 'flex';
+                }
+            });
+        }
+
+        // 构建系统提示
+        function buildSystemPrompt() {
+            const selectedContent = state.selectedCourses
+                .map(id => {
+                    const course = COURSES.find(c => c.id === id);
+                    return course ? COURSE_CONTENT[course.key] : '';
+                })
+                .filter(Boolean)
+                .join('\n\n');
+
+            return `你是 Git Workflow Lab 的 AI 学习助手，专为学习 Git 的用户提供帮助。
+
+## 你的知识背景
+你了解以下课程内容：
+${selectedContent}
+
+## 回答要求
+1. 使用中文回答
+2. 结合课程内容给出准确答案
+3. 对于命令解释，给出具体示例
+4. 适当使用代码块格式化命令
+5. 如果用户问题超出 Git 范围，提醒他们专注于 Git 相关问题`;
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const content = elements.userInput.value.trim();
+            if (!content || state.isLoading) return;
+
+            // 检查 API 配置
+            if (!state.apiKey) {
+                alert('请先在左侧设置 API Key');
+                return;
+            }
+
+            // 添加用户消息
+            addMessage('user', content);
+            elements.userInput.value = '';
+            elements.userInput.style.height = 'auto';
+
+            // 显示加载状态
+            setLoading(true);
+
+            try {
+                const response = await callAI(content);
+                addMessage('assistant', response);
+            } catch (error) {
+                addMessage('error', `抱歉，发生了错误：${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // 调用 AI API
+        async function callAI(userMessage) {
+            const messages = [
+                { role: 'system', content: buildSystemPrompt() },
+                ...state.messages.map(m => ({ role: m.role, content: m.content })),
+                { role: 'user', content: userMessage }
+            ];
+
+            let url, headers, body;
+
+            if (state.apiProvider === 'anthropic') {
+                url = 'https://api.anthropic.com/v1/messages';
+                headers = {
+                    'Content-Type': 'application/json',
+                    'x-api-key': state.apiKey,
+                    'anthropic-version': '2023-06-01'
+                };
+                body = JSON.stringify({
+                    model: state.model,
+                    max_tokens: 1024,
+                    messages: messages.slice(1)
+                });
+            } else {
+                // OpenAI 兼容
+                url = `${state.apiEndpoint}/chat/completions`;
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${state.apiKey}`
+                };
+                body = JSON.stringify({
+                    model: state.model,
+                    messages: messages,
+                    temperature: 0.7
+                });
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: body
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.error?.message || `API 请求失败 (${response.status})`);
+            }
+
+            const data = await response.json();
+
+            if (state.apiProvider === 'anthropic') {
+                return data.content[0].text;
+            } else {
+                return data.choices[0].message.content;
+            }
+        }
+
+        // 添加消息
+        function addMessage(role, content) {
+            const message = { role, content };
+            state.messages.push(message);
+
+            // 保存到本地存储
+            localStorage.setItem('git-ai-messages', JSON.stringify(state.messages));
+
+            // 隐藏空状态
+            elements.emptyState.style.display = 'none';
+
+            // 渲染消息
+            renderMessage(role, content);
+        }
+
+        // 渲染消息
+        function renderMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${role}`;
+
+            // 格式化内容
+            let formattedContent = content
+                .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            messageDiv.innerHTML = formattedContent;
+            elements.chatMessages.appendChild(messageDiv);
+
+            // 滚动到底部
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
+
+        // 设置加载状态
+        function setLoading(loading) {
+            state.isLoading = loading;
+            elements.sendBtn.disabled = loading;
+            elements.sendBtn.classList.toggle('loading', loading);
+            elements.sendBtn.querySelector('span:first-child').textContent = loading ? '思考中...' : '发送';
+
+            if (loading) {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'ai-message assistant';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="ai-typing">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                `;
+                elements.chatMessages.appendChild(typingDiv);
+                elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            } else {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) typingIndicator.remove();
+            }
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>

@@ -6,6 +6,23 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.2.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.1.0...v1.2.0) (2026-03-30)
+
+
+### Features
+
+* 添加 AI 助手、记忆闪卡、速查表等学习工具 ([e05ecfd](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/e05ecfd1d998069f7c077219a86a86e26c2e1523))
+* 添加更多学习辅助页面 ([b359856](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/b3598561cb74cd1749b60166207874f9df074d98))
+
+
+### Bug Fixes
+
+* 修复 CLAUDE.md 标题格式 ([bff45b2](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/bff45b237efaf6d0c5e19be809a2722f4e03b2db))
+* 修复 CLAUDE.md 的 Markdown 格式问题 ([bbfd6be](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/bbfd6be58a7cf633d1c5199d2a6f3b15a0de0b49))
+* 修复流水线拼写和链接检查错误 ([466b8da](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/466b8dafa516d2fd798d879244fed476c4428662))
+* 修复课程模板中的无效链接 ([3ae64d6](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/3ae64d6e642a08bf2231af4ce8877593877d5c9a))
+* 更新站点样式和文档查看器 ([4d56c1c](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/4d56c1cc0ebef49d7cda8f7395348a91682b6853))
+
 ## [1.1.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.0.1...v1.1.0) (2026-03-28)
 
 

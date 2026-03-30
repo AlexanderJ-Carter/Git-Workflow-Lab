@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Visualizer - Git 可视化学习工具</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 页面特定样式 */
+        :root {
+            --visualizer-bg: var(--bg-secondary);
+            --commit-color: var(--accent-primary);
+            --branch-main: #10b981;
+            --branch-dev: #f59e0b;
+            --branch-feature: #8b5cf6;
+            --modified-color: #f59e0b;
+            --staged-color: #10b981;
+            --committed-color: #3b82f6;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .visualizer-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .visualizer-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .visualizer-header h1 svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* 主布局 */
+        .visualizer-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 65px);
+        }
+
+        /* 左侧控制面板 */
+        .control-panel {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 65px);
+        }
+
+        .panel-section {
+            margin-bottom: 24px;
+        }
+
+        .panel-section h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-section h3 svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 命令按钮 */
+        .command-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .command-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .command-btn:hover {
+            background: var(--accent-light);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .command-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .command-btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* 文件管理 */
+        .file-manager {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .file-item .file-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-item .file-status {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .file-status.modified {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .file-status.staged {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .file-status.committed {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .file-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-delete:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* 添加文件 */
+        .add-file-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-file-form input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .add-file-form input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* 主可视化区域 */
+        .visualization-area {
+            padding: 24px;
+            overflow: auto;
+            background: var(--bg-primary);
+        }
+
+        /* 标签页导航 */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--bg-primary);
+            color: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 可视化内容区 */
+        .visualization-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-height: 500px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .viz-panel {
+            display: none;
+        }
+
+        .viz-panel.active {
+            display: block;
+        }
+
+        /* 提交历史可视化 */
+        .commit-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .commit-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .commit-node {
+            position: relative;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .commit-node:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-md);
+            transform: translateX(4px);
+        }
+
+        .commit-node::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-primary);
+            border: 3px solid var(--bg-secondary);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px var(--accent-primary);
+        }
+
+        .commit-node.main::before {
+            background: var(--branch-main);
+            box-shadow: 0 0 0 3px var(--branch-main);
+        }
+
+        .commit-node.feature::before {
+            background: var(--branch-feature);
+            box-shadow: 0 0 0 3px var(--branch-feature);
+        }
+
+        .commit-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .commit-hash {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: var(--code-bg);
+            color: var(--accent-tertiary);
+            border-radius: 4px;
+        }
+
+        .commit-branch {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .commit-branch.main {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--branch-main);
+        }
+
+        .commit-branch.feature {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--branch-feature);
+        }
+
+        .commit-message {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .commit-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 分支可视化 */
+        .branch-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .branch-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            position: relative;
+        }
+
+        .branch-node {
+            padding: 16px 20px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            min-width: 180px;
+            text-align: center;
+            position: relative;
+        }
+
+        .branch-node.main {
+            border-color: var(--branch-main);
+        }
+
+        .branch-node.feature {
+            border-color: var(--branch-feature);
+        }
+
+        .branch-node.dev {
+            border-color: var(--branch-dev);
+        }
+
+        .branch-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .branch-name.main { color: var(--branch-main); }
+        .branch-name.feature { color: var(--branch-feature); }
+        .branch-name.dev { color: var(--branch-dev); }
+
+        .branch-commit {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .branch-connector {
+            position: absolute;
+            height: 2px;
+            background: var(--accent-primary);
+            top: 50%;
+        }
+
+        .branch-connector::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid var(--accent-primary);
+            border-right: 2px solid var(--accent-primary);
+            transform: rotate(45deg);
+        }
+
+        /* 三个区域可视化 */
+        .three-areas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .area-box {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .area-box.working {
+            border-color: var(--modified-color);
+        }
+
+        .area-box.staging {
+            border-color: var(--staged-color);
+        }
+
+        .area-box.repository {
+            border-color: var(--committed-color);
+        }
+
+        .area-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .area-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .area-icon.working { background: rgba(245, 158, 11, 0.15); color: var(--modified-color); }
+        .area-icon.staging { background: rgba(16, 185, 129, 0.15); color: var(--staged-color); }
+        .area-icon.repository { background: rgba(59, 130, 246, 0.15); color: var(--committed-color); }
+
+        .area-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .area-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .area-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .area-files {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .area-file {
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .area-file.modified {
+            border-left: 3px solid var(--modified-color);
+        }
+
+        .area-file.staged {
+            border-left: 3px solid var(--staged-color);
+        }
+
+        .area-file.committed {
+            border-left: 3px solid var(--committed-color);
+        }
+
+        /* 动画元素 */
+        .flow-arrow {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--accent-primary);
+            animation: pulse-arrow 1.5s infinite;
+        }
+
+        @keyframes pulse-arrow {
+            0%, 100% { opacity: 0.6; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(4px); }
+        }
+
+        /* 操作演示 */
+        .operation-demo {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .operation-stage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .stage-box {
+            padding: 24px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .stage-box.highlight {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .stage-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stage-files {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .operation-arrow {
+            font-size: 28px;
+            color: var(--accent-primary);
+            animation: bounce-arrow 1s infinite;
+        }
+
+        @keyframes bounce-arrow {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(8px); }
+        }
+
+        .command-display {
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 16px 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .command-display code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            color: #10b981;
+        }
+
+        .command-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* 动画控制 */
+        .animation-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .anim-btn {
+            padding: 10px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .anim-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .anim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .anim-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 底部状态栏 */
+        .status-bar {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        /* 提交详情模态框 */
+        .commit-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .commit-detail-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            width: 80px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .detail-value {
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .detail-value.hash {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .visualizer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .three-areas {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Git 图标动画 */
+        @keyframes git-icon-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .git-icon-anim {
+            animation: git-icon-pulse 2s infinite;
+        }
+
+        /* 文件移动动画 */
+        @keyframes file-move-right {
+            0% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(100px); opacity: 0; }
+        }
+
+        @keyframes file-move-left {
+            0% { transform: translateX(100px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .file-animating {
+            animation: file-move-right 0.5s ease forwards;
+        }
+
+        /* 帮助提示 */
+        .help-tip {
+            background: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .help-tip svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-primary);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header class="visualizer-header">
+        <h1>
+            <svg class="git-icon-anim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="18" r="3"/>
+                <circle cx="6" cy="6" r="3"/>
+                <circle cx="6" cy="18" r="3"/>
+                <path d="M6 21V9a9 9 0 0 0 9 9"/>
+            </svg>
+            Git Visualizer
+        </h1>
+        <div class="header-actions">
+            <button class="btn btn-ghost" onclick="toggleTheme()" title="切换主题">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+            <button class="btn btn-outline" onclick="resetVisualizer()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                重置
+            </button>
+        </div>
+    </header>
+
+    <!-- 主容器 -->
+    <div class="visualizer-container">
+        <!-- 左侧控制面板 -->
+        <aside class="control-panel">
+            <!-- 模块选择 -->
+            <div class="panel-section">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    可视化模块
+                </h3>
+                <div class="command-group">
+                    <button class="command-btn active" data-viz="history" onclick="switchViz('history')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        提交历史
+                    </button>
+                    <button class="command-btn" data-viz="branch" onclick="switchViz('branch')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="6" y1="3" x2="6" y2="15"/>
+                            <circle cx="18" cy="6" r="3"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <path d="M18 9a9 9 0 0 1-9 9"/>
+                        </svg>
+                        分支结构
+                    </button>
+                    <button class="command-btn" data-viz="areas" onclick="switchViz('areas')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/>
+                            <line x1="9" y1="21" x2="9" y2="9"/>
+                        </svg>
+                        三个区域
+                    </button>
+                    <button class="command-btn" data-viz="operations" onclick="switchViz('operations')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                        操作演示
+                    </button>
+                </div>
+            </div>
+
+            <!-- Git 操作 -->
+            <div class="panel-section">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4,17 10,11 4,5"/>
+                        <line x1="12" y1="19" x2="20" y2="19"/>
+                    </svg>
+                    Git 操作
+                </h3>
+                <div class="command-group">
+                    <button class="command-btn" onclick="gitAdd()" id="btn-add">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        git add
+                    </button>
+                    <button class="command-btn" onclick="gitCommit()" id="btn-commit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="4"/>
+                            <line x1="1.05" y1="12" x2="7" y2="12"/>
+                            <line x1="17.01" y1="12" x2="22.96" y2="12"/>
+                        </svg>
+                        git commit
+                    </button>
+                    <button class="command-btn" onclick="gitPush()" id="btn-push">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22,2 15,22 11,13 2,9"/>
+                        </svg>
+                        git push
+                    </button>
+                    <button class="command-btn" onclick="gitPull()" id="btn-pull">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22,2 15,22 11,13 2,9 22,2"/>
+                        </svg>
+                        git pull
+                    </button>
+                    <button class="command-btn" onclick="gitCheckout()" id="btn-checkout">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        git checkout
+                    </button>
+                    <button class="command-btn" onclick="gitMerge()" id="btn-merge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="18" r="3"/>
+                            <circle cx="6" cy="6" r="3"/>
+                            <path d="M6 21V9a9 9 0 0 0 9 9"/>
+                        </svg>
+                        git merge
+                    </button>
+                    <button class="command-btn" onclick="gitReset()" id="btn-reset">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                        git reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- 文件管理 -->
+            <div class="panel-section">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    文件管理
+                </h3>
+                <div class="file-manager">
+                    <div class="file-list" id="file-list">
+                        <!-- 文件列表 -->
+                    </div>
+                    <form class="add-file-form" onsubmit="addFile(event)">
+                        <input type="text" id="new-filename" placeholder="输入文件名..." required>
+                        <button type="submit" class="btn btn-primary btn-sm">+</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主可视化区域 -->
+        <main class="visualization-area">
+            <!-- 标签页导航 -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-viz="history" onclick="switchViz('history')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                    提交历史
+                </button>
+                <button class="tab-btn" data-viz="branch" onclick="switchViz('branch')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="6" y1="3" x2="6" y2="15"/>
+                        <circle cx="18" cy="6" r="3"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <path d="M18 9a9 9 0 0 1-9 9"/>
+                    </svg>
+                    分支结构
+                </button>
+                <button class="tab-btn" data-viz="areas" onclick="switchViz('areas')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    三个区域
+                </button>
+                <button class="tab-btn" data-viz="operations" onclick="switchViz('operations')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                    操作演示
+                </button>
+            </div>
+
+            <!-- 帮助提示 -->
+            <div class="help-tip" id="help-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span id="help-text">点击上方标签切换不同的可视化模块。在左侧添加文件并执行 Git 操作来观察变化。</span>
+            </div>
+
+            <!-- 可视化内容 -->
+            <div class="visualization-content">
+                <!-- 提交历史可视化 -->
+                <div class="viz-panel active" id="panel-history">
+                    <div class="commit-timeline" id="commit-timeline">
+                        <!-- 提交节点将通过 JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 分支可视化 -->
+                <div class="viz-panel" id="panel-branch">
+                    <div class="branch-tree" id="branch-tree">
+                        <!-- 分支结构将通过 JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 三个区域可视化 -->
+                <div class="viz-panel" id="panel-areas">
+                    <div class="three-areas" id="three-areas">
+                        <!-- 三个区域将通过 JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 操作演示 -->
+                <div class="viz-panel" id="panel-operations">
+                    <div class="operation-demo" id="operation-demo">
+                        <!-- 操作演示将通过 JS 渲染 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 底部状态栏 -->
+    <footer class="status-bar">
+        <div class="status-info">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>当前分支: <strong id="current-branch">main</strong></span>
+            </div>
+            <div class="status-item">
+                <span>提交数: <strong id="commit-count">3</strong></span>
+            </div>
+            <div class="status-item">
+                <span>文件状态: <strong id="file-status-text">无变更</strong></span>
+            </div>
+        </div>
+        <div id="command-output">就绪</div>
+    </footer>
+
+    <!-- 提交详情模态框 -->
+    <div class="commit-detail-modal" id="commit-modal" onclick="closeCommitModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">提交详情</h3>
+                <button class="modal-close" onclick="closeCommitModal()">&times;</button>
+            </div>
+            <div id="commit-detail-content">
+                <!-- 详情内容 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 状态管理 ====================
+        const state = {
+            files: [],  // { name, status: 'modified'|'staged'|'committed' }
+            commits: [
+                { hash: 'a1b2c3d', message: 'Initial commit', author: 'User', branch: 'main', parent: null },
+                { hash: 'e4f5g6h', message: 'Add feature', author: 'User', branch: 'main', parent: 'a1b2c3d' },
+                { hash: 'i7j8k9l', message: 'Fix bug', author: 'User', branch: 'main', parent: 'e4f5g6h' }
+            ],
+            currentBranch: 'main',
+            currentViz: 'history',
+            currentOperation: null,
+            animationStep: 0
+        };
+
+        // ==================== 工具函数 ====================
+        function generateHash() {
+            return Math.random().toString(36).substr(2, 7);
+        }
+
+        function updateStatusBar() {
+            document.getElementById('current-branch').textContent = state.currentBranch;
+            document.getElementById('commit-count').textContent = state.commits.length;
+
+            const modified = state.files.filter(f => f.status === 'modified').length;
+            const staged = state.files.filter(f => f.status === 'staged').length;
+            const committed = state.files.filter(f => f.status === 'committed').length;
+
+            if (modified > 0) {
+                document.getElementById('file-status-text').textContent = `${modified} 个已修改`;
+            } else if (staged > 0) {
+                document.getElementById('file-status-text').textContent = `${staged} 个已暂存`;
+            } else if (committed > 0) {
+                document.getElementById('file-status-text').textContent = `${committed} 个已提交`;
+            } else {
+                document.getElementById('file-status-text').textContent = '无变更';
+            }
+        }
+
+        // ==================== 文件管理 ====================
+        function addFile(event) {
+            event.preventDefault();
+            const input = document.getElementById('new-filename');
+            const filename = input.value.trim();
+
+            if (filename && !state.files.find(f => f.name === filename)) {
+                state.files.push({ name: filename, status: 'modified' });
+                input.value = '';
+                renderFileList();
+                updateStatusBar();
+                renderThreeAreas();
+                setCommandOutput(`已添加文件: ${filename}`);
+            }
+        }
+
+        function deleteFile(name) {
+            state.files = state.files.filter(f => f.name !== name);
+            renderFileList();
+            updateStatusBar();
+            renderThreeAreas();
+            setCommandOutput(`已删除文件: ${name}`);
+        }
+
+        function renderFileList() {
+            const list = document.getElementById('file-list');
+            list.innerHTML = state.files.map(f => `
+                <div class="file-item">
+                    <span class="file-name">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        ${f.name}
+                    </span>
+                    <span class="file-status ${f.status}">${getStatusText(f.status)}</span>
+                    <button class="file-delete" onclick="deleteFile('${f.name}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'modified': '已修改',
+                'staged': '已暂存',
+                'committed': '已提交'
+            };
+            return map[status] || status;
+        }
+
+        // ==================== 可视化切换 ====================
+        function switchViz(viz) {
+            state.currentViz = viz;
+
+            // 更新按钮状态
+            document.querySelectorAll('[data-viz]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.viz === viz);
+            });
+
+            // 更新面板显示
+            document.querySelectorAll('.viz-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === `panel-${viz}`);
+            });
+
+            // 更新帮助提示
+            updateHelpTip(viz);
+
+            // 渲染对应内容
+            switch (viz) {
+                case 'history':
+                    renderCommitHistory();
+                    break;
+                case 'branch':
+                    renderBranchTree();
+                    break;
+                case 'areas':
+                    renderThreeAreas();
+                    break;
+                case 'operations':
+                    renderOperationsDemo();
+                    break;
+            }
+        }
+
+        function updateHelpTip(viz) {
+            const tips = {
+                'history': '点击提交节点查看详细信息。提交历史显示为时间线，每个提交都有唯一的 hash 和消息。',
+                'branch': '展示 Git 分支结构。可以创建新分支、合并分支，观察不同分支如何指向不同的提交。',
+                'areas': '工作区是你编辑文件的地方，暂存区是准备提交的区域，仓库存储所有提交的历史。',
+                'operations': '选择左侧的 Git 操作查看动画演示。动画展示文件如何在各个区域之间移动。'
+            };
+            document.getElementById('help-text').textContent = tips[viz];
+        }
+
+        // ==================== 提交历史可视化 ====================
+        function renderCommitHistory() {
+            const timeline = document.getElementById('commit-timeline');
+
+            if (state.commits.length === 0) {
+                timeline.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p>暂无提交记录<br>添加文件并执行 git commit 创建第一个提交</p>
+                    </div>
+                `;
+                return;
+            }
+
+            timeline.innerHTML = state.commits.map((commit, index) => `
+                <div class="commit-node ${commit.branch}" onclick="showCommitDetail('${commit.hash}')">
+                    <div class="commit-header">
+                        <span class="commit-hash">${commit.hash}</span>
+                        <span class="commit-branch ${commit.branch}">${commit.branch}</span>
+                    </div>
+                    <div class="commit-message">${commit.message}</div>
+                    <div class="commit-meta">${commit.author} &middot; ${index + 1} 个提交之前</div>
+                </div>
+            `).join('');
+        }
+
+        function showCommitDetail(hash) {
+            const commit = state.commits.find(c => c.hash === hash);
+            if (!commit) return;
+
+            const content = document.getElementById('commit-detail-content');
+            content.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Hash:</span>
+                    <span class="detail-value hash">${commit.hash}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">提交信息:</span>
+                    <span class="detail-value">${commit.message}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">作者:</span>
+                    <span class="detail-value">${commit.author}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">分支:</span>
+                    <span class="detail-value">${commit.branch}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">父提交:</span>
+                    <span class="detail-value">${commit.parent || '无 (初始提交)'}</span>
+                </div>
+            `;
+
+            document.getElementById('commit-modal').classList.add('show');
+        }
+
+        function closeCommitModal(event) {
+            if (!event || event.target === document.getElementById('commit-modal')) {
+                document.getElementById('commit-modal').classList.remove('show');
+            }
+        }
+
+        // ==================== 分支可视化 ====================
+        function renderBranchTree() {
+            const tree = document.getElementById('branch-tree');
+
+            tree.innerHTML = `
+                <div class="branch-line">
+                    <div class="branch-node main">
+                        <div class="branch-name main">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="6" y1="3" x2="6" y2="15"/>
+                                <circle cx="18" cy="6" r="3"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <path d="M18 9a9 9 0 0 1-9 9"/>
+                            </svg>
+                            main
+                        </div>
+                        <div class="branch-commit">${state.commits[state.commits.length - 1]?.hash || '无'}</div>
+                    </div>
+                    <div style="width: 40px;"></div>
+                    <div class="branch-node feature">
+                        <div class="branch-name feature">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="6" y1="3" x2="6" y2="15"/>
+                                <circle cx="18" cy="6" r="3"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <path d="M18 9a9 9 0 0 1-9 9"/>
+                            </svg>
+                            feature
+                        </div>
+                        <div class="branch-commit">${state.commits[state.commits.length - 2]?.hash || '无'}</div>
+                    </div>
+                </div>
+                <div style="color: var(--text-muted); font-size: 13px; margin-top: 20px;">
+                    <p>提示: Git 分支只是一个指向某个提交的轻量级指针。</p>
+                    <p>创建分支非常快速，因为它只是创建一个新的指针而已。</p>
+                </div>
+            `;
+        }
+
+        // ==================== 三个区域可视化 ====================
+        function renderThreeAreas() {
+            const container = document.getElementById('three-areas');
+
+            const workingFiles = state.files.filter(f => f.status === 'modified');
+            const stagingFiles = state.files.filter(f => f.status === 'staged');
+            const repoFiles = state.files.filter(f => f.status === 'committed');
+
+            container.innerHTML = `
+                <div class="area-box working">
+                    <div class="area-header">
+                        <div class="area-icon working">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="area-title">工作区 Working Directory</div>
+                            <div class="area-subtitle">你正在编辑的文件</div>
+                        </div>
+                    </div>
+                    <div class="area-files">
+                        ${workingFiles.length > 0 ? workingFiles.map(f => `
+                            <div class="area-file modified">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                </svg>
+                                ${f.name}
+                            </div>
+                        `).join('') : '<div class="empty-state" style="padding: 20px;"><p style="font-size: 12px;">无文件</p></div>'}
+                    </div>
+                </div>
+                <div class="area-box staging">
+                    <div class="area-header">
+                        <div class="area-icon staging">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="area-title">暂存区 Staging Area</div>
+                            <div class="area-subtitle">Index - 准备提交的文件</div>
+                        </div>
+                    </div>
+                    <div class="area-files">
+                        ${stagingFiles.length > 0 ? stagingFiles.map(f => `
+                            <div class="area-file staged">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22,4 12,14.01 9,11.01"/>
+                                </svg>
+                                ${f.name}
+                            </div>
+                        `).join('') : '<div class="empty-state" style="padding: 20px;"><p style="font-size: 12px;">无文件</p></div>'}
+                    </div>
+                </div>
+                <div class="area-box repository">
+                    <div class="area-header">
+                        <div class="area-icon repository">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="area-title">仓库 Repository</div>
+                            <div class="area-subtitle">已保存的提交历史</div>
+                        </div>
+                    </div>
+                    <div class="area-files">
+                        ${repoFiles.length > 0 ? repoFiles.map(f => `
+                            <div class="area-file committed">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="4"/>
+                                    <line x1="1.05" y1="12" x2="7" y2="12"/>
+                                    <line x1="17.01" y1="12" x2="22.96" y2="12"/>
+                                </svg>
+                                ${f.name}
+                            </div>
+                        `).join('') : '<div class="empty-state" style="padding: 20px;"><p style="font-size: 12px;">无文件</p></div>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== 操作演示 ====================
+        function renderOperationsDemo() {
+            const demo = document.getElementById('operation-demo');
+
+            if (!state.currentOperation) {
+                demo.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                        <p>从左侧选择要演示的 Git 操作</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const operations = {
+                'add': {
+                    title: 'git add',
+                    command: 'git add <file>',
+                    description: 'git add 命令将工作区中的文件添加到暂存区。暂存区是提交前的准备区域，可以选择性地提交哪些文件的更改。',
+                    from: '工作区 (Working Directory)',
+                    to: '暂存区 (Staging Area)',
+                    fromFiles: state.files.filter(f => f.status === 'modified'),
+                    toFiles: state.files.filter(f => f.status === 'staged')
+                },
+                'commit': {
+                    title: 'git commit',
+                    command: 'git commit -m "message"',
+                    description: 'git commit 将暂存区的文件快照保存到仓库中。每个提交都有一个唯一的 hash，记录了项目在特定时间点的状态。',
+                    from: '暂存区 (Staging Area)',
+                    to: '仓库 (Repository)',
+                    fromFiles: state.files.filter(f => f.status === 'staged'),
+                    toFiles: state.files.filter(f => f.status === 'committed')
+                },
+                'push': {
+                    title: 'git push',
+                    command: 'git push origin <branch>',
+                    description: 'git push 将本地的提交推送到远程仓库。这会更新远程分支，使其包含本地的所有提交。',
+                    from: '本地仓库',
+                    to: '远程仓库',
+                    fromFiles: [],
+                    toFiles: []
+                },
+                'pull': {
+                    title: 'git pull',
+                    command: 'git pull origin <branch>',
+                    description: 'git pull 从远程仓库获取并合并最新的提交。相当于 git fetch + git merge 的组合操作。',
+                    from: '远程仓库',
+                    to: '本地仓库',
+                    fromFiles: [],
+                    toFiles: []
+                },
+                'checkout': {
+                    title: 'git checkout',
+                    command: 'git checkout <branch>',
+                    description: 'git checkout 用于切换分支或恢复文件。它会更新工作区以匹配指定分支或提交的状态。',
+                    from: '当前分支',
+                    to: '目标分支',
+                    fromFiles: [],
+                    toFiles: []
+                },
+                'merge': {
+                    title: 'git merge',
+                    command: 'git merge <branch>',
+                    description: 'git merge 将指定分支的更改合并到当前分支。它会创建一个新的"合并提交"，包含两个分支的更改。',
+                    from: '功能分支',
+                    to: '主分支',
+                    fromFiles: [],
+                    toFiles: []
+                },
+                'reset': {
+                    title: 'git reset',
+                    command: 'git reset --soft HEAD~1',
+                    description: 'git reset 用于撤销提交。它可以移动分支指针，从而改变提交历史。可以选择保留、暂存或丢弃更改。',
+                    from: '当前提交',
+                    to: '上一个提交',
+                    fromFiles: [],
+                    toFiles: []
+                }
+            };
+
+            const op = operations[state.currentOperation];
+
+            demo.innerHTML = `
+                <h2 style="margin-bottom: 20px;">${op.title}</h2>
+                <div class="command-display">
+                    <code>${op.command}</code>
+                </div>
+                <p class="command-description" style="margin-top: 16px;">${op.description}</p>
+                <div class="operation-stage">
+                    <div class="stage-box ${state.animationStep > 0 ? 'highlight' : ''}">
+                        <div class="stage-label">${op.from}</div>
+                        <div class="stage-files">
+                            ${op.fromFiles.length > 0 ? op.fromFiles.map(f => f.name).join(', ') : '(文件)'}
+                        </div>
+                    </div>
+                    <div class="operation-arrow" id="anim-arrow">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <polyline points="12,5 19,12 12,19"/>
+                        </svg>
+                    </div>
+                    <div class="stage-box ${state.animationStep > 1 ? 'highlight' : ''}">
+                        <div class="stage-label">${op.to}</div>
+                        <div class="stage-files">
+                            ${op.toFiles.length > 0 ? op.toFiles.map(f => f.name).join(', ') : '(文件)'}
+                        </div>
+                    </div>
+                </div>
+                <div class="animation-controls">
+                    <button class="anim-btn" onclick="resetAnimation()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                        重置
+                    </button>
+                </div>
+            `;
+        }
+
+        function resetAnimation() {
+            state.animationStep = 0;
+            renderOperationsDemo();
+        }
+
+        // ==================== Git 操作 ====================
+        function gitAdd() {
+            state.currentOperation = 'add';
+
+            const modifiedFiles = state.files.filter(f => f.status === 'modified');
+            if (modifiedFiles.length === 0) {
+                setCommandOutput('没有需要暂存的文件');
+                return;
+            }
+
+            state.files.forEach(f => {
+                if (f.status === 'modified') {
+                    f.status = 'staged';
+                }
+            });
+
+            renderFileList();
+            renderThreeAreas();
+            updateStatusBar();
+            switchViz('operations');
+            setCommandOutput(`已暂存 ${modifiedFiles.length} 个文件`);
+        }
+
+        function gitCommit() {
+            state.currentOperation = 'commit';
+
+            const stagedFiles = state.files.filter(f => f.status === 'staged');
+            if (stagedFiles.length === 0) {
+                setCommandOutput('没有需要提交的文件 (使用 git add 暂存)');
+                return;
+            }
+
+            const newCommit = {
+                hash: generateHash(),
+                message: `Update ${stagedFiles.map(f => f.name).join(', ')}`,
+                author: 'User',
+                branch: state.currentBranch,
+                parent: state.commits.length > 0 ? state.commits[state.commits.length - 1].hash : null
+            };
+
+            state.commits.push(newCommit);
+
+            state.files.forEach(f => {
+                if (f.status === 'staged') {
+                    f.status = 'committed';
+                }
+            });
+
+            renderFileList();
+            renderCommitHistory();
+            renderThreeAreas();
+            renderBranchTree();
+            updateStatusBar();
+            switchViz('operations');
+            setCommandOutput(`已提交: ${newCommit.hash}`);
+        }
+
+        function gitPush() {
+            state.currentOperation = 'push';
+            switchViz('operations');
+            setCommandOutput('已推送到远程仓库');
+        }
+
+        function gitPull() {
+            state.currentOperation = 'pull';
+            switchViz('operations');
+            setCommandOutput('已从远程仓库拉取');
+        }
+
+        function gitCheckout() {
+            state.currentOperation = 'checkout';
+            switchViz('operations');
+            setCommandOutput('已切换分支');
+        }
+
+        function gitMerge() {
+            state.currentOperation = 'merge';
+            switchViz('operations');
+            setCommandOutput('已合并分支');
+        }
+
+        function gitReset() {
+            state.currentOperation = 'reset';
+            switchViz('operations');
+
+            const committedFiles = state.files.filter(f => f.status === 'committed');
+            state.files.forEach(f => {
+                f.status = 'staged';
+            });
+
+            renderFileList();
+            renderThreeAreas();
+            updateStatusBar();
+            setCommandOutput(`已重置 ${committedFiles.length} 个文件到暂存区`);
+        }
+
+        function setCommandOutput(text) {
+            document.getElementById('command-output').textContent = text;
+        }
+
+        // ==================== 主题切换 ====================
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // ==================== 重置 ====================
+        function resetVisualizer() {
+            state.files = [];
+            state.commits = [
+                { hash: 'a1b2c3d', message: 'Initial commit', author: 'User', branch: 'main', parent: null },
+                { hash: 'e4f5g6h', message: 'Add feature', author: 'User', branch: 'main', parent: 'a1b2c3d' },
+                { hash: 'i7j8k9l', message: 'Fix bug', author: 'User', branch: 'main', parent: 'e4f5g6h' }
+            ];
+            state.currentBranch = 'main';
+            state.currentOperation = null;
+            state.animationStep = 0;
+
+            renderFileList();
+            renderCommitHistory();
+            renderBranchTree();
+            renderThreeAreas();
+            renderOperationsDemo();
+            updateStatusBar();
+            setCommandOutput('已重置所有状态');
+        }
+
+        // ==================== 初始化 ====================
+        function init() {
+            // 加载主题
+            const savedTheme = localStorage.getItem('theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            renderFileList();
+            renderCommitHistory();
+            renderBranchTree();
+            renderThreeAreas();
+            updateStatusBar();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

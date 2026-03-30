@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码沙盒 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sb-primary: #6366f1;
+            --sb-primary-dark: #4f46e5;
+            --sb-secondary: #8b5cf6;
+            --sb-success: #10b981;
+            --sb-warning: #f59e0b;
+            --sb-error: #ef4444;
+            --sb-info: #3b82f6;
+            --sb-bg: #0f172a;
+            --sb-bg-light: #1e293b;
+            --sb-bg-lighter: #334155;
+            --sb-border: #334155;
+            --sb-text: #f1f5f9;
+            --sb-text-muted: #94a3b8;
+            --sb-text-dim: #64748b;
+            --sb-radius: 12px;
+            --sb-radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--sb-bg);
+            color: var(--sb-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .sb-header {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .sb-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--sb-text);
+        }
+
+        .sb-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--sb-primary), var(--sb-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+        }
+
+        .sb-logo-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .sb-logo-sub {
+            font-size: 12px;
+            color: var(--sb-text-muted);
+        }
+
+        .sb-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .sb-nav a {
+            color: var(--sb-text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: var(--sb-radius-sm);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .sb-nav a:hover {
+            color: var(--sb-text);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sb-nav .active {
+            color: var(--sb-text);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        /* Theme Toggle */
+        .sb-theme-toggle {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 8px;
+            border-radius: var(--sb-radius-sm);
+            cursor: pointer;
+            color: var(--sb-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .sb-theme-toggle:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Main Layout */
+        .sb-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* Editor Section */
+        .sb-editor-section {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--sb-border);
+            min-height: 0;
+        }
+
+        .sb-section-header {
+            padding: 12px 16px;
+            background: var(--sb-bg-light);
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .sb-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--sb-text);
+        }
+
+        .sb-section-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--sb-primary);
+        }
+
+        .sb-mode-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--sb-bg);
+            padding: 4px;
+            border-radius: var(--sb-radius-sm);
+        }
+
+        .sb-mode-tab {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            color: var(--sb-text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sb-mode-tab:hover {
+            color: var(--sb-text);
+        }
+
+        .sb-mode-tab.active {
+            background: var(--sb-primary);
+            color: white;
+        }
+
+        /* Template Selector */
+        .sb-template-bar {
+            padding: 8px 16px;
+            background: var(--sb-bg-light);
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sb-template-label {
+            font-size: 12px;
+            color: var(--sb-text-muted);
+        }
+
+        .sb-template-select {
+            background: var(--sb-bg);
+            border: 1px solid var(--sb-border);
+            color: var(--sb-text);
+            padding: 6px 12px;
+            border-radius: var(--sb-radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .sb-template-select:hover {
+            border-color: var(--sb-primary);
+        }
+
+        /* Editor */
+        .sb-editor-container {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sb-editor {
+            flex: 1;
+            width: 100%;
+            background: var(--sb-bg);
+            border: none;
+            color: var(--sb-text);
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 16px;
+            resize: none;
+            outline: none;
+            overflow: auto;
+            white-space: pre;
+            tab-size: 2;
+        }
+
+        .sb-editor::placeholder {
+            color: var(--sb-text-dim);
+        }
+
+        /* Action Bar */
+        .sb-action-bar {
+            padding: 12px 16px;
+            background: var(--sb-bg-light);
+            border-top: 1px solid var(--sb-border);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sb-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--sb-radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sb-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .sb-btn-primary {
+            background: linear-gradient(135deg, var(--sb-primary), var(--sb-primary-dark));
+            color: white;
+        }
+
+        .sb-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .sb-btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .sb-btn-secondary {
+            background: var(--sb-bg);
+            color: var(--sb-text);
+            border: 1px solid var(--sb-border);
+        }
+
+        .sb-btn-secondary:hover {
+            border-color: var(--sb-primary);
+            color: var(--sb-primary);
+        }
+
+        .sb-btn-ghost {
+            background: transparent;
+            color: var(--sb-text-muted);
+        }
+
+        .sb-btn-ghost:hover {
+            color: var(--sb-text);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sb-shortcut-hint {
+            font-size: 11px;
+            color: var(--sb-text-dim);
+            background: var(--sb-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        /* Output Section */
+        .sb-output-section {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: var(--sb-bg);
+        }
+
+        .sb-output-header {
+            padding: 12px 16px;
+            background: var(--sb-bg-light);
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .sb-output-info {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--sb-text-muted);
+        }
+
+        .sb-output-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sb-output-info .success { color: var(--sb-success); }
+        .sb-output-info .error { color: var(--sb-error); }
+        .sb-output-info .time { color: var(--sb-info); }
+
+        /* Output Container */
+        .sb-output-container {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 16px;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .sb-output-line {
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .sb-output-line.log {
+            color: var(--sb-text);
+        }
+
+        .sb-output-line.info {
+            color: var(--sb-info);
+        }
+
+        .sb-output-line.success {
+            color: var(--sb-success);
+        }
+
+        .sb-output-line.warning {
+            color: var(--sb-warning);
+        }
+
+        .sb-output-line.error {
+            color: var(--sb-error);
+        }
+
+        .sb-output-line.system {
+            color: var(--sb-secondary);
+        }
+
+        .sb-output-line .prompt {
+            color: var(--sb-success);
+            margin-right: 8px;
+        }
+
+        .sb-output-line .command {
+            color: var(--sb-primary);
+            margin-right: 8px;
+        }
+
+        .sb-output-line .result {
+            color: var(--sb-text);
+        }
+
+        .sb-output-empty {
+            color: var(--sb-text-dim);
+            font-style: italic;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* Snippets Panel */
+        .sb-snippets {
+            padding: 12px 16px;
+            background: var(--sb-bg-light);
+            border-top: 1px solid var(--sb-border);
+        }
+
+        .sb-snippets-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--sb-text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sb-snippets-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .sb-snippet {
+            padding: 4px 10px;
+            font-size: 11px;
+            background: var(--sb-bg);
+            border: 1px solid var(--sb-border);
+            border-radius: 6px;
+            color: var(--sb-text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sb-snippet:hover {
+            border-color: var(--sb-primary);
+            color: var(--sb-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Shell Output Styling */
+        .sb-shell-output {
+            background: var(--sb-bg-lighter);
+            padding: 8px 12px;
+            border-radius: var(--sb-radius-sm);
+            margin: 4px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--sb-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--sb-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--sb-text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sb-main {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .sb-editor-section {
+                border-right: none;
+                border-bottom: 1px solid var(--sb-border);
+            }
+
+            .sb-header {
+                padding: 12px 16px;
+            }
+
+            .sb-logo-sub {
+                display: none;
+            }
+        }
+
+        /* Running state */
+        .sb-btn-primary.running {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .sb-btn-primary.running::before {
+            content: '';
+            width: 14px;
+            height: 14px;
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="sb-header">
+        <a href="index.html" class="sb-logo">
+            <div class="sb-logo-icon">&lt;/&gt;</div>
+            <div>
+                <div class="sb-logo-text">代码沙盒</div>
+                <div class="sb-logo-sub">Git Workflow Lab</div>
+            </div>
+        </a>
+        <nav class="sb-nav">
+            <a href="index.html">首页</a>
+            <a href="playground.html">命令练习场</a>
+            <a href="command-sheet.html">命令手册</a>
+            <a href="git-visualizer.html">Git 可视化</a>
+            <a href="sandbox.html" class="active">代码沙盒</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="sb-main">
+        <!-- Editor Section -->
+        <section class="sb-editor-section">
+            <div class="sb-section-header">
+                <div class="sb-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16,18 22,12 16,6"></polyline>
+                        <polyline points="8,6 2,12 8,18"></polyline>
+                    </svg>
+                    代码编辑器
+                </div>
+                <div class="sb-mode-tabs">
+                    <button class="sb-mode-tab active" data-mode="javascript">JavaScript</button>
+                    <button class="sb-mode-tab" data-mode="shell">Shell</button>
+                    <button class="sb-mode-tab" data-mode="git">Git</button>
+                </div>
+            </div>
+
+            <div class="sb-template-bar">
+                <span class="sb-template-label">预设模板:</span>
+                <select class="sb-template-select" id="templateSelect">
+                    <option value="">-- 选择模板 --</option>
+                    <optgroup label="JavaScript 练习">
+                        <option value="js-basics">JavaScript 基础练习</option>
+                        <option value="js-array">数组操作练习</option>
+                        <option value="js-object">对象操作练习</option>
+                    </optgroup>
+                    <optgroup label="Shell 命令">
+                        <option value="shell-basics">Shell 基础命令</option>
+                        <option value="shell-file">文件操作命令</option>
+                    </optgroup>
+                    <optgroup label="Git 命令">
+                        <option value="git-basics">Git 基础命令</option>
+                        <option value="git-branch">分支操作命令</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="sb-editor-container">
+                <textarea class="sb-editor" id="codeEditor" placeholder="在这里编写代码..." spellcheck="false"></textarea>
+            </div>
+
+            <div class="sb-action-bar">
+                <button class="sb-btn sb-btn-primary" id="runBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    运行代码
+                    <span class="sb-shortcut-hint">Ctrl+Enter</span>
+                </button>
+                <button class="sb-btn sb-btn-secondary" id="clearBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    清空
+                </button>
+                <button class="sb-btn sb-ghost" id="clearOutputBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                    </svg>
+                    清空输出
+                </button>
+            </div>
+        </section>
+
+        <!-- Output Section -->
+        <section class="sb-output-section">
+            <div class="sb-output-header">
+                <div class="sb-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4,17 10,11 4,5"/>
+                        <line x1="12" y1="19" x2="20" y2="19"/>
+                    </svg>
+                    输出控制台
+                </div>
+                <div class="sb-output-info" id="outputInfo">
+                    <span class="success">成功: <strong id="successCount">0</strong></span>
+                    <span class="error">错误: <strong id="errorCount">0</strong></span>
+                    <span class="time">执行时间: <strong id="execTime">0ms</strong></span>
+                </div>
+            </div>
+
+            <div class="sb-output-container" id="outputContainer">
+                <div class="sb-output-empty">等待执行代码...</div>
+            </div>
+
+            <!-- Snippets -->
+            <div class="sb-snippets" id="snippetsPanel">
+                <div class="sb-snippets-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    常用代码片段
+                </div>
+                <div class="sb-snippets-grid" id="snippetsGrid">
+                    <!-- Snippets will be populated by JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Templates
+        const templates = {
+            'js-basics': `// JavaScript 基础练习
+// 变量声明
+let name = "Git Workflow Lab";
+const version = "1.0.0";
+var count = 10;
+
+// 基本数据类型
+let num = 42;
+let str = "Hello World";
+let bool = true;
+let arr = [1, 2, 3];
+let obj = { key: "value" };
+
+// 运算符
+let sum = 10 + 5;
+let product = 4 * 3;
+let isEqual = (10 === "10"); // 严格相等
+
+// 条件语句
+if (num > 20) {
+    console.log("num 大于 20");
+} else {
+    console.log("num 小于等于 20");
+}
+
+// 循环
+for (let i = 0; i < 3; i++) {
+    console.log("循环次数: " + i);
+}
+
+// 函数
+function greet(message) {
+    return "Hello, " + message + "!";
+}
+
+console.log(greet(name));`,
+            'js-array': `// 数组操作练习
+let fruits = ["苹果", "香蕉", "橙子", "葡萄"];
+
+// 访问元素
+console.log("第一个水果: " + fruits[0]);
+console.log("数组长度: " + fruits.length);
+
+// 添加元素
+fruits.push("西瓜");
+console.log("添加后: " + fruits);
+
+// 删除元素
+fruits.pop();
+console.log("删除后: " + fruits);
+
+// 查找元素
+let index = fruits.indexOf("橙子");
+console.log("橙子的索引: " + index);
+
+// 数组遍历
+console.log("\\n遍历数组:");
+fruits.forEach((fruit, i) => {
+    console.log(i + ": " + fruit);
+});
+
+// 数组映射
+let numbers = [1, 2, 3, 4, 5];
+let doubled = numbers.map(n => n * 2);
+console.log("翻倍: " + doubled);
+
+// 数组过滤
+let evens = numbers.filter(n => n % 2 === 0);
+console.log("偶数: " + evens);
+
+// 数组排序
+let unsorted = [3, 1, 4, 1, 5, 9, 2, 6];
+console.log("排序前: " + unsorted);
+console.log("排序后: " + unsorted.sort((a, b) => a - b));`,
+            'js-object': `// 对象操作练习
+let person = {
+    name: "张三",
+    age: 25,
+    skills: ["JavaScript", "Git", "Linux"],
+    contact: {
+        email: "zhangsan@example.com",
+        phone: "13800138000"
+    }
+};
+
+// 访问属性
+console.log("姓名: " + person.name);
+console.log("邮箱: " + person.contact.email);
+
+// 修改属性
+person.age = 26;
+person.city = "北京";
+console.log("更新后: ", person);
+
+// 添加方法
+person.greet = function() {
+    return "你好，我是" + this.name;
+};
+console.log(person.greet());
+
+// 对象遍历
+console.log("\\n遍历对象属性:");
+for (let key in person) {
+    console.log(key + ": " + typeof person[key]);
+}
+
+// Object.keys
+console.log("\\n所有键: " + Object.keys(person));
+
+// Object.values
+console.log("所有值: " + Object.values(person));
+
+// 合并对象
+let defaults = { theme: "dark", lang: "zh" };
+let settings = { theme: "light" };
+let merged = { ...defaults, ...settings };
+console.log("合并后: ", merged);`,
+            'shell-basics': `# Shell 基础命令
+
+# 显示当前日期
+date
+
+# 显示日历
+cal
+
+# 显示当前目录
+pwd
+
+# 列出文件
+ls -la
+
+# 查看当前用户
+whoami
+
+# 显示系统信息
+uname -a
+
+# 显示内存使用情况
+free -h
+
+# 显示磁盘使用情况
+df -h
+
+# 查看帮助
+help echo`,
+            'shell-file': `# 文件操作命令
+
+# 创建目录
+mkdir myproject
+cd myproject
+
+# 创建文件
+touch readme.md
+echo "# My Project" > readme.md
+
+# 查看文件内容
+cat readme.md
+head -n 5 readme.md
+tail -n 5 readme.md
+
+# 复制文件
+cp readme.md readme_backup.md
+
+# 移动/重命名文件
+mv readme_backup.md backup.md
+
+# 删除文件
+rm backup.md
+
+# 查找文件
+find . -name "*.md"
+
+# 查看文件类型
+file readme.md`,
+            'git-basics': `# Git 基础命令
+
+# 初始化仓库
+git init
+
+# 查看仓库状态
+git status
+
+# 查看文件差异
+git diff
+
+# 添加文件到暂存区
+git add .
+git add filename
+
+# 提交更改
+git commit -m "提交说明"
+
+# 查看提交历史
+git log
+git log --oneline
+
+# 查看远程仓库
+git remote -v
+
+# 克隆仓库
+git clone <仓库地址>
+
+# 拉取更新
+git pull
+
+# 推送代码
+git push origin main`,
+            'git-branch': `# Git 分支操作
+
+# 查看分支
+git branch
+
+# 创建新分支
+git branch feature-branch
+
+# 切换分支
+git checkout feature-branch
+# 或
+git switch feature-branch
+
+# 创建并切换
+git checkout -b new-branch
+# 或
+git switch -c new-branch
+
+# 合并分支
+git merge feature-branch
+
+# 删除分支
+git branch -d feature-branch
+git branch -D feature-branch  # 强制删除
+
+# 查看分支差异
+git diff main..feature-branch
+
+# 变基（Rebase）
+git rebase main
+
+# 删除远程分支
+git push origin --delete feature-branch`
+        };
+
+        // Snippets
+        const snippets = {
+            javascript: [
+                'console.log()',
+                'for (let i = 0; i < n; i++)',
+                'arr.map(x => x)',
+                'arr.filter(x => x)',
+                'arr.reduce((a, b) => a + b)',
+                'arr.sort((a, b) => a - b)',
+                'Object.keys(obj)',
+                'JSON.stringify()',
+                'Array.isArray()',
+                'str.split("")'
+            ],
+            shell: [
+                'ls -la',
+                'cd <dir>',
+                'mkdir <name>',
+                'rm -rf <name>',
+                'cp -r <src> <dest>',
+                'cat <file>',
+                'grep "pattern" <file>',
+                'chmod +x <file>',
+                'tar -czvf <name>.tar.gz <dir>',
+                'curl -s <url>'
+            ],
+            git: [
+                'git status',
+                'git add .',
+                'git commit -m ""',
+                'git push',
+                'git pull',
+                'git checkout -b',
+                'git merge <branch>',
+                'git rebase main',
+                'git stash',
+                'git reset --hard'
+            ]
+        };
+
+        // Shell simulation
+        const shellCommands = {
+            'date': () => new Date().toLocaleString('zh-CN'),
+            'cal': () => {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                return `      ${month} 月 ${year}
+一 二 三 四 五 六 日
+${generateCalendar(year, month)}`;
+            },
+            'pwd': () => '/home/user/project',
+            'ls': () => 'Documents  Downloads  Music  Pictures  Videos  project',
+            'ls -la': () => `total 32
+drwxr-xr-x  5 user user 4096 Mar 30 10:00 .
+drwxr-xr-x  3 root root 4096 Mar 28 09:00 ..
+drwxr-xr-x  2 user user 4096 Mar 30 10:00 Documents
+drwxr-xr-x  4 user user 4096 Mar 29 14:00 Downloads
+drwxr-xr-x  2 user user 4096 Mar 27 16:00 Music
+drwxr-xr-x  3 user user 4096 Mar 26 11:00 Pictures
+drwxr-xr-x  2 user user user 4096 Mar 25 08:00 Videos
+drwxr-xr-x  3 user user 4096 Mar 30 10:00 project`,
+            'whoami': () => 'user',
+            'uname -a': () => 'Linux hostname 5.15.0 #1 SMP PREEMPT x86_64 GNU/Linux',
+            'free -h': () => `              total        used        free      shared  buff/cache   available
+Mem:           15Gi       3.2Gi       8.5Gi       120Mi       3.3Gi        11Gi
+Swap:         2.0Gi          0B       2.0Gi`,
+            'df -h': () => `文件系统        容量  已用  可用 已用% 挂载点
+/dev/sda1       100G   45G   55G   45% /
+tmpfs           7.8G     0  7.8G    0% /dev/shm
+/dev/sdb1       500G  200G  300G   40% /home`,
+            'help echo': () => `echo: echo [-neE] [arg ...]
+    Output the args, separated by spaces, terminated with a newline.
+
+    Options:
+      -n    do not output a trailing newline
+      -e    enable interpretation of escape sequences`,
+            'mkdir': (args) => args[0] ? `Directory '${args[0]}' created` : 'mkdir: missing operand',
+            'cd': (args) => args[0] ? `Changed directory to ${args[0]}` : 'cd: missing operand',
+            'touch': (args) => args[0] ? `File '${args[0]}' created` : 'touch: missing file operand',
+            'cat': (args) => args[0] ? `Content of ${args[0]}:\n[File content would be displayed here]` : 'cat: missing file operand',
+            'rm': (args) => args[0] ? `Removed '${args[0]}'` : 'rm: missing operand',
+            'cp': (args) => args.length >= 2 ? `Copied '${args[0]}' to '${args[1]}'` : 'cp: missing file operands',
+            'mv': (args) => args.length >= 2 ? `Moved '${args[0]}' to '${args[1]}'` : 'mv: missing file operands',
+            'pwd': () => '/home/user/project'
+        };
+
+        // Git simulation
+        const gitCommands = {
+            'git init': () => `Initialized empty Git repository in /home/user/project/.git/`,
+            'git status': () => `On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+    index.html
+    style.css
+    script.js
+
+nothing added to commit`,
+            'git add .': () => `Changes to be committed:
+  new file:   index.html
+  new file:   style.css
+  new file:   script.js`,
+            'git commit -m': (args, fullCmd) => {
+                const msg = fullCmd.match(/-m\s+"([^"]+)"/)?.[1] || 'No message';
+                return `[main (root-commit) abc1234] ${msg}
+ 3 files changed, 100 insertions(+)
+ create mode 100644 index.html
+ create mode 100644 style.css
+ create mode 100644 script.js`;
+            },
+            'git log': () => `commit abc1234567890abcdef1234567890abcdef12345678 (HEAD -> main)
+Author: User <user@example.com>
+Date:   Mon Mar 30 10:00:00 2026 +0800
+
+    Initial commit`,
+            'git log --oneline': () => `abc1234 Initial commit`,
+            'git remote -v': () => `origin  https://github.com/user/repo.git (fetch)
+origin  https://github.com/user/repo.git (push)`,
+            'git clone': (args) => args[0] ? `Cloning into 'repo'...
+remote: Enumerating objects: 100, done.
+Receiving objects: 100% (100/100), 50.00 KiB | 20.00 KiB/s, done.` : 'git clone: repository URL required',
+            'git pull': () => `Already up to date.`,
+            'git push': () => `To https://github.com/user/repo.git
+   abc1234..def5678  main -> main`,
+            'git branch': () => `  develop
+* main
+  feature/new-feature`,
+            'git checkout': (args) => {
+                if (args[0] === '-b') return `Switched to a new branch '${args[1]}'`;
+                return `Switched to branch '${args[0]}'`;
+            },
+            'git merge': (args) => args[0] ? `Merge made by the 'recursive' strategy.
+ 1 file changed, 10 insertions(+)` : 'git merge: branch name required',
+            'git diff': () => `diff --git a/index.html b/index.html
+index 1234567..89abcdef 100644
+--- a/index.html
++++ b/index.html
+@@ -10,6 +10,8 @@
+     <title>Git Workflow Lab</title>
++    <meta name="description" content="A learning repository">
+ </head>`,
+            'git stash': () => `Saved working directory and index state WIP on main: abc1234 Initial commit`,
+            'git stash pop': () => `On branch main
+Dropped refs/stash@{0}`
+        };
+
+        function generateCalendar(year, month) {
+            const firstDay = new Date(year, month - 1, 1).getDay() || 7;
+            const daysInMonth = new Date(year, month, 0).getDate();
+            let calendar = '';
+            let day = 1;
+
+            for (let week = 0; week < 6; week++) {
+                let weekStr = '';
+                for (let i = 1; i <= 7; i++) {
+                    if ((week === 0 && i < firstDay) || day > daysInMonth) {
+                        weekStr += '   ';
+                    } else {
+                        weekStr += day.toString().padStart(2, ' ') + ' ';
+                        day++;
+                    }
+                }
+                calendar += weekStr.trim() + '\n';
+                if (day > daysInMonth) break;
+            }
+            return calendar;
+        }
+
+        // State
+        let currentMode = 'javascript';
+        let successCount = 0;
+        let errorCount = 0;
+        let totalTime = 0;
+
+        // DOM Elements
+        const codeEditor = document.getElementById('codeEditor');
+        const runBtn = document.getElementById('runBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const clearOutputBtn = document.getElementById('clearOutputBtn');
+        const outputContainer = document.getElementById('outputContainer');
+        const templateSelect = document.getElementById('templateSelect');
+        const modeTabs = document.querySelectorAll('.sb-mode-tab');
+        const snippetsGrid = document.getElementById('snippetsGrid');
+        const successCountEl = document.getElementById('successCount');
+        const errorCountEl = document.getElementById('errorCount');
+        const execTimeEl = document.getElementById('execTime');
+
+        // Initialize snippets
+        function updateSnippets() {
+            const currentSnippets = snippets[currentMode] || snippets.javascript;
+            snippetsGrid.innerHTML = currentSnippets.map(snippet =>
+                `<span class="sb-snippet" data-code="${snippet}">${snippet}</span>`
+            ).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.sb-snippet').forEach(el => {
+                el.addEventListener('click', () => {
+                    const code = el.dataset.code;
+                    const start = codeEditor.selectionStart;
+                    const end = codeEditor.selectionEnd;
+                    const text = codeEditor.value;
+                    codeEditor.value = text.substring(0, start) + code + text.substring(end);
+                    codeEditor.focus();
+                    codeEditor.selectionStart = codeEditor.selectionEnd = start + code.length;
+                });
+            });
+        }
+
+        // Mode switching
+        modeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                modeTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMode = tab.dataset.mode;
+                updateSnippets();
+
+                // Update placeholder based on mode
+                const placeholders = {
+                    javascript: '// 在这里编写 JavaScript 代码...',
+                    shell: '# 在这里输入 Shell 命令...',
+                    git: '# 在这里输入 Git 命令...'
+                };
+                codeEditor.placeholder = placeholders[currentMode];
+            });
+        });
+
+        // Template selection
+        templateSelect.addEventListener('change', (e) => {
+            const template = templates[e.target.value];
+            if (template) {
+                codeEditor.value = template;
+            }
+        });
+
+        // Output functions
+        function addOutput(text, type = 'log') {
+            const emptyMsg = outputContainer.querySelector('.sb-output-empty');
+            if (emptyMsg) emptyMsg.remove();
+
+            const line = document.createElement('div');
+            line.className = `sb-output-line ${type}`;
+            line.textContent = text;
+            outputContainer.appendChild(line);
+            outputContainer.scrollTop = outputContainer.scrollHeight;
+        }
+
+        function addShellOutput(command, output) {
+            const emptyMsg = outputContainer.querySelector('.sb-output-empty');
+            if (emptyMsg) emptyMsg.remove();
+
+            const line = document.createElement('div');
+            line.className = 'sb-output-line system';
+            line.innerHTML = `<span class="prompt">$</span><span class="command">${command}</span>`;
+            outputContainer.appendChild(line);
+
+            if (output) {
+                const resultLine = document.createElement('div');
+                resultLine.className = 'sb-output-line result';
+                resultLine.innerHTML = `<pre class="sb-shell-output">${output}</pre>`;
+                outputContainer.appendChild(resultLine);
+            }
+
+            outputContainer.scrollTop = outputContainer.scrollHeight;
+        }
+
+        // Clear functions
+        clearBtn.addEventListener('click', () => {
+            codeEditor.value = '';
+            codeEditor.focus();
+        });
+
+        clearOutputBtn.addEventListener('click', () => {
+            outputContainer.innerHTML = '<div class="sb-output-empty">等待执行代码...</div>';
+            successCount = 0;
+            errorCount = 0;
+            totalTime = 0;
+            updateStats();
+        });
+
+        function updateStats() {
+            successCountEl.textContent = successCount;
+            errorCountEl.textContent = errorCount;
+            execTimeEl.textContent = totalTime + 'ms';
+        }
+
+        // Run code
+        runBtn.addEventListener('click', executeCode);
+
+        function executeCode() {
+            const code = codeEditor.value.trim();
+            if (!code) {
+                addOutput('请输入要执行的代码', 'warning');
+                return;
+            }
+
+            runBtn.classList.add('running');
+            const startTime = performance.now();
+
+            try {
+                if (currentMode === 'javascript') {
+                    executeJavaScript(code);
+                } else if (currentMode === 'shell') {
+                    executeShell(code);
+                } else if (currentMode === 'git') {
+                    executeGit(code);
+                }
+
+                successCount++;
+            } catch (error) {
+                addOutput(error.message, 'error');
+                errorCount++;
+            } finally {
+                const endTime = performance.now();
+                totalTime += Math.round(endTime - startTime);
+                updateStats();
+                runBtn.classList.remove('running');
+            }
+        }
+
+        // JavaScript execution
+        function executeJavaScript(code) {
+            // Create a safe console
+            const logs = [];
+            const safeConsole = {
+                log: (...args) => {
+                    logs.push({ type: 'log', args });
+                    addOutput(args.map(a => formatOutput(a)).join(' '), 'log');
+                },
+                info: (...args) => {
+                    logs.push({ type: 'info', args });
+                    addOutput(args.map(a => formatOutput(a)).join(' '), 'info');
+                },
+                warn: (...args) => {
+                    logs.push({ type: 'warn', args });
+                    addOutput(args.map(a => formatOutput(a)).join(' '), 'warning');
+                },
+                error: (...args) => {
+                    logs.push({ type: 'error', args });
+                    addOutput(args.map(a => formatOutput(a)).join(' '), 'error');
+                },
+                table: (data) => {
+                    addOutput(formatOutput(data), 'log');
+                }
+            };
+
+            try {
+                // Create function with safe console
+                const fn = new Function('console', code);
+                fn(safeConsole);
+
+                if (logs.length === 0) {
+                    addOutput('代码执行完成（无输出）', 'success');
+                }
+            } catch (e) {
+                throw new Error(`Error: ${e.message}`);
+            }
+        }
+
+        function formatOutput(value) {
+            if (value === null) return 'null';
+            if (value === undefined) return 'undefined';
+            if (typeof value === 'object') {
+                try {
+                    return JSON.stringify(value, null, 2);
+                } catch {
+                    return String(value);
+                }
+            }
+            return String(value);
+        }
+
+        // Shell execution
+        function executeShell(code) {
+            const lines = code.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+
+            if (lines.length === 0) {
+                addShellOutput(code, '请输入有效的命令');
+                return;
+            }
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                const parts = trimmed.split(/\s+/);
+                const cmd = parts[0];
+                const args = parts.slice(1);
+
+                if (shellCommands[cmd]) {
+                    const output = shellCommands[cmd](args, trimmed);
+                    addShellOutput(trimmed, output);
+                } else if (cmd === 'help') {
+                    addShellOutput(trimmed, `可用命令: ${Object.keys(shellCommands).join(', ')}`);
+                } else {
+                    addShellOutput(trimmed, `命令未找到: ${cmd}`);
+                }
+            });
+        }
+
+        // Git execution
+        function executeGit(code) {
+            const lines = code.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+
+            if (lines.length === 0) {
+                addShellOutput(code, '请输入有效的 Git 命令');
+                return;
+            }
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+
+                // Try exact match first
+                if (gitCommands[trimmed]) {
+                    addShellOutput(trimmed, gitCommands[trimmed]());
+                    return;
+                }
+
+                // Try partial match
+                let found = false;
+                for (const [key, fn] of Object.entries(gitCommands)) {
+                    if (trimmed.startsWith(key)) {
+                        const args = trimmed.slice(key.length).trim().split(/\s+/).filter(Boolean);
+                        addShellOutput(trimmed, fn(args, trimmed));
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    addShellOutput(trimmed, `git: '${trimmed.split(' ')[1]}' is not a git command. See 'git --help'.`);
+                }
+            });
+        }
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                executeCode();
+            }
+        });
+
+        // Initialize
+        updateSnippets();
+    </script>
+</body>
+</html>

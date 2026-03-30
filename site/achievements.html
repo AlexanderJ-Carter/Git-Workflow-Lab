@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成就中心 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 成就页面样式 */
+        .achievements-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hero 区域 */
+        .achievements-hero {
+            padding: 80px 0 60px;
+            text-align: center;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08), transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1), transparent 40%),
+                var(--bg-secondary);
+            position: relative;
+        }
+
+        .achievements-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .achievements-hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .achievements-hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 进度概览 */
+        .progress-overview {
+            max-width: 800px;
+            margin: 0 auto 48px;
+            padding: 0 24px;
+        }
+
+        .progress-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .progress-stat {
+            text-align: center;
+        }
+
+        .progress-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .progress-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-container {
+            position: relative;
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-full);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-percentage {
+            position: absolute;
+            right: 0;
+            top: -24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        /* 成就网格 */
+        .achievements-grid-section {
+            padding: 0 0 80px;
+            flex: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        /* 成就卡片 */
+        .achievement-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .achievement-card:hover::before {
+            opacity: 1;
+        }
+
+        .achievement-card.unlocked {
+            background: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .achievement-card.unlocked::before {
+            opacity: 1;
+        }
+
+        .achievement-card.locked {
+            opacity: 0.6;
+        }
+
+        .achievement-card.locked .achievement-icon {
+            filter: grayscale(1);
+            opacity: 0.4;
+        }
+
+        /* 成就图标 */
+        .achievement-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .achievement-card.unlocked .achievement-icon {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 4px 30px rgba(99, 102, 241, 0.5); }
+        }
+
+        /* 成就信息 */
+        .achievement-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .achievement-card.locked .achievement-name {
+            color: var(--text-muted);
+        }
+
+        .achievement-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .achievement-requirement {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: inline-block;
+        }
+
+        /* 成就解锁状态 */
+        .achievement-status {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .achievement-date {
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .achievement-card.locked .achievement-status {
+            display: none;
+        }
+
+        /* 悬停详情提示 */
+        .achievement-tooltip {
+            position: absolute;
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            width: 220px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 10;
+            text-align: left;
+        }
+
+        .achievement-card:hover .achievement-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .achievement-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--bg-primary);
+        }
+
+        .tooltip-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .tooltip-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        /* 页脚 */
+        .achievements-footer {
+            padding: 32px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .achievements-hero h1 {
+                font-size: 32px;
+            }
+
+            .achievements-hero p {
+                font-size: 16px;
+            }
+
+            .progress-stats {
+                gap: 16px;
+            }
+
+            .progress-stat-value {
+                font-size: 24px;
+            }
+
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="achievements-page">
+    <div class="container">
+        <!-- Hero 区域 -->
+        <section class="achievements-hero">
+            <h1>成就中心</h1>
+            <p>记录你的学习历程，解锁成就，见证每一次成长</p>
+        </section>
+
+        <!-- 进度概览 -->
+        <div class="progress-overview">
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-title">学习进度</span>
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <div class="progress-stat-value" id="unlocked-count">0</div>
+                            <div class="progress-stat-label">已解锁成就</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="progress-stat-value" id="total-count">8</div>
+                            <div class="progress-stat-label">总成就数</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+                    <span class="progress-percentage" id="progress-percent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成就网格 -->
+        <section class="achievements-grid-section">
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- 成就卡片将由 JavaScript 渲染 -->
+            </div>
+        </section>
+    </div>
+
+    <footer class="achievements-footer">
+        <div class="container">
+            <button class="theme-toggle" aria-label="切换主题">🌙</button>
+            <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub</a></p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js" defer></script>
+    <script>
+        // 成就定义
+        const ACHIEVEMENTS = [
+            {
+                id: 'first-lesson',
+                name: '入门新手',
+                desc: '完成第一课',
+                icon: '🌟',
+                requirement: '完成 1 节课',
+                condition: (progress, stats) => stats.completedLessons >= 1,
+                tooltip: '恭喜你完成了第一课！这是学习 Git 的第一步，继续加油！'
+            },
+            {
+                id: 'stage-0-1',
+                name: '基础掌握',
+                desc: '完成阶段 0-1',
+                icon: '📚',
+                requirement: '完成 10 节课',
+                condition: (progress, stats) => stats.completedLessons >= 10,
+                tooltip: '你已掌握 Git 基础！包括安装配置、仓库创建、提交和远程同步。'
+            },
+            {
+                id: 'stage-2',
+                name: '分支达人',
+                desc: '完成阶段 2',
+                icon: '🌿',
+                requirement: '完成 15 节课',
+                condition: (progress, stats) => stats.completedLessons >= 15,
+                tooltip: '分支协作高手！你已经学会分支、PR、冲突解决和 rebase。'
+            },
+            {
+                id: 'stage-3',
+                name: '救火队长',
+                desc: '完成阶段 3',
+                icon: '🚒',
+                requirement: '完成 18 节课',
+                condition: (progress, stats) => stats.completedLessons >= 18,
+                tooltip: '故障恢复专家！你掌握了 cherry-pick、revert、reflog 和 stash。'
+            },
+            {
+                id: 'stage-4-5',
+                name: 'CI/CD 工程师',
+                desc: '完成阶段 4-5',
+                icon: '⚡',
+                requirement: '完成 21 节课',
+                condition: (progress, stats) => stats.completedLessons >= 21,
+                tooltip: '自动化大师！你已掌握 CI/CD 流水线、Secrets 和自动发布。'
+            },
+            {
+                id: 'all-complete',
+                name: '全勤奖',
+                desc: '完成所有课程',
+                icon: '🏆',
+                requirement: '完成全部课程',
+                condition: (progress, stats) => stats.completedLessons >= 21 && stats.totalLessons >= 21,
+                tooltip: '太棒了！你已完成所有课程，成为 Git 和 CI/CD 全栈工程师！'
+            },
+            {
+                id: 'command-master',
+                name: '命令达人',
+                desc: '使用所有主要 Git 命令',
+                icon: '⌨️',
+                requirement: '完成全部课程',
+                condition: (progress, stats) => stats.completedLessons >= 21,
+                tooltip: '你已经使用过 Git 的所有核心命令：add, commit, push, pull, branch, merge, rebase, stash, tag 等。'
+            },
+            {
+                id: 'streak-7',
+                name: '连续学习',
+                desc: '连续学习 7 天',
+                icon: '🔥',
+                requirement: '连续学习 7 天',
+                condition: (progress, stats) => stats.streakDays >= 7,
+                tooltip: '坚持就是胜利！你已经连续学习 7 天了，保持这个好习惯！'
+            }
+        ];
+
+        // 课程数据
+        const LESSONS = [
+            { stage: 0, id: 'lesson-00' },
+            { stage: 0, id: 'lesson-00b' },
+            { stage: 0, id: 'lesson-01' },
+            { stage: 0, id: 'lesson-02' },
+            { stage: 0, id: 'lesson-03' },
+            { stage: 1, id: 'lesson-04' },
+            { stage: 1, id: 'lesson-05' },
+            { stage: 1, id: 'lesson-06' },
+            { stage: 1, id: 'lesson-06a' },
+            { stage: 1, id: 'lesson-06b' },
+            { stage: 2, id: 'lesson-07' },
+            { stage: 2, id: 'lesson-08' },
+            { stage: 2, id: 'lesson-09' },
+            { stage: 3, id: 'lesson-10' },
+            { stage: 3, id: 'lesson-11' },
+            { stage: 3, id: 'lesson-12' },
+            { stage: 3, id: 'lesson-13' },
+            { stage: 3, id: 'lesson-14' },
+            { stage: 3, id: 'lesson-15' },
+            { stage: 3, id: 'lesson-16' },
+            { stage: 3, id: 'lesson-17' },
+        ];
+
+        // 学习进度管理
+        const LearningProgress = {
+            STORAGE_KEY: 'git-workflow-lab-progress',
+            ACHIEVEMENTS_KEY: 'git-workflow-lab-achievements',
+
+            getProgress() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    return data ? JSON.parse(data) : {};
+                } catch {
+                    return {};
+                }
+            },
+
+            getAchievements() {
+                try {
+                    const data = localStorage.getItem(this.ACHIEVEMENTS_KEY);
+                    return data ? JSON.parse(data) : {};
+                } catch {
+                    return {};
+                }
+            },
+
+            saveAchievement(achievementId, unlocked) {
+                const achievements = this.getAchievements();
+                achievements[achievementId] = {
+                    unlocked,
+                    unlockedAt: unlocked ? Date.now() : null
+                };
+                localStorage.setItem(this.ACHIEVEMENTS_KEY, JSON.stringify(achievements));
+            },
+
+            getStats() {
+                const progress = this.getProgress();
+                const completedLessons = Object.values(progress).filter(p => p.completed).length;
+
+                // 计算连续学习天数
+                const streakDays = this.calculateStreak(progress);
+
+                return {
+                    completedLessons,
+                    totalLessons: LESSONS.length,
+                    streakDays
+                };
+            },
+
+            calculateStreak(progress) {
+                if (!progress || Object.keys(progress).length === 0) return 0;
+
+                // 获取所有有完成记录的日期
+                const dates = new Set();
+                Object.values(progress).forEach(p => {
+                    if (p.completed && p.timestamp) {
+                        const date = new Date(p.timestamp).toDateString();
+                        dates.add(date);
+                    }
+                });
+
+                if (dates.size === 0) return 0;
+
+                // 转换为日期数组并排序
+                const sortedDates = Array.from(dates).map(d => new Date(d)).sort((a, b) => b - a);
+
+                // 计算连续天数
+                let streak = 1;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const lastDate = sortedDates[0];
+                lastDate.setHours(0, 0, 0, 0);
+
+                // 如果最近完成不是今天或昨天，连续中断
+                const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                if (diffDays > 1) return 0;
+
+                // 从最新日期向前计算连续天数
+                for (let i = 1; i < sortedDates.length; i++) {
+                    const current = sortedDates[i - 1];
+                    const previous = sortedDates[i];
+                    current.setHours(0, 0, 0, 0);
+                    previous.setHours(0, 0, 0, 0);
+
+                    const diff = Math.floor((current - previous) / (1000 * 60 * 60 * 24));
+                    if (diff === 1) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+
+                return streak;
+            }
+        };
+
+        // 格式化日期
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}年${month}月${day日}`;
+        }
+
+        // 渲染成就卡片
+        function renderAchievements() {
+            const grid = document.getElementById('achievements-grid');
+            const progress = LearningProgress.getProgress();
+            const savedAchievements = LearningProgress.getAchievements();
+            const stats = LearningProgress.getStats();
+
+            // 检查并更新成就状态
+            ACHIEVEMENTS.forEach(achievement => {
+                const isUnlocked = achievement.condition(progress, stats);
+
+                // 如果成就状态发生变化，保存
+                if (isUnlocked !== savedAchievements[achievement.id]?.unlocked) {
+                    LearningProgress.saveAchievement(achievement.id, isUnlocked);
+                    savedAchievements[achievement.id] = {
+                        unlocked: isUnlocked,
+                        unlockedAt: isUnlocked ? Date.now() : null
+                    };
+                }
+            });
+
+            // 重新获取最新成就数据
+            const achievements = LearningProgress.getAchievements();
+
+            grid.innerHTML = ACHIEVEMENTS.map(achievement => {
+                const achievementData = achievements[achievement.id] || {};
+                const isUnlocked = achievementData.unlocked;
+                const unlockedAt = achievementData.unlockedAt;
+
+                return `
+                    <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div class="achievement-name">${achievement.name}</div>
+                        <div class="achievement-desc">${achievement.desc}</div>
+                        <div class="achievement-requirement">${achievement.requirement}</div>
+                        ${isUnlocked ? `
+                            <div class="achievement-status">
+                                <span class="achievement-date">解锁于 ${formatDate(unlockedAt)}</span>
+                            </div>
+                        ` : ''}
+                        <div class="achievement-tooltip">
+                            <div class="tooltip-title">${achievement.name}</div>
+                            <div class="tooltip-text">${achievement.tooltip}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 更新进度显示
+            updateProgressDisplay();
+        }
+
+        // 更新进度显示
+        function updateProgressDisplay() {
+            const savedAchievements = LearningProgress.getAchievements();
+            const unlockedCount = Object.values(savedAchievements).filter(a => a.unlocked).length;
+            const totalCount = ACHIEVEMENTS.length;
+            const percentage = Math.round((unlockedCount / totalCount) * 100);
+
+            document.getElementById('unlocked-count').textContent = unlockedCount;
+            document.getElementById('total-count').textContent = totalCount;
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+            document.getElementById('progress-percent').textContent = `${percentage}%`;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAchievements();
+
+            // 监听 localStorage 变化
+            window.addEventListener('storage', () => {
+                renderAchievements();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习路径 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --path-primary: #6366f1;
+            --path-secondary: #8b5cf6;
+            --path-success: #10b981;
+            --path-warning: #f59e0b;
+            --path-error: #ef4444;
+            --path-bg: #f8fafc;
+            --path-bg-card: #ffffff;
+            --path-border: #e2e8f0;
+            --path-text: #1e293b;
+            --path-text-muted: #64748b;
+            --path-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --path-bg: #0f172a;
+            --path-bg-card: #1e293b;
+            --path-border: #334155;
+            --path-text: #f1f5f9;
+            --path-text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--path-bg);
+            color: var(--path-text);
+            line-height: 1.6;
+        }
+
+        .path-header {
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        [data-theme="dark"] .path-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        .path-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--path-primary), var(--path-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .path-header p {
+            color: var(--path-text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 主进度卡片 */
+        .path-progress-card {
+            max-width: 900px;
+            margin: -30px auto 40px;
+            padding: 28px 32px;
+            background: var(--path-bg-card);
+            border: 1px solid var(--path-border);
+            border-radius: var(--path-radius);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .path-progress-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .path-progress-label {
+            font-size: 14px;
+            color: var(--path-text-muted);
+            margin-bottom: 8px;
+        }
+
+        .path-progress-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--path-primary);
+        }
+
+        .path-progress-bar {
+            flex: 2;
+            min-width: 250px;
+        }
+
+        .path-progress-track {
+            height: 14px;
+            background: var(--path-border);
+            border-radius: 7px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .path-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--path-primary), var(--path-secondary));
+            border-radius: 7px;
+            transition: width 0.5s ease;
+        }
+
+        .path-progress-stages {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .path-stage-item {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .path-stage-item span {
+            display: block;
+            color: var(--path-text-muted);
+        }
+
+        .path-stage-item strong {
+            color: var(--path-text);
+            font-size: 14px;
+        }
+
+        /* 路径时间线 */
+        .path-timeline {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .path-stage {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 48px;
+        }
+
+        .path-stage::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: -48px;
+            width: 3px;
+            background: var(--path-border);
+        }
+
+        .path-stage:last-child::before {
+            display: none;
+        }
+
+        .path-stage-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .path-stage-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .path-stage-icon.stage-0 { background: #d1fae5; color: #065f46; }
+        .path-stage-icon.stage-1 { background: #dbeafe; color: #1d4ed8; }
+        .path-stage-icon.stage-2 { background: #fef3c7; color: #92400e; }
+        .path-stage-icon.stage-3 { background: #fce7f3; color: #9d174d; }
+        .path-stage-icon.stage-4 { background: #ede9fe; color: #6d28d9; }
+
+        [data-theme="dark"] .path-stage-icon.stage-0 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        [data-theme="dark"] .path-stage-icon.stage-1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        [data-theme="dark"] .path-stage-icon.stage-2 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        [data-theme="dark"] .path-stage-icon.stage-3 { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+        [data-theme="dark"] .path-stage-icon.stage-4 { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+
+        .path-stage-icon.completed {
+            background: var(--path-success) !important;
+            color: white !important;
+        }
+
+        .path-stage-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .path-stage-meta {
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--path-text-muted);
+        }
+
+        .path-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .path-card {
+            background: var(--path-bg-card);
+            border: 1px solid var(--path-border);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .path-card:hover {
+            border-color: var(--path-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+        }
+
+        .path-card.completed {
+            border-color: var(--path-success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .path-card-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--path-bg);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .path-card.completed .path-card-icon {
+            background: var(--path-success);
+            color: white;
+        }
+
+        .path-card-content h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .path-card-content p {
+            font-size: 13px;
+            color: var(--path-text-muted);
+            line-height: 1.5;
+        }
+
+        /* 推荐学习顺序 */
+        .path-recommend {
+            max-width: 900px;
+            margin: 48px auto;
+            padding: 24px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: var(--path-radius);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        [data-theme="dark"] .path-recommend {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.1) 100%);
+        }
+
+        .path-recommend-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .path-recommend h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .path-recommend p {
+            font-size: 14px;
+            color: var(--path-text-muted);
+            line-height: 1.7;
+        }
+
+        .path-recommend ol {
+            margin: 12px 0 0 20px;
+            font-size: 14px;
+        }
+
+        .path-recommend li {
+            margin: 6px 0;
+        }
+
+        @media (max-width: 768px) {
+            .path-progress-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .path-progress-stages {
+                display: none;
+            }
+
+            .path-stage {
+                padding-left: 30px;
+            }
+
+            .path-stage::before {
+                left: 10px;
+            }
+
+            .path-stage-header {
+                flex-wrap: wrap;
+            }
+
+            .path-stage-meta {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="path-header">
+        <h1>🗺️ 学习路径</h1>
+        <p>按照这个路径学习，从零基础到熟练掌握 Git 和 CI/CD</p>
+    </header>
+
+    <div class="path-progress-card">
+        <div class="path-progress-info">
+            <div class="path-progress-label">总体学习进度</div>
+            <div class="path-progress-value" id="progress-value">0%</div>
+        </div>
+        <div class="path-progress-bar">
+            <div class="path-progress-track">
+                <div class="path-progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="path-progress-stages">
+                <div class="path-stage-item"><strong>0%</strong><span>基础</span></div>
+                <div class="path-stage-item"><strong>25%</strong><span>进阶</span></div>
+                <div class="path-stage-item"><strong>50%</strong><span>协作</span></div>
+                <div class="path-stage-item"><strong>75%</strong><span>恢复</span></div>
+                <div class="path-stage-item"><strong>100%</strong><span>CI/CD</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="path-recommend">
+        <div class="path-recommend-icon">💡</div>
+        <div>
+            <h3>推荐学习顺序</h3>
+            <p>如果你是 Git 新手，建议按照以下顺序学习：</p>
+            <ol>
+                <li>阶段 0-1 基础入门：理解 Git 的基本概念和最常用的命令</li>
+                <li>阶段 2 分支与协作：学会使用分支，理解团队协作流程</li>
+                <li>阶段 3 救火与恢复：掌握误操作后的恢复技能</li>
+                <li>阶段 4-5 CI/CD：了解自动化和工程化实践</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="path-timeline">
+        <!-- 阶段 0-1 -->
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-0" id="stage-icon-0">0-1</div>
+                <div class="path-stage-title">阶段 0-1：Git 基础入门</div>
+                <div class="path-stage-meta">5 个关卡 · 约 2 小时</div>
+            </div>
+            <div class="path-cards" id="stage-0"></div>
+        </div>
+
+        <!-- 阶段 2 -->
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-1" id="stage-icon-1">2</div>
+                <div class="path-stage-title">阶段 2：分支与协作</div>
+                <div class="path-stage-meta">5 个关卡 · 约 2.5 小时</div>
+            </div>
+            <div class="path-cards" id="stage-1"></div>
+        </div>
+
+        <!-- 阶段 3 -->
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-2" id="stage-icon-2">3</div>
+                <div class="path-stage-title">阶段 3：救火与恢复</div>
+                <div class="path-stage-meta">3 个关卡 · 约 1.5 小时</div>
+            </div>
+            <div class="path-cards" id="stage-2"></div>
+        </div>
+
+        <!-- 阶段 4-5 -->
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-3" id="stage-icon-3">4-5</div>
+                <div class="path-stage-title">阶段 4-5：CI/CD 与进阶</div>
+                <div class="path-stage-meta">8 个关卡 · 约 4 小时</div>
+            </div>
+            <div class="path-cards" id="stage-3"></div>
+        </div>
+    </div>
+
+    <script>
+        // 课程数据
+        const LESSONS = [
+            // 阶段 0-1
+            { stage: 0, id: 'lesson-00', file: 'lesson-00-install-and-config.md', title: '安装与配置', desc: 'Git 安装、配置用户信息、全局 .gitignore' },
+            { stage: 0, id: 'lesson-00b', file: 'lesson-00-terminal-basics.md', title: '命令行基础', desc: '熟悉终端，掌握 pwd / ls / cd 等命令' },
+            { stage: 0, id: 'lesson-01', file: 'lesson-01-init-push.md', title: '创建仓库与推送', desc: 'clone、add、commit、push 完整流程' },
+            { stage: 0, id: 'lesson-02', file: 'lesson-02-workspace-staging-history.md', title: '工作区与暂存区', desc: '理解 status、diff、restore 等概念' },
+            { stage: 0, id: 'lesson-03', file: 'lesson-03-remote-and-sync.md', title: '远程同步', desc: 'remote、fetch、pull、push 操作' },
+            // 阶段 2
+            { stage: 1, id: 'lesson-04', file: 'lesson-04-branches-and-pr.md', title: '分支与 PR', desc: 'branch、checkout、merge、PR 操作' },
+            { stage: 1, id: 'lesson-05', file: 'lesson-05-merge-conflict.md', title: '合并冲突', desc: '理解冲突、手动解决合并冲突' },
+            { stage: 1, id: 'lesson-06', file: 'lesson-06-rebase-clean-history.md', title: 'Rebase 整理', desc: 'rebase、交互式 rebase 整理历史' },
+            { stage: 1, id: 'lesson-06a', file: 'lesson-06a-ssh-setup-and-clone.md', title: 'SSH 密钥', desc: '配置 SSH 公钥、实现无密码访问' },
+            { stage: 1, id: 'lesson-06b', file: 'lesson-06b-collaboration-conventions.md', title: '协作规范', desc: '分支命名规范、PR 流程、Git Flow' },
+            // 阶段 3
+            { stage: 2, id: 'lesson-07', file: 'lesson-07-cherry-pick-and-revert.md', title: 'Cherry-pick 与 Revert', desc: '选择性应用提交、撤销变更' },
+            { stage: 2, id: 'lesson-08', file: 'lesson-08-reflog-and-recovery.md', title: 'Reflog 恢复', desc: 'reflog、reset、恢复误删提交' },
+            { stage: 2, id: 'lesson-09', file: 'lesson-09-stash-usage.md', title: 'Stash 暂存', desc: 'stash 保存工作进度、切换分支' },
+            // 阶段 4-5
+            { stage: 3, id: 'lesson-10', file: 'lesson-10-first-ci-workflow.md', title: '第一个 CI', desc: 'Gitea Actions、Workflow 入门' },
+            { stage: 3, id: 'lesson-11', file: 'lesson-11-fix-broken-pipeline.md', title: '修复流水线', desc: '阅读日志、定位问题、修复 CI' },
+            { stage: 3, id: 'lesson-12', file: 'lesson-12-multi-stage-pipeline-and-secrets.md', title: '多阶段流水线', desc: '多 Job 依赖、Secrets 管理' },
+            { stage: 3, id: 'lesson-13', file: 'lesson-13-tags-and-releases.md', title: '标签与发布', desc: 'tag 命令、语义化版本、Release' },
+            { stage: 3, id: 'lesson-14', file: 'lesson-14-project-files.md', title: '项目规范', desc: 'README、CONTRIBUTING、LICENSE' },
+            { stage: 3, id: 'lesson-15', file: 'lesson-15-git-hooks.md', title: 'Git Hooks', desc: 'pre-commit、Husky、commitlint' },
+            { stage: 3, id: 'lesson-16', file: 'lesson-16-large-repo.md', title: '大仓库优化', desc: '浅克隆、Git LFS、性能调优' },
+            { stage: 3, id: 'lesson-17', file: 'lesson-17-release-automation.md', title: '自动发布', desc: 'Release Please、自动版本与 Changelog' },
+        ];
+
+        // 学习进度
+        const LearningProgress = {
+            STORAGE_KEY: 'git-workflow-lab-progress',
+            getProgress() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
+                } catch { return {}; }
+            },
+            isCompleted(id) {
+                return this.getProgress()[id]?.completed || false;
+            },
+            getCompletedCount() {
+                return Object.values(this.getProgress()).filter(p => p.completed).length;
+            }
+        };
+
+        // 渲染课程卡片
+        function renderCards() {
+            [0, 1, 2, 3].forEach(stageIndex => {
+                const container = document.getElementById(`stage-${stageIndex}`);
+                const stageLessons = LESSONS.filter(l => l.stage === stageIndex);
+
+                container.innerHTML = stageLessons.map(lesson => {
+                    const isCompleted = LearningProgress.isCompleted(lesson.id);
+                    return `
+                        <a href="docs/viewer.html?file=${lesson.file}" class="path-card ${isCompleted ? 'completed' : ''}" target="_blank">
+                            <div class="path-card-icon">${isCompleted ? '✓' : lesson.id.replace('lesson-', '').replace('b', 'b')}</div>
+                            <div class="path-card-content">
+                                <h4>${lesson.title}</h4>
+                                <p>${lesson.desc}</p>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            });
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const completed = LearningProgress.getCompletedCount();
+            const total = LESSONS.length;
+            const percentage = Math.round((completed / total) * 100);
+
+            document.getElementById('progress-value').textContent = `${percentage}%`;
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+
+            // 更新阶段图标状态
+            const stageThresholds = [0.2, 0.4, 0.6, 0.8];
+            [0, 1, 2, 3].forEach(i => {
+                const icon = document.getElementById(`stage-icon-${i}`);
+                if (percentage >= stageThresholds[i] * 100) {
+                    icon.classList.add('completed');
+                }
+            });
+        }
+
+        // 监听进度更新
+        window.addEventListener('storage', () => {
+            renderCards();
+            updateProgress();
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

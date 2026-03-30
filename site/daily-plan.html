@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日学习计划 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 页面特定样式 */
+        :root {
+            --dp-primary: #6366f1;
+            --dp-primary-dark: #4f46e5;
+            --dp-secondary: #8b5cf6;
+            --dp-success: #10b981;
+            --dp-warning: #f59e0b;
+            --dp-error: #ef4444;
+            --dp-bg: #f8fafc;
+            --dp-border: #e2e8f0;
+            --dp-text: #1e293b;
+            --dp-text-muted: #64748b;
+            --dp-radius: 16px;
+            --timer-size: 280px;
+        }
+
+        [data-theme="dark"] {
+            --dp-bg: #0f172a;
+            --dp-border: #334155;
+            --dp-text: #f1f5f9;
+            --dp-text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--dp-bg);
+            color: var(--dp-text);
+            font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* 顶部日期时间栏 */
+        .dp-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--dp-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+            flex-wrap: wrap;
+        }
+
+        [data-theme="dark"] .dp-header {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+        }
+
+        .dp-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dp-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dp-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--dp-primary), var(--dp-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .dp-header-title h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--dp-text);
+        }
+
+        .dp-header-title p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--dp-text-muted);
+        }
+
+        .dp-datetime {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dp-date {
+            text-align: right;
+        }
+
+        .dp-date-day {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dp-primary);
+        }
+
+        .dp-date-weekday {
+            font-size: 13px;
+            color: var(--dp-text-muted);
+        }
+
+        .dp-time {
+            font-size: 32px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--dp-text);
+        }
+
+        /* 主布局 */
+        .dp-main {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .dp-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 番茄钟区域 */
+        .dp-timer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .dp-card {
+            background: var(--bg-primary, #fff);
+            border: 1px solid var(--dp-border);
+            border-radius: var(--dp-radius);
+            padding: 24px;
+        }
+
+        .dp-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .dp-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dp-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dp-timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .dp-timer {
+            position: relative;
+            width: var(--timer-size);
+            height: var(--timer-size);
+        }
+
+        .dp-timer-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--bg-primary, #fff);
+            border: 4px solid var(--dp-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dp-timer-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: var(--dp-primary);
+            transform: rotate(-90deg);
+            transition: all 0.3s ease;
+        }
+
+        .dp-timer-running .dp-timer-circle::before {
+            animation: timer-rotate 25s linear infinite;
+        }
+
+        .dp-timer-break .dp-timer-circle::before {
+            border-top-color: var(--dp-success);
+            animation: timer-rotate 5s linear infinite;
+        }
+
+        @keyframes timer-rotate {
+            from { transform: rotate(-90deg); }
+            to { transform: rotate(270deg); }
+        }
+
+        .dp-timer-progress {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border-radius: 50%;
+            background: conic-gradient(var(--dp-primary) 0deg, var(--dp-border) 0deg);
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .dp-timer-display {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .dp-timer-time {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--dp-text);
+            line-height: 1;
+        }
+
+        .dp-timer-mode {
+            font-size: 14px;
+            color: var(--dp-text-muted);
+            margin-top: 8px;
+        }
+
+        .dp-timer-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dp-btn {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dp-btn-primary {
+            background: linear-gradient(135deg, var(--dp-primary), var(--dp-secondary));
+            color: white;
+        }
+
+        .dp-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .dp-btn-secondary {
+            background: var(--bg-tertiary, #f1f5f9);
+            color: var(--dp-text);
+            border: 1px solid var(--dp-border);
+        }
+
+        .dp-btn-secondary:hover {
+            background: var(--dp-border);
+        }
+
+        .dp-btn-success {
+            background: var(--dp-success);
+            color: white;
+        }
+
+        .dp-timer-stats {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+        }
+
+        .dp-timer-stat {
+            text-align: center;
+        }
+
+        .dp-timer-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dp-primary);
+        }
+
+        .dp-timer-stat-label {
+            font-size: 13px;
+            color: var(--dp-text-muted);
+        }
+
+        /* 任务列表 */
+        .dp-tasks-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dp-tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dp-task-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .dp-task-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--dp-border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--bg-primary, #fff);
+            color: var(--dp-text);
+        }
+
+        .dp-task-input:focus {
+            outline: none;
+            border-color: var(--dp-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .dp-tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dp-task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-secondary, #f8fafc);
+            border-radius: 10px;
+            border: 1px solid var(--dp-border);
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .dp-task-item {
+            background: var(--bg-secondary, #1e293b);
+        }
+
+        .dp-task-item:hover {
+            border-color: var(--dp-primary);
+        }
+
+        .dp-task-item.completed {
+            opacity: 0.6;
+        }
+
+        .dp-task-item.completed .dp-task-text {
+            text-decoration: line-through;
+        }
+
+        .dp-task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--dp-border);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .dp-task-checkbox:hover {
+            border-color: var(--dp-primary);
+        }
+
+        .dp-task-checkbox.checked {
+            background: var(--dp-success);
+            border-color: var(--dp-success);
+            color: white;
+        }
+
+        .dp-task-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dp-text);
+        }
+
+        .dp-task-priority {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .dp-task-priority.high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--dp-error);
+        }
+
+        .dp-task-priority.medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--dp-warning);
+        }
+
+        .dp-task-priority.low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--dp-success);
+        }
+
+        .dp-task-delete {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--dp-text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .dp-task-delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--dp-error);
+        }
+
+        /* 侧边统计面板 */
+        .dp-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .dp-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .dp-stat-card {
+            background: var(--bg-secondary, #f8fafc);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--dp-border);
+        }
+
+        [data-theme="dark"] .dp-stat-card {
+            background: var(--bg-secondary, #1e293b);
+        }
+
+        .dp-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dp-primary);
+        }
+
+        .dp-stat-label {
+            font-size: 12px;
+            color: var(--dp-text-muted);
+            margin-top: 4px;
+        }
+
+        /* 计划模板 */
+        .dp-plan-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .dp-plan-tab {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--dp-border);
+            background: var(--bg-primary, #fff);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--dp-text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .dp-plan-tab.active {
+            background: var(--dp-primary);
+            color: white;
+            border-color: var(--dp-primary);
+        }
+
+        .dp-plan-tab:hover:not(.active) {
+            border-color: var(--dp-primary);
+            color: var(--dp-primary);
+        }
+
+        .dp-plan-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dp-plan-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--bg-secondary, #f8fafc);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--dp-text);
+            border: 1px solid var(--dp-border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .dp-plan-item {
+            background: var(--bg-secondary, #1e293b);
+        }
+
+        .dp-plan-item:hover {
+            border-color: var(--dp-primary);
+        }
+
+        .dp-plan-item-day {
+            font-weight: 600;
+            color: var(--dp-primary);
+            min-width: 60px;
+        }
+
+        .dp-plan-item-check {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--dp-border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .dp-plan-item.completed .dp-plan-item-check {
+            background: var(--dp-success);
+            border-color: var(--dp-success);
+            color: white;
+        }
+
+        /* 学习提醒 */
+        .dp-reminder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .dp-reminder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary, #f8fafc);
+            border-radius: 10px;
+            border: 1px solid var(--dp-border);
+        }
+
+        [data-theme="dark"] .dp-reminder-item {
+            background: var(--bg-secondary, #1e293b);
+        }
+
+        .dp-reminder-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .dp-reminder-icon.reminder {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--dp-primary);
+        }
+
+        .dp-reminder-icon.break {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--dp-success);
+        }
+
+        .dp-reminder-content {
+            flex: 1;
+        }
+
+        .dp-reminder-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dp-text);
+        }
+
+        .dp-reminder-time {
+            font-size: 12px;
+            color: var(--dp-text-muted);
+        }
+
+        /* 进度回顾 */
+        .dp-review-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 100px;
+            padding: 16px 0;
+        }
+
+        .dp-review-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--dp-primary), var(--dp-secondary));
+            border-radius: 4px 4px 0 0;
+            min-height: 8px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dp-review-bar:hover {
+            opacity: 0.8;
+        }
+
+        .dp-review-bar::after {
+            content: attr(data-day);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--dp-text-muted);
+        }
+
+        .dp-review-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--dp-text-muted);
+        }
+
+        /* 通知弹窗 */
+        .dp-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            background: var(--bg-primary, #fff);
+            border: 1px solid var(--dp-border);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dp-notification.show {
+            transform: translateX(0);
+        }
+
+        .dp-notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .dp-notification-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--dp-success);
+        }
+
+        .dp-notification-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--dp-warning);
+        }
+
+        .dp-notification-content {
+            flex: 1;
+        }
+
+        .dp-notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dp-text);
+        }
+
+        .dp-notification-text {
+            font-size: 13px;
+            color: var(--dp-text-muted);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            :root {
+                --timer-size: 220px;
+            }
+
+            .dp-main {
+                padding: 16px;
+            }
+
+            .dp-timer-time {
+                font-size: 42px;
+            }
+
+            .dp-timer-stats {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部日期时间栏 -->
+    <header class="dp-header">
+        <div class="dp-header-left">
+            <div class="dp-logo">
+                <div class="dp-logo-icon">GW</div>
+                <div class="dp-header-title">
+                    <h1>每日学习计划</h1>
+                    <p>专注学习，持续进步</p>
+                </div>
+            </div>
+        </div>
+        <div class="dp-datetime">
+            <div class="dp-date">
+                <div class="dp-date-day" id="currentDay">30</div>
+                <div class="dp-date-weekday" id="currentWeekday">周日</div>
+            </div>
+            <div class="dp-time" id="currentTime">00:00:00</div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="dp-main">
+        <!-- 左侧内容 -->
+        <div class="dp-timer-section">
+            <!-- 番茄钟 -->
+            <div class="dp-card">
+                <div class="dp-card-header">
+                    <h2 class="dp-card-title">
+                        <span>&#x1F345;</span> 番茄钟
+                    </h2>
+                    <div class="dp-timer-mode" id="timerMode">专注模式</div>
+                </div>
+                <div class="dp-timer-container">
+                    <div class="dp-timer" id="timerContainer">
+                        <div class="dp-timer-progress" id="timerProgress"></div>
+                        <div class="dp-timer-circle">
+                            <div class="dp-timer-display">
+                                <div class="dp-timer-time" id="timerDisplay">25:00</div>
+                                <div class="dp-timer-mode" id="timerSubMode">专注学习</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dp-timer-controls">
+                        <button class="dp-btn dp-btn-primary" id="startBtn" onclick="startTimer()">
+                            <span>&#x25B6;</span> 开始
+                        </button>
+                        <button class="dp-btn dp-btn-secondary" id="pauseBtn" onclick="pauseTimer()" style="display: none;">
+                            <span>&#x23F8;</span> 暂停
+                        </button>
+                        <button class="dp-btn dp-btn-secondary" id="resetBtn" onclick="resetTimer()">
+                            <span>&#x21BB;</span> 重置
+                        </button>
+                    </div>
+                    <div class="dp-timer-stats">
+                        <div class="dp-timer-stat">
+                            <div class="dp-timer-stat-value" id="completedPomodoros">0</div>
+                            <div class="dp-timer-stat-label">完成番茄</div>
+                        </div>
+                        <div class="dp-timer-stat">
+                            <div class="dp-timer-stat-value" id="totalMinutes">0</div>
+                            <div class="dp-timer-stat-label">学习分钟</div>
+                        </div>
+                        <div class="dp-timer-stat">
+                            <div class="dp-timer-stat-value" id="streakDays">0</div>
+                            <div class="dp-timer-stat-label">连续天数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="dp-card">
+                <div class="dp-card-header">
+                    <h2 class="dp-card-title">
+                        <span>&#x1F4DD;</span> 今日任务
+                    </h2>
+                    <button class="dp-btn dp-btn-secondary" onclick="showAllTasks()" style="padding: 8px 16px; font-size: 13px;">
+                        查看全部
+                    </button>
+                </div>
+                <div class="dp-task-input-group">
+                    <input type="text" class="dp-task-input" id="taskInput" placeholder="添加新任务..." onkeypress="handleTaskInput(event)">
+                    <select class="dp-task-input" id="taskPriority" style="width: 100px;">
+                        <option value="low">低优先级</option>
+                        <option value="medium" selected>中优先级</option>
+                        <option value="high">高优先级</option>
+                    </select>
+                    <button class="dp-btn dp-btn-primary" onclick="addTask()" style="padding: 12px 16px;">
+                        <span>+</span>
+                    </button>
+                </div>
+                <div class="dp-tasks-list" id="tasksList">
+                    <!-- 任务将通过JS动态添加 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <aside class="dp-sidebar">
+            <!-- 学习统计 -->
+            <div class="dp-card">
+                <div class="dp-card-header">
+                    <h3 class="dp-card-title">
+                        <span>&#x1F4CA;</span> 本周统计
+                    </h3>
+                </div>
+                <div class="dp-stats-grid">
+                    <div class="dp-stat-card">
+                        <div class="dp-stat-value" id="weekMinutes">0</div>
+                        <div class="dp-stat-label">本周学习(分钟)</div>
+                    </div>
+                    <div class="dp-stat-card">
+                        <div class="dp-stat-value" id="weekTasks">0</div>
+                        <div class="dp-stat-label">完成任务数</div>
+                    </div>
+                    <div class="dp-stat-card">
+                        <div class="dp-stat-value" id="weekPomodoros">0</div>
+                        <div class="dp-stat-label">番茄数量</div>
+                    </div>
+                    <div class="dp-stat-card">
+                        <div class="dp-stat-value" id="completionRate">0%</div>
+                        <div class="dp-stat-label">完成率</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计划模板 -->
+            <div class="dp-card">
+                <div class="dp-card-header">
+                    <h3 class="dp-card-title">
+                        <span>&#x1F4C5;</span> 学习计划
+                    </h3>
+                </div>
+                <div class="dp-plan-tabs">
+                    <button class="dp-plan-tab active" onclick="switchPlan('beginner')">入门(7天)</button>
+                    <button class="dp-plan-tab" onclick="switchPlan('intermediate')">进阶(14天)</button>
+                    <button class="dp-plan-tab" onclick="switchPlan('advanced')">熟练(30天)</button>
+                </div>
+                <div class="dp-plan-list" id="planList">
+                    <!-- 计划将通过JS动态添加 -->
+                </div>
+            </div>
+
+            <!-- 学习提醒 -->
+            <div class="dp-card">
+                <div class="dp-card-header">
+                    <h3 class="dp-card-title">
+                        <span>&#x1F514;</span> 学习提醒
+                    </h3>
+                </div>
+                <div class="dp-reminder-list" id="reminderList">
+                    <div class="dp-reminder-item">
+                        <div class="dp-reminder-icon reminder">&#x23F0;</div>
+                        <div class="dp-reminder-content">
+                            <div class="dp-reminder-title">早上学习</div>
+                            <div class="dp-reminder-time">每天 09:00 提醒</div>
+                        </div>
+                    </div>
+                    <div class="dp-reminder-item">
+                        <div class="dp-reminder-icon reminder">&#x1F345;</div>
+                        <div class="dp-reminder-content">
+                            <div class="dp-reminder-title">番茄钟休息</div>
+                            <div class="dp-reminder-time">每25分钟后提醒</div>
+                        </div>
+                    </div>
+                    <div class="dp-reminder-item">
+                        <div class="dp-reminder-icon break">&#x1F4A4;</div>
+                        <div class="dp-reminder-content">
+                            <div class="dp-reminder-title">晚间复盘</div>
+                            <div class="dp-reminder-time">每天 21:00 提醒</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 进度回顾 -->
+            <div class="dp-card">
+                <div class="dp-card-header">
+                    <h3 class="dp-card-title">
+                        <span>&#x1F3C6;</span> 本周进度
+                    </h3>
+                </div>
+                <div class="dp-review-chart" id="reviewChart">
+                    <!-- 图表将通过JS动态生成 -->
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- 通知弹窗 -->
+    <div class="dp-notification" id="notification">
+        <div class="dp-notification-icon" id="notificationIcon">&#x2705;</div>
+        <div class="dp-notification-content">
+            <div class="dp-notification-title" id="notificationTitle">完成!</div>
+            <div class="dp-notification-text" id="notificationText">你已完成一个番茄钟</div>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        let tasks = JSON.parse(localStorage.getItem('dp_tasks')) || [
+            { id: 1, text: '复习Git基础命令', priority: 'high', completed: false },
+            { id: 2, text: '完成分支管理练习', priority: 'medium', completed: false },
+            { id: 3, text: '阅读CI/CD文档', priority: 'low', completed: true }
+        ];
+
+        let completedPomodoros = parseInt(localStorage.getItem('dp_pomodoros')) || 0;
+        let totalMinutes = parseInt(localStorage.getItem('dp_totalMinutes')) || 0;
+        let streakDays = parseInt(localStorage.getItem('dp_streakDays')) || 1;
+
+        // 番茄钟状态
+        let timerInterval = null;
+        let timeRemaining = 25 * 60; // 25分钟
+        let isRunning = false;
+        let isBreak = false;
+        let workDuration = 25;
+        let breakDuration = 5;
+
+        // 计划模板
+        const plans = {
+            beginner: {
+                name: '入门计划',
+                days: [
+                    { day: '第1天', task: 'Git安装与配置', completed: true },
+                    { day: '第2天', task: '创建第一个仓库', completed: true },
+                    { day: '第3天', task: '文件提交与查看历史', completed: false },
+                    { day: '第4天', task: '分支创建与切换', completed: false },
+                    { day: '第5天', task: '合并分支', completed: false },
+                    { day: '第6天', task: '远程仓库操作', completed: false },
+                    { day: '第7天', task: '团队协作基础', completed: false }
+                ]
+            },
+            intermediate: {
+                name: '进阶计划',
+                days: [
+                    { day: '第1天', task: 'Git基础回顾', completed: true },
+                    { day: '第2天', task: '深入理解分支模型', completed: false },
+                    { day: '第3天', task: '变基(rebase)操作', completed: false },
+                    { day: '第4天', task: '标签管理', completed: false },
+                    { day: '第5天', task: 'stash使用技巧', completed: false },
+                    { day: '第6天', task: '忽略文件配置', completed: false },
+                    { day: '第7天', task: '撤销操作详解', completed: false },
+                    { day: '第8天', task: '远程仓库高级操作', completed: false },
+                    { day: '第9天', task: 'Git钩子入门', completed: false },
+                    { day: '第10天', task: '子模块使用', completed: false },
+                    { day: '第11天', task: '别名配置', completed: false },
+                    { day: '第12天', task: '差异比较技巧', completed: false },
+                    { day: '第13天', task: '二进制文件处理', completed: false },
+                    { day: '第14天', task: '进阶综合练习', completed: false }
+                ]
+            },
+            advanced: {
+                name: '熟练计划',
+                days: [
+                    { day: '第1-2天', task: 'Git内部原理探索', completed: false },
+                    { day: '第3-4天', task: '分支策略设计', completed: false },
+                    { day: '第5-6天', task: '工作流实践', completed: false },
+                    { day: '第7-8天', task: 'CI/CD基础集成', completed: false },
+                    { day: '第9-10天', task: '自动化部署', completed: false },
+                    { day: '第11-12天', task: 'Git工作流优化', completed: false },
+                    { day: '第13-14天', task: '大型项目Git配置', completed: false },
+                    { day: '第15-16天', task: '性能优化技巧', completed: false },
+                    { day: '第17-18天', task: '故障排查与恢复', completed: false },
+                    { day: '第19-20天', task: '团队协作模式', completed: false },
+                    { day: '第21-22天', task: 'Git安全最佳实践', completed: false },
+                    { day: '第23-24天', task: '代码审查流程', completed: false },
+                    { day: '第25-26天', task: '持续集成深入', completed: false },
+                    { day: '第27-28天', task: '发布管理策略', completed: false },
+                    { day: '第29-30天', task: '综合项目实践', completed: false }
+                ]
+            }
+        };
+
+        let currentPlan = 'beginner';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            renderTasks();
+            renderPlan();
+            updateStats();
+            generateReviewChart();
+            loadTimerState();
+        });
+
+        // 更新日期时间
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            document.getElementById('currentDay').textContent = now.getDate();
+            document.getElementById('currentWeekday').textContent = days[now.getDay()];
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            const todayTasks = tasks.filter(t => !t.completed).slice(0, 5);
+
+            tasksList.innerHTML = todayTasks.map(task => `
+                <div class="dp-task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                    <div class="dp-task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})">
+                        ${task.completed ? '&#x2713;' : ''}
+                    </div>
+                    <span class="dp-task-text">${task.text}</span>
+                    <span class="dp-task-priority ${task.priority}">${getPriorityText(task.priority)}</span>
+                    <button class="dp-task-delete" onclick="deleteTask(${task.id})">&#x2715;</button>
+                </div>
+            `).join('');
+        }
+
+        function getPriorityText(priority) {
+            const map = { high: '高', medium: '中', low: '低' };
+            return map[priority] || '中';
+        }
+
+        // 添加任务
+        function handleTaskInput(event) {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const priority = document.getElementById('taskPriority').value;
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const task = {
+                id: Date.now(),
+                text,
+                priority,
+                completed: false
+            };
+
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            input.value = '';
+            showNotification('success', '任务添加', '新任务已添加');
+        }
+
+        // 切换任务状态
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // 删除任务
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        // 保存任务到本地存储
+        function saveTasks() {
+            localStorage.setItem('dp_tasks', JSON.stringify(tasks));
+        }
+
+        // 番茄钟功能
+        function startTimer() {
+            if (isRunning) return;
+
+            isRunning = true;
+            document.getElementById('timerContainer').classList.add('dp-timer-running');
+
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-flex';
+
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            document.getElementById('timerContainer').classList.remove('dp-timer-running');
+
+            document.getElementById('startBtn').style.display = 'inline-flex';
+            document.getElementById('pauseBtn').style.display = 'none';
+
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            isBreak = false;
+            timeRemaining = workDuration * 60;
+            updateTimerDisplay();
+            document.getElementById('timerMode').textContent = '专注模式';
+            document.getElementById('timerSubMode').textContent = '专注学习';
+            document.getElementById('timerContainer').classList.remove('dp-timer-break');
+        }
+
+        function updateTimer() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                updateTimerDisplay();
+                updateTimerProgress();
+            } else {
+                timerComplete();
+            }
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timerDisplay').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerProgress() {
+            const total = isBreak ? breakDuration * 60 : workDuration * 60;
+            const progress = ((total - timeRemaining) / total) * 100;
+            document.getElementById('timerProgress').style.background =
+                `conic-gradient(var(--dp-primary) ${progress}deg, var(--dp-border) ${progress}deg)`;
+        }
+
+        function timerComplete() {
+            pauseTimer();
+
+            if (!isBreak) {
+                // 专注完成
+                completedPomodoros++;
+                totalMinutes += workDuration;
+
+                localStorage.setItem('dp_pomodoros', completedPomodoros);
+                localStorage.setItem('dp_totalMinutes', totalMinutes);
+
+                updateStats();
+                showNotification('success', '番茄完成!', `你已完成 ${completedPomodoros} 个番茄钟`);
+
+                // 开始休息
+                isBreak = true;
+                timeRemaining = breakDuration * 60;
+                document.getElementById('timerMode').textContent = '休息模式';
+                document.getElementById('timerSubMode').textContent = '放松一下';
+                document.getElementById('timerContainer').classList.add('dp-timer-break');
+            } else {
+                // 休息完成
+                showNotification('warning', '休息结束!', '继续专注学习吧');
+                resetTimer();
+            }
+        }
+
+        function loadTimerState() {
+            updateStats();
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('completedPomodoros').textContent = completedPomodoros;
+            document.getElementById('totalMinutes').textContent = totalMinutes;
+            document.getElementById('streakDays').textContent = streakDays;
+
+            // 模拟本周数据
+            const weekMinutes = totalMinutes;
+            const weekTasks = tasks.filter(t => t.completed).length;
+            const weekPomodoros = completedPomodoros;
+
+            document.getElementById('weekMinutes').textContent = weekMinutes;
+            document.getElementById('weekTasks').textContent = weekTasks;
+            document.getElementById('weekPomodoros').textContent = weekPomodoros;
+
+            const totalTasks = tasks.length;
+            const completionRate = totalTasks > 0 ? Math.round((weekTasks / totalTasks) * 100) : 0;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+        }
+
+        // 渲染计划
+        function renderPlan() {
+            const plan = plans[currentPlan];
+            const planList = document.getElementById('planList');
+
+            planList.innerHTML = plan.days.slice(0, 5).map(item => `
+                <div class="dp-plan-item ${item.completed ? 'completed' : ''}">
+                    <div class="dp-plan-item-check">${item.completed ? '&#x2713;' : ''}</div>
+                    <span class="dp-plan-item-day">${item.day}</span>
+                    <span>${item.task}</span>
+                </div>
+            `).join('');
+        }
+
+        // 切换计划
+        function switchPlan(plan) {
+            currentPlan = plan;
+
+            document.querySelectorAll('.dp-plan-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderPlan();
+        }
+
+        // 生成进度图表
+        function generateReviewChart() {
+            const chart = document.getElementById('reviewChart');
+            const days = ['一', '二', '三', '四', '五', '六', '日'];
+            const data = [45, 60, 30, 75, 50, 25, 0]; // 模拟数据
+
+            chart.innerHTML = data.map((value, index) => `
+                <div class="dp-review-bar" style="height: ${value}%;" data-day="${days[index]}"></div>
+            `).join('');
+        }
+
+        // 显示任务列表
+        function showAllTasks() {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = tasks.map(task => `
+                <div class="dp-task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                    <div class="dp-task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})">
+                        ${task.completed ? '&#x2713;' : ''}
+                    </div>
+                    <span class="dp-task-text">${task.text}</span>
+                    <span class="dp-task-priority ${task.priority}">${getPriorityText(task.priority)}</span>
+                    <button class="dp-task-delete" onclick="deleteTask(${task.id})">&#x2715;</button>
+                </div>
+            `).join('');
+
+            showNotification('success', '全部任务', `共 ${tasks.length} 个任务`);
+        }
+
+        // 显示通知
+        function showNotification(type, title, text) {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+
+            icon.className = 'dp-notification-icon ' + type;
+            icon.innerHTML = type === 'success' ? '&#x2705;' : '&#x23F0;';
+            document.getElementById('notificationTitle').textContent = title;
+            document.getElementById('notificationText').textContent = text;
+
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

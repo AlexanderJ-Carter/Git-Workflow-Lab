@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 面试题库 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --interview-primary: #6366f1;
+            --interview-secondary: #8b5cf6;
+            --interview-success: #10b981;
+            --interview-warning: #f59e0b;
+            --interview-danger: #ef4444;
+            --interview-bg: #f8fafc;
+            --interview-bg-card: #ffffff;
+            --interview-border: #e2e8f0;
+            --interview-text: #1e293b;
+            --interview-text-muted: #64748b;
+            --interview-radius: 12px;
+            --sidebar-width: 260px;
+        }
+
+        [data-theme="dark"] {
+            --interview-bg: #0f172a;
+            --interview-bg-card: #1e293b;
+            --interview-border: #334155;
+            --interview-text: #f1f5f9;
+            --interview-text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--interview-bg);
+            color: var(--interview-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .interview-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧导航 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--interview-bg-card);
+            border-right: 1px solid var(--interview-border);
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--interview-border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--interview-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: var(--interview-text-muted);
+            margin-top: 4px;
+        }
+
+        .nav-section {
+            padding: 8px 12px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--interview-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: var(--interview-text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--interview-primary);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--interview-primary);
+            color: white;
+        }
+
+        .nav-item svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--interview-border);
+            color: var(--interview-text-muted);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .nav-item:hover .nav-badge,
+        .nav-item.active .nav-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--interview-border);
+            margin: 12px 24px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 32px 40px;
+            max-width: calc(100% - var(--sidebar-width));
+        }
+
+        /* 顶部搜索栏 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 280px;
+            position: relative;
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--interview-text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--interview-border);
+            border-radius: 12px;
+            font-size: 15px;
+            background: var(--interview-bg-card);
+            color: var(--interview-text);
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--interview-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-box input::placeholder {
+            color: var(--interview-text-muted);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            border: 2px solid var(--interview-border);
+            border-radius: 12px;
+            background: var(--interview-bg-card);
+            color: var(--interview-text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--interview-primary);
+            color: var(--interview-primary);
+        }
+
+        .action-btn.active {
+            background: var(--interview-primary);
+            border-color: var(--interview-primary);
+            color: white;
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 统计信息 */
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding: 16px 24px;
+            background: var(--interview-bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--interview-border);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--interview-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--interview-text-muted);
+        }
+
+        /* 分类标题 */
+        .category-section {
+            margin-bottom: 32px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--interview-border);
+        }
+
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--interview-primary);
+            color: white;
+            border-radius: 10px;
+            font-size: 20px;
+        }
+
+        .category-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--interview-text);
+        }
+
+        /* 题目卡片 */
+        .question-card {
+            background: var(--interview-bg-card);
+            border: 1px solid var(--interview-border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .question-card:hover {
+            border-color: var(--interview-primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .question-card.favorited {
+            border-left: 4px solid var(--interview-warning);
+        }
+
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 20px;
+            cursor: pointer;
+        }
+
+        .question-number {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--interview-primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .question-content {
+            flex: 1;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--interview-text);
+            line-height: 1.5;
+        }
+
+        .question-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .difficulty-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .difficulty-tag.easy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .difficulty-tag.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .difficulty-tag.hard {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        [data-theme="dark"] .difficulty-tag.easy {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        [data-theme="dark"] .difficulty-tag.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        [data-theme="dark"] .difficulty-tag.hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .favorite-btn {
+            padding: 6px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--interview-text-muted);
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+
+        .favorite-btn:hover {
+            background: var(--interview-border);
+            color: var(--interview-warning);
+        }
+
+        .favorite-btn.active {
+            color: var(--interview-warning);
+        }
+
+        .favorite-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .toggle-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--interview-text-muted);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .question-card.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 答案区域 */
+        .answer-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .question-card.expanded .answer-section {
+            max-height: 2000px;
+        }
+
+        .answer-content {
+            padding: 0 20px 20px 64px;
+        }
+
+        .answer-text {
+            color: var(--interview-text);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .answer-text h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 16px 0 8px;
+            color: var(--interview-primary);
+        }
+
+        .answer-text h4:first-child {
+            margin-top: 0;
+        }
+
+        .answer-text ul,
+        .answer-text ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .answer-text li {
+            margin-bottom: 6px;
+        }
+
+        .answer-text code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--interview-border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .answer-text pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .answer-text pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .answer-text .highlight {
+            background: rgba(99, 102, 241, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* 随机抽题模式 */
+        .practice-mode {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--interview-bg);
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        .practice-mode.active {
+            display: block;
+        }
+
+        .practice-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: var(--interview-bg-card);
+            border-bottom: 1px solid var(--interview-border);
+            position: sticky;
+            top: 0;
+        }
+
+        .practice-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--interview-primary);
+        }
+
+        .practice-close {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: none;
+            border: 2px solid var(--interview-border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--interview-text);
+            transition: all 0.2s;
+        }
+
+        .practice-close:hover {
+            background: var(--interview-danger);
+            border-color: var(--interview-danger);
+            color: white;
+        }
+
+        .practice-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .practice-question {
+            background: var(--interview-bg-card);
+            border: 1px solid var(--interview-border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .practice-question-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--interview-text);
+            margin-bottom: 16px;
+        }
+
+        .practice-question-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .practice-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .practice-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .practice-btn.primary {
+            background: var(--interview-primary);
+            color: white;
+            border: none;
+        }
+
+        .practice-btn.primary:hover {
+            background: var(--interview-secondary);
+        }
+
+        .practice-btn.secondary {
+            background: var(--interview-bg-card);
+            color: var(--interview-text);
+            border: 2px solid var(--interview-border);
+        }
+
+        .practice-btn.secondary:hover {
+            border-color: var(--interview-primary);
+            color: var(--interview-primary);
+        }
+
+        .practice-answer {
+            display: none;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--interview-border);
+        }
+
+        .practice-answer.show {
+            display: block;
+        }
+
+        .practice-answer-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--interview-text);
+        }
+
+        .practice-stats {
+            text-align: center;
+            color: var(--interview-text-muted);
+            font-size: 14px;
+            margin-top: 16px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--interview-text-muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+            }
+
+            .answer-content {
+                padding-left: 20px;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 150;
+            padding: 10px;
+            background: var(--interview-bg-card);
+            border: 1px solid var(--interview-border);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 移动端菜单按钮 -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="interview-layout">
+        <!-- 左侧导航 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="./index.html" class="sidebar-logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    Git 面试题库
+                </a>
+                <div class="sidebar-subtitle">Interview Questions</div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">分类</div>
+                    <a class="nav-item active" data-category="all">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        全部题目
+                        <span class="nav-badge" id="totalCount">0</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">基础</div>
+                    <a class="nav-item" data-category="basic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                        基础概念
+                        <span class="nav-badge" id="basicCount">0</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">进阶</div>
+                    <a class="nav-item" data-category="branch">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="6" y1="3" x2="6" y2="15"></line>
+                            <circle cx="18" cy="6" r="3"></circle>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <path d="M18 9a9 9 0 0 1-9 9"></path>
+                        </svg>
+                        分支操作
+                        <span class="nav-badge" id="branchCount">0</span>
+                    </a>
+                    <a class="nav-item" data-category="undo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7v6h6"></path>
+                            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                        </svg>
+                        撤销操作
+                        <span class="nav-badge" id="undoCount">0</span>
+                    </a>
+                    <a class="nav-item" data-category="advanced">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                        进阶问题
+                        <span class="nav-badge" id="advancedCount">0</span>
+                    </a>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <div class="nav-section">
+                    <a class="nav-item" data-category="favorites">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        我的收藏
+                        <span class="nav-badge" id="favoritesCount">0</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 搜索栏 -->
+            <div class="top-bar">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="搜索题目或答案...">
+                </div>
+                <button class="action-btn" id="practiceModeBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    随机练习
+                </button>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-number" id="displayCount">0</span>
+                    <span class="stat-label">显示题目</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="easyCount">0</span>
+                    <span class="stat-label">简单</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="mediumCount">0</span>
+                    <span class="stat-label">中等</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="hardCount">0</span>
+                    <span class="stat-label">困难</span>
+                </div>
+            </div>
+
+            <!-- 题目列表容器 -->
+            <div id="questionsContainer"></div>
+        </main>
+    </div>
+
+    <!-- 随机练习模式 -->
+    <div class="practice-mode" id="practiceMode">
+        <div class="practice-header">
+            <div class="practice-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                随机抽题练习
+            </div>
+            <button class="practice-close" id="closePractice">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                关闭
+            </button>
+        </div>
+        <div class="practice-content">
+            <div class="practice-question" id="practiceQuestion">
+                <div class="practice-question-text" id="practiceQuestionText"></div>
+                <div class="practice-question-meta">
+                    <span class="difficulty-tag" id="practiceDifficulty"></span>
+                    <span class="difficulty-tag" id="practiceCategory"></span>
+                </div>
+                <div class="practice-actions">
+                    <button class="practice-btn primary" id="showAnswerBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        显示答案
+                    </button>
+                    <button class="practice-btn secondary" id="nextQuestionBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        下一题
+                    </button>
+                    <button class="practice-btn secondary" id="practiceFavoriteBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        收藏
+                    </button>
+                </div>
+                <div class="practice-answer" id="practiceAnswer">
+                    <div class="practice-answer-text" id="practiceAnswerText"></div>
+                </div>
+            </div>
+            <div class="practice-stats" id="practiceStats"></div>
+        </div>
+    </div>
+
+    <script>
+        // 题目数据
+        const questions = [
+            // 基础概念
+            {
+                id: 1,
+                category: "basic",
+                difficulty: "easy",
+                question: "什么是 Git？它和 SVN、CVS 有什么区别？",
+                answer: `<h4>Git 的定义</h4>
+<p>Git 是一个分布式版本控制系统，由 Linus Torvalds 于 2005 年创建。最初是为了管理 Linux 内核开发而设计的，现在已成为最流行的版本控制系统。</p>
+
+<h4>Git 与 SVN、CVS 的主要区别</h4>
+<ul>
+<li><strong>分布式 vs 集中式</strong>：Git 是分布式的，每个开发者都有完整的仓库副本；SVN 和 CVS 是集中式的，只有中央服务器有完整版本历史</li>
+<li><strong>存储方式</strong>：Git 存储的是快照而非差异，每次提交保存项目当前状态的完整快照；SVN/CVS 存储的是文件差异</li>
+<li><strong>性能</strong>：Git 的分支操作非常快速，因为只是创建指向提交对象的指针；SVN 分支需要复制文件</li>
+<li><strong>离线工作</strong>：Git 可以完全离线工作，所有操作都在本地完成；SVN 需要网络连接中央服务器</li>
+<li><strong>数据完整性</strong>：Git 使用 SHA-1 哈希确保数据完整性；SVN 使用递增版本号</li>
+<li><strong>架构</strong>：Git 没有中央服务器概念（可选择设置远程仓库），每个仓库都是完整的；SVN 必须有中央服务器</li>
+</ul>`
+            },
+            {
+                id: 2,
+                category: "basic",
+                difficulty: "easy",
+                question: "Git 的三种状态是什么？",
+                answer: `<h4>Git 的三种状态</h4>
+<p>Git 中的文件有三种状态：</p>
+
+<ul>
+<li><strong>已提交（Committed）</strong>：数据已安全保存在本地数据库中</li>
+<li><strong>已修改（Modified）</strong>：修改了文件但还没有保存到数据库中</li>
+<li><strong>已暂存（Staged）</strong>：对已修改文件做了标记，使之包含在下次提交的快照中</li>
+</ul>
+
+<h4>对应的三个区域</h4>
+<p>与三种状态对应，Git 项目有三个主要区域：</p>
+<ul>
+<li><strong>工作目录（Working Directory）</strong>：项目某个版本的单次检出内容</li>
+<li><strong>暂存区域（Staging Area）</strong>：一个文件（.git/index），保存下次将要提交的文件列表信息</li>
+<li><strong>Git 仓库目录（Git Directory）</strong>：存储项目元数据和对象数据库的地方</li>
+</ul>
+
+<h4>工作流程</h4>
+<ol>
+<li>在工作目录中修改文件</li>
+<li>将想要下次提交的更改选择性地暂存（git add）</li>
+<li>提交更新，将暂存区的文件快照永久存储到 Git 目录中（git commit）</li>
+</ol>`
+            },
+            {
+                id: 3,
+                category: "basic",
+                difficulty: "medium",
+                question: "解释工作区、暂存区、本地仓库的关系",
+                answer: `<h4>工作区（Working Directory）</h4>
+<p>工作区是项目某个版本的单次检出。这些文件是从 Git 仓库的压缩数据库中提取出来的，放在磁盘上供你使用或修改。</p>
+
+<h4>暂存区（Staging Area / Index）</h4>
+<p>暂存区是一个文件（位于 .git/index），保存了下次将要提交的文件列表信息。有时候也被称为"索引"。</p>
+
+<h4>本地仓库（Local Repository）</h4>
+<p>本地仓库是 Git 用来保存项目的元数据和对象数据库的地方。可以理解为 .git 目录，它是 Git 的核心。</p>
+
+<h4>三者之间的关系</h4>
+<pre><code>工作区 → git add → 暂存区 → git commit → 本地仓库
+本地仓库 ← git checkout ← 暂存区 ← git reset ← 工作区</code></pre>
+
+<h4>详细流程</h4>
+<ol>
+<li><strong>修改文件</strong>：在工作区修改文件</li>
+<li><strong>git add</strong>：将修改的文件添加到暂存区（同时复制到 .git/index）</li>
+<li><strong>git commit</strong>：将暂存区的所有内容提交到本地仓库（创建新的提交对象）</li>
+<li><strong>git checkout / git restore</strong>：从本地仓库或暂存区恢复文件到工作区</li>
+<li><strong>git reset</strong>：可以移动暂存区的内容回退到工作区，或将仓库的提交回退</li>
+</ol>
+
+<p><span class="highlight">理解这三个区域的关系是掌握 Git 的关键</span>，它帮助你理解数据的流向和各个命令的作用范围。</p>`
+            },
+            {
+                id: 4,
+                category: "basic",
+                difficulty: "medium",
+                question: "HEAD 表示什么？",
+                answer: `<h4>HEAD 的定义</h4>
+<p>HEAD 是 Git 中一个特殊的指针（引用），它指向当前正在工作的分支或提交。在大多数情况下，HEAD 指向某个分支名称，而该分支又指向某个提交。</p>
+
+<h4>HEAD 的作用</h4>
+<ul>
+<li><strong>记录当前位置</strong>：告诉 Git 你当前工作在哪个分支</li>
+<li><strong>作为基准</strong>：许多命令以 HEAD 为基准进行操作（如 git diff HEAD）</li>
+<li><strong>支持历史导航</strong>：可以通过 HEAD~n 访问历史提交</li>
+</ul>
+
+<h4>HEAD 的表现形式</h4>
+<ul>
+<li><strong>指向分支</strong>：如 <code>main</code> 分支，HEAD 通常指向分支名，分支指向最新提交</li>
+<li><strong>直接指向提交</strong>：处于"分离 HEAD"状态（detached HEAD），HEAD 直接指向某个提交而非分支</li>
+</ul>
+
+<h4>HEAD 的用法</h4>
+<pre><code># 查看当前 HEAD 指向
+git symbolic-ref HEAD
+cat .git/HEAD
+
+# 查看 HEAD 指向的提交
+git rev-parse HEAD
+
+# 查看 HEAD 的提交历史
+git log -1
+
+# 比较 HEAD 与其他提交
+git diff HEAD~1 HEAD
+git show HEAD
+
+# 分离 HEAD（不推荐，除非你知道自己在做什么）
+git checkout &lt;commit-hash&gt;
+git checkout HEAD~3</code></pre>
+
+<h4>分离 HEAD 的风险</h4>
+<p>在分离 HEAD 状态下工作是可以的，但如果要提交更改，需要创建新分支，否则当切换到其他分支时，这些提交可能会被垃圾回收机制清理掉。</p>`
+            },
+
+            // 分支操作
+            {
+                id: 5,
+                category: "branch",
+                difficulty: "medium",
+                question: "Git 分支和 SVN 分支有什么区别？",
+                answer: `<h4>Git 分支</h4>
+<ul>
+<li><strong>轻量级</strong>：Git 分支只是一个指向某个提交对象的指针（40字节的 SHA-1 值），创建分支几乎没有开销</li>
+<li><strong>本地操作</strong>：分支的创建、切换、合并都在本地完成，不需要网络连接</li>
+<li><strong>快速合并</strong>：Git 分支合并是基于提交对象的重新组合，速度极快</li>
+<li><strong>分布式工作流</strong>：每个开发者都可以创建自己的分支，互不干扰</li>
+</ul>
+
+<h4>SVN 分支</h4>
+<ul>
+<li><strong>基于目录</strong>：SVN 分支本质上是仓库目录的副本，需要复制整个目录树</li>
+<li><strong>服务器操作</strong>：所有分支操作都需要与中央服务器交互</li>
+<li><strong>合并复杂</strong>：SVN 的合并跟踪机制较弱，容易产生冲突</li>
+<li><strong>集中式管理</strong>：所有分支都在中央仓库，由管理员管理</li>
+</ul>
+
+<h4>性能对比</h4>
+<pre><code># Git 创建分支（瞬间完成）
+git branch feature-branch
+
+# SVN 创建分支（需要服务器复制）
+svn copy trunk branches/feature-branch</code></pre>
+
+<h4>工作流程差异</h4>
+<p>Git 鼓励频繁创建和使用分支，开发者可以轻松创建短期特性分支；SVN 分支通常用于大型功能或发布准备，创建成本较高。</p>`
+            },
+            {
+                id: 6,
+                category: "branch",
+                difficulty: "medium",
+                question: "解释 git merge 和 git rebase 的区别",
+                answer: `<h4>git merge</h4>
+<p>将两个或多个分支的历史合并在一起，创建一个新的"合并提交"。</p>
+<pre><code># 在 main 分支上合并 feature 分支
+git checkout main
+git merge feature</code></pre>
+
+<h4>git rebase</h4>
+<p>将一系列提交"复制"到另一个基点上，产生线性历史。</p>
+<pre><code># 将 feature 分支 rebase 到 main 上
+git checkout feature
+git rebase main</code></pre>
+
+<h4>主要区别</h4>
+<table>
+<tr><th>特性</th><th>merge</th><th>rebase</th></tr>
+<tr><td>历史形态</td><td>保持分支结构，有合并提交</td><td>线性历史，看起来像顺序开发</td></tr>
+<tr><td>数据安全</td><td>不会修改已有提交</td><td>会创建新的提交对象</td></tr>
+<tr><td>适用场景</td><td>合并特性分支、保留完整历史</td><td>整理本地历史、保持主线清晰</td></tr>
+<tr><td>风险</td><td>较低</td><td>较高（需要理解工作流程）</td></tr>
+</table>
+
+<h4>何时使用 merge</h4>
+<ul>
+<li>合并长期分支（如 main 到 release）</li>
+<li>希望保留完整的历史结构</li>
+<li>团队工作流程要求保留所有分支信息</li>
+<li>不确定是否需要回滚</li>
+</ul>
+
+<h4>何时使用 rebase</h4>
+<ul>
+<li>整理本地开发历史</li>
+<li>将特性分支更新到最新主线</li>
+<li>保持提交历史清晰线性</li>
+<li>在 pull request 前更新分支</li>
+</ul>
+
+<h4>黄金法则</h4>
+<p><span class="highlight">永远不要对已经推送到远程的提交进行 rebase</span>。这会破坏其他人基于旧提交的工作。</p>
+
+<h4>示例</h4>
+<pre><code># merge 产生的结果
+A---B---C (main)
+     \\
+      D---E---F (feature)
+
+# merge 后
+A---B---C---M (main)
+     \\     /
+      D---E---F (feature)
+
+# rebase 后的结果
+A---B---C---D'---E'---F' (feature, main 保持不变或 fast-forward)</code></pre>`
+            },
+            {
+                id: 7,
+                category: "branch",
+                difficulty: "hard",
+                question: "何时使用 git rebase？何时不使用？",
+                answer: `<h4>应该使用 rebase 的场景</h4>
+<ul>
+<li><strong>整理本地历史</strong>：在开发过程中频繁 rebase 到最新的主分支，保持代码最新</li>
+<li><strong>保持提交历史清晰</strong>：将多个小提交合并（squash）成有意义的大提交</li>
+<li><strong>Pull Request 之前</strong>：在提交 PR 前 rebase 到最新主线，避免合并冲突</li>
+<li><strong>特性分支更新</strong>：当主线分支有更新时，将特性分支 rebase 过去</li>
+</ul>
+
+<h4>不应该使用 rebase 的场景</h4>
+<ul>
+<li><strong>已推送的公共分支</strong>：绝对不要 rebase 已经推送到共享仓库的提交</li>
+<li><strong>需要保留完整历史</strong>：当需要审计或追踪完整开发过程时</li>
+<li><strong>多人协作的分支</strong>：如果分支被多人使用，rebase 会破坏他人的工作</li>
+<li><strong>不确定的情况下</strong>：如果不确定后果，优先使用 merge</li>
+</ul>
+
+<h4>安全使用 rebase 的原则</h4>
+<ol>
+<li><strong>本地的、尚未推送的提交</strong>：这是 rebase 的最佳场景</li>
+<li><strong>单人开发的特性分支</strong>：不会影响其他人</li>
+<li><strong>理解 rebase 的工作原理</strong>：清楚它在"重写历史"</li>
+</ol>
+
+<h4>rebase 的最佳实践</h4>
+<pre><code># 1. 交互式 rebase 整理提交（仅本地）
+git rebase -i HEAD~3
+
+# 2. 在 PR 前更新特性分支
+git fetch origin
+git rebase origin/main
+
+# 3. 强制推送（仅当确定安全时）
+git push --force-with-lease
+
+# 4. 放弃 rebase
+git rebase --abort</code></pre>
+
+<h4>rebase vs merge 选择指南</h4>
+<ul>
+<li>想要清晰的历史 → rebase</li>
+<li>需要保留完整历史 → merge</li>
+<li>本地开发 → rebase 可以</li>
+<li>公共分支 → 必须 merge</li>
+<li>团队协作 → 谨慎使用 rebase</li>
+</ul>`
+            },
+            {
+                id: 8,
+                category: "branch",
+                difficulty: "easy",
+                question: "如何删除远程分支？",
+                answer: `<h4>删除远程分支的方法</h4>
+
+<pre><code># 方法1：使用 git push（推荐）
+git push origin --delete &lt;branch-name&gt;
+# 或
+git push origin -d &lt;branch-name&gt;
+
+# 方法2：使用较短的语法
+git push origin :&lt;branch-name&gt;
+# （这是一个历史语法，将空推送到远程分支，效果是删除）</code></pre>
+
+<h4>本地分支与远程分支的区别</h4>
+<p>删除远程分支不会自动删除本地对应的跟踪分支。可以单独删除本地分支：</p>
+<pre><code># 删除本地分支
+git branch -d &lt;branch-name&gt;    # 安全删除（未合并会警告）
+git branch -D &lt;branch-name&gt;    # 强制删除
+
+# 查看远程分支
+git branch -r
+
+# 清理已删除的远程跟踪分支
+git remote prune origin</code></pre>
+
+<h4>常见操作流程</h4>
+<pre><code># 1. 查看远程分支
+git fetch -p
+git branch -r
+
+# 2. 删除远程分支
+git push origin --delete old-feature
+
+# 3. 清理本地无效的远程跟踪分支
+git remote prune origin
+
+# 4. 删除本地分支（可选）
+git branch -d old-feature</code></pre>
+
+<h4>注意事项</h4>
+<ul>
+<li>删除远程分支是不可逆操作，请确保真的不需要了</li>
+<li>建议在删除前与团队成员确认</li>
+<li>GitHub 上也可以通过网页界面删除分支</li>
+</ul>`
+            },
+
+            // 撤销操作
+            {
+                id: 9,
+                category: "undo",
+                difficulty: "medium",
+                question: "git reset --soft、--mixed、--hard 的区别？",
+                answer: `<h4>三种模式的区别</h4>
+<p><code>git reset</code> 命令有三个主要模式，它们控制如何重置提交和暂存区：</p>
+
+<h4>--soft</h4>
+<p>最温和的模式，只移动 HEAD 指针，不改变暂存区和工作区。</p>
+<pre><code>git reset --soft HEAD~1</code></pre>
+<ul>
+<li>HEAD 移动到指定提交</li>
+<li>暂存区保持不变</li>
+<li>工作区保持不变</li>
+<li><strong>效果</strong>：上次提交的内容会直接回到暂存区，可以重新提交</li>
+</ul>
+
+<h4>--mixed（默认）</h4>
+<p>移动 HEAD 指针，重置暂存区，但保持工作区不变。</p>
+<pre><code>git reset --mixed HEAD~1
+# 或
+git reset HEAD~1</code></pre>
+<ul>
+<li>HEAD 移动到指定提交</li>
+<li>暂存区被重置</li>
+<li>工作区保持不变</li>
+<li><strong>效果</strong>：上次提交的内容会回到工作区，需要重新 git add</li>
+</ul>
+
+<h4>--hard</h4>
+<p>最激进的模式，重置一切，包括工作区。</p>
+<pre><code>git reset --hard HEAD~1</code></pre>
+<ul>
+<li>HEAD 移动到指定提交</li>
+<li>暂存区被重置</li>
+<li>工作区被重置</li>
+<li><strong>效果</strong>：彻底撤销提交，所有更改丢失，<span class="highlight">慎用！</span></li>
+</ul>
+
+<h4>对比表</h4>
+<table>
+<tr><th>模式</th><th>HEAD</th><th>暂存区</th><th>工作区</th><th>数据状态</th></tr>
+<tr><td>--soft</td><td>移动</td><td>保持</td><td>保持</td><td>在暂存区</td></tr>
+<tr><td>--mixed</td><td>移动</td><td>重置</td><td>保持</td><td>在工作区</td></tr>
+<tr><td>--hard</td><td>移动</td><td>重置</td><td>重置</td><td>丢失</td></tr>
+</table>
+
+<h4>使用场景</h4>
+<ul>
+<li><strong>--soft</strong>：想重新组织提交，或修改提交信息</li>
+<li><strong>--mixed</strong>：想重新决定哪些文件需要提交（默认）</li>
+<li><strong>--hard</strong>：完全放弃当前所有更改（<span class="highlight">危险！</span>）</li>
+</ul>
+
+<h4>恢复 --hard 误操作</h4>
+<p>如果误用 --hard，可以尝试使用 reflog 恢复：</p>
+<pre><code>git reflog                    # 查看操作历史
+git reset --hard HEAD@{n}     # 恢复到某个状态</code></pre>`
+            },
+            {
+                id: 10,
+                category: "undo",
+                difficulty: "hard",
+                question: "如何撤销已经 push 的提交？",
+                answer: `<h4>方法一：git revert（推荐）</h4>
+<p>创建一个新的提交来撤销之前的更改，不会修改历史。</p>
+<pre><code># 撤销最近的提交
+git revert HEAD
+
+# 撤销指定提交
+git revert &lt;commit-hash&gt;
+
+# 撤销多个提交（从旧到新）
+git revert HEAD~3..HEAD
+# 或
+git revert old-commit..new-commit</code></pre>
+
+<p><strong>优点</strong>：安全，不会修改已推送的历史，任何人都可以继续工作</p>
+
+<h4>方法二：git reset（需要协商）</h4>
+<p>回退本地分支，然后强制推送覆盖远程。</p>
+<pre><code># 1. 回退本地分支
+git reset --hard HEAD~1    # 回退一个提交
+git reset --hard &lt;commit-hash&gt;  # 回退到指定提交
+
+# 2. 强制推送到远程（危险！）
+git push --force-with-lease origin main</code></pre>
+
+<p><strong>警告</strong>：这会修改已推送的历史，只有在以下情况才能使用：</p>
+<ul>
+<li>你是唯一贡献者</li>
+<li>已经与团队成员协调</li>
+<li>是未共享的私有分支</li>
+</ul>
+
+<h4>方法三：git revert vs git reset 选择</h4>
+<table>
+<tr><th>场景</th><th>推荐方法</th></tr>
+<tr><td>公共分支/已共享</td><td>git revert</td></tr>
+<tr><td>本地未推送</td><td>git reset</td></tr>
+<tr><td>想保留历史记录</td><td>git revert</td></tr>
+<tr><td>想完全消除提交</td><td>git reset</td></tr>
+</table>
+
+<h4>处理特殊情况</h4>
+<ul>
+<li><strong>撤销合并提交</strong>：<code>git revert -m 1 &lt;merge-commit&gt;</code></li>
+<li><strong>撤销特定文件的更改</strong>：<code>git checkout HEAD~1 -- &lt;file&gt;</code></li>
+<li><strong>只修改提交信息</strong>：<code>git commit --amend</code>（未推送时）</li>
+</ul>
+
+<h4>最佳实践</h4>
+<ol>
+<li>优先使用 <code>git revert</code>，它是最安全的方式</li>
+<li>在执行任何会修改历史的操作前，务必与团队成员沟通</li>
+<li>使用 <code>--force-with-lease</code> 而非 <code>--force</code>，可以避免覆盖他人的推送</li>
+<li>操作前先备份：<code>git backup = git branch backup-branch</code></li>
+</ol>`
+            },
+            {
+                id: 11,
+                category: "undo",
+                difficulty: "hard",
+                question: "如何恢复误删的分支？",
+                answer: `<h4>方法一：使用 git reflog（推荐）</h4>
+<p>reflog 记录了 HEAD 的所有移动历史，即使是删除分支也能恢复。</p>
+<pre><code># 1. 查看 reflog 历史
+git reflog
+
+# 输出示例：
+abc1234 HEAD@{0}: checkout: moving from main to deleted-branch
+def5678 HEAD@{1}: commit: Add new feature
+...
+xyz0000 HEAD@{15}: branch: Created deleted-branch
+
+# 2. 找到创建分支的提交，恢复分支
+git branch recovered-branch xyz0000
+
+# 3. 或者直接切换到那个提交
+git checkout xyz0000</code></pre>
+
+<h4>方法二：使用 git fsck</h4>
+<p>当 reflog 也被清理时，可以使用 fsck 查找"悬空"的提交对象。</p>
+<pre><code># 1. 查找所有悬空对象（dangling）
+git fsck --unreachable
+
+# 2. 查看悬空提交
+git fsck --unreachable | grep commit
+
+# 3. 查看这些提交的内容
+git show &lt;commit-hash&gt;
+
+# 4. 恢复分支
+git branch recovered-branch &lt;commit-hash&gt;</code></pre>
+
+<h4>方法三：恢复最近删除的分支</h4>
+<pre><code># 如果知道分支名和大概位置
+git reflog show --all --date=iso | grep "branch: Deleted"
+
+# 或者
+git log --all --full-history --source -- "路径/文件" | head -20</code></pre>
+
+<h4>预防措施</h4>
+<ul>
+<li><strong>使用 -m 保护主分支</strong>：<code>git branch -m main main_backup</code></li>
+<li><strong>定期备份</strong>：创建重要分支的备份</li>
+<li><strong>使用 gitreflog</strong>：reflog 默认保存 90 天（可配置）</li>
+</ul>
+
+<h4>重要提示</h4>
+<ul>
+<li>reflog 只保存在本地仓库中的操作历史</li>
+<li>如果从远程仓库 clone，reflog 是空的</li>
+<li>尽快恢复，越早恢复越容易找回</li>
+<li>恢复后立即推送到远程以备份</li>
+</ul>`
+            },
+
+            // 进阶问题
+            {
+                id: 12,
+                category: "advanced",
+                difficulty: "hard",
+                question: "解释 Git 的工作原理",
+                answer: `<h4>Git 的核心设计</h4>
+<p>Git 是一个内容寻址文件系统（Content Addressable File System），核心是一个简单的键值对数据库。</p>
+
+<h4>数据存储方式</h4>
+<p>Git 不存储文件的差异，而是存储<strong>快照</strong>（Snapshots）：</p>
+<ul>
+<li>如果文件未修改，Git 只保留对之前相同文件的引用</li>
+<li>如果文件有修改，Git 会创建一个新的 blob 对象</li>
+</ul>
+
+<h4>四种对象类型</h4>
+<ol>
+<li><strong>Blob</strong>（二进制大对象）：存储文件内容</li>
+<li><strong>Tree</strong>：存储目录结构，指向 blob 和其他 tree</li>
+<li><strong>Commit</strong>：指向 tree、parent commit、author、message</li>
+<li><strong>Tag</strong>：给 commit 添加友好的名称</li>
+</ol>
+
+<h4>对象结构示意</h4>
+<pre><code>提交对象 (Commit)
+  ├── tree: 指向项目快照的 Tree 对象
+  ├── parent: 指向父提交（第一个提交没有 parent）
+  ├── author: 作者信息
+  ├── committer: 提交者信息
+  └── message: 提交信息
+
+Tree 对象
+  ├── 文件1 (blob)
+  ├── 文件2 (blob)
+  └── 子目录 (tree)</code></pre>
+
+<h4>SHA-1 哈希</h4>
+<p>Git 使用 SHA-1 哈希作为对象的唯一标识：</p>
+<ul>
+<li>内容相同 → 哈希值相同</li>
+<li>内容微小变化 → 哈希值完全不同</li>
+<li>可以检测数据完整性</li>
+<li>哈希前 7 位通常足以唯一标识</li>
+</ul>
+
+<h4>.git 目录结构</h4>
+<pre><code>.git/
+├── HEAD            # 指向当前分支或提交
+├── refs/           # 存储所有引用（分支、标签）
+│   ├── heads/      # 本地分支
+│   └── tags/       # 标签
+├── objects/        # 所有数据对象
+│   ├── info/       # 额外的对象存储
+│   └── pack/       # 打包后的对象
+├── index           # 暂存区信息
+└── config          # 项目配置</code></pre>
+
+<h4>Git 的三个区域</h4>
+<p>工作目录 → 暂存区域 → Git 仓库</p>
+<pre><code# 工作目录 → git add → 暂存区 → git commit → Git 仓库</code></pre>
+
+<h4>关键命令的底层原理</h4>
+<ul>
+<li><strong>git add</strong>：计算文件内容的 SHA-1，存储为 blob，更新 index</li>
+<li><strong>git commit</strong>：创建 tree 对象（当前 index）、commit 对象，更新 refs</li>
+<li><strong>git checkout</strong>：根据 commit 恢复文件到工作区</li>
+<li><strong>git branch</strong>：在 refs/heads 下创建一个指向当前 commit 的文件</li>
+</ul>
+
+<h4>分布式特性</h4>
+<p>每个 clone 下来的仓库都是完整的，包括完整的提交历史。这就是为什么 Git 可以完全离线工作。</p>`
+            },
+            {
+                id: 13,
+                category: "advanced",
+                difficulty: "medium",
+                question: "什么是 Cherry-pick？如何使用？",
+                answer: `<h4>Cherry-pick 的定义</h4>
+<p>Cherry-pick 是 Git 的一个命令，用于"挑选"一个或多个提交并将其应用到当前分支上。它会复制指定提交的更改，在当前分支创建新的提交。</p>
+
+<h4>基本用法</h4>
+<pre><code># 挑选单个提交
+git cherry-pick &lt;commit-hash&gt;
+
+# 挑选多个提交
+git cherry-pick commit1 commit2 commit3
+
+# 挑选一系列连续提交
+git cherry-pick commit1..commit3
+# 注意：这不包含 commit1，会包含 commit2, commit3
+
+# 包含 commit1
+git cherry-pick commit1^..commit3</code></pre>
+
+<h4>使用场景</h4>
+<ul>
+<li><strong>紧急修复</strong>：在 release 分支上修复 bug，需要同步到 main 分支</li>
+<li><strong>选择性地合并</strong>：只需要某个分支的部分提交</li>
+<li><strong>恢复误删的提交</strong>：从其他分支恢复某个特定更改</li>
+<li><strong>A/B 测试</strong>：在不同分支测试不同功能</li>
+</ul>
+
+<h4>处理合并冲突</h4>
+<p>Cherry-pick 过程中可能出现冲突：</p>
+<pre><code># 1. 如果有冲突，解决后
+git add &lt;resolved-files&gt;
+
+# 2. 继续 cherry-pick
+git cherry-pick --continue
+
+# 或者放弃这次 cherry-pick
+git cherry-pick --abort</code></pre>
+
+<h4>选项</h4>
+<pre><code># 不要创建新提交，只将更改应用到暂存区
+git cherry-pick -n &lt;commit&gt;
+git cherry-pick --no-commit &lt;commit&gt;
+
+# 编辑提交信息
+git cherry-pick -e &lt;commit&gt;
+
+# 追加签名
+git cherry-pick -x &lt;commit&gt;  # 添加 (cherry picked from commit ...) 到消息
+
+# 停止工作区干净时不执行
+git cherry-pick --no-commit</code></pre>
+
+<h4>示例场景</h4>
+<p>假设你在 feature 分支上开发，突然需要在 main 分支上修复一个紧急 bug：</p>
+<pre><code># 1. 切换到 main 分支
+git checkout main
+
+# 2. Cherry-pick bugfix 提交
+git cherry-pick abc1234
+
+# 3. 推送到远程
+git push origin main</code></pre>
+
+<h4>注意事项</h4>
+<ul>
+<li>Cherry-pick 会创建新的提交，有新的 SHA-1 值</li>
+<li>原始提交依然存在于原分支</li>
+<li>可能导致重复应用某些更改</li>
+<li>保持清晰的提交历史很重要</li>
+</ul>`
+            },
+            {
+                id: 14,
+                category: "advanced",
+                difficulty: "medium",
+                question: "Git Flow 是什么？适用于什么场景？",
+                answer: `<h4>Git Flow 简介</h4>
+<p>Git Flow 是一个基于 Git 的分支管理策略，由 Vincent Driessen 提出。它定义了一套严格的分支模型，用于管理大型项目的开发流程。</p>
+
+<h4>分支类型</h4>
+<ul>
+<li><strong>main/master</strong>：生产环境代码，只接受合并，不直接提交</li>
+<li><strong>develop</strong>：开发主分支，集成所有功能分支</li>
+<li><strong>feature/*</strong>：功能分支，从 develop 创建</li>
+<li><strong>release/*</strong>：发布分支，从 develop 创建</li>
+<li><strong>hotfix/*</strong>：紧急修复分支，从 main 创建</li>
+</ul>
+
+<h4>工作流程</h4>
+<pre><code>main ─────●─────●─────●─────●──
+            │     │     │     ↑
+            │     │     │   hotfix
+            │     ▼     ▼
+develop ───●──●──●──●──●──●──●──
+          ↗      ↗   ↗
+      feature feature feature</code></pre>
+
+<h4>适用场景</h4>
+<ul>
+<li><strong>适合</strong>：有明确版本发布周期的项目、需要并行开发的多个功能、团队协作的大型项目</li>
+<li><strong>不适合</strong>：小团队或单人项目、持续部署的敏捷项目、简单的 MVP 开发</li>
+</ul>
+
+<h4>常用命令</h4>
+<pre><code># 安装 Git Flow 工具（可选）
+# macOS: brew install git-flow-avh
+# Ubuntu: apt-get install git-flow
+
+# 初始化
+git flow init
+
+# 功能开发
+git flow feature start my-feature
+git flow feature finish my-feature
+
+# 发布
+git flow release start 1.0.0
+git flow release finish 1.0.0
+
+# 紧急修复
+git flow hotfix start fix-name
+git flow hotfix finish fix-name</code></pre>
+
+<h4>Git Flow 的优缺点</h4>
+<table>
+<tr><th>优点</th><th>缺点</th></tr>
+<tr><td>结构清晰，易于理解</td><td>分支过多，维护成本高</td></tr>
+<tr><td>职责分明，流程规范</td><td>不适合持续交付</td></tr>
+<tr><td>适合大型团队</td><td>发布周期长</td></tr>
+<tr><td>支持多版本并行</td><td>对小团队来说太重</td></tr>
+</table>
+
+<h4>现代替代方案</h4>
+<ul>
+<li><strong>GitHub Flow</strong>：单一主分支 + 功能分支，适合持续部署</li>
+<li><strong>GitLab Flow</strong>：结合环境分支，支持多环境部署</li>
+<li><strong>Trunk-Based Development</strong>：所有开发在主干进行，适合敏捷团队</li>
+</ul>
+
+<h4>选择建议</h4>
+<p>选择分支策略时，应该考虑：团队规模、发布频率、项目复杂度、持续集成能力等因素。</p>`
+            },
+            {
+                id: 15,
+                category: "advanced",
+                difficulty: "hard",
+                question: "如何处理合并冲突？",
+                answer: `<h4>冲突发生的原因</h4>
+<p>当两个分支修改了同一文件的同一部分，Git 无法自动合并时，就会产生冲突。</p>
+
+<pre><code># 合并时可能触发冲突
+git merge feature-branch
+# 或
+git rebase main</code></pre>
+
+<h4>冲突的常见类型</h4>
+<ul>
+<li><strong>内容冲突</strong>：同一行被不同修改</li>
+<li><strong>删除/修改冲突</strong>：一个分支删除文件，另一个分支修改</li>
+<li <strong>重命名冲突</strong>：文件被重命名</li>
+</ul>
+
+<h4>解决冲突的步骤</h4>
+<ol>
+<li><strong>识别冲突文件</strong>
+<pre><code>git status
+# 或者
+git merge --abort  # 如果想放弃合并</code></pre>
+</li>
+<li><strong>打开冲突文件</strong>
+<pre><code>git diff --name-only --diff-filter=U</code></pre>
+</li>
+<li><strong>手动编辑解决冲突</strong>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+这是当前分支的内容
+=======
+这是要合并分支的内容
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-branch</code></pre>
+保留需要的部分，删除 &lt;&lt;&lt;、===、&gt;&gt;&gt; 标记
+</li>
+<li><strong>标记为已解决</strong>
+<pre><code>git add &lt;file&gt;</code></pre>
+</li>
+<li><strong>完成合并</strong>
+<pre><code>git commit  # 完成合并提交</code></pre>
+</li>
+</ol>
+
+<h4>冲突标记的含义</h4>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+当前分支（要合并到的目标分支）的内容
+=======
+被合并分支的内容
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; branch-name</code></pre>
+
+<h4>高效解决冲突的工具</h4>
+<pre><code># 使用合并工具
+git mergetool
+
+# VS Code 内置冲突解决
+code --wait &lt;file&gt;
+
+# 使用 git blame 查看历史
+git blame &lt;file&gt;</code></pre>
+
+<h4>避免冲突的最佳实践</h4>
+<ul>
+<li><strong>频繁同步</strong>：经常 pull 最新的主分支</li>
+<li><strong>小而频繁的提交</strong>：减少大范围修改</li>
+<li><strong>功能分支隔离</strong>：每个功能独立分支</li>
+<li><strong>及时沟通</strong>：团队成员协调文件修改</li>
+</ul>
+
+<h4>解决冲突的常用策略</h4>
+<ul>
+<li><strong>使用 ours</strong>：保留当前分支的版本
+<pre><code>git checkout --ours &lt;file&gt;</code></pre>
+</li>
+<li><strong>使用 theirs</strong>：保留被合并分支的版本
+<pre><code>git checkout --theirs &lt;file&gt;</code></pre>
+</li>
+<li><strong>放弃合并</strong>
+<pre><code>git merge --abort
+# 或
+git rebase --abort</code></pre>
+</li>
+</ul>
+
+<h4>验证解决正确</h4>
+<pre><code># 测试合并后的代码
+npm test  # 或其他测试命令
+
+# 检查是否有遗漏
+git diff --check</code></pre>`
+            }
+        ];
+
+        // 状态管理
+        let currentCategory = 'all';
+        let favorites = JSON.parse(localStorage.getItem('git-interview-favorites') || '[]');
+        let practiceQuestions = [];
+        let currentPracticeIndex = 0;
+        let practiceShown = false;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuestions();
+            updateCounts();
+            setupEventListeners();
+        });
+
+        // 渲染题目
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let filteredQuestions = questions;
+
+            // 分类过滤
+            if (currentCategory === 'favorites') {
+                filteredQuestions = questions.filter(q => favorites.includes(q.id));
+            } else if (currentCategory !== 'all') {
+                filteredQuestions = questions.filter(q => q.category === currentCategory);
+            }
+
+            // 搜索过滤
+            if (searchTerm) {
+                filteredQuestions = filteredQuestions.filter(q =>
+                    q.question.toLowerCase().includes(searchTerm) ||
+                    q.answer.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 更新统计
+            document.getElementById('displayCount').textContent = filteredQuestions.length;
+
+            // 按分类渲染
+            if (currentCategory === 'all') {
+                renderByCategory(filteredQuestions, container);
+            } else {
+                renderQuestionsList(filteredQuestions, container);
+            }
+        }
+
+        // 按分类渲染
+        function renderByCategory(questions, container) {
+            const categories = {
+                basic: { title: '基础概念', icon: '📖' },
+                branch: { title: '分支操作', icon: '🔀' },
+                undo: { title: '撤销操作', icon: '↩️' },
+                advanced: { title: '进阶问题', icon: '🚀' }
+            };
+
+            let html = '';
+            for (const [catKey, catInfo] of Object.entries(categories)) {
+                const catQuestions = questions.filter(q => q.category === catKey);
+                if (catQuestions.length === 0) continue;
+
+                html += `
+                    <section class="category-section">
+                        <div class="category-header">
+                            <div class="category-icon">${catInfo.icon}</div>
+                            <h2 class="category-title">${catInfo.title}</h2>
+                        </div>
+                        ${renderQuestionsListHTML(catQuestions)}
+                    </section>
+                `;
+            }
+
+            if (!html) {
+                html = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <p>没有找到匹配的题目</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // 渲染题目列表HTML
+        function renderQuestionsListHTML(questionsList) {
+            return questionsList.map((q, index) => {
+                const isFavorited = favorites.includes(q.id);
+                const difficultyLabels = { easy: '简单', medium: '中等', hard: '困难' };
+                const categoryLabels = { basic: '基础概念', branch: '分支操作', undo: '撤销操作', advanced: '进阶问题' };
+
+                return `
+                    <div class="question-card ${isFavorited ? 'favorited' : ''}" data-id="${q.id}">
+                        <div class="question-header" onclick="toggleQuestion(${q.id})">
+                            <div class="question-number">${index + 1}</div>
+                            <div class="question-content">
+                                <div class="question-text">${q.question}</div>
+                                <div class="question-meta">
+                                    <span class="difficulty-tag ${q.difficulty}">${difficultyLabels[q.difficulty]}</span>
+                                    <span class="difficulty-tag" style="background: var(--interview-border); color: var(--interview-text-muted);">${categoryLabels[q.category]}</span>
+                                </div>
+                            </div>
+                            <button class="favorite-btn ${isFavorited ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${q.id})">
+                                <svg viewBox="0 0 24 24" fill="${isFavorited ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                            </button>
+                            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="answer-section">
+                            <div class="answer-content">
+                                <div class="answer-text">${q.answer}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染题目列表（单一分类）
+        function renderQuestionsList(questionsList, container) {
+            if (questionsList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <p>没有找到匹配的题目</p>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = renderQuestionsListHTML(questionsList);
+        }
+
+        // 展开/收起答案
+        function toggleQuestion(id) {
+            const card = document.querySelector(`.question-card[data-id="${id}"]`);
+            card.classList.toggle('expanded');
+        }
+
+        // 收藏功能
+        function toggleFavorite(id) {
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('git-interview-favorites', JSON.stringify(favorites));
+            renderQuestions();
+            updateCounts();
+        }
+
+        // 更新计数
+        function updateCounts() {
+            const categoryCounts = {
+                all: questions.length,
+                basic: questions.filter(q => q.category === 'basic').length,
+                branch: questions.filter(q => q.category === 'branch').length,
+                undo: questions.filter(q => q.category === 'undo').length,
+                advanced: questions.filter(q => q.category === 'advanced').length,
+                favorites: favorites.length
+            };
+
+            const difficultyCounts = {
+                easy: questions.filter(q => q.difficulty === 'easy').length,
+                medium: questions.filter(q => q.difficulty === 'medium').length,
+                hard: questions.filter(q => q.difficulty === 'hard').length
+            };
+
+            for (const [key, count] of Object.entries(categoryCounts)) {
+                const el = document.getElementById(key === 'all' ? 'totalCount' : `${key}Count`);
+                if (el) el.textContent = count;
+            }
+
+            document.getElementById('easyCount').textContent = difficultyCounts.easy;
+            document.getElementById('mediumCount').textContent = difficultyCounts.medium;
+            document.getElementById('hardCount').textContent = difficultyCounts.hard;
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 导航点击
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const category = item.dataset.category;
+
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+
+                    currentCategory = category;
+                    renderQuestions();
+                    updateCounts();
+
+                    // 移动端关闭侧边栏
+                    if (window.innerWidth <= 900) {
+                        document.getElementById('sidebar').classList.remove('open');
+                        document.getElementById('sidebarOverlay').classList.remove('show');
+                    }
+                });
+            });
+
+            // 搜索
+            document.getElementById('searchInput').addEventListener('input', () => {
+                renderQuestions();
+            });
+
+            // 随机练习模式
+            document.getElementById('practiceModeBtn').addEventListener('click', startPractice);
+
+            // 关闭练习模式
+            document.getElementById('closePractice').addEventListener('click', closePractice);
+
+            // 显示答案
+            document.getElementById('showAnswerBtn').addEventListener('click', () => {
+                document.getElementById('practiceAnswer').classList.add('show');
+                practiceShown = true;
+            });
+
+            // 下一题
+            document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+                document.getElementById('practiceAnswer').classList.remove('show');
+                practiceShown = false;
+                nextPracticeQuestion();
+            });
+
+            // 收藏
+            document.getElementById('practiceFavoriteBtn').addEventListener('click', () => {
+                if (practiceQuestions.length > 0) {
+                    const q = practiceQuestions[currentPracticeIndex];
+                    toggleFavorite(q.id);
+                }
+            });
+
+            // 移动端菜单
+            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('open');
+                document.getElementById('sidebarOverlay').classList.toggle('show');
+            });
+
+            document.getElementById('sidebarOverlay').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            });
+        }
+
+        // 开始随机练习
+        function startPractice() {
+            // 从所有题目或当前分类中随机选择
+            let pool = questions;
+            if (currentCategory !== 'all' && currentCategory !== 'favorites') {
+                pool = questions.filter(q => q.category === currentCategory);
+            } else if (currentCategory === 'favorites') {
+                pool = questions.filter(q => favorites.includes(q.id));
+            }
+
+            if (pool.length === 0) {
+                alert('没有可用的题目');
+                return;
+            }
+
+            // 随机打乱
+            practiceQuestions = [...pool].sort(() => Math.random() - 0.5);
+            currentPracticeIndex = 0;
+            practiceShown = false;
+
+            document.getElementById('practiceMode').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            showPracticeQuestion();
+        }
+
+        // 显示当前练习题目
+        function showPracticeQuestion() {
+            const q = practiceQuestions[currentPracticeIndex];
+            const difficultyLabels = { easy: '简单', medium: '中等', hard: '困难' };
+            const categoryLabels = { basic: '基础概念', branch: '分支操作', undo: '撤销操作', advanced: '进阶问题' };
+
+            document.getElementById('practiceQuestionText').textContent = q.question;
+            document.getElementById('practiceDifficulty').textContent = difficultyLabels[q.difficulty];
+            document.getElementById('practiceDifficulty').className = `difficulty-tag ${q.difficulty}`;
+            document.getElementById('practiceCategory').textContent = categoryLabels[q.category];
+            document.getElementById('practiceAnswerText').innerHTML = q.answer;
+            document.getElementById('practiceAnswer').classList.remove('show');
+
+            document.getElementById('practiceStats').textContent =
+                `题目 ${currentPracticeIndex + 1} / ${practiceQuestions.length} · 已收藏: ${favorites.includes(q.id) ? '是' : '否'}`;
+
+            // 更新收藏按钮状态
+            const favBtn = document.getElementById('practiceFavoriteBtn');
+            favBtn.classList.toggle('active', favorites.includes(q.id));
+        }
+
+        // 下一题
+        function nextPracticeQuestion() {
+            currentPracticeIndex = (currentPracticeIndex + 1) % practiceQuestions.length;
+            showPracticeQuestion();
+        }
+
+        // 关闭练习模式
+        function closePractice() {
+            document.getElementById('practiceMode').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 暴露函数到全局
+        window.toggleQuestion = toggleQuestion;
+        window.toggleFavorite = toggleFavorite;
+    </script>
+</body>
+</html>

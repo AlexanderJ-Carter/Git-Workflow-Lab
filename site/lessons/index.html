@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程中心 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ls-primary: #6366f1;
+            --ls-primary-dark: #4f46e5;
+            --ls-secondary: #8b5cf6;
+            --ls-tertiary: #a78bfa;
+            --ls-success: #10b981;
+            --ls-warning: #f59e0b;
+            --ls-danger: #ef4444;
+            --ls-bg: #f8fafc;
+            --ls-bg-card: #ffffff;
+            --ls-border: #e2e8f0;
+            --ls-text: #1e293b;
+            --ls-text-muted: #64748b;
+            --ls-text-light: #94a3b8;
+            --ls-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --ls-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --ls-bg: #0f172a;
+            --ls-bg-card: #1e293b;
+            --ls-border: #334155;
+            --ls-text: #f1f5f9;
+            --ls-text-muted: #94a3b8;
+            --ls-text-light: #64748b;
+            --ls-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--ls-bg);
+            color: var(--ls-text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .ls-header {
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+            border-bottom: 1px solid var(--ls-border);
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        [data-theme="dark"] .ls-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        .ls-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .ls-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--ls-text);
+        }
+
+        .ls-logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--ls-primary), var(--ls-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .ls-logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .ls-logo-sub {
+            font-size: 12px;
+            color: var(--ls-text-muted);
+        }
+
+        .ls-progress-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--ls-bg-card);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--ls-border);
+            box-shadow: var(--ls-shadow);
+        }
+
+        .ls-progress-info {
+            text-align: right;
+        }
+
+        .ls-progress-label {
+            font-size: 12px;
+            color: var(--ls-text-muted);
+        }
+
+        .ls-progress-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ls-primary);
+        }
+
+        .ls-progress-bar {
+            width: 120px;
+            height: 10px;
+            background: var(--ls-border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .ls-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ls-primary), var(--ls-secondary));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        /* Hero */
+        .ls-hero {
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        [data-theme="dark"] .ls-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        .ls-hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--ls-primary), var(--ls-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ls-hero p {
+            font-size: 18px;
+            color: var(--ls-text-muted);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .ls-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .ls-stat {
+            text-align: center;
+        }
+
+        .ls-stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--ls-primary);
+        }
+
+        .ls-stat-label {
+            font-size: 14px;
+            color: var(--ls-text-muted);
+        }
+
+        /* Main content */
+        .ls-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        /* Stage section */
+        .ls-stage {
+            margin-bottom: 48px;
+        }
+
+        .ls-stage-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .ls-stage-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .ls-stage-badge.stage-0 {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .ls-stage-badge.stage-1 {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .ls-stage-badge.stage-2 {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .ls-stage-badge.stage-3 {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .ls-stage-badge.stage-4 {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        [data-theme="dark"] .ls-stage-badge.stage-0 { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        [data-theme="dark"] .ls-stage-badge.stage-1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        [data-theme="dark"] .ls-stage-badge.stage-2 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        [data-theme="dark"] .ls-stage-badge.stage-3 { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+        [data-theme="dark"] .ls-stage-badge.stage-4 { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+
+        .ls-stage-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .ls-stage-desc {
+            color: var(--ls-text-muted);
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        /* Lesson cards */
+        .ls-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .ls-card {
+            background: var(--ls-bg-card);
+            border: 1px solid var(--ls-border);
+            border-radius: var(--ls-radius);
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ls-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--ls-primary), var(--ls-secondary));
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .ls-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--ls-shadow);
+            border-color: var(--ls-primary);
+        }
+
+        .ls-card:hover::before {
+            opacity: 1;
+        }
+
+        .ls-card.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: var(--ls-success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .ls-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .ls-card-number {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--ls-primary), var(--ls-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .ls-card-title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .ls-card-desc {
+            font-size: 14px;
+            color: var(--ls-text-muted);
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .ls-card-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ls-card-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--ls-bg);
+            color: var(--ls-text-muted);
+        }
+
+        .ls-card-tag svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Quick nav */
+        .ls-quick-nav {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 48px;
+            flex-wrap: wrap;
+        }
+
+        .ls-quick-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--ls-bg-card);
+            border: 1px solid var(--ls-border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--ls-text);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .ls-quick-link:hover {
+            border-color: var(--ls-primary);
+            color: var(--ls-primary);
+        }
+
+        /* Footer */
+        .ls-footer {
+            text-align: center;
+            padding: 32px;
+            color: var(--ls-text-muted);
+            font-size: 14px;
+            border-top: 1px solid var(--ls-border);
+        }
+
+        @media (max-width: 768px) {
+            .ls-header-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ls-progress-card {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ls-hero h1 {
+                font-size: 28px;
+            }
+
+            .ls-stats {
+                gap: 24px;
+            }
+
+            .ls-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="ls-header">
+        <div class="ls-header-inner">
+            <a href="index.html" class="ls-logo">
+                <div class="ls-logo-icon">G</div>
+                <div>
+                    <div class="ls-logo-text">Git Workflow Lab</div>
+                    <div class="ls-logo-sub">边学边练 · 实战教学</div>
+                </div>
+            </a>
+            <div class="ls-progress-card">
+                <div class="ls-progress-info">
+                    <div class="ls-progress-value" id="progress-value">0%</div>
+                    <div class="ls-progress-label">学习进度</div>
+                </div>
+                <div class="ls-progress-bar">
+                    <div class="ls-progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="ls-hero">
+        <h1>课程中心</h1>
+        <p>从零开始，循序渐进掌握 Git 和 CI/CD 技能。每个关卡都配有动手实验，让你在实践中学习。</p>
+        <div class="ls-stats">
+            <div class="ls-stat">
+                <div class="ls-stat-value">17</div>
+                <div class="ls-stat-label">课程关卡</div>
+            </div>
+            <div class="ls-stat">
+                <div class="ls-stat-value">5</div>
+                <div class="ls-stat-label">学习阶段</div>
+            </div>
+            <div class="ls-stat">
+                <div class="ls-stat-value">100%</div>
+                <div class="ls-stat-label">免费开源</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="ls-main">
+        <!-- Stage 0-1: 基础入门 -->
+        <section class="ls-stage">
+            <div class="ls-stage-header">
+                <span class="ls-stage-badge stage-0">阶段 0-1</span>
+                <h2 class="ls-stage-title">基础入门</h2>
+                <span class="ls-stage-desc">5 个关卡 · 约 2 小时</span>
+            </div>
+            <div class="ls-cards" id="stage-0"></div>
+        </section>
+
+        <!-- Stage 2: 分支与协作 -->
+        <section class="ls-stage">
+            <div class="ls-stage-header">
+                <span class="ls-stage-badge stage-1">阶段 2</span>
+                <h2 class="ls-stage-title">分支与协作</h2>
+                <span class="ls-stage-desc">5 个关卡 · 约 2.5 小时</span>
+            </div>
+            <div class="ls-cards" id="stage-1"></div>
+        </section>
+
+        <!-- Stage 3: 救火与恢复 -->
+        <section class="ls-stage">
+            <div class="ls-stage-header">
+                <span class="ls-stage-badge stage-2">阶段 3</span>
+                <h2 class="ls-stage-title">救火与恢复</h2>
+                <span class="ls-stage-desc">3 个关卡 · 约 1.5 小时</span>
+            </div>
+            <div class="ls-cards" id="stage-2"></div>
+        </section>
+
+        <!-- Stage 4-5: CI/CD 与进阶 -->
+        <section class="ls-stage">
+            <div class="ls-stage-header">
+                <span class="ls-stage-badge stage-3">阶段 4-5</span>
+                <h2 class="ls-stage-title">CI/CD 与进阶</h2>
+                <span class="ls-stage-desc">8 个关卡 · 约 4 小时</span>
+            </div>
+            <div class="ls-cards" id="stage-3"></div>
+        </section>
+
+        <div class="ls-quick-nav">
+            <a href="docs/viewer.html?file=lessons-overview.md" class="ls-quick-link" target="_blank">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                课程总览
+            </a>
+            <a href="docs/viewer.html?file=learning-path.md" class="ls-quick-link" target="_blank">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                学习路径
+            </a>
+            <a href="workspace.html" class="ls-quick-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                进入工作台
+            </a>
+        </div>
+    </main>
+
+    <footer class="ls-footer">
+        <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        // 课程数据
+        const LESSONS = [
+            // 阶段 0-1
+            { stage: 0, id: 'lesson-00', file: 'lesson-00-install-and-config.md', title: '安装 Git 并完成基础配置', desc: '配置好后，可以通过一次测试提交来验证编辑器是否按预期打开。', time: '20分钟' },
+            { stage: 0, id: 'lesson-00b', file: 'lesson-00-terminal-basics.md', title: '命令行与工作目录基础', desc: '熟悉 Web 终端，掌握 pwd / ls / cd / clear 等基础命令。', time: '15分钟' },
+            { stage: 0, id: 'lesson-01', file: 'lesson-01-init-push.md', title: '从 0 开始，新建仓库并 push 代码', desc: '学会在 Web 上创建仓库、本地 clone、commit 与 push。', time: '20分钟' },
+            { stage: 0, id: 'lesson-02', file: 'lesson-02-workspace-staging-history.md', title: '搞懂工作区 / 暂存区 / 提交历史', desc: '掌握 status、diff、restore、add -p 等命令。', time: '30分钟' },
+            { stage: 0, id: 'lesson-03', file: 'lesson-03-remote-and-sync.md', title: '远程仓库与同步', desc: '学习 remote、pull、fetch、push 等远程操作。', time: '35分钟' },
+            // 阶段 2
+            { stage: 1, id: 'lesson-04', file: 'lesson-04-branches-and-pr.md', title: '创建分支 & 提交 Pull Request', desc: '掌握 branch、switch、merge 命令，理解分支本质。', time: '30分钟' },
+            { stage: 1, id: 'lesson-05', file: 'lesson-05-merge-conflict.md', title: '制造并解决一次合并冲突', desc: '学习手动解决冲突，掌握 merge 操作。', time: '30分钟' },
+            { stage: 1, id: 'lesson-06', file: 'lesson-06-rebase-clean-history.md', title: '用 rebase 保持整洁历史', desc: '学习 rebase 和交互式 rebase 整理提交历史。', time: '35分钟' },
+            { stage: 1, id: 'lesson-06a', file: 'lesson-06a-ssh-setup-and-clone.md', title: '配置 SSH 密钥并通过 SSH 访问', desc: '掌握 ssh-keygen、ssh -T、git remote set-url。', time: '30分钟' },
+            { stage: 1, id: 'lesson-06b', file: 'lesson-06b-collaboration-conventions.md', title: '远程协作规则与常见约定', desc: '学习分支命名规范、PR 流程、Git Flow 等。', time: '20分钟' },
+            // 阶段 3
+            { stage: 2, id: 'lesson-07', file: 'lesson-07-cherry-pick-and-revert.md', title: '误提交到错误分支的补救', desc: '掌握 cherry-pick 和 revert 的正确用法。', time: '30分钟' },
+            { stage: 2, id: 'lesson-08', file: 'lesson-08-reflog-and-recovery.md', title: '用 reflog 从历史中恢复', desc: '学习 reflog、reset --soft/--mixed/--hard 恢复操作。', time: '35分钟' },
+            { stage: 2, id: 'lesson-09', file: 'lesson-09-stash-usage.md', title: 'stash 的正确使用姿势', desc: '掌握 stash push/pop/list/drop/apply。', time: '25分钟' },
+            // 阶段 4-5
+            { stage: 3, id: 'lesson-10', file: 'lesson-10-first-ci-workflow.md', title: '第一个 CI 工作流', desc: 'Gitea Actions 基础，理解 Workflow / Job / Step。', time: '30分钟' },
+            { stage: 3, id: 'lesson-11', file: 'lesson-11-fix-broken-pipeline.md', title: '修复一个失败的 CI 流水线', desc: '学习阅读日志、定位问题、修复流水线。', time: '30分钟' },
+            { stage: 3, id: 'lesson-12', file: 'lesson-12-multi-stage-pipeline-and-secrets.md', title: '多阶段流水线与 Secrets', desc: '学习多 Job 依赖、Secrets 使用。', time: '35分钟' },
+            { stage: 3, id: 'lesson-13', file: 'lesson-13-tags-and-releases.md', title: 'Git 标签与版本发布', desc: '掌握 tag 命令、语义化版本、GitHub Release。', time: '25分钟' },
+            { stage: 3, id: 'lesson-14', file: 'lesson-14-project-files.md', title: '项目文件规范', desc: '学习 README、CONTRIBUTING、LICENSE 规范。', time: '25分钟' },
+            { stage: 3, id: 'lesson-15', file: 'lesson-15-git-hooks.md', title: 'Git 钩子与自动化', desc: '掌握 pre-commit、Husky、commitlint。', time: '30分钟' },
+            { stage: 3, id: 'lesson-16', file: 'lesson-16-large-repo.md', title: 'Git 性能优化与大仓库', desc: '学习浅克隆、Git LFS、性能调优。', time: '30分钟' },
+            { stage: 3, id: 'lesson-17', file: 'lesson-17-release-automation.md', title: '自动维护版本与 Changelog', desc: '掌握 Release Please 自动发布。', time: '35分钟' },
+        ];
+
+        // 学习进度
+        const LearningProgress = {
+            STORAGE_KEY: 'git-workflow-lab-progress',
+
+            getProgress() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    return data ? JSON.parse(data) : {};
+                } catch { return {}; }
+            },
+
+            toggleComplete(lessonId) {
+                const progress = this.getProgress();
+                progress[lessonId] = { completed: !progress[lessonId]?.completed, timestamp: Date.now() };
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
+                return progress[lessonId].completed;
+            },
+
+            isCompleted(lessonId) {
+                return this.getProgress()[lessonId]?.completed || false;
+            },
+
+            getCompletedCount() {
+                return Object.values(this.getProgress()).filter(p => p.completed).length;
+            }
+        };
+
+        // 渲染课程卡片
+        function renderLessons() {
+            const stages = ['stage-0', 'stage-1', 'stage-2', 'stage-3'];
+
+            stages.forEach((stageId, index) => {
+                const container = document.getElementById(stageId);
+                const stageLessons = LESSONS.filter(l => l.stage === index);
+
+                container.innerHTML = stageLessons.map(lesson => {
+                    const isCompleted = LearningProgress.isCompleted(lesson.id);
+                    return `
+                        <a href="docs/viewer.html?file=${lesson.file}" class="ls-card ${isCompleted ? 'completed' : ''}" target="_blank" data-id="${lesson.id}">
+                            <div class="ls-card-header">
+                                <div class="ls-card-number">${lesson.id.replace('lesson-', '').replace('b', 'b')}</div>
+                                <div class="ls-card-title">${lesson.title}</div>
+                            </div>
+                            <p class="ls-card-desc">${lesson.desc}</p>
+                            <div class="ls-card-meta">
+                                <span class="ls-card-tag">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    ${lesson.time}
+                                </span>
+                                <span class="ls-card-tag">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    ${isCompleted ? '已完成' : '未开始'}
+                                </span>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            });
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const completed = LearningProgress.getCompletedCount();
+            const total = LESSONS.length;
+            const percentage = Math.round((completed / total) * 100);
+
+            document.getElementById('progress-value').textContent = `${percentage}%`;
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLessons();
+            updateProgress();
+
+            // 监听进度更新
+            window.addEventListener('storage', () => {
+                renderLessons();
+                updateProgress();
+            });
+        });
+    </script>
+</body>
+</html>

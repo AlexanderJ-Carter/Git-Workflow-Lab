@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Flow 工作流模拟器 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --simulator-bg: var(--bg-secondary);
+            --main-branch: #10b981;
+            --develop-branch: #3b82f6;
+            --feature-branch: #8b5cf6;
+            --release-branch: #f59e0b;
+            --hotfix-branch: #ef4444;
+            --commit-color: var(--accent-primary);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+
+        .simulator-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .simulator-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .simulator-header h1 svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .workflow-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .workflow-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .workflow-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .workflow-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 0;
+            height: calc(100vh - 65px - 60px);
+        }
+
+        .visualization-area {
+            background: var(--bg-primary);
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: auto;
+        }
+
+        #gitflow-canvas {
+            min-width: 100%;
+            min-height: 100%;
+            position: relative;
+        }
+
+        .branch-line {
+            position: absolute;
+            width: 3px;
+            background: var(--border-color);
+            transition: all 0.5s ease;
+        }
+
+        .branch-line.main { background: var(--main-branch); }
+        .branch-line.develop { background: var(--develop-branch); }
+        .branch-line.feature { background: var(--feature-branch); }
+        .branch-line.release { background: var(--release-branch); }
+        .branch-line.hotfix { background: var(--hotfix-branch); }
+
+        .branch-label {
+            position: absolute;
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            z-index: 10;
+            transition: all var(--transition-base);
+        }
+
+        .branch-label.main { background: rgba(16, 185, 129, 0.15); color: var(--main-branch); }
+        .branch-label.develop { background: rgba(59, 130, 246, 0.15); color: var(--develop-branch); }
+        .branch-label.feature { background: rgba(139, 92, 246, 0.15); color: var(--feature-branch); }
+        .branch-label.release { background: rgba(245, 158, 11, 0.15); color: var(--release-branch); }
+        .branch-label.hotfix { background: rgba(239, 68, 68, 0.15); color: var(--hotfix-branch); }
+
+        .commit-node {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            border: 3px solid var(--bg-primary);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .commit-node:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+        }
+
+        .commit-node.highlight {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 2px 20px rgba(99, 102, 241, 0.8); }
+        }
+
+        .merge-arrow {
+            position: absolute;
+            font-size: 20px;
+            color: var(--text-muted);
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .step-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: var(--bg-secondary);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-md);
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: all var(--transition-fast);
+        }
+
+        .step-dot.active {
+            background: var(--accent-primary);
+            width: 24px;
+            border-radius: 5px;
+        }
+
+        .step-dot.completed {
+            background: var(--success);
+        }
+
+        .info-panel {
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .workflow-info {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .workflow-info h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .workflow-info h2 svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .workflow-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .workflow-details {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .workflow-details h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .detail-item svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-description {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .step-description h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-description .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .step-description p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .step-description code {
+            display: block;
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            margin-top: 12px;
+            overflow-x: auto;
+        }
+
+        .control-bar {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .control-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .control-btn.primary {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .control-btn.primary:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+            color: white;
+        }
+
+        .control-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 24px;
+            padding-left: 24px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .speed-control label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .speed-control select {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            font-size: 12px;
+            z-index: 20;
+        }
+
+        .legend h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .legend-color.main { background: var(--main-branch); }
+        .legend-color.develop { background: var(--develop-branch); }
+        .legend-color.feature { background: var(--feature-branch); }
+        .legend-color.release { background: var(--release-branch); }
+        .legend-color.hotfix { background: var(--hotfix-branch); }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+            }
+
+            .info-panel {
+                border-top: 1px solid var(--border-color);
+                border-right: none;
+                max-height: 300px;
+            }
+
+            .workflow-selector {
+                max-width: 200px;
+            }
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header class="simulator-header">
+        <h1>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="18" r="3"/>
+                <circle cx="6" cy="6" r="3"/>
+                <path d="M6 21V9a9 9 0 0 0 9 9"/>
+            </svg>
+            Git Flow 模拟器
+        </h1>
+        <div class="workflow-selector">
+            <button class="workflow-btn active" data-workflow="gitflow">Git Flow</button>
+            <button class="workflow-btn" data-workflow="githubflow">GitHub Flow</button>
+            <button class="workflow-btn" data-workflow="gitlabflow">GitLab Flow</button>
+            <button class="workflow-btn" data-workflow="trunk">Trunk-based</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="visualization-area">
+            <div class="canvas-container">
+                <div id="gitflow-canvas"></div>
+            </div>
+            <div class="legend" id="legend" style="display: none;">
+                <h4>分支图例</h4>
+                <div class="legend-item">
+                    <div class="legend-color main"></div>
+                    <span>main/master</span>
+                </div>
+            </div>
+            <div class="step-indicator" id="step-indicator"></div>
+        </div>
+
+        <div class="info-panel">
+            <div class="workflow-info" id="workflow-info">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    Git Flow
+                </h2>
+                <p id="workflow-desc">最经典的 Git 工作流，适用于有计划发布周期的项目。</p>
+            </div>
+
+            <div class="workflow-details" id="workflow-details">
+                <h3>分支策略</h3>
+                <div id="branch-strategy"></div>
+            </div>
+
+            <div class="step-description">
+                <h3>
+                    <span class="step-number" id="step-num">1</span>
+                    <span id="step-title">初始化项目</span>
+                </h3>
+                <p id="step-text">点击播放按钮开始模拟 Git Flow 工作流程。</p>
+                <code id="step-command" style="display: none;"></code>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-bar">
+        <button class="control-btn" id="prev-btn" title="上一步">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <button class="control-btn primary" id="play-btn" title="播放/暂停">
+            <svg viewBox="0 0 24 24" fill="currentColor" id="play-icon">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" id="pause-icon" style="display: none;">
+                <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+            </svg>
+        </button>
+        <button class="control-btn" id="next-btn" title="下一步">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+        </button>
+        <button class="control-btn" id="reset-btn" title="重置">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+            </svg>
+        </button>
+        <div class="speed-control">
+            <label>速度:</label>
+            <select id="speed-select">
+                <option value="2000">慢</option>
+                <option value="1000" selected>正常</option>
+                <option value="500">快</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        const workflows = {
+            gitflow: {
+                name: 'Git Flow',
+                description: '最经典的 Git 工作流，适用于有计划发布周期的项目。',
+                branches: ['main', 'develop', 'feature', 'release', 'hotfix'],
+                legend: ['main', 'develop', 'feature', 'release', 'hotfix'],
+                branchStrategy: [
+                    { icon: 'main', text: 'main - 生产分支，永久保留' },
+                    { icon: 'develop', text: 'develop - 开发分支，永久保留' },
+                    { icon: 'feature', text: 'feature - 功能分支，从 develop 创建' },
+                    { icon: 'release', text: 'release - 发布分支，从 develop 创建' },
+                    { icon: 'hotfix', text: 'hotfix - 热修复分支，从 main 创建' }
+                ],
+                steps: [
+                    {
+                        title: '初始化项目',
+                        text: '创建一个新的 Git 仓库，初始化时自动创建 main 分支。',
+                        command: 'git init',
+                        action: 'init'
+                    },
+                    {
+                        title: '创建 develop 分支',
+                        text: '从 main 分支创建 develop 分支，作为开发的主分支。',
+                        command: 'git checkout -b develop main',
+                        action: 'create-develop'
+                    },
+                    {
+                        title: '开发功能 - 创建 feature 分支',
+                        text: '从 develop 分支创建 feature/login 分支，用于开发登录功能。',
+                        command: 'git checkout -b feature/login develop',
+                        action: 'create-feature'
+                    },
+                    {
+                        title: '开发功能 - 提交代码',
+                        text: '在 feature 分支上进行开发，并提交代码。',
+                        command: 'git add . && git commit -m "Add login form"',
+                        action: 'commit-feature'
+                    },
+                    {
+                        title: '合并 feature 到 develop',
+                        text: '功能开发完成后，将 feature 分支合并到 develop 分支。',
+                        command: 'git checkout develop && git merge feature/login',
+                        action: 'merge-feature'
+                    },
+                    {
+                        title: '准备发布 - 创建 release 分支',
+                        text: '从 develop 分支创建 release 分支，准备发布版本。',
+                        command: 'git checkout -b release/1.0 develop',
+                        action: 'create-release'
+                    },
+                    {
+                        title: '发布准备 - 修复问题',
+                        text: '在 release 分支上进行最后的修复和测试。',
+                        command: 'git commit -m "Fix bug"',
+                        action: 'commit-release'
+                    },
+                    {
+                        title: '合并到 main 并打标签',
+                        text: '将 release 分支合并到 main，创建一个版本标签。',
+                        command: 'git checkout main && git merge release/1.0 && git tag -a v1.0 -m "Version 1.0"',
+                        action: 'merge-release'
+                    },
+                    {
+                        title: '同步 develop',
+                        text: '将 main 的更改同步到 develop，保持两个分支一致。',
+                        command: 'git checkout develop && git merge main',
+                        action: 'sync-develop'
+                    },
+                    {
+                        title: '紧急修复 - 创建 hotfix 分支',
+                        text: '生产环境发现 bug，从 main 分支创建 hotfix 分支进行修复。',
+                        command: 'git checkout -b hotfix/fix main',
+                        action: 'create-hotfix'
+                    },
+                    {
+                        title: '修复 bug',
+                        text: '在 hotfix 分支上修复 bug。',
+                        command: 'git commit -m "Fix critical bug"',
+                        action: 'commit-hotfix'
+                    },
+                    {
+                        title: '合并 hotfix 到 main',
+                        text: '修复完成后，将 hotfix 同时合并到 main 和 develop。',
+                        command: 'git checkout main && git merge hotfix/fix && git checkout develop && git merge hotfix/fix',
+                        action: 'merge-hotfix'
+                    }
+                ]
+            },
+            githubflow: {
+                name: 'GitHub Flow',
+                description: '一种简单的分支策略，所有工作都在功能分支上进行，通过 Pull Request 合并。',
+                branches: ['main', 'feature'],
+                legend: ['main', 'feature'],
+                branchStrategy: [
+                    { icon: 'main', text: 'main - 唯一长期分支，始终可部署' },
+                    { icon: 'feature', text: 'feature - 功能分支，从 main 创建' }
+                ],
+                steps: [
+                    {
+                        title: '初始化项目',
+                        text: '创建一个新的 Git 仓库，main 分支始终保持可部署状态。',
+                        command: 'git init',
+                        action: 'init'
+                    },
+                    {
+                        title: '创建功能分支',
+                        text: '从 main 分支创建一个新的功能分支。',
+                        command: 'git checkout -b feature/new-login',
+                        action: 'github-feature'
+                    },
+                    {
+                        title: '开发并提交',
+                        text: '在功能分支上进行开发，定期提交代码。',
+                        command: 'git add . && git commit -m "Add login feature"',
+                        action: 'github-commit'
+                    },
+                    {
+                        title: '推送分支',
+                        text: '将功能分支推送到远程仓库。',
+                        command: 'git push -u origin feature/new-login',
+                        action: 'github-push'
+                    },
+                    {
+                        title: '创建 Pull Request',
+                        text: '在 GitHub 上创建 PR，请求将功能分支合并到 main。',
+                        command: '# 在 GitHub 界面操作',
+                        action: 'github-pr'
+                    },
+                    {
+                        title: '代码审查与讨论',
+                        text: '团队成员审查代码，提出修改建议。',
+                        command: '# 团队协作讨论',
+                        action: 'github-review'
+                    },
+                    {
+                        title: '合并 PR',
+                        text: '通过 GitHub 界面或命令行合并 Pull Request。',
+                        command: 'git checkout main && git merge feature/new-login',
+                        action: 'github-merge'
+                    },
+                    {
+                        title: '删除分支',
+                        text: '合并完成后，删除功能分支。',
+                        command: 'git branch -d feature/new-login',
+                        action: 'github-delete'
+                    }
+                ]
+            },
+            gitlabflow: {
+                name: 'GitLab Flow',
+                description: '结合了 Git Flow 和 GitHub Flow 的优点，通过环境分支支持不同部署环境。',
+                branches: ['main', 'pre-production', 'production'],
+                legend: ['main', 'production'],
+                branchStrategy: [
+                    { icon: 'main', text: 'main - 主分支，所有功能首先合并到这里' },
+                    { icon: 'main', text: 'pre-production - 预发布环境分支' },
+                    { icon: 'production', text: 'production - 生产环境分支' }
+                ],
+                steps: [
+                    {
+                        title: '初始化项目',
+                        text: '创建 Git 仓库，设置默认分支为 main。',
+                        command: 'git init',
+                        action: 'init'
+                    },
+                    {
+                        title: '创建功能分支',
+                        text: '从 main 创建功能分支进行开发。',
+                        command: 'git checkout -b feature/dashboard',
+                        action: 'gitlab-feature'
+                    },
+                    {
+                        title: '开发并提交',
+                        text: '在功能分支上进行开发。',
+                        command: 'git add . && git commit -m "Add dashboard"',
+                        action: 'gitlab-commit'
+                    },
+                    {
+                        title: '创建 Merge Request',
+                        text: '创建 MR 请求合并到 main。',
+                        command: '# 在 GitLab 界面操作',
+                        action: 'gitlab-mr'
+                    },
+                    {
+                        title: '合并到 main',
+                        text: '代码审查通过后合并到 main。',
+                        command: 'git checkout main && git merge feature/dashboard',
+                        action: 'gitlab-merge-main'
+                    },
+                    {
+                        title: '部署到预发布环境',
+                        text: '将 main 合并到 pre-production 进行测试。',
+                        command: 'git checkout pre-production && git merge main',
+                        action: 'gitlab-preprod'
+                    },
+                    {
+                        title: '部署到生产环境',
+                        text: '预发布验证通过后，合并到 production。',
+                        command: 'git checkout production && git merge pre-production',
+                        action: 'gitlab-prod'
+                    }
+                ]
+            },
+            trunk: {
+                name: 'Trunk-based',
+                description: '所有开发者直接向主干分支提交代码，适合持续交付的团队。',
+                branches: ['trunk', 'release'],
+                legend: ['main', 'feature'],
+                branchStrategy: [
+                    { icon: 'main', text: 'trunk/main - 主干，所有开发者直接提交' },
+                    { icon: 'feature', text: '短期分支 - 最多存活几天' }
+                ],
+                steps: [
+                    {
+                        title: '初始化项目',
+                        text: '创建 Git 仓库，只保留一个主干分支。',
+                        command: 'git init',
+                        action: 'init'
+                    },
+                    {
+                        title: '克隆到本地',
+                        text: '开发者克隆仓库到本地。',
+                        command: 'git clone repo-url',
+                        action: 'trunk-clone'
+                    },
+                    {
+                        title: '创建短期分支',
+                        text: '如果需要长时间开发，创建短期分支（最多几天）。',
+                        command: 'git checkout -b sprint/feature',
+                        action: 'trunk-branch'
+                    },
+                    {
+                        title: '频繁提交到主干',
+                        text: '每天多次向主干提交代码，保持小而频繁的提交。',
+                        command: 'git commit -m "Small change"',
+                        action: 'trunk-commit'
+                    },
+                    {
+                        title: '持续集成',
+                        text: '每次提交都触发 CI/CD 流水线进行测试。',
+                        command: '# CI 系统自动运行',
+                        action: 'trunk-ci'
+                    },
+                    {
+                        title: '创建发布分支',
+                        text: '当需要发布时，从主干创建发布分支。',
+                        command: 'git checkout -b release/1.0',
+                        action: 'trunk-release'
+                    },
+                    {
+                        title: '修复发布问题',
+                        text: '在发布分支上修复问题，并 cherry-pick 到主干。',
+                        command: 'git cherry-pick <commit>',
+                        action: 'trunk-fix'
+                    }
+                ]
+            }
+        };
+
+        let currentWorkflow = 'gitflow';
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let animationSpeed = 1000;
+
+        const canvas = document.getElementById('gitflow-canvas');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const speedSelect = document.getElementById('speed-select');
+        const stepIndicator = document.getElementById('step-indicator');
+        const legend = document.getElementById('legend');
+        const workflowBtns = document.querySelectorAll('.workflow-btn');
+
+        function init() {
+            workflowBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    workflowBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentWorkflow = btn.dataset.workflow;
+                    reset();
+                });
+            });
+
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', prevStep);
+            nextBtn.addEventListener('click', nextStep);
+            resetBtn.addEventListener('click', reset);
+            speedSelect.addEventListener('change', () => {
+                animationSpeed = parseInt(speedSelect.value);
+                if (isPlaying) {
+                    clearInterval(playInterval);
+                    playInterval = setInterval(nextStep, animationSpeed);
+                }
+            });
+
+            reset();
+        }
+
+        function reset() {
+            stopPlay();
+            currentStep = 0;
+            renderWorkflowInfo();
+            renderStepIndicator();
+            renderCanvas();
+            updateStepDisplay();
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopPlay();
+            } else {
+                startPlay();
+            }
+        }
+
+        function startPlay() {
+            isPlaying = true;
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            playInterval = setInterval(() => {
+                if (currentStep >= workflows[currentWorkflow].steps.length - 1) {
+                    stopPlay();
+                } else {
+                    nextStep();
+                }
+            }, animationSpeed);
+        }
+
+        function stopPlay() {
+            isPlaying = false;
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            clearInterval(playInterval);
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateDisplay();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < workflows[currentWorkflow].steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            renderStepIndicator();
+            renderCanvas();
+            updateStepDisplay();
+        }
+
+        function renderWorkflowInfo() {
+            const workflow = workflows[currentWorkflow];
+            document.querySelector('#workflow-info h2').innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+                ${workflow.name}
+            `;
+            document.getElementById('workflow-desc').textContent = workflow.description;
+
+            const strategyHtml = workflow.branchStrategy.map(item => `
+                <div class="detail-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M2 12h20"/>
+                    </svg>
+                    <span>${item.text}</span>
+                </div>
+            `).join('');
+            document.getElementById('branch-strategy').innerHTML = strategyHtml;
+
+            if (workflow.legend.length > 0) {
+                legend.style.display = 'block';
+                const legendItems = workflow.legend.map(branch => `
+                    <div class="legend-item">
+                        <div class="legend-color ${branch}"></div>
+                        <span>${branch === 'main' ? 'main/master' : branch}</span>
+                    </div>
+                `).join('');
+                legend.innerHTML = '<h4>分支图例</h4>' + legendItems;
+            } else {
+                legend.style.display = 'none';
+            }
+        }
+
+        function renderStepIndicator() {
+            const workflow = workflows[currentWorkflow];
+            const dots = workflow.steps.map((_, i) => {
+                let className = 'step-dot';
+                if (i < currentStep) className += ' completed';
+                if (i === currentStep) className += ' active';
+                return `<div class="${className}"></div>`;
+            }).join('');
+            stepIndicator.innerHTML = dots;
+        }
+
+        function updateStepDisplay() {
+            const workflow = workflows[currentWorkflow];
+            const step = workflow.steps[currentStep];
+            document.getElementById('step-num').textContent = currentStep + 1;
+            document.getElementById('step-title').textContent = step.title;
+            document.getElementById('step-text').textContent = step.text;
+            const commandEl = document.getElementById('step-command');
+            commandEl.textContent = step.command;
+            commandEl.style.display = 'block';
+
+            prevBtn.disabled = currentStep === 0;
+            nextBtn.disabled = currentStep === workflow.steps.length - 1;
+        }
+
+        function renderCanvas() {
+            const canvas = document.getElementById('gitflow-canvas');
+            canvas.innerHTML = '';
+
+            const action = workflows[currentWorkflow].steps[currentStep].action;
+
+            const positions = getBranchPositions(currentWorkflow, action);
+            if (!positions) return;
+
+            const width = Math.max(...positions.map(p => p.x)) + 200;
+            const height = Math.max(...positions.map(p => p.y)) + 100;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+
+            positions.forEach(pos => {
+                if (pos.type === 'line') {
+                    const line = document.createElement('div');
+                    line.className = `branch-line ${pos.branch}`;
+                    line.style.left = pos.x + 'px';
+                    line.style.top = pos.y1 + 'px';
+                    line.style.height = (pos.y2 - pos.y1) + 'px';
+                    canvas.appendChild(line);
+                }
+
+                if (pos.type === 'label') {
+                    const label = document.createElement('div');
+                    label.className = `branch-label ${pos.branch}`;
+                    label.style.left = pos.x + 'px';
+                    label.style.top = pos.y + 'px';
+                    label.textContent = pos.text;
+                    canvas.appendChild(label);
+                }
+
+                if (pos.type === 'commit') {
+                    const commit = document.createElement('div');
+                    commit.className = 'commit-node';
+                    if (pos.highlight) commit.classList.add('highlight');
+                    commit.style.left = pos.x + 'px';
+                    commit.style.top = pos.y + 'px';
+                    commit.style.backgroundColor = pos.color || 'var(--accent-primary)';
+                    canvas.appendChild(commit);
+                }
+
+                if (pos.type === 'arrow') {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'merge-arrow';
+                    arrow.style.left = pos.x + 'px';
+                    arrow.style.top = pos.y + 'px';
+                    arrow.textContent = pos.direction === 'down' ? '↓' : (pos.direction === 'right' ? '→' : '↗');
+                    canvas.appendChild(arrow);
+                }
+            });
+        }
+
+        function getBranchPositions(workflow, action) {
+            const positions = [];
+            const baseX = 80;
+            const mainY = 60;
+            const developY = 140;
+            const featureY = 220;
+            const releaseY = 220;
+            const hotfixY = 160;
+
+            switch (workflow) {
+                case 'gitflow':
+                    return getGitFlowPositions(action, baseX, mainY, developY, featureY, releaseY, hotfixY);
+                case 'githubflow':
+                    return getGitHubFlowPositions(action, baseX, mainY, featureY);
+                case 'gitlabflow':
+                    return getGitLabFlowPositions(action, baseX, mainY, featureY);
+                case 'trunk':
+                    return getTrunkPositions(action, baseX, mainY, featureY);
+            }
+            return positions;
+        }
+
+        function getGitFlowPositions(action, baseX, mainY, developY, featureY, releaseY, hotfixY) {
+            const positions = [];
+
+            positions.push({ type: 'line', branch: 'main', x: baseX, y1: mainY - 30, y2: 500 });
+            positions.push({ type: 'label', branch: 'main', x: baseX - 20, y: mainY - 50, text: 'main' });
+
+            positions.push({ type: 'line', branch: 'develop', x: baseX + 80, y1: developY - 30, y2: 500 });
+            positions.push({ type: 'label', branch: 'develop', x: baseX + 60, y: developY - 50, text: 'develop' });
+
+            switch (action) {
+                case 'init':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    break;
+
+                case 'create-develop':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY, highlight: true });
+                    positions.push({ type: 'arrow', x: baseX + 40, y: developY - 20, direction: 'right' });
+                    break;
+
+                case 'create-feature':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY });
+                    positions.push({ type: 'line', branch: 'feature', x: baseX + 160, y1: developY, y2: featureY + 100 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 140, y: featureY - 20, text: 'feature/login' });
+                    positions.push({ type: 'commit', x: baseX + 160, y: developY, highlight: true });
+                    break;
+
+                case 'commit-feature':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY });
+                    positions.push({ type: 'line', branch: 'feature', x: baseX + 160, y1: developY, y2: featureY + 80 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 140, y: featureY - 20, text: 'feature/login' });
+                    positions.push({ type: 'commit', x: baseX + 160, y: developY });
+                    positions.push({ type: 'commit', x: baseX + 160, y: featureY + 40, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 160, y: featureY + 80, highlight: true });
+                    break;
+
+                case 'merge-feature':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 60, highlight: true });
+                    positions.push({ type: 'line', branch: 'feature', x: baseX + 160, y1: developY, y2: developY });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 140, y: featureY - 20, text: 'feature/login' });
+                    positions.push({ type: 'arrow', x: baseX + 120, y: developY + 30, direction: 'right' });
+                    break;
+
+                case 'create-release':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 60 });
+                    positions.push({ type: 'line', branch: 'release', x: baseX + 160, y1: developY + 60, y2: releaseY + 60 });
+                    positions.push({ type: 'label', branch: 'release', x: baseX + 140, y: releaseY + 30, text: 'release/1.0' });
+                    positions.push({ type: 'commit', x: baseX + 160, y: developY + 60, highlight: true });
+                    break;
+
+                case 'commit-release':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 60 });
+                    positions.push({ type: 'commit', x: baseX + 160, y: developY + 60 });
+                    positions.push({ type: 'commit', x: baseX + 160, y: releaseY + 80, highlight: true });
+                    break;
+
+                case 'merge-release':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 60 });
+                    positions.push({ type: 'commit', x: baseX + 160, y: releaseY + 80 });
+                    positions.push({ type: 'arrow', x: baseX + 40, y: mainY + 20, direction: 'down' });
+                    break;
+
+                case 'sync-develop':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 60, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 100, highlight: true });
+                    positions.push({ type: 'arrow', x: baseX + 40, y: developY + 80, direction: 'right' });
+                    break;
+
+                case 'create-hotfix':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 100 });
+                    positions.push({ type: 'line', branch: 'hotfix', x: baseX + 40, y1: mainY + 40, y2: hotfixY + 40 });
+                    positions.push({ type: 'label', branch: 'hotfix', x: baseX + 50, y: hotfixY + 20, text: 'hotfix/fix' });
+                    positions.push({ type: 'commit', x: baseX + 40, y: mainY + 40, highlight: true });
+                    break;
+
+                case 'commit-hotfix':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX + 40, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX + 40, y: hotfixY + 60, highlight: true });
+                    break;
+
+                case 'merge-hotfix':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 80, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 100, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY + 140, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 40, y: hotfixY + 60 });
+                    positions.push({ type: 'arrow', x: baseX + 20, y: mainY + 60, direction: 'down' });
+                    positions.push({ type: 'arrow', x: baseX + 60, y: developY + 120, direction: 'right' });
+                    break;
+
+                default:
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: developY });
+            }
+
+            return positions;
+        }
+
+        function getGitHubFlowPositions(action, baseX, mainY, featureY) {
+            const positions = [];
+
+            positions.push({ type: 'line', branch: 'main', x: baseX, y1: mainY - 30, y2: 400 });
+            positions.push({ type: 'label', branch: 'main', x: baseX - 20, y: mainY - 50, text: 'main' });
+
+            switch (action) {
+                case 'init':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    break;
+
+                case 'github-feature':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'line', branch: 'feature', x: baseX + 80, y1: mainY, y2: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 85, y: featureY - 10, text: 'feature/login' });
+                    positions.push({ type: 'commit', x: baseX + 80, y: mainY, highlight: true });
+                    break;
+
+                case 'github-commit':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 20, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 40, highlight: true });
+                    break;
+
+                case 'github-push':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 85, y: featureY - 10, text: 'feature/login' });
+                    break;
+
+                case 'github-pr':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 85, y: featureY - 10, text: 'PR: feature/login → main' });
+                    break;
+
+                case 'github-review':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 60, y: featureY - 10, text: 'Code Review ✓' });
+                    break;
+
+                case 'github-merge':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 40 });
+                    positions.push({ type: 'arrow', x: baseX + 40, y: mainY + 20, direction: 'down' });
+                    break;
+
+                case 'github-delete':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'label', branch: 'main', x: baseX - 20, y: mainY + 20, text: '✓ Merged' });
+                    break;
+
+                default:
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+            }
+
+            return positions;
+        }
+
+        function getGitLabFlowPositions(action, baseX, mainY, featureY) {
+            const positions = [];
+
+            positions.push({ type: 'line', branch: 'main', x: baseX, y1: mainY - 30, y2: 450 });
+            positions.push({ type: 'label', branch: 'main', x: baseX - 20, y: mainY - 50, text: 'main' });
+
+            positions.push({ type: 'line', branch: 'main', x: baseX + 100, y1: mainY + 80, y2: mainY + 180 });
+            positions.push({ type: 'label', branch: 'main', x: baseX + 70, y: mainY + 70, text: 'pre-production' });
+
+            positions.push({ type: 'line', branch: 'production', x: baseX + 200, y1: mainY + 160, y2: mainY + 260 });
+            positions.push({ type: 'label', branch: 'release', x: baseX + 170, y: mainY + 150, text: 'production' });
+
+            switch (action) {
+                case 'init':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    break;
+
+                case 'gitlab-feature':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'line', branch: 'feature', x: baseX + 60, y1: mainY, y2: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 65, y: featureY - 10, text: 'feature/dashboard' });
+                    positions.push({ type: 'commit', x: baseX + 60, y: mainY, highlight: true });
+                    break;
+
+                case 'gitlab-commit':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 60, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 60, y: featureY + 20, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 60, y: featureY + 40, highlight: true });
+                    break;
+
+                case 'gitlab-mr':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX + 60, y: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 40, y: featureY - 10, text: 'MR: dashboard → main' });
+                    break;
+
+                case 'gitlab-merge-main':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 60, y: featureY + 40 });
+                    positions.push({ type: 'arrow', x: baseX + 30, y: mainY + 20, direction: 'down' });
+                    break;
+
+                case 'gitlab-preprod':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX + 100, y: mainY + 80, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 100, y: mainY + 120, highlight: true });
+                    positions.push({ type: 'arrow', x: baseX + 50, y: mainY + 80, direction: 'right' });
+                    break;
+
+                case 'gitlab-prod':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX + 100, y: mainY + 120 });
+                    positions.push({ type: 'commit', x: baseX + 200, y: mainY + 160, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 200, y: mainY + 200, highlight: true });
+                    positions.push({ type: 'arrow', x: baseX + 150, y: mainY + 160, direction: 'right' });
+                    break;
+
+                default:
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+            }
+
+            return positions;
+        }
+
+        function getTrunkPositions(action, baseX, mainY, featureY) {
+            const positions = [];
+
+            positions.push({ type: 'line', branch: 'main', x: baseX, y1: mainY - 30, y2: 400 });
+            positions.push({ type: 'label', branch: 'main', x: baseX - 30, y: mainY - 50, text: 'trunk/main' });
+
+            switch (action) {
+                case 'init':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    break;
+
+                case 'trunk-clone':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX - 60, y: mainY + 20, text: 'Local Clone' });
+                    break;
+
+                case 'trunk-branch':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'line', branch: 'feature', x: baseX + 60, y1: mainY, y2: featureY + 40 });
+                    positions.push({ type: 'label', branch: 'feature', x: baseX + 20, y: featureY - 10, text: 'sprint/feature' });
+                    positions.push({ type: 'commit', x: baseX + 60, y: mainY, highlight: true });
+                    break;
+
+                case 'trunk-commit':
+                    positions.push({ type: 'commit', x: baseX, y: mainY, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 30, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 60, highlight: true });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 90, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 60, y: featureY + 20 });
+                    positions.push({ type: 'commit', x: baseX + 60, y: featureY + 40 });
+                    break;
+
+                case 'trunk-ci':
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 40 });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 80 });
+                    positions.push({ type: 'label', branch: 'main', x: baseX + 30, y: mainY + 30, text: 'CI ✓' });
+                    positions.push({ type: 'label', branch: 'main', x: baseX + 30, y: mainY + 70, text: 'CI ✓' });
+                    break;
+
+                case 'trunk-release':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 80 });
+                    positions.push({ type: 'line', branch: 'release', x: baseX + 80, y1: mainY + 80, y2: featureY + 80 });
+                    positions.push({ type: 'label', branch: 'release', x: baseX + 85, y: featureY + 60, text: 'release/1.0' });
+                    positions.push({ type: 'commit', x: baseX + 80, y: mainY + 80, highlight: true });
+                    break;
+
+                case 'trunk-fix':
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 80 });
+                    positions.push({ type: 'commit', x: baseX, y: mainY + 120, highlight: true });
+                    positions.push({ type: 'commit', x: baseX + 80, y: featureY + 100, highlight: true });
+                    positions.push({ type: 'arrow', x: baseX + 40, y: mainY + 100, direction: 'right' });
+                    break;
+
+                default:
+                    positions.push({ type: 'commit', x: baseX, y: mainY });
+            }
+
+            return positions;
+        }
+
+        init();
+    </script>
+</body>
+</html>

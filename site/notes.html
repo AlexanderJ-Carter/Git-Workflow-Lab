@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习笔记 - Git Workflow Lab</title>
+    <meta name="description" content="个人学习笔记系统，支持笔记管理、标签分类、模板创建">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 笔记页面专用样式 */
+        :root {
+            --notes-sidebar-width: 320px;
+            --notes-toolbar-height: 56px;
+            --tag-course: #3b82f6;
+            --tag-project: #10b981;
+            --tag-question: #f59e0b;
+            --tag-default: #8b5cf6;
+        }
+
+        .notes-page {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .notes-sidebar {
+            width: var(--notes-sidebar-width);
+            min-width: var(--notes-sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .notes-sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notes-sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notes-sidebar-title svg {
+            width: 22px;
+            height: 22px;
+            color: var(--accent-primary);
+        }
+
+        /* 搜索框 */
+        .notes-search {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .notes-search input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all var(--transition-fast);
+        }
+
+        .notes-search input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .notes-search svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+        }
+
+        /* 标签筛选 */
+        .notes-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .notes-tag-filter {
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+        }
+
+        .notes-tag-filter:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .notes-tag-filter.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .notes-tag-filter.tag-course { --tag-color: var(--tag-course); }
+        .notes-tag-filter.tag-project { --tag-color: var(--tag-project); }
+        .notes-tag-filter.tag-question { --tag-color: var(--tag-question); }
+
+        .notes-tag-filter.active.tag-course { background: var(--tag-course); border-color: var(--tag-course); }
+        .notes-tag-filter.active.tag-project { background: var(--tag-project); border-color: var(--tag-project); }
+        .notes-tag-filter.active.tag-question { background: var(--tag-question); border-color: var(--tag-question); }
+
+        /* 笔记列表 */
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .notes-list-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .notes-list-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .notes-list-empty p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .note-item {
+            padding: 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            transition: all var(--transition-fast);
+            background: var(--bg-secondary);
+        }
+
+        .note-item:hover {
+            border-color: var(--border-color);
+            transform: translateX(2px);
+        }
+
+        .note-item.active {
+            background: var(--accent-light);
+            border-color: var(--accent-primary);
+        }
+
+        .note-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .note-item-preview {
+            font-size: 13px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+
+        .note-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-item-tags {
+            display: flex;
+            gap: 4px;
+        }
+
+        .note-item-tag {
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .note-item-tag.tag-course { background: rgba(59, 130, 246, 0.15); color: var(--tag-course); }
+        .note-item-tag.tag-project { background: rgba(16, 185, 129, 0.15); color: var(--tag-project); }
+        .note-item-tag.tag-question { background: rgba(245, 158, 11, 0.15); color: var(--tag-question); }
+
+        .note-item-date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* 主编辑区域 */
+        .notes-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+
+        /* 工具栏 */
+        .notes-toolbar {
+            height: var(--notes-toolbar-height);
+            min-height: var(--notes-toolbar-height);
+            padding: 0 20px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .notes-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notes-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notes-back-btn {
+            display: none;
+            padding: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .notes-back-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .notes-back-btn {
+                display: flex;
+            }
+        }
+
+        .notes-title-input {
+            flex: 1;
+            max-width: 400px;
+            padding: 8px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .notes-title-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* 按钮样式 */
+        .notes-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .notes-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .notes-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .notes-btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .notes-btn-primary:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+            color: white;
+        }
+
+        .notes-btn-danger {
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        .notes-btn-danger:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        .notes-btn-icon {
+            padding: 8px;
+            min-width: 36px;
+        }
+
+        /* 模板选择 */
+        .notes-templates {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .notes-template-btn {
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .notes-template-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .notes-template-btn.template-course {
+            border-color: var(--tag-course);
+            color: var(--tag-course);
+        }
+
+        .notes-template-btn.template-course:hover {
+            background: var(--tag-course);
+            color: white;
+        }
+
+        .notes-template-btn.template-project {
+            border-color: var(--tag-project);
+            color: var(--tag-project);
+        }
+
+        .notes-template-btn.template-project:hover {
+            background: var(--tag-project);
+            color: white;
+        }
+
+        .notes-template-btn.template-question {
+            border-color: var(--tag-question);
+            color: var(--tag-question);
+        }
+
+        .notes-template-btn.template-question:hover {
+            background: var(--tag-question);
+            color: white;
+        }
+
+        .notes-template-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 标签选择 */
+        .notes-tag-select {
+            padding: 0 20px 12px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .notes-tag-select.show {
+            display: block;
+        }
+
+        .notes-tag-select-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .notes-tag-select-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notes-tag-option {
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+        }
+
+        .notes-tag-option:hover {
+            transform: translateY(-1px);
+        }
+
+        .notes-tag-option.selected.tag-course {
+            background: var(--tag-course);
+            color: white;
+            border-color: var(--tag-course);
+        }
+
+        .notes-tag-option.selected.tag-project {
+            background: var(--tag-project);
+            color: white;
+            border-color: var(--tag-project);
+        }
+
+        .notes-tag-option.selected.tag-question {
+            background: var(--tag-question);
+            color: white;
+            border-color: var(--tag-question);
+        }
+
+        /* 编辑器区域 */
+        .notes-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .notes-editor-toolbar {
+            padding: 10px 20px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notes-editor-toolbar button {
+            padding: 6px 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            transition: all var(--transition-fast);
+        }
+
+        .notes-editor-toolbar button:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .notes-editor-toolbar .separator {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 8px;
+        }
+
+        .notes-editor-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .notes-editor-textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 15px;
+            line-height: 1.8;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            resize: none;
+        }
+
+        .notes-editor-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* 空状态 */
+        .notes-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .notes-empty svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+        }
+
+        .notes-empty h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .notes-empty p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform var(--transition-base);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            padding: 6px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* Toast 提示 */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--error);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .notes-sidebar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transform: translateX(0);
+                transition: transform var(--transition-base);
+            }
+
+            .notes-sidebar.hidden {
+                transform: translateX(-100%);
+            }
+
+            .notes-main {
+                width: 100%;
+            }
+        }
+
+        /* 隐藏文件上传 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="notes-page">
+        <!-- 侧边栏 -->
+        <aside class="notes-sidebar" id="notesSidebar">
+            <div class="notes-sidebar-header">
+                <h2 class="notes-sidebar-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    学习笔记
+                </h2>
+                <div class="notes-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="搜索笔记...">
+                </div>
+                <div class="notes-tags">
+                    <button class="notes-tag-filter active" data-tag="all">全部</button>
+                    <button class="notes-tag-filter tag-course" data-tag="course">课程笔记</button>
+                    <button class="notes-tag-filter tag-project" data-tag="project">项目笔记</button>
+                    <button class="notes-tag-filter tag-question" data-tag="question">问题记录</button>
+                </div>
+            </div>
+            <div class="notes-list" id="notesList">
+                <!-- 笔记列表将通过 JS 渲染 -->
+            </div>
+        </aside>
+
+        <!-- 主编辑区域 -->
+        <main class="notes-main">
+            <!-- 工具栏 -->
+            <div class="notes-toolbar">
+                <div class="notes-toolbar-left">
+                    <button class="notes-back-btn" id="backBtn" title="返回列表">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                    </button>
+                    <input type="text" class="notes-title-input" id="noteTitle" placeholder="笔记标题...">
+                </div>
+                <div class="notes-toolbar-right">
+                    <button class="notes-btn notes-btn-primary" id="newNoteBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        新建笔记
+                    </button>
+                    <button class="notes-btn notes-btn-icon" id="exportBtn" title="导出笔记">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </button>
+                    <button class="notes-btn notes-btn-icon" id="importBtn" title="导入笔记">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </button>
+                    <input type="file" id="importFile" accept=".json" class="hidden">
+                    <button class="notes-btn notes-btn-icon notes-btn-danger" id="deleteBtn" title="删除笔记" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 模板选择 -->
+            <div class="notes-templates" id="templatesBar" style="display: none;">
+                <button class="notes-template-btn template-course" data-template="course">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    课程笔记
+                </button>
+                <button class="notes-template-btn template-project" data-template="project">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    项目笔记
+                </button>
+                <button class="notes-template-btn template-question" data-template="question">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    问题记录
+                </button>
+            </div>
+
+            <!-- 标签选择 -->
+            <div class="notes-tag-select" id="tagSelect">
+                <span class="notes-tag-select-label">选择标签</span>
+                <div class="notes-tag-select-options">
+                    <button class="notes-tag-option tag-course" data-tag="course">课程笔记</button>
+                    <button class="notes-tag-option tag-project" data-tag="project">项目笔记</button>
+                    <button class="notes-tag-option tag-question" data-tag="question">问题记录</button>
+                </div>
+            </div>
+
+            <!-- 编辑器 -->
+            <div class="notes-editor" id="editorArea">
+                <div class="notes-empty" id="emptyState">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    <h3>选择或创建笔记</h3>
+                    <p>从左侧选择一篇笔记开始编辑，或创建新的笔记</p>
+                    <button class="notes-btn notes-btn-primary" id="emptyNewBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        创建新笔记
+                    </button>
+                </div>
+                <div class="notes-editor-toolbar" id="editorToolbar" style="display: none;">
+                    <button onclick="formatText('bold')" title="粗体"><strong>B</strong></button>
+                    <button onclick="formatText('italic')" title="斜体"><em>I</em></button>
+                    <button onclick="formatText('underline')" title="下划线"><u>U</u></button>
+                    <span class="separator"></span>
+                    <button onclick="formatText('h1')" title="标题1">H1</button>
+                    <button onclick="formatText('h2')" title="标题2">H2</button>
+                    <button onclick="formatText('h3')" title="标题3">H3</button>
+                    <span class="separator"></span>
+                    <button onclick="formatText('ul')" title="无序列表">&bull;列表</button>
+                    <button onclick="formatText('ol')" title="有序列表">1.列表</button>
+                    <button onclick="formatText('code')" title="代码">&lt;/&gt;</button>
+                    <button onclick="formatText('quote')" title="引用">&ldquo;</button>
+                    <span class="separator"></span>
+                    <button onclick="formatText('link')" title="链接">链接</button>
+                </div>
+                <div class="notes-editor-content" id="editorContent" style="display: none;">
+                    <textarea class="notes-editor-textarea" id="noteContent" placeholder="开始记录你的学习笔记..."></textarea>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" id="closeDeleteModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这条笔记吗？此操作无法撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="notes-btn" id="cancelDelete">取消</button>
+                <button class="notes-btn notes-btn-danger" id="confirmDelete">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // 笔记管理模块
+        const NotesManager = {
+            STORAGE_KEY: 'git-workflow-lab-notes',
+            notes: [],
+            currentNoteId: null,
+            currentFilter: 'all',
+            searchQuery: '',
+
+            // 初始化
+            init() {
+                this.loadNotes();
+                this.bindEvents();
+                this.renderNotesList();
+            },
+
+            // 加载笔记
+            loadNotes() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    this.notes = data ? JSON.parse(data) : [];
+                } catch (e) {
+                    console.error('加载笔记失败:', e);
+                    this.notes = [];
+                }
+            },
+
+            // 保存笔记
+            saveNotes() {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.notes));
+                } catch (e) {
+                    console.error('保存笔记失败:', e);
+                    this.showToast('保存失败，请检查存储空间', 'error');
+                }
+            },
+
+            // 创建新笔记
+            createNote(template = null) {
+                const now = new Date();
+                const note = {
+                    id: 'note-' + Date.now(),
+                    title: '',
+                    content: '',
+                    tag: 'course',
+                    createdAt: now.toISOString(),
+                    updatedAt: now.toISOString()
+                };
+
+                // 应用模板
+                if (template === 'course') {
+                    note.title = '课程笔记';
+                    note.content = '# 课程笔记\n\n## 学习目标\n\n-\n\n## 课程内容\n\n\n## 总结\n';
+                    note.tag = 'course';
+                } else if (template === 'project') {
+                    note.title = '项目笔记';
+                    note.content = '# 项目笔记\n\n## 项目概述\n\n\n## 技术栈\n\n-\n\n## 遇到的问题\n\n\n## 解决方案\n';
+                    note.tag = 'project';
+                } else if (template === 'question') {
+                    note.title = '问题记录';
+                    note.content = '# 问题记录\n\n## 问题描述\n\n\n## 错误信息\n\n```\n```\n\n## 解决方案\n\n\n## 总结\n';
+                    note.tag = 'question';
+                }
+
+                this.notes.unshift(note);
+                this.saveNotes();
+                this.currentNoteId = note.id;
+                this.renderNotesList();
+                this.showNoteEditor(note);
+                this.showToast('笔记创建成功', 'success');
+            },
+
+            // 更新笔记
+            updateNote(id, updates) {
+                const index = this.notes.findIndex(n => n.id === id);
+                if (index !== -1) {
+                    this.notes[index] = {
+                        ...this.notes[index],
+                        ...updates,
+                        updatedAt: new Date().toISOString()
+                    };
+                    this.saveNotes();
+                    this.renderNotesList();
+                }
+            },
+
+            // 删除笔记
+            deleteNote(id) {
+                const index = this.notes.findIndex(n => n.id === id);
+                if (index !== -1) {
+                    this.notes.splice(index, 1);
+                    this.saveNotes();
+                    if (this.currentNoteId === id) {
+                        this.currentNoteId = null;
+                        this.hideNoteEditor();
+                    }
+                    this.renderNotesList();
+                    this.showToast('笔记已删除', 'success');
+                }
+            },
+
+            // 获取过滤后的笔记
+            getFilteredNotes() {
+                let filtered = [...this.notes];
+
+                // 标签过滤
+                if (this.currentFilter !== 'all') {
+                    filtered = filtered.filter(n => n.tag === this.currentFilter);
+                }
+
+                // 搜索过滤
+                if (this.searchQuery) {
+                    const query = this.searchQuery.toLowerCase();
+                    filtered = filtered.filter(n =>
+                        n.title.toLowerCase().includes(query) ||
+                        n.content.toLowerCase().includes(query)
+                    );
+                }
+
+                return filtered;
+            },
+
+            // 渲染笔记列表
+            renderNotesList() {
+                const listEl = document.getElementById('notesList');
+                const filtered = this.getFilteredNotes();
+
+                if (filtered.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="notes-list-empty">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <p>暂无笔记<br>点击上方按钮创建第一篇笔记</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = filtered.map(note => {
+                    const date = new Date(note.updatedAt).toLocaleDateString('zh-CN');
+                    const preview = note.content.replace(/[#*`\n]/g, ' ').substring(0, 50) || '暂无内容';
+
+                    return `
+                        <div class="note-item ${note.id === this.currentNoteId ? 'active' : ''}" data-id="${note.id}">
+                            <div class="note-item-title">${note.title || '无标题'}</div>
+                            <div class="note-item-preview">${preview}</div>
+                            <div class="note-item-meta">
+                                <div class="note-item-tags">
+                                    <span class="note-item-tag tag-${note.tag}">${this.getTagName(note.tag)}</span>
+                                </div>
+                                <span class="note-item-date">${date}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // 绑定点击事件
+                listEl.querySelectorAll('.note-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const id = item.dataset.id;
+                        const note = this.notes.find(n => n.id === id);
+                        if (note) {
+                            this.currentNoteId = id;
+                            this.renderNotesList();
+                            this.showNoteEditor(note);
+                        }
+                    });
+                });
+            },
+
+            // 获取标签名称
+            getTagName(tag) {
+                const names = {
+                    course: '课程笔记',
+                    project: '项目笔记',
+                    question: '问题记录'
+                };
+                return names[tag] || '笔记';
+            },
+
+            // 显示笔记编辑器
+            showNoteEditor(note) {
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('editorToolbar').style.display = 'flex';
+                document.getElementById('editorContent').style.display = 'block';
+                document.getElementById('templatesBar').style.display = 'flex';
+                document.getElementById('tagSelect').classList.add('show');
+                document.getElementById('deleteBtn').style.display = 'flex';
+
+                document.getElementById('noteTitle').value = note.title;
+                document.getElementById('noteContent').value = note.content;
+
+                // 设置标签选择
+                document.querySelectorAll('.notes-tag-option').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.tag === note.tag);
+                });
+            },
+
+            // 隐藏笔记编辑器
+            hideNoteEditor() {
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('editorToolbar').style.display = 'none';
+                document.getElementById('editorContent').style.display = 'none';
+                document.getElementById('templatesBar').style.display = 'none';
+                document.getElementById('tagSelect').classList.remove('show');
+                document.getElementById('deleteBtn').style.display = 'none';
+
+                document.getElementById('noteTitle').value = '';
+                document.getElementById('noteContent').value = '';
+            },
+
+            // 绑定事件
+            bindEvents() {
+                // 新建笔记
+                document.getElementById('newNoteBtn').addEventListener('click', () => {
+                    this.createNote();
+                });
+                document.getElementById('emptyNewBtn')?.addEventListener('click', () => {
+                    this.createNote();
+                });
+
+                // 模板选择
+                document.querySelectorAll('.notes-template-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const template = btn.dataset.template;
+                        this.createNote(template);
+                    });
+                });
+
+                // 标签选择
+                document.querySelectorAll('.notes-tag-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (this.currentNoteId) {
+                            document.querySelectorAll('.notes-tag-option').forEach(b => b.classList.remove('selected'));
+                            btn.classList.add('selected');
+                            this.updateNote(this.currentNoteId, { tag: btn.dataset.tag });
+                        }
+                    });
+                });
+
+                // 标题和内容更新
+                let saveTimeout;
+                const debounceSave = () => {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        if (this.currentNoteId) {
+                            this.updateNote(this.currentNoteId, {
+                                title: document.getElementById('noteTitle').value,
+                                content: document.getElementById('noteContent').value
+                            });
+                        }
+                    }, 500);
+                };
+
+                document.getElementById('noteTitle').addEventListener('input', debounceSave);
+                document.getElementById('noteContent').addEventListener('input', debounceSave);
+
+                // 搜索
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.searchQuery = e.target.value;
+                    this.renderNotesList();
+                });
+
+                // 标签过滤
+                document.querySelectorAll('.notes-tag-filter').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.notes-tag-filter').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentFilter = btn.dataset.tag;
+                        this.renderNotesList();
+                    });
+                });
+
+                // 删除笔记
+                document.getElementById('deleteBtn').addEventListener('click', () => {
+                    document.getElementById('deleteModal').classList.add('show');
+                });
+
+                document.getElementById('closeDeleteModal').addEventListener('click', () => {
+                    document.getElementById('deleteModal').classList.remove('show');
+                });
+
+                document.getElementById('cancelDelete').addEventListener('click', () => {
+                    document.getElementById('deleteModal').classList.remove('show');
+                });
+
+                document.getElementById('confirmDelete').addEventListener('click', () => {
+                    if (this.currentNoteId) {
+                        this.deleteNote(this.currentNoteId);
+                    }
+                    document.getElementById('deleteModal').classList.remove('show');
+                });
+
+                // 导出笔记
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportNotes();
+                });
+
+                // 导入笔记
+                document.getElementById('importBtn').addEventListener('click', () => {
+                    document.getElementById('importFile').click();
+                });
+
+                document.getElementById('importFile').addEventListener('change', (e) => {
+                    this.importNotes(e.target.files[0]);
+                    e.target.value = '';
+                });
+
+                // 关闭弹窗点击背景
+                document.getElementById('deleteModal').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-overlay')) {
+                        e.target.classList.remove('show');
+                    }
+                });
+            },
+
+            // 导出笔记
+            exportNotes() {
+                if (this.notes.length === 0) {
+                    this.showToast('没有笔记可导出', 'error');
+                    return;
+                }
+
+                const data = JSON.stringify(this.notes, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `学习笔记_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.showToast('笔记导出成功', 'success');
+            },
+
+            // 导入笔记
+            importNotes(file) {
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (!Array.isArray(imported)) {
+                            throw new Error('Invalid format');
+                        }
+
+                        // 合并笔记（避免ID冲突）
+                        const existingIds = new Set(this.notes.map(n => n.id));
+                        let count = 0;
+                        imported.forEach(note => {
+                            if (!existingIds.has(note.id)) {
+                                this.notes.push(note);
+                                count++;
+                            }
+                        });
+
+                        this.saveNotes();
+                        this.renderNotesList();
+                        this.showToast(`成功导入 ${count} 条笔记`, 'success');
+                    } catch (err) {
+                        this.showToast('导入失败：文件格式不正确', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            // 显示 Toast
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+        };
+
+        // 简单的格式化函数（模拟）
+        function formatText(format) {
+            const textarea = document.getElementById('noteContent');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selected = text.substring(start, end);
+
+            let replacement = '';
+            let cursorOffset = 0;
+
+            switch (format) {
+                case 'bold':
+                    replacement = `**${selected || '粗体文本'}**`;
+                    cursorOffset = selected ? 0 : -2;
+                    break;
+                case 'italic':
+                    replacement = `*${selected || '斜体文本'}*`;
+                    cursorOffset = selected ? 0 : -1;
+                    break;
+                case 'underline':
+                    replacement = `<u>${selected || '下划线文本'}</u>`;
+                    cursorOffset = selected ? 0 : -4;
+                    break;
+                case 'h1':
+                    replacement = `# ${selected || '标题1'}`;
+                    break;
+                case 'h2':
+                    replacement = `## ${selected || '标题2'}`;
+                    break;
+                case 'h3':
+                    replacement = `### ${selected || '标题3'}`;
+                    break;
+                case 'ul':
+                    replacement = `- ${selected || '列表项'}`;
+                    break;
+                case 'ol':
+                    replacement = `1. ${selected || '列表项'}`;
+                    break;
+                case 'code':
+                    replacement = selected.includes('\n')
+                        ? `\`\`\`\n${selected || '代码'}\n\`\`\``
+                        : `\`${selected || '代码'}\``;
+                    break;
+                case 'quote':
+                    replacement = `> ${selected || '引用文本'}`;
+                    break;
+                case 'link':
+                    replacement = `[${selected || '链接文本'}](url)`;
+                    cursorOffset = selected ? -1 : -5;
+                    break;
+            }
+
+            textarea.value = text.substring(0, start) + replacement + text.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + replacement.length + cursorOffset;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            NotesManager.init();
+        });
+    </script>
+</body>
+</html>

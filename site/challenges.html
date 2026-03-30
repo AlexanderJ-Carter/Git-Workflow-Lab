@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场景挑战 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --challenge-bg: var(--bg-primary, #f8fafc);
+            --challenge-bg-card: var(--bg-primary, #ffffff);
+            --challenge-border: var(--border-color, #e2e8f0);
+            --challenge-text: var(--text-primary, #1e293b);
+            --challenge-text-muted: var(--text-secondary, #64748b);
+            --challenge-primary: var(--accent-primary, #6366f1);
+            --challenge-secondary: var(--accent-secondary, #8b5cf6);
+            --challenge-success: var(--success, #10b981);
+            --challenge-warning: var(--warning, #f59e0b);
+            --challenge-error: var(--error, #ef4444);
+            --challenge-info: var(--info, #3b82f6);
+            --challenge-radius: 16px;
+            --challenge-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --terminal-bg: #1e1e2e;
+            --terminal-text: #cdd6f4;
+            --terminal-prompt: #89b4fa;
+            --terminal-success: #a6e3a1;
+            --terminal-error: #f38ba8;
+            --terminal-warning: #fab387;
+        }
+
+        [data-theme="dark"] {
+            --challenge-bg: #0f172a;
+            --challenge-bg-card: #1e293b;
+            --challenge-border: #334155;
+            --challenge-text: #f1f5f9;
+            --challenge-text-muted: #94a3b8;
+            --challenge-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--challenge-bg);
+            color: var(--challenge-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 头部 */
+        .page-header {
+            padding: 48px 0 32px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--challenge-bg-card) 0%, var(--challenge-bg) 100%);
+            border-bottom: 1px solid var(--challenge-border);
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--challenge-primary), var(--challenge-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            color: var(--challenge-text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 进度条 */
+        .progress-bar-container {
+            max-width: 800px;
+            margin: 32px auto 0;
+            padding: 0 24px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--challenge-text-muted);
+        }
+
+        .progress-info .xp {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--challenge-primary);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--challenge-border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--challenge-primary), var(--challenge-secondary));
+            border-radius: 99px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        /* 挑战网格 */
+        .challenges-section {
+            padding: 48px 0;
+        }
+
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* 挑战卡片 */
+        .challenge-card {
+            background: var(--challenge-bg-card);
+            border: 1px solid var(--challenge-border);
+            border-radius: var(--challenge-radius);
+            padding: 24px;
+            box-shadow: var(--challenge-shadow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .challenge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--challenge-primary), var(--challenge-secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--challenge-primary);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+        }
+
+        .challenge-card:hover::before {
+            opacity: 1;
+        }
+
+        .challenge-card.completed::before {
+            opacity: 1;
+            background: var(--challenge-success);
+        }
+
+        .challenge-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .challenge-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--challenge-primary), var(--challenge-secondary));
+            border-radius: 12px;
+            font-size: 24px;
+        }
+
+        .challenge-difficulty {
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .challenge-difficulty.easy {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+        }
+
+        .challenge-difficulty.medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+
+        .challenge-difficulty.hard {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        [data-theme="dark"] .challenge-difficulty.easy {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        [data-theme="dark"] .challenge-difficulty.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        [data-theme="dark"] .challenge-difficulty.hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .challenge-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--challenge-text);
+        }
+
+        .challenge-description {
+            font-size: 14px;
+            color: var(--challenge-text-muted);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .challenge-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--challenge-text-muted);
+        }
+
+        .challenge-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .challenge-meta-item svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .challenge-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .challenge-status.completed {
+            color: var(--challenge-success);
+        }
+
+        /* 挑战详情模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 24px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--challenge-bg-card);
+            border-radius: var(--challenge-radius);
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--challenge-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-title-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--challenge-primary), var(--challenge-secondary));
+            border-radius: 10px;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            color: var(--challenge-text-muted);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--challenge-border);
+            color: var(--challenge-text);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* 场景描述 */
+        .scenario-section {
+            margin-bottom: 24px;
+        }
+
+        .scenario-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--challenge-text-muted);
+            margin-bottom: 8px;
+        }
+
+        .scenario-content {
+            background: var(--challenge-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--challenge-border);
+        }
+
+        .scenario-content p {
+            color: var(--challenge-text);
+            line-height: 1.8;
+        }
+
+        /* 目标列表 */
+        .goals-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .goals-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--challenge-bg);
+            border-radius: 10px;
+            border: 1px solid var(--challenge-border);
+        }
+
+        .goal-check {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--challenge-border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .goal-check.completed {
+            background: var(--challenge-success);
+            border-color: var(--challenge-success);
+            color: white;
+        }
+
+        /* 奖励 */
+        .rewards {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 99px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .reward-item svg {
+            width: 18px;
+            height: 18px;
+            color: var(--challenge-primary);
+        }
+
+        /* 虚拟终端 */
+        .terminal-section {
+            margin-top: 24px;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #282a36;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-btn.red { background: #ff5555; }
+        .terminal-btn.yellow { background: #f1fa8c; }
+        .terminal-btn.green { background: #50fa7b; }
+
+        .terminal-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #6272a4;
+        }
+
+        .terminal {
+            background: #282a36;
+            border-radius: 0 0 12px 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .terminal-prompt {
+            color: var(--terminal-prompt);
+        }
+
+        .terminal-command {
+            color: var(--terminal-text);
+        }
+
+        .terminal-output {
+            color: var(--terminal-text);
+            padding-left: 0;
+        }
+
+        .terminal-output.success {
+            color: var(--terminal-success);
+        }
+
+        .terminal-output.error {
+            color: var(--terminal-error);
+        }
+
+        .terminal-output.warning {
+            color: var(--terminal-warning);
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--terminal-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            caret-color: var(--terminal-prompt);
+        }
+
+        /* 完成提示 */
+        .completion-modal {
+            text-align: center;
+            padding: 48px 24px;
+        }
+
+        .completion-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--challenge-success), #34d399);
+            border-radius: 50%;
+            font-size: 40px;
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .completion-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--challenge-success);
+        }
+
+        .completion-message {
+            color: var(--challenge-text-muted);
+            margin-bottom: 24px;
+        }
+
+        .completion-rewards {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .completion-reward {
+            text-align: center;
+        }
+
+        .completion-reward-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--challenge-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .completion-reward-label {
+            font-size: 14px;
+            color: var(--challenge-text-muted);
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--challenge-primary), var(--challenge-secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--challenge-bg);
+            color: var(--challenge-text);
+            border: 1px solid var(--challenge-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--challenge-border);
+        }
+
+        /* 返回按钮 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            color: var(--challenge-text-muted);
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--challenge-primary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .challenges-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .modal-content {
+                max-height: 95vh;
+            }
+
+            .rewards {
+                flex-direction: column;
+            }
+
+            .completion-rewards {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        /* 滚动条样式 */
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: #282a36;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: #44475a;
+            border-radius: 4px;
+        }
+
+        .terminal::-webkit-scrollbar-thumb:hover {
+            background: #6272a4;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <h1>场景挑战</h1>
+            <p>在真实的开发场景中练习 Git 操作，完成挑战赢取经验值和成就</p>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-info">
+                <span>已完成 <span id="completed-count">0</span>/<span id="total-count">6</span> 挑战</span>
+                <span class="xp">总经验值: <span id="total-xp">0</span> XP</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="challenges-section">
+        <div class="container">
+            <div class="challenges-grid" id="challenges-grid">
+                <!-- 挑战卡片将由 JavaScript 渲染 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 挑战详情模态框 -->
+    <div class="modal-overlay" id="challenge-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon" id="modal-icon"></div>
+                    <span id="modal-title">挑战详情</span>
+                </div>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 内容将由 JavaScript 渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 挑战数据
+        const challenges = [
+            {
+                id: 1,
+                title: '紧急修复',
+                icon: '🚨',
+                difficulty: 'easy',
+                description: '正在开发新功能时，线上出现严重 bug，需要紧急修复。',
+                xp: 100,
+                points: 50,
+                scenario: '你正在开发一个新功能，已经进行了大量修改。突然，Slack/钉钉弹出消息：线上出现严重 bug，用户无法登录！leader 要求你立即停止当前工作，先修复线上问题。',
+                goals: [
+                    '将当前工作暂存到 stash',
+                    '切换到 main 分支',
+                    '创建 hotfix 分支修复 bug',
+                    '修复后合并到 main',
+                    '删除 hotfix 分支',
+                    '恢复之前的工作'
+                ],
+                expectedCommands: [
+                    'git stash',
+                    'git checkout main',
+                    'git checkout -b hotfix',
+                    'git commit -m "fix: 修复登录bug"',
+                    'git checkout main',
+                    'git merge hotfix',
+                    'git branch -d hotfix',
+                    'git stash pop'
+                ],
+                hint: '使用 git stash 保存当前工作，然后用 git checkout 切换分支。修复完成后用 git stash pop 恢复工作。'
+            },
+            {
+                id: 2,
+                title: '团队合并',
+                icon: '🤝',
+                difficulty: 'medium',
+                description: '需要合并多个功能分支，处理合并冲突。',
+                xp: 150,
+                points: 75,
+                scenario: ' sprint 结束时，需要将 feature/user-profile、feature/payment、feature/notification 三个功能分支合并到 main。每个分支都修改了 README.md，存在冲突需要手动解决。',
+                goals: [
+                    '切换到 main 分支并拉取最新代码',
+                    '依次合并三个功能分支',
+                    '解决 README.md 中的冲突',
+                    '完成合并并推送'
+                ],
+                expectedCommands: [
+                    'git checkout main',
+                    'git pull origin main',
+                    'git merge feature/user-profile',
+                    'git merge feature/payment',
+                    'git merge feature/notification',
+                    'git add README.md',
+                    'git commit -m "merge: 合并所有功能分支"',
+                    'git push origin main'
+                ],
+                hint: '合并冲突后，使用 git add 标记已解决的文件，然后提交。'
+            },
+            {
+                id: 3,
+                title: '版本发布',
+                icon: '🚀',
+                difficulty: 'medium',
+                description: '需要打标签、创建 Release、分支管理。',
+                xp: 150,
+                points: 75,
+                scenario: '产品版本 v1.0.0 开发完成，需要发布到生产环境。需要创建发布分支、编写 CHANGELOG、打标签、创建 GitHub Release。',
+                goals: [
+                    '从 main 创建发布分支 release/v1.0.0',
+                    '在 release 分支进行最后的修复',
+                    '打标签 v1.0.0',
+                    '创建 GitHub Release',
+                    '合并 release 到 main',
+                    '删除 release 分支'
+                ],
+                expectedCommands: [
+                    'git checkout -b release/v1.0.0 main',
+                    'git commit -am "chore: 发布前最后调整"',
+                    'git tag -a v1.0.0 -m "Version 1.0.0"',
+                    'git push origin v1.0.0',
+                    'git checkout main',
+                    'git merge release/v1.0.0',
+                    'git branch -d release/v1.0.0',
+                    'git push origin main'
+                ],
+                hint: '使用 git tag -a 创建附注标签，-m 指定标签消息。'
+            },
+            {
+                id: 4,
+                title: '代码审查',
+                icon: '🔍',
+                difficulty: 'easy',
+                description: '需要理解 PR 中的修改，进行代码审查。',
+                xp: 100,
+                points: 50,
+                scenario: '团队成员提交了一个 PR，修改了多个文件。你需要查看具体的修改内容，理解代码变更，并给出审查意见。',
+                goals: [
+                    '查看 PR/分支与 main 的差异',
+                    '查看某个文件的详细修改',
+                    '查看最近几次提交的变更',
+                    '理解修改的内容'
+                ],
+                expectedCommands: [
+                    'git fetch origin',
+                    'git diff main..feature/xxx',
+                    'git diff HEAD~3 -- src/app.js',
+                    'git log --oneline -5'
+                ],
+                hint: '使用 git diff 查看差异，git log 查看提交历史。'
+            },
+            {
+                id: 5,
+                title: '灾难恢复',
+                icon: '💾',
+                difficulty: 'hard',
+                description: '误删分支，需要恢复丢失的代码。',
+                xp: 200,
+                points: 100,
+                scenario: '不小心执行了 git branch -D feature-important，删除了一条包含重要功能开发的分支。还好你之前推送过这个分支，需要恢复它。',
+                goals: [
+                    '查找包含被删除分支引用的 commit',
+                    '通过 reflog 找到分支的最后位置',
+                    '恢复被删除的分支'
+                ],
+                expectedCommands: [
+                    'git reflog',
+                    'git checkout -b feature-important HEAD@{n}',
+                    'git branch feature-important COMMIT_HASH'
+                ],
+                hint: 'git reflog 记录了所有 HEAD 的变动，可以帮你找回丢失的分支。'
+            },
+            {
+                id: 6,
+                title: '协作冲突',
+                icon: '⚔️',
+                difficulty: 'hard',
+                description: '多人同时修改同一文件，需要解决冲突。',
+                xp: 200,
+                points: 100,
+                scenario: '你和同事同时修改了 src/app.js 的同一部分，他先提交并推送了代码。当你尝试 push 时收到冲突提示，需要解决冲突后再推送。',
+                goals: [
+                    '拉取远程最新代码（产生冲突）',
+                    '查看冲突文件',
+                    '手动解决冲突',
+                    '标记冲突已解决并提交',
+                    '推送合并结果'
+                ],
+                expectedCommands: [
+                    'git fetch origin',
+                    'git pull origin main',
+                    'git status',
+                    'git add src/app.js',
+                    'git commit -m "merge: 解决冲突"',
+                    'git push origin main'
+                ],
+                hint: '冲突标记为 <<<<<<< HEAD ... ======= ... >>>>>>>，保留需要的代码后 git add 标记解决。'
+            }
+        ];
+
+        // 状态管理
+        let userProgress = JSON.parse(localStorage.getItem('challengeProgress')) || {
+            completed: [],
+            xp: 0
+        };
+
+        let currentChallenge = null;
+        let terminalHistory = [];
+        let currentGoalIndex = 0;
+
+        // 渲染挑战卡片
+        function renderChallenges() {
+            const grid = document.getElementById('challenges-grid');
+            grid.innerHTML = challenges.map(challenge => {
+                const isCompleted = userProgress.completed.includes(challenge.id);
+                return `
+                    <div class="challenge-card ${isCompleted ? 'completed' : ''}"
+                         onclick="openChallenge(${challenge.id})">
+                        ${isCompleted ? `
+                            <div class="challenge-status completed">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                                </svg>
+                            </div>
+                        ` : ''}
+                        <div class="challenge-card-header">
+                            <div class="challenge-icon">${challenge.icon}</div>
+                            <span class="challenge-difficulty ${challenge.difficulty}">${getDifficultyText(challenge.difficulty)}</span>
+                        </div>
+                        <h3 class="challenge-title">${challenge.title}</h3>
+                        <p class="challenge-description">${challenge.description}</p>
+                        <div class="challenge-meta">
+                            <div class="challenge-meta-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                ${challenge.xp} XP
+                            </div>
+                            <div class="challenge-meta-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="8" r="7"/>
+                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                                </svg>
+                                ${challenge.points} 积分
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateProgress();
+        }
+
+        // 获取难度文本
+        function getDifficultyText(difficulty) {
+            const map = {
+                easy: '简单',
+                medium: '中等',
+                hard: '困难'
+            };
+            return map[difficulty] || difficulty;
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const completed = userProgress.completed.length;
+            const total = challenges.length;
+            const totalXp = userProgress.xp;
+
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('total-xp').textContent = totalXp;
+            document.getElementById('progress-fill').style.width = `${(completed / total) * 100}%`;
+        }
+
+        // 打开挑战
+        function openChallenge(id) {
+            currentChallenge = challenges.find(c => c.id === id);
+            currentGoalIndex = 0;
+            terminalHistory = [];
+
+            renderModal();
+            document.getElementById('challenge-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 渲染模态框
+        function renderModal() {
+            const icon = document.getElementById('modal-icon');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+
+            icon.textContent = currentChallenge.icon;
+            title.textContent = currentChallenge.title;
+
+            const isCompleted = userProgress.completed.includes(currentChallenge.id);
+
+            body.innerHTML = `
+                <div class="scenario-section">
+                    <div class="scenario-label">场景背景</div>
+                    <div class="scenario-content">
+                        <p>${currentChallenge.scenario}</p>
+                    </div>
+                </div>
+
+                <div class="scenario-section">
+                    <div class="scenario-label">挑战目标</div>
+                    <ul class="goals-list">
+                        ${currentChallenge.goals.map((goal, index) => `
+                            <li>
+                                <div class="goal-check ${isCompleted || index < currentGoalIndex ? 'completed' : ''}">
+                                    ${index < currentGoalIndex ? `
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                                        </svg>
+                                    ` : ''}
+                                </div>
+                                <span>${goal}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+
+                <div class="scenario-section">
+                    <div class="scenario-label">完成奖励</div>
+                    <div class="rewards">
+                        <div class="reward-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            ${currentChallenge.xp} 经验值
+                        </div>
+                        <div class="reward-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="8" r="7"/>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                            </svg>
+                            ${currentChallenge.points} 积分
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-section">
+                    <div class="scenario-label">提示</div>
+                    <div class="scenario-content">
+                        <p>${currentChallenge.hint}</p>
+                    </div>
+                </div>
+
+                ${!isCompleted ? `
+                    <div class="terminal-section">
+                        <div class="terminal-header">
+                            <div class="terminal-buttons">
+                                <div class="terminal-btn red"></div>
+                                <div class="terminal-btn yellow"></div>
+                                <div class="terminal-btn green"></div>
+                            </div>
+                            <div class="terminal-title">bash — git challenge</div>
+                        </div>
+                        <div class="terminal" id="terminal">
+                            ${terminalHistory.length === 0 ? `
+                                <div class="terminal-line">
+                                    <span class="terminal-output">欢迎来到场景挑战！</span>
+                                </div>
+                                <div class="terminal-line">
+                                    <span class="terminal-output">输入 git 命令完成挑战目标。</span>
+                                </div>
+                                <div class="terminal-line">
+                                    <span class="terminal-output">输入 <span style="color: var(--terminal-warning)">help</span> 查看可用命令。</span>
+                                </div>
+                            ` : terminalHistory.map(line => line).join('')}
+                            <div class="terminal-input-line">
+                                <span class="terminal-prompt">$</span>
+                                <input type="text" class="terminal-input" id="command-input"
+                                       placeholder="输入命令..." autocomplete="off" autofocus>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <div style="text-align: center; padding: 24px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+                        <div style="font-size: 20px; font-weight: 600; color: var(--challenge-success); margin-bottom: 8px;">
+                            挑战已完成！
+                        </div>
+                        <div style="color: var(--challenge-text-muted);">
+                            恭喜你完成了「${currentChallenge.title}」挑战，获得 ${currentChallenge.xp} XP 和 ${currentChallenge.points} 积分！
+                        </div>
+                    </div>
+                `}
+            `;
+
+            if (!isCompleted) {
+                document.getElementById('command-input').addEventListener('keydown', handleCommand);
+            }
+        }
+
+        // 处理命令输入
+        function handleCommand(e) {
+            if (e.key === 'Enter') {
+                const input = e.target;
+                const command = input.value.trim();
+                if (command) {
+                    executeCommand(command);
+                    input.value = '';
+                }
+            }
+        }
+
+        // 执行命令
+        function executeCommand(command) {
+            const parts = command.split(/\s+/);
+            const cmd = parts[0];
+            const args = parts.slice(1);
+
+            let output = '';
+            let outputClass = '';
+
+            // 添加命令到历史
+            terminalHistory.push(`
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <span class="terminal-command">${escapeHtml(command)}</span>
+                </div>
+            `);
+
+            // 模拟 Git 命令
+            if (cmd === 'help') {
+                output = `可用命令：
+  git status     - 查看当前状态
+  git stash      - 暂存当前工作
+  git stash pop  - 恢复暂存的工作
+  git checkout   - 切换分支
+  git branch     - 分支操作
+  git commit     - 提交
+  git merge      - 合并分支
+  git tag        - 标签操作
+  git pull       - 拉取远程
+  git push       - 推送到远程
+  git diff       - 查看差异
+  git log        - 查看历史
+  git reflog     - 查看引用日志
+  git fetch      - 获取远程`;
+                outputClass = '';
+            } else if (cmd === 'git') {
+                const subCmd = args[0];
+                output = simulateGitCommand(subCmd, args);
+                outputClass = getOutputClass(output);
+            } else if (cmd === 'clear') {
+                terminalHistory = [];
+                renderTerminal();
+                return;
+            } else {
+                output = `命令未找到: ${cmd}。输入 help 查看可用命令。`;
+                outputClass = 'error';
+            }
+
+            if (output) {
+                terminalHistory.push(`
+                    <div class="terminal-line">
+                        <span class="terminal-output ${outputClass}">${escapeHtml(output)}</span>
+                    </div>
+                `);
+            }
+
+            checkGoalProgress(command);
+            renderTerminal();
+            saveProgress();
+        }
+
+        // 模拟 Git 命令输出
+        function simulateGitCommand(subCmd, args) {
+            const challenge = currentChallenge;
+            const cmd = subCmd;
+
+            // 场景 1: 紧急修复
+            if (challenge.id === 1) {
+                if (cmd === 'stash') {
+                    return 'Saved working directory and index state WIP on main: abc1234 Initial commit';
+                }
+                if (cmd === 'checkout' && args[0] === 'main') {
+                    return 'Switched to branch \'main\'';
+                }
+                if (cmd === 'checkout' && args[0] === '-b' && args[1] === 'hotfix') {
+                    return 'Switched to a new branch \'hotfix\'';
+                }
+                if (cmd === 'commit' || (cmd === 'commit' && args.includes('-m'))) {
+                    return '[hotfix abc1234] fix: 修复登录bug\n 1 file changed, 5 insertions(+), 2 deletions(-)';
+                }
+                if (cmd === 'merge') {
+                    return 'Merge made by the \'recursive\' strategy.\n README.md | 2 +-\n 1 file changed, 2 insertions(+), 1 deletion(-)';
+                }
+                if (cmd === 'branch' && args[0] === '-d') {
+                    return 'Deleted branch hotfix (was abc1234).';
+                }
+                if (cmd === 'stash' && args[0] === 'pop') {
+                    return 'Dropped refs/stash@{0}\nSwitched to branch \'main\'\nOn branch main\nChanges not staged for commit:\n  (use "git add <file>..." to update)\n  modified:   src/feature.js';
+                }
+            }
+
+            // 场景 2: 团队合并
+            if (challenge.id === 2) {
+                if (cmd === 'checkout' && args[0] === 'main') {
+                    return 'Already on \'main\'';
+                }
+                if (cmd === 'pull') {
+                    return 'From https://github.com/xxx/repo\n * branch            main       -> origin/main\nUpdating abc1234..def5678\nFast-forward\n README.md | 2 +-\n 1 file changed, 2 insertions(+), 1 deletion(-)',
+                }
+                if (cmd === 'merge') {
+                    if (args.includes('feature/user-profile')) {
+                        return 'Merge made by the \'recursive\' strategy.\n user-profile.js | 50 ++++++++++++++++++\n 1 file changed, 50 insertions(+)';
+                    }
+                    if (args.includes('feature/payment')) {
+                        return 'Auto-merging README.md\nCONFLICT (content): Merge conflict in README.md\nAutomatic merge failed; fix conflicts and then commit.';
+                    }
+                    if (args.includes('feature/notification')) {
+                        return 'Merge made by the \'recursive\' strategy.';
+                    }
+                }
+                if (cmd === 'add') {
+                    return '';
+                }
+            }
+
+            // 场景 3: 版本发布
+            if (challenge.id === 3) {
+                if (cmd === 'checkout' && args[0] === '-b' && args[1]?.startsWith('release')) {
+                    return `Switched to a new branch '${args[1]}'`;
+                }
+                if (cmd === 'commit') {
+                    return `[release/v1.0.0 abc1234] chore: 发布前最后调整\n 1 file changed, 3 insertions(+)`;
+                }
+                if (cmd === 'tag') {
+                    if (args[0] === '-a') {
+                        return '';
+                    }
+                    return '';
+                }
+                if (cmd === 'push' && args.includes('v1.0.0')) {
+                    return 'To https://github.com/xxx/repo.git\n * [new tag]         v1.0.0 -> v1.0.0';
+                }
+                if (cmd === 'branch' && args[0] === '-d') {
+                    return `Deleted branch release/v1.0.0 (was abc1234).`;
+                }
+            }
+
+            // 场景 4: 代码审查
+            if (challenge.id === 4) {
+                if (cmd === 'fetch') {
+                    return 'From https://github.com/xxx/repo\n * branch            HEAD       -> origin/feature/xxx';
+                }
+                if (cmd === 'diff') {
+                    return 'diff --git a/src/app.js b/src/app.js\n--- a/src/app.js\n+++ b/src/app.js\n@@ -10,7 +10,9 @@ function init() {\n   // 新增：初始化用户数据\n   loadUserData();\n+  \n+  // 新增：加载配置\n+  loadConfig();\n }';
+                }
+                if (cmd === 'log') {
+                    return 'abc1234 feat: 添加用户配置\ndef5678 fix: 修复登录问题\nghi9012 docs: 更新README\njkl3456 feat: 用户模块重构';
+                }
+            }
+
+            // 场景 5: 灾难恢复
+            if (challenge.id === 5) {
+                if (cmd === 'reflog') {
+                    return 'abc1234 (HEAD -> main) HEAD@{0}: commit: 添加新功能\ndef5678 HEAD@{1}: checkout: moving to main\nghi9012 HEAD@{2}: commit (deleted): feat: 重要功能\njkl3456 HEAD@{3}: commit: 初始开发';
+                }
+                if (cmd === 'checkout' && args[0] === '-b') {
+                    return `Switched to a new branch '${args[1]}'`;
+                }
+                if (cmd === 'branch') {
+                    return `Created branch ${args[0]} pointing to ${args[1]}`;
+                }
+            }
+
+            // 场景 6: 协作冲突
+            if (challenge.id === 6) {
+                if (cmd === 'fetch') {
+                    return 'From https://github.com/xxx/repo\n * branch            main       -> origin/main';
+                }
+                if (cmd === 'pull') {
+                    return 'From https://github.com/xxx/repo\n * branch            main       -> origin/main\nAuto-merging src/app.js\nCONFLICT (content): Conflict in src/app.js\nAutomatic merge failed; fix conflicts and then commit.';
+                }
+                if (cmd === 'status') {
+                    return 'On branch main\nYou have unmerged paths.\n  (fix conflicts and run "git commit")\n\nUnmerged paths:\n  (use "git add <file>..." to mark resolution)\n\n\tboth modified:   src/app.js';
+                }
+                if (cmd === 'add') {
+                    return '';
+                }
+            }
+
+            // 通用命令反馈
+            if (cmd === 'status') {
+                const branches = ['main', 'develop', 'feature/new', 'hotfix/bug', 'release/v1.0'];
+                const randomBranch = branches[Math.floor(Math.random() * branches.length)];
+                return `On branch ${randomBranch}\nnothing to commit, working tree clean`;
+            }
+            if (cmd === 'branch') {
+                return `  main\n  develop\n* ${currentChallenge.id === 1 ? 'hotfix' : 'feature/xxx'}\n  release/v1.0`;
+            }
+            if (cmd === 'log') {
+                return 'abc1234 Initial commit';
+            }
+
+            return `'${cmd}' 不是 git 子命令。输入 'git --help' 获取帮助。`;
+        }
+
+        // 获取输出类
+        function getOutputClass(output) {
+            if (!output) return '';
+            if (output.includes('CONFLICT') || output.includes('error') || output.includes('Not a valid') || output.includes('不是')) {
+                return 'error';
+            }
+            if (output.includes('Saved') || output.includes('Switched') || output.includes('Merge') || output.includes('Deleted')) {
+                return 'success';
+            }
+            if (output.includes('warning') || output.includes('warning')) {
+                return 'warning';
+            }
+            return '';
+        }
+
+        // 检查目标进度
+        function checkGoalProgress(command) {
+            const cmd = command.trim();
+            const challenge = currentChallenge;
+            const goal = challenge.goals[currentGoalIndex];
+
+            // 简单检查命令
+            if (currentGoalIndex === 0) {
+                if (challenge.id === 1 && (cmd === 'git stash' || cmd === 'git stash push')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 2 && cmd === 'git checkout main') {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 3 && cmd.includes('checkout') && cmd.includes('-b') && cmd.includes('release')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 4 && cmd.includes('fetch')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 5 && cmd.includes('reflog')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 6 && cmd.includes('fetch')) {
+                    currentGoalIndex++;
+                }
+            } else if (currentGoalIndex === 1) {
+                if (challenge.id === 1 && cmd.includes('checkout') && cmd.includes('main')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 2 && cmd.includes('pull')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 3 && cmd.includes('commit')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 4 && cmd.includes('diff')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 5 && (cmd.includes('checkout') && cmd.includes('-b') || cmd.includes('branch') && !cmd.includes('-d'))) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 6 && cmd.includes('pull')) {
+                    currentGoalIndex++;
+                }
+            } else if (currentGoalIndex === 2) {
+                if (challenge.id === 1 && cmd.includes('checkout') && cmd.includes('-b') && cmd.includes('hotfix')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 2 && cmd.includes('merge')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 3 && cmd.includes('tag')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 4 && cmd.includes('log')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 5) {
+                    // 步骤3: 恢复分支
+                }
+                if (challenge.id === 6 && cmd.includes('status')) {
+                    currentGoalIndex++;
+                }
+            } else if (currentGoalIndex === 3) {
+                if (challenge.id === 1 && (cmd.includes('commit') || cmd.includes('fix'))) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 2 && (cmd.includes('add') || cmd.includes('merge'))) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 3 && (cmd.includes('push') && cmd.includes('tag') || cmd.includes('v1'))) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 6 && cmd.includes('add')) {
+                    currentGoalIndex++;
+                }
+            } else if (currentGoalIndex === 4) {
+                if (challenge.id === 1 && cmd.includes('checkout') && cmd.includes('main')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 3 && cmd.includes('checkout') && cmd.includes('main')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 6 && (cmd.includes('commit') || cmd.includes('merge'))) {
+                    currentGoalIndex++;
+                }
+            } else if (currentGoalIndex === 5) {
+                if (challenge.id === 1 && (cmd.includes('merge') || cmd.includes('hotfix'))) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 2 && cmd.includes('push')) {
+                    currentGoalIndex++;
+                }
+                if (challenge.id === 3 && cmd.includes('push') && cmd.includes('main')) {
+                    currentGoalIndex++;
+                }
+            }
+
+            // 完成挑战
+            if (currentGoalIndex >= challenge.goals.length) {
+                completeChallenge();
+            }
+        }
+
+        // 完成挑战
+        function completeChallenge() {
+            if (!userProgress.completed.includes(currentChallenge.id)) {
+                userProgress.completed.push(currentChallenge.id);
+                userProgress.xp += currentChallenge.xp;
+                saveProgress();
+
+                setTimeout(() => {
+                    showCompletion();
+                }, 500);
+            }
+        }
+
+        // 显示完成模态框
+        function showCompletion() {
+            const modal = document.getElementById('challenge-modal');
+            const body = document.getElementById('modal-body');
+
+            body.innerHTML = `
+                <div class="completion-modal">
+                    <div class="completion-icon">🎉</div>
+                    <h2 class="completion-title">挑战完成！</h2>
+                    <p class="completion-message">恭喜你完成了「${currentChallenge.title}」挑战！</p>
+                    <div class="completion-rewards">
+                        <div class="completion-reward">
+                            <div class="completion-reward-value">+${currentChallenge.xp}</div>
+                            <div class="completion-reward-label">经验值</div>
+                        </div>
+                        <div class="completion-reward">
+                            <div class="completion-reward-value">+${currentChallenge.points}</div>
+                            <div class="completion-reward-label">积分</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="closeModal(); renderChallenges();">
+                        返回挑战列表
+                    </button>
+                </div>
+            `;
+        }
+
+        // 渲染终端
+        function renderTerminal() {
+            const terminal = document.getElementById('terminal');
+            if (terminal) {
+                const inputLine = terminal.querySelector('.terminal-input-line');
+                terminal.innerHTML = terminalHistory.join('') + (inputLine ? `
+                    <div class="terminal-input-line">
+                        <span class="terminal-prompt">$</span>
+                        <input type="text" class="terminal-input" id="command-input"
+                               placeholder="输入命令..." autocomplete="off" autofocus>
+                    </div>
+                ` : '');
+
+                terminal.scrollTop = terminal.scrollHeight;
+
+                const newInput = document.getElementById('command-input');
+                if (newInput) {
+                    newInput.addEventListener('keydown', handleCommand);
+                    newInput.focus();
+                }
+            }
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 保存进度
+        function saveProgress() {
+            localStorage.setItem('challengeProgress', JSON.stringify(userProgress));
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('challenge-modal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentChallenge = null;
+            currentGoalIndex = 0;
+            renderChallenges();
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('challenge-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ESC 键关闭
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // 初始化
+        renderChallenges();
+    </script>
+</body>
+</html>

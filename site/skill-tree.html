@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技能树 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --skill-bg: #f8fafc;
+            --skill-bg-card: #ffffff;
+            --skill-border: #e2e8f0;
+            --skill-text: #1e293b;
+            --skill-text-muted: #64748b;
+            --skill-primary: #6366f1;
+            --skill-secondary: #8b5cf6;
+            --skill-success: #10b981;
+            --skill-warning: #f59e0b;
+            --skill-error: #ef4444;
+            --skill-info: #3b82f6;
+            --skill-locked: #94a3b8;
+            --skill-radius: 16px;
+            --skill-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --line-color: #cbd5e1;
+        }
+
+        [data-theme="dark"] {
+            --skill-bg: #0f172a;
+            --skill-bg-card: #1e293b;
+            --skill-border: #334155;
+            --skill-text: #f1f5f9;
+            --skill-text-muted: #94a3b8;
+            --line-color: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--skill-bg);
+            color: var(--skill-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .skill-header {
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+            padding: 48px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .skill-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        .skill-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .skill-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--skill-primary), var(--skill-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .skill-header p {
+            color: var(--skill-text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 进度条 */
+        .skill-progress-card {
+            max-width: 1000px;
+            margin: -24px auto 32px;
+            padding: 24px 32px;
+            background: var(--skill-bg-card);
+            border: 1px solid var(--skill-border);
+            border-radius: var(--skill-radius);
+            box-shadow: var(--skill-shadow);
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .skill-progress-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .skill-progress-label {
+            font-size: 14px;
+            color: var(--skill-text-muted);
+            margin-bottom: 4px;
+        }
+
+        .skill-progress-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--skill-primary);
+        }
+
+        .skill-progress-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .skill-stat {
+            text-align: center;
+        }
+
+        .skill-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .skill-stat-label {
+            font-size: 12px;
+            color: var(--skill-text-muted);
+        }
+
+        .skill-stat-value.mastered { color: var(--skill-success); }
+        .skill-stat-value.in-progress { color: var(--skill-warning); }
+        .skill-stat-value.locked { color: var(--skill-locked); }
+
+        /* 图例 */
+        .skill-legend {
+            max-width: 1000px;
+            margin: 0 auto 32px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            background: var(--skill-bg-card);
+            border: 1px solid var(--skill-border);
+            border-radius: var(--skill-radius);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--skill-text-muted);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.mastered { background: var(--skill-success); }
+        .legend-dot.in-progress { background: var(--skill-warning); }
+        .legend-dot.locked { background: var(--skill-locked); border: 2px dashed var(--skill-border); }
+        .legend-dot.main { background: var(--skill-primary); }
+        .legend-dot.branch { background: var(--skill-secondary); }
+        .legend-dot.expert { background: var(--skill-error); }
+
+        /* 技能树容器 */
+        .skill-tree-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .skill-tree {
+            display: flex;
+            gap: 60px;
+            min-width: fit-content;
+            padding-bottom: 40px;
+        }
+
+        /* 技能列 */
+        .skill-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            position: relative;
+        }
+
+        .skill-column.main-line { min-width: 280px; }
+        .skill-column.branch-line { min-width: 260px; }
+        .skill-column.expert-line { min-width: 260px; }
+
+        .column-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 8px 20px;
+            border-radius: var(--skill-radius);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .column-title.main {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #4338ca;
+        }
+
+        .column-title.branch {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            color: #7c3aed;
+        }
+
+        .column-title.expert {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+
+        [data-theme="dark"] .column-title.main {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+        }
+
+        [data-theme="dark"] .column-title.branch {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+        }
+
+        [data-theme="dark"] .column-title.expert {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        /* 技能节点 */
+        .skill-node {
+            width: 260px;
+            background: var(--skill-bg-card);
+            border: 2px solid var(--skill-border);
+            border-radius: var(--skill-radius);
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .skill-node::before {
+            content: '';
+            position: absolute;
+            top: -32px;
+            left: 50%;
+            width: 2px;
+            height: 32px;
+            background: var(--line-color);
+            transform: translateX(-50%);
+        }
+
+        .skill-node:first-child::before {
+            display: none;
+        }
+
+        .skill-node:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--skill-shadow);
+        }
+
+        .skill-node.mastered {
+            border-color: var(--skill-success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+        }
+
+        .skill-node.in-progress {
+            border-color: var(--skill-warning);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%);
+            animation: pulse-border 2s infinite;
+        }
+
+        .skill-node.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--skill-bg-card);
+        }
+
+        .skill-node.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
+        }
+
+        .skill-node-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .skill-node-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .skill-node-icon.level-1 { background: #dbeafe; }
+        .skill-node-icon.level-2 { background: #d1fae5; }
+        .skill-node-icon.level-3 { background: #fef3c7; }
+        .skill-node-icon.level-4 { background: #fce7f3; }
+        .skill-node-icon.level-5 { background: #ede9fe; }
+        .skill-node-icon.branch { background: #f3e8ff; }
+        .skill-node-icon.expert { background: #fee2e2; }
+
+        [data-theme="dark"] .skill-node-icon.level-1 { background: rgba(59, 130, 246, 0.2); }
+        [data-theme="dark"] .skill-node-icon.level-2 { background: rgba(16, 185, 129, 0.2); }
+        [data-theme="dark"] .skill-node-icon.level-3 { background: rgba(245, 158, 11, 0.2); }
+        [data-theme="dark"] .skill-node-icon.level-4 { background: rgba(236, 72, 153, 0.2); }
+        [data-theme="dark"] .skill-node-icon.level-5 { background: rgba(139, 92, 246, 0.2); }
+        [data-theme="dark"] .skill-node-icon.branch { background: rgba(139, 92, 246, 0.2); }
+        [data-theme="dark"] .skill-node-icon.expert { background: rgba(239, 68, 68, 0.2); }
+
+        .skill-node.mastered .skill-node-icon { background: var(--skill-success); }
+        .skill-node.in-progress .skill-node-icon { background: var(--skill-warning); }
+
+        .skill-node.mastered .skill-node-icon { color: white; }
+        .skill-node.in-progress .skill-node-icon { color: white; }
+
+        .skill-node-title-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .skill-node-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-node-level {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--skill-border);
+            color: var(--skill-text-muted);
+        }
+
+        .skill-node-desc {
+            font-size: 13px;
+            color: var(--skill-text-muted);
+            line-height: 1.5;
+        }
+
+        .skill-node-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--skill-border);
+        }
+
+        .skill-node-status {
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .skill-node-status.mastered { color: var(--skill-success); }
+        .skill-node-status.in-progress { color: var(--skill-warning); }
+        .skill-node-status.locked { color: var(--skill-locked); }
+
+        .skill-node-action {
+            font-size: 12px;
+            color: var(--skill-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .skill-node.locked .skill-node-action {
+            display: none;
+        }
+
+        /* 连接线 - 主线到支线 */
+        .skill-tree::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% - 280px);
+            height: 2px;
+            background: var(--line-color);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .skill-tree {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .skill-column {
+                min-width: 100%;
+            }
+
+            .skill-tree::before {
+                display: none;
+            }
+
+            .skill-node::before {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .skill-header {
+                padding: 32px 16px;
+            }
+
+            .skill-header h1 {
+                font-size: 28px;
+            }
+
+            .skill-progress-card {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 20px;
+            }
+
+            .skill-progress-stats {
+                justify-content: space-around;
+            }
+
+            .skill-legend {
+                gap: 16px;
+            }
+
+            .skill-node {
+                width: 100%;
+            }
+        }
+
+        /* 技能详情弹窗 */
+        .skill-tooltip {
+            position: fixed;
+            background: var(--skill-bg-card);
+            border: 1px solid var(--skill-border);
+            border-radius: var(--skill-radius);
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            pointer-events: none;
+        }
+
+        .skill-tooltip.visible {
+            display: block;
+        }
+
+        .skill-tooltip-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-tooltip-desc {
+            font-size: 14px;
+            color: var(--skill-text-muted);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .skill-tooltip-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .skill-tooltip-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--skill-border);
+            color: var(--skill-text-muted);
+        }
+
+        .skill-tooltip-prereq {
+            font-size: 13px;
+            color: var(--skill-text-muted);
+            padding: 12px;
+            background: var(--skill-bg);
+            border-radius: 8px;
+        }
+
+        .skill-tooltip-prereq strong {
+            color: var(--skill-text);
+        }
+
+        /* 完成标记 */
+        .completion-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: var(--skill-success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .skill-node.mastered .completion-badge {
+            display: flex;
+        }
+
+        .skill-node .completion-badge {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="skill-header">
+        <h1>技能树</h1>
+        <p>可视化展示 Git 技能进阶路径，掌握核心技能，解锁更多能力</p>
+    </header>
+
+    <div class="skill-progress-card">
+        <div class="skill-progress-info">
+            <div class="skill-progress-label">技能掌握进度</div>
+            <div class="skill-progress-value" id="progress-value">0%</div>
+        </div>
+        <div class="skill-progress-stats">
+            <div class="skill-stat">
+                <span class="skill-stat-value mastered" id="mastered-count">0</span>
+                <span class="skill-stat-label">已掌握</span>
+            </div>
+            <div class="skill-stat">
+                <span class="skill-stat-value in-progress" id="in-progress-count">0</span>
+                <span class="skill-stat-label">进行中</span>
+            </div>
+            <div class="skill-stat">
+                <span class="skill-stat-value locked" id="locked-count">0</span>
+                <span class="skill-stat-label">未解锁</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="skill-legend">
+        <div class="legend-item">
+            <span class="legend-dot mastered"></span>
+            <span>已掌握</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot in-progress"></span>
+            <span>进行中</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot locked"></span>
+            <span>未解锁</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot main"></span>
+            <span>主线技能</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot branch"></span>
+            <span>支线技能</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot expert"></span>
+            <span>专家技能</span>
+        </div>
+    </div>
+
+    <div class="skill-tree-container">
+        <div class="skill-tree" id="skill-tree">
+            <!-- 主线技能 -->
+            <div class="skill-column main-line" id="main-skills"></div>
+            <!-- 支线技能 -->
+            <div class="skill-column branch-line" id="branch-skills"></div>
+            <!-- 专家技能 -->
+            <div class="skill-column expert-line" id="expert-skills"></div>
+        </div>
+    </div>
+
+    <!-- 技能详情弹窗 -->
+    <div class="skill-tooltip" id="skill-tooltip">
+        <div class="skill-tooltip-title"></div>
+        <div class="skill-tooltip-desc"></div>
+        <div class="skill-tooltip-meta"></div>
+        <div class="skill-tooltip-prereq"></div>
+    </div>
+
+    <script>
+        // 技能数据
+        const SKILLS = {
+            // 主线技能
+            main: [
+                {
+                    id: 'git-basics',
+                    name: 'Git 基础',
+                    icon: '📖',
+                    desc: '掌握 Git 的核心概念和基本操作，包括安装配置和常用命令',
+                    level: 1,
+                    difficulty: '入门',
+                    prereqs: [],
+                    courses: [
+                        { title: '安装与配置', file: 'lesson-00-install-and-config.md' },
+                        { title: '命令行基础', file: 'lesson-00-terminal-basics.md' },
+                        { title: '创建仓库与推送', file: 'lesson-01-init-push.md' }
+                    ]
+                },
+                {
+                    id: 'git-remote',
+                    name: '远程协作',
+                    icon: '🌐',
+                    desc: '学习远程仓库管理，掌握 push、pull、fetch 等协作命令',
+                    level: 2,
+                    difficulty: '基础',
+                    prereqs: ['git-basics'],
+                    courses: [
+                        { title: '工作区与暂存区', file: 'lesson-02-workspace-staging-history.md' },
+                        { title: '远程同步', file: 'lesson-03-remote-and-sync.md' }
+                    ]
+                },
+                {
+                    id: 'git-branch',
+                    name: '分支管理',
+                    icon: '🌿',
+                    desc: '掌握分支创建、切换、合并等操作，理解分支工作流',
+                    level: 3,
+                    difficulty: '进阶',
+                    prereqs: ['git-remote'],
+                    courses: [
+                        { title: '分支与 PR', file: 'lesson-04-branches-and-pr.md' },
+                        { title: '合并冲突', file: 'lesson-05-merge-conflict.md' }
+                    ]
+                },
+                {
+                    id: 'git-advance',
+                    name: '进阶操作',
+                    icon: '⚡',
+                    desc: '学习 rebase、cherry-pick、reset 等高级操作技巧',
+                    level: 4,
+                    difficulty: '高级',
+                    prereqs: ['git-branch'],
+                    courses: [
+                        { title: 'Rebase 整理', file: 'lesson-06-rebase-clean-history.md' },
+                        { title: 'Cherry-pick 与 Revert', file: 'lesson-07-cherry-pick-and-revert.md' },
+                        { title: 'Reflog 恢复', file: 'lesson-08-reflog-and-recovery.md' }
+                    ]
+                },
+                {
+                    id: 'git-release',
+                    name: '标签与发布',
+                    icon: '🏷️',
+                    desc: '掌握标签管理、语义化版本和 Release 发布流程',
+                    level: 5,
+                    difficulty: '高级',
+                    prereqs: ['git-advance'],
+                    courses: [
+                        { title: '标签与发布', file: 'lesson-13-tags-and-releases.md' },
+                        { title: '自动发布', file: 'lesson-17-release-automation.md' }
+                    ]
+                }
+            ],
+            // 支线技能
+            branch: [
+                {
+                    id: 'ssh-setup',
+                    name: 'SSH 配置',
+                    icon: '🔐',
+                    desc: '配置 SSH 公钥，实现无密码安全访问远程仓库',
+                    level: 1,
+                    difficulty: '入门',
+                    prereqs: ['git-basics'],
+                    courses: [
+                        { title: 'SSH 密钥配置', file: 'lesson-06a-ssh-setup-and-clone.md' }
+                    ]
+                },
+                {
+                    id: 'git-hooks',
+                    name: 'Git Hooks',
+                    icon: '🪝',
+                    desc: '使用 Git 钩子实现自动化校验和工作流控制',
+                    level: 2,
+                    difficulty: '进阶',
+                    prereqs: ['git-branch'],
+                    courses: [
+                        { title: 'Git Hooks', file: 'lesson-15-git-hooks.md' }
+                    ]
+                },
+                {
+                    id: 'git-submodule',
+                    name: '子模块',
+                    icon: '🧩',
+                    desc: '学习 Git 子模块，管理多仓库依赖关系',
+                    level: 2,
+                    difficulty: '进阶',
+                    prereqs: ['git-remote'],
+                    courses: []
+                },
+                {
+                    id: 'git-lfs',
+                    name: 'Git LFS',
+                    icon: '📦',
+                    desc: '使用 Git LFS 管理大型二进制文件',
+                    level: 3,
+                    difficulty: '进阶',
+                    prereqs: ['git-branch'],
+                    courses: [
+                        { title: '大仓库优化', file: 'lesson-16-large-repo.md' }
+                    ]
+                }
+            ],
+            // 专家技能
+            expert: [
+                {
+                    id: 'cicd',
+                    name: 'CI/CD 集成',
+                    icon: '🚀',
+                    desc: '构建自动化流水线，实现持续集成与持续部署',
+                    level: 1,
+                    difficulty: '高级',
+                    prereqs: ['git-release'],
+                    courses: [
+                        { title: '第一个 CI', file: 'lesson-10-first-ci-workflow.md' },
+                        { title: '修复流水线', file: 'lesson-11-fix-broken-pipeline.md' },
+                        { title: '多阶段流水线', file: 'lesson-12-multi-stage-pipeline-and-secrets.md' }
+                    ]
+                },
+                {
+                    id: 'git-flow',
+                    name: '工作流',
+                    icon: '🔄',
+                    desc: '掌握 Git Flow、GitHub Flow 等团队协作工作流',
+                    level: 2,
+                    difficulty: '高级',
+                    prereqs: ['git-branch'],
+                    courses: [
+                        { title: '协作规范', file: 'lesson-06b-collaboration-conventions.md' }
+                    ]
+                },
+                {
+                    id: 'team-collab',
+                    name: '团队协作规范',
+                    icon: '👥',
+                    desc: '建立团队代码管理规范，包括分支策略和提交流程',
+                    level: 3,
+                    difficulty: '高级',
+                    prereqs: ['git-flow', 'git-hooks'],
+                    courses: [
+                        { title: '项目规范', file: 'lesson-14-project-files.md' }
+                    ]
+                },
+                {
+                    id: 'automation',
+                    name: '自动化脚本',
+                    icon: '🤖',
+                    desc: '编写自动化脚本，提高开发效率和工程质量',
+                    level: 4,
+                    difficulty: '专家',
+                    prereqs: ['cicd', 'team-collab'],
+                    courses: []
+                }
+            ]
+        };
+
+        // 学习进度管理
+        const LearningProgress = {
+            STORAGE_KEY: 'git-workflow-lab-progress',
+            SKILL_PROGRESS_KEY: 'git-skill-tree-progress',
+
+            getLessonProgress() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
+                } catch {
+                    return {};
+                }
+            },
+
+            getSkillProgress() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.SKILL_PROGRESS_KEY)) || {};
+                } catch {
+                    return {};
+                }
+            },
+
+            saveSkillProgress(progress) {
+                localStorage.setItem(this.SKILL_PROGRESS_KEY, JSON.stringify(progress));
+            },
+
+            isLessonCompleted(lessonFile) {
+                const progress = this.getLessonProgress();
+                // 尝试多种匹配方式
+                for (const [key, value] of Object.entries(progress)) {
+                    if (value.completed && key.includes(lessonFile.replace('.md', ''))) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+
+            getSkillStatus(skill) {
+                const progress = this.getSkillProgress();
+
+                // 如果技能已有记录，优先使用
+                if (progress[skill.id]) {
+                    return progress[skill.id];
+                }
+
+                // 检查前置技能
+                const prereqsCompleted = skill.prereqs.every(prereqId => {
+                    const prereq = findSkillById(prereqId);
+                    if (!prereq) return true;
+                    return this.getSkillStatus(prereq).status === 'mastered';
+                });
+
+                // 检查是否有相关课程完成
+                const hasCompletedCourse = skill.courses.some(course =>
+                    this.isLessonCompleted(course.file)
+                );
+
+                // 计算状态
+                let status = 'locked';
+                if (skill.prereqs.length === 0) {
+                    status = hasCompletedCourse ? 'mastered' : 'in-progress';
+                } else if (prereqsCompleted) {
+                    status = hasCompletedCourse ? 'mastered' : 'in-progress';
+                } else {
+                    status = 'locked';
+                }
+
+                // 更新进度
+                progress[skill.id] = { status };
+                this.saveSkillProgress(progress);
+
+                return { status };
+            }
+        };
+
+        // 查找技能
+        function findSkillById(id) {
+            for (const category of Object.values(SKILLS)) {
+                const skill = category.find(s => s.id === id);
+                if (skill) return skill;
+            }
+            return null;
+        }
+
+        // 渲染技能节点
+        function renderSkillNode(skill) {
+            const statusData = LearningProgress.getSkillStatus(skill);
+            const status = statusData.status;
+            const columnType = SKILLS.main.includes(skill) ? 'main' :
+                SKILLS.branch.includes(skill) ? 'branch' : 'expert';
+
+            const courseLink = skill.courses.length > 0
+                ? `docs/viewer.html?file=${skill.courses[0].file}`
+                : '#';
+
+            const statusText = {
+                'mastered': '已掌握',
+                'in-progress': '进行中',
+                'locked': '未解锁'
+            };
+
+            return `
+                <div class="skill-node ${status}"
+                     data-skill-id="${skill.id}"
+                     data-courses='${JSON.stringify(skill.courses)}'
+                     data-prereqs='${JSON.stringify(skill.prereqs)}'
+                     onclick="${status !== 'locked' ? `window.open('${courseLink}', '_blank')` : ''}">
+                    ${status === 'mastered' ? '<div class="completion-badge">✓</div>' : ''}
+                    <div class="skill-node-header">
+                        <div class="skill-node-icon ${columnType === 'main' ? 'level-' + skill.level : columnType}">${skill.icon}</div>
+                        <div class="skill-node-title-group">
+                            <div class="skill-node-title">
+                                ${skill.name}
+                                <span class="skill-node-level">${skill.difficulty}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skill-node-desc">${skill.desc}</div>
+                    <div class="skill-node-footer">
+                        <span class="skill-node-status ${status}">
+                            ${status === 'mastered' ? '✓' : status === 'in-progress' ? '◐' : '○'}
+                            ${statusText[status]}
+                        </span>
+                        ${status !== 'locked' && skill.courses.length > 0 ?
+                            '<span class="skill-node-action">学习课程 →</span>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染技能列
+        function renderSkillColumns() {
+            const mainContainer = document.getElementById('main-skills');
+            const branchContainer = document.getElementById('branch-skills');
+            const expertContainer = document.getElementById('expert-skills');
+
+            // 主线技能
+            mainContainer.innerHTML = `
+                <div class="column-title main">主线技能</div>
+                ${SKILLS.main.map(skill => renderSkillNode(skill)).join('')}
+            `;
+
+            // 支线技能
+            branchContainer.innerHTML = `
+                <div class="column-title branch">支线技能</div>
+                ${SKILLS.branch.map(skill => renderSkillNode(skill)).join('')}
+            `;
+
+            // 专家技能
+            expertContainer.innerHTML = `
+                <div class="column-title expert">专家技能</div>
+                ${SKILLS.expert.map(skill => renderSkillNode(skill)).join('')}
+            `;
+        }
+
+        // 更新统计
+        function updateStats() {
+            let mastered = 0;
+            let inProgress = 0;
+            let locked = 0;
+
+            const allSkills = [...SKILLS.main, ...SKILLS.branch, ...SKILLS.expert];
+
+            allSkills.forEach(skill => {
+                const status = LearningProgress.getSkillStatus(skill).status;
+                if (status === 'mastered') mastered++;
+                else if (status === 'in-progress') inProgress++;
+                else locked++;
+            });
+
+            const total = allSkills.length;
+            const percentage = Math.round(((mastered + inProgress * 0.5) / total) * 100);
+
+            document.getElementById('progress-value').textContent = `${percentage}%`;
+            document.getElementById('mastered-count').textContent = mastered;
+            document.getElementById('in-progress-count').textContent = inProgress;
+            document.getElementById('locked-count').textContent = locked;
+        }
+
+        // 技能详情弹窗
+        const tooltip = document.getElementById('skill-tooltip');
+        const tooltipTitle = tooltip.querySelector('.skill-tooltip-title');
+        const tooltipDesc = tooltip.querySelector('.skill-tooltip-desc');
+        const tooltipMeta = tooltip.querySelector('.skill-tooltip-meta');
+        const tooltipPrereq = tooltip.querySelector('.skill-tooltip-prereq');
+
+        document.querySelectorAll('.skill-node').forEach(node => {
+            node.addEventListener('mouseenter', (e) => {
+                const skillId = node.dataset.skillId;
+                const skill = findSkillById(skillId);
+                if (!skill) return;
+
+                const status = LearningProgress.getSkillStatus(skill).status;
+
+                tooltipTitle.innerHTML = `${skill.icon} ${skill.name}`;
+                tooltipDesc.textContent = skill.desc;
+
+                tooltipMeta.innerHTML = `
+                    <span class="skill-tooltip-tag">${skill.difficulty}</span>
+                    <span class="skill-tooltip-tag">${skill.courses.length} 个课程</span>
+                    <span class="skill-tooltip-tag" style="background: ${status === 'mastered' ? 'rgba(16, 185, 129, 0.2)' : status === 'in-progress' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(148, 163, 184, 0.2)'}; color: ${status === 'mastered' ? '#10b981' : status === 'in-progress' ? '#f59e0b' : '#94a3b8'}">
+                        ${status === 'mastered' ? '✓ 已掌握' : status === 'in-progress' ? '◐ 进行中' : '○ 未解锁'}
+                    </span>
+                `;
+
+                if (skill.prereqs.length > 0) {
+                    const prereqNames = skill.prereqs.map(id => {
+                        const s = findSkillById(id);
+                        return s ? s.name : id;
+                    }).join('、');
+
+                    const prereqStatus = skill.prereqs.every(id => {
+                        const s = findSkillById(id);
+                        if (!s) return true;
+                        return LearningProgress.getSkillStatus(s).status === 'mastered';
+                    }) ? '✓ 已完成' : '○ 未完成';
+
+                    tooltipPrereq.innerHTML = `<strong>前置技能：</strong>${prereqNames}<br><strong>状态：</strong>${prereqStatus}`;
+                } else {
+                    tooltipPrereq.innerHTML = '<strong>前置技能：</strong>无';
+                }
+
+                // 定位弹窗
+                const rect = node.getBoundingClientRect();
+                const tooltipWidth = 300;
+                const tooltipHeight = 200;
+
+                let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                let top = rect.bottom + 12;
+
+                // 边界检测
+                if (left < 10) left = 10;
+                if (left + tooltipWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - tooltipWidth - 10;
+                }
+                if (top + tooltipHeight > window.innerHeight) {
+                    top = rect.top - tooltipHeight - 12;
+                }
+
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
+                tooltip.classList.add('visible');
+            });
+
+            node.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('visible');
+            });
+        });
+
+        // 监听 localStorage 变化
+        window.addEventListener('storage', () => {
+            renderSkillColumns();
+            updateStats();
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSkillColumns();
+            updateStats();
+        });
+
+        // 刷新按钮
+        function refreshProgress() {
+            // 清除技能进度缓存，重新计算
+            localStorage.removeItem('git-skill-tree-progress');
+            renderSkillColumns();
+            updateStats();
+        }
+
+        // 每30秒自动刷新（检测课程进度变化）
+        setInterval(() => {
+            const currentProgress = localStorage.getItem('git-workflow-lab-progress');
+            if (currentProgress !== window.lastProgress) {
+                window.lastProgress = currentProgress;
+                refreshProgress();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

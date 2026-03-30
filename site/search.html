@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索 - Git Workflow Lab</title>
+    <meta name="description" content="全局搜索课程、Git 命令和概念">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 搜索页面特定样式 */
+        .search-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background:
+                radial-gradient(ellipse 60% 40% at 50% 0%, var(--accent-glow), transparent),
+                var(--bg-secondary);
+        }
+
+        /* 搜索头部区域 */
+        .search-header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .search-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* 搜索框容器 */
+        .search-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            width: 22px;
+            height: 22px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 50px 18px 56px;
+            font-size: 17px;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            outline: none;
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-md);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-lg), 0 0 0 4px var(--accent-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .search-clear:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .search-clear.visible {
+            display: flex;
+        }
+
+        .search-shortcut {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .search-shortcut kbd {
+            padding: 4px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-muted);
+        }
+
+        /* 搜索提示 */
+        .search-hints {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-hint {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .search-hint kbd {
+            padding: 3px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        /* 搜索结果区域 */
+        .search-results {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .search-results-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .search-results-empty svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .search-results-empty p {
+            font-size: 16px;
+        }
+
+        /* 结果分组 */
+        .result-group {
+            margin-bottom: 32px;
+        }
+
+        .result-group-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-group-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-primary);
+        }
+
+        .result-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .result-group-count {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+        }
+
+        /* 结果列表 */
+        .result-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 18px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .result-item:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .result-item.active {
+            border-color: var(--accent-primary);
+            background: var(--accent-light);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .result-icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            color: var(--accent-primary);
+        }
+
+        .result-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-tag {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+
+        .result-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .result-arrow {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .result-item:hover .result-arrow,
+        .result-item.active .result-arrow {
+            opacity: 1;
+        }
+
+        /* 快捷键提示条 */
+        .keyboard-hint-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 24px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .keyboard-hint-bar.visible {
+            display: flex;
+        }
+
+        .keyboard-hint-bar span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .keyboard-hint-bar kbd {
+            padding: 3px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        /* 统计信息 */
+        .search-stats {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-group {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .result-group:nth-child(2) { animation-delay: 0.05s; }
+        .result-group:nth-child(3) { animation-delay: 0.1s; }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .search-header {
+                padding: 40px 0 24px;
+            }
+
+            .search-header h1 {
+                font-size: 32px;
+            }
+
+            .search-input {
+                font-size: 16px;
+                padding: 14px 40px 14px 46px;
+            }
+
+            .search-shortcut {
+                display: none;
+            }
+
+            .search-hints {
+                gap: 12px;
+            }
+
+            .search-hint {
+                font-size: 12px;
+            }
+
+            .result-item {
+                padding: 12px 14px;
+            }
+
+            .keyboard-hint-bar {
+                bottom: 16px;
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">&#x1F4C4;</span>
+                    <span>Git Workflow Lab</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="lessons/index.html">课程</a></li>
+                    <li><a href="playground.html">浏览器实验室</a></li>
+                    <li><a href="learning-path.html">学习路径</a></li>
+                    <li><a href="quiz.html">测验</a></li>
+                </ul>
+                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+                    &#9790;
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="search-page">
+        <div class="search-header">
+            <h1>全局搜索</h1>
+            <p>搜索课程、Git 命令和核心概念</p>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                    <input
+                        type="text"
+                        class="search-input"
+                        id="searchInput"
+                        placeholder="搜索课程、命令或概念..."
+                        autocomplete="off"
+                        autofocus
+                    >
+                    <button class="search-clear" id="searchClear" aria-label="清除搜索">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                    <div class="search-shortcut">
+                        <kbd>/</kbd>
+                    </div>
+                </div>
+                <div class="search-hints">
+                    <div class="search-hint"><kbd>&#x2191;</kbd><kbd>&#x2193;</kbd> 选择</div>
+                    <div class="search-hint"><kbd>Enter</kbd> 跳转</div>
+                    <div class="search-hint"><kbd>Esc</kbd> 清除</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-results" id="searchResults">
+            <div class="search-results-empty" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <p>输入关键词开始搜索</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="keyboard-hint-bar" id="keyboardHint">
+        <span><kbd>&#x2191;</kbd><kbd>&#x2193;</kbd> 导航</span>
+        <span><kbd>Enter</kbd> 跳转</span>
+        <span><kbd>Esc</kbd> 关闭</span>
+    </div>
+
+    <script>
+        // 搜索数据
+        const searchData = {
+            // 课程数据
+            courses: [
+                { id: 'lesson-00', title: '安装 Git 并完成基础配置', desc: '配置好后，可以通过一次测试提交来验证编辑器是否按预期打开。', url: 'docs/viewer.html?file=lesson-00-install-and-config.md' },
+                { id: 'lesson-00b', title: '命令行与工作目录基础', desc: '熟悉 Web 终端，掌握 pwd / ls / cd / clear 等基础命令。', url: 'docs/viewer.html?file=lesson-00-terminal-basics.md' },
+                { id: 'lesson-01', title: '从 0 开始，新建仓库并 push 代码', desc: '学会在 Web 上创建仓库、本地 clone、commit 与 push。', url: 'docs/viewer.html?file=lesson-01-init-push.md' },
+                { id: 'lesson-02', title: '搞懂工作区 / 暂存区 / 提交历史', desc: '掌握 status、diff、restore、add -p 等命令。', url: 'docs/viewer.html?file=lesson-02-workspace-staging-history.md' },
+                { id: 'lesson-03', title: '远程仓库与同步', desc: '学习 remote、pull、fetch、push 等远程操作。', url: 'docs/viewer.html?file=lesson-03-remote-and-sync.md' },
+                { id: 'lesson-04', title: '创建分支 & 提交 Pull Request', desc: '掌握 branch、switch、merge 命令，理解分支本质。', url: 'docs/viewer.html?file=lesson-04-branches-and-pr.md' },
+                { id: 'lesson-05', title: '制造并解决一次合并冲突', desc: '学习手动解决冲突，掌握 merge 操作。', url: 'docs/viewer.html?file=lesson-05-merge-conflict.md' },
+                { id: 'lesson-06', title: '用 rebase 保持整洁历史', desc: '学习 rebase 和交互式 rebase 整理提交历史。', url: 'docs/viewer.html?file=lesson-06-rebase-clean-history.md' },
+                { id: 'lesson-06a', title: '配置 SSH 密钥并通过 SSH 访问', desc: '掌握 ssh-keygen、ssh -T、git remote set-url。', url: 'docs/viewer.html?file=lesson-06a-ssh-setup-and-clone.md' },
+                { id: 'lesson-06b', title: '远程协作规则与常见约定', desc: '学习分支命名规范、PR 流程、Git Flow 等。', url: 'docs/viewer.html?file=lesson-06b-collaboration-conventions.md' },
+                { id: 'lesson-07', title: '误提交到错误分支的补救', desc: '掌握 cherry-pick 和 revert 的正确用法。', url: 'docs/viewer.html?file=lesson-07-cherry-pick-and-revert.md' },
+                { id: 'lesson-08', title: '用 reflog 从历史中恢复', desc: '学习 reflog、reset --soft/--mixed/--hard 恢复操作。', url: 'docs/viewer.html?file=lesson-08-reflog-and-recovery.md' },
+                { id: 'lesson-09', title: 'stash 的正确使用姿势', desc: '掌握 stash push/pop/list/drop/apply。', url: 'docs/viewer.html?file=lesson-09-stash-usage.md' },
+                { id: 'lesson-10', title: '第一个 CI 工作流', desc: 'Gitea Actions 基础，理解 Workflow / Job / Step。', url: 'docs/viewer.html?file=lesson-10-first-ci-workflow.md' },
+                { id: 'lesson-11', title: '修复一个失败的 CI 流水线', desc: '学习阅读日志、定位问题、修复流水线。', url: 'docs/viewer.html?file=lesson-11-fix-broken-pipeline.md' },
+                { id: 'lesson-12', title: '多阶段流水线与 Secrets', desc: '学习多 Job 依赖、Secrets 使用。', url: 'docs/viewer.html?file=lesson-12-multi-stage-pipeline-and-secrets.md' },
+                { id: 'lesson-13', title: 'Git 标签与版本发布', desc: '掌握 tag 命令、语义化版本、GitHub Release。', url: 'docs/viewer.html?file=lesson-13-tags-and-releases.md' },
+                { id: 'lesson-14', title: '项目文件规范', desc: '学习 README、CONTRIBUTING、LICENSE 规范。', url: 'docs/viewer.html?file=lesson-14-project-files.md' },
+                { id: 'lesson-15', title: 'Git 钩子与自动化', desc: '掌握 pre-commit、Husky、commitlint。', url: 'docs/viewer.html?file=lesson-15-git-hooks.md' },
+                { id: 'lesson-16', title: 'Git 性能优化与大仓库', desc: '学习浅克隆、Git LFS、性能调优。', url: 'docs/viewer.html?file=lesson-16-large-repo.md' },
+                { id: 'lesson-17', title: '自动维护版本与 Changelog', desc: '掌握 Release Please 自动发布。', url: 'docs/viewer.html?file=lesson-17-release-automation.md' }
+            ],
+            // Git 命令
+            commands: [
+                { cmd: 'git init', desc: '初始化一个新的 Git 仓库', category: '基础' },
+                { cmd: 'git clone', desc: '克隆一个远程仓库到本地', category: '基础' },
+                { cmd: 'git status', desc: '查看工作区状态，显示已修改、已暂存、已删除的文件', category: '查看' },
+                { cmd: 'git add', desc: '将文件添加到暂存区，支持文件路径或目录', category: '基础' },
+                { cmd: 'git add -p', desc: '交互式添加，允许逐块选择文件修改', category: '进阶' },
+                { cmd: 'git commit', desc: '将暂存区的内容提交到本地仓库', category: '基础' },
+                { cmd: 'git commit -m', desc: '提交并附带提交信息', category: '基础' },
+                { cmd: 'git diff', desc: '显示文件修改的差异，对比工作区与暂存区', category: '查看' },
+                { cmd: 'git diff --staged', desc: '查看已暂存文件与上次提交的差异', category: '查看' },
+                { cmd: 'git log', desc: '查看提交历史记录', category: '查看' },
+                { cmd: 'git log --oneline', desc: '以简洁格式查看提交历史', category: '查看' },
+                { cmd: 'git restore', desc: '恢复文件到原始状态，可从暂存区或提交恢复', category: '修改' },
+                { cmd: 'git reset', desc: '撤销提交，可选择保留或丢弃修改', category: '修改' },
+                { cmd: 'git reset --soft', desc: '撤销提交，保留修改在暂存区', category: '修改' },
+                { cmd: 'git reset --hard', desc: '撤销提交并丢弃所有修改（危险操作）', category: '修改' },
+                { cmd: 'git remote', desc: '管理远程仓库连接', category: '远程' },
+                { cmd: 'git remote -v', desc: '查看远程仓库的 URL', category: '远程' },
+                { cmd: 'git fetch', desc: '从远程仓库获取最新数据但不合并', category: '远程' },
+                { cmd: 'git pull', desc: '从远程仓库获取并合并数据', category: '远程' },
+                { cmd: 'git push', desc: '将本地提交推送到远程仓库', category: '远程' },
+                { cmd: 'git branch', desc: '列出、创建或删除分支', category: '分支' },
+                { cmd: 'git branch -d', desc: '删除一个分支', category: '分支' },
+                { cmd: 'git switch', desc: '切换到另一个分支', category: '分支' },
+                { cmd: 'git switch -c', desc: '创建并切换到新分支', category: '分支' },
+                { cmd: 'git checkout', desc: '切换分支或恢复文件（较旧语法）', category: '分支' },
+                { cmd: 'git checkout -b', desc: '创建并切换到新分支（较旧语法）', category: '分支' },
+                { cmd: 'git merge', desc: '将一个分支合并到当前分支', category: '分支' },
+                { cmd: 'git rebase', desc: '变基，将提交重新应用到另一个分支上', category: '分支' },
+                { cmd: 'git rebase -i', desc: '交互式变基，可修改、压缩、删除提交', category: '进阶' },
+                { cmd: 'git cherry-pick', desc: '选择性地将某个提交应用到当前分支', category: '进阶' },
+                { cmd: 'git revert', desc: '创建一个新提交来撤销某个提交', category: '进阶' },
+                { cmd: 'git reflog', desc: '查看引用的操作历史，用于恢复误操作', category: '进阶' },
+                { cmd: 'git stash', desc: '临时保存未完成的修改', category: '进阶' },
+                { cmd: 'git stash push', desc: '保存当前工作区修改到stash', category: '进阶' },
+                { cmd: 'git stash pop', desc: '恢复stash并删除记录', category: '进阶' },
+                { cmd: 'git stash list', desc: '查看所有stash记录', category: '进阶' },
+                { cmd: 'git stash drop', desc: '删除指定的stash记录', category: '进阶' },
+                { cmd: 'git stash apply', desc: '应用stash但不删除记录', category: '进阶' },
+                { cmd: 'git tag', desc: '创建、列出或删除标签', category: '标签' },
+                { cmd: 'git tag -a', desc: '创建带注释的标签', category: '标签' },
+                { cmd: 'git tag -d', desc: '删除本地标签', category: '标签' },
+                { cmd: 'git rm', desc: '删除文件并暂存删除操作', category: '修改' },
+                { cmd: 'git mv', desc: '移动或重命名文件', category: '修改' },
+                { cmd: 'git config', desc: '配置 Git 选项，如用户名、邮箱、编辑器', category: '配置' },
+                { cmd: 'git config --global', desc: '配置全局 Git 选项（用户级）', category: '配置' },
+                { cmd: 'git show', desc: '显示提交、标签或Blob的详细信息', category: '查看' },
+                { cmd: 'git blame', desc: '逐行显示文件修改历史', category: '查看' },
+                { cmd: 'git grep', desc: '在版本库中搜索内容', category: '查看' }
+            ],
+            // 核心概念
+            concepts: [
+                { name: '工作区 (Working Directory)', desc: '项目文件所在的目录，是编辑文件的地方' },
+                { name: '暂存区 (Staging Area / Index)', desc: '存放即将提交的文件列表，也叫索引' },
+                { name: '本地仓库 (Local Repository)', desc: '存储在本地 .git 目录中的完整版本历史' },
+                { name: '远程仓库 (Remote Repository)', desc: '托管在服务器上的仓库，如 GitHub、Gitea' },
+                { name: '提交 (Commit)', desc: '对文件修改的快照，保存版本历史中的一个节点' },
+                { name: '分支 (Branch)', desc: '独立的开发线，允许并行工作而不影响主代码' },
+                { name: '合并 (Merge)', desc: '将两个或多个分支的修改合并到一起' },
+                { name: '变基 (Rebase)', desc: '将一系列提交重新应用到另一个分支上' },
+                { name: '冲突 (Conflict)', desc: '两个分支修改了同一处代码，需要手动解决' },
+                { name: '拉取请求 (Pull Request)', desc: '向他人请求将你的修改合并到主仓库' },
+                { name: '克隆 (Clone)', desc: '将远程仓库复制到本地' },
+                { name: '推送 (Push)', desc: '将本地提交发送到远程仓库' },
+                { name: '拉取 (Pull)', desc: '从远程仓库获取并合并到本地' },
+                { name: '获取 (Fetch)', desc: '从远程仓库获取最新数据但不合并' },
+                { name: '标签 (Tag)', desc: '给某个提交添加标记，通常用于版本发布' },
+                { name: ' HEAD', desc: '指向当前检出的分支或提交的指针' },
+                { name: 'origin', desc: '默认的远程仓库名称' },
+                { name: 'master / main', desc: '默认的主分支名称' },
+                { name: 'stash', desc: '临时保存未提交的修改，以便切换分支' },
+                { name: 'reflog', desc: '引用日志，记录所有 HEAD 和分支的变更' },
+                { name: 'SHA-1', desc: 'Git 用来标识每个提交的哈希值' },
+                { name: '对象数据库', desc: '存储提交、树对象、blob 的数据库' },
+                { name: 'Tree Object', desc: '表示目录结构的对象，关联 blob 和子目录' },
+                { name: 'Blob Object', desc: '存储文件内容的对象' },
+                { name: 'CI/CD', desc: '持续集成/持续部署，自动化构建和部署流程' },
+                { name: 'Workflow', desc: '工作流，定义 CI 流水线的 YAML 配置文件' },
+                { name: 'Job', desc: '工作流中的独立任务单元' },
+                { name: 'Step', desc: 'Job 中的具体步骤，如安装依赖、运行测试' },
+                { name: 'Secrets', desc: '敏感信息，如 API 密钥、密码' },
+                { name: 'Hook', desc: 'Git 钩子，在特定操作时执行的脚本' },
+                { name: 'pre-commit', desc: '提交前执行的钩子，用于代码检查' },
+                { name: 'SSH 密钥', desc: '安全外壳协议密钥，用于无密码认证' },
+                { name: '语义化版本 (SemVer)', desc: '版本号格式：主版本.次版本.补丁版本' },
+                { name: 'Git Flow', desc: '一种分支管理策略，包含主分支和开发分支' },
+                { name: '浅克隆 (Shallow Clone)', desc: '只获取最近历史的仓库副本' },
+                { name: 'Git LFS', desc: '大文件存储，处理二进制文件' },
+                { name: '交互式变基', desc: '可编辑、压缩、删除提交历史的变基方式' },
+                { name: 'Cherry-pick', desc: '选择单个提交应用到当前分支' },
+                { name: 'Revert', desc: '创建新提交来撤销某个提交' },
+                { name: 'Reset', desc: '移动 HEAD 和分支指针，可选择保留修改' }
+            ]
+        };
+
+        // DOM 元素
+        const searchInput = document.getElementById('searchInput');
+        const searchClear = document.getElementById('searchClear');
+        const searchResults = document.getElementById('searchResults');
+        const emptyState = document.getElementById('emptyState');
+        const keyboardHint = document.getElementById('keyboardHint');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // 状态
+        let currentResults = [];
+        let activeIndex = -1;
+
+        // 主题切换
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === 'dark' ? '\u2600' : '\u263E';
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+        initTheme();
+
+        // 搜索功能
+        function search(query) {
+            if (!query || query.trim() === '') {
+                currentResults = [];
+                activeIndex = -1;
+                renderEmptyState('输入关键词开始搜索');
+                return;
+            }
+
+            const q = query.toLowerCase().trim();
+            const results = {
+                courses: [],
+                commands: [],
+                concepts: []
+            };
+
+            // 搜索课程
+            searchData.courses.forEach(item => {
+                if (item.title.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)) {
+                    results.courses.push(item);
+                }
+            });
+
+            // 搜索命令
+            searchData.commands.forEach(item => {
+                if (item.cmd.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)) {
+                    results.commands.push(item);
+                }
+            });
+
+            // 搜索概念
+            searchData.concepts.forEach(item => {
+                if (item.name.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)) {
+                    results.concepts.push(item);
+                }
+            });
+
+            // 展平结果用于键盘导航
+            currentResults = [];
+            if (results.courses.length) currentResults.push({ type: 'courses', items: results.courses });
+            if (results.commands.length) currentResults.push({ type: 'commands', items: results.commands });
+            if (results.concepts.length) currentResults.push({ type: 'concepts', items: results.concepts });
+
+            // 计算总数
+            const total = results.courses.length + results.commands.length + results.concepts.length;
+
+            if (total === 0) {
+                renderEmptyState('未找到匹配的结果');
+            } else {
+                renderResults(results, total);
+            }
+
+            activeIndex = -1;
+            updateKeyboardHint();
+        }
+
+        function renderEmptyState(message) {
+            emptyState.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <p>${message}</p>
+            `;
+            searchResults.innerHTML = '';
+            searchResults.appendChild(emptyState);
+        }
+
+        function renderResults(results, total) {
+            let html = `<div class="search-stats">找到 ${total} 个结果</div>`;
+
+            // 课程结果
+            if (results.courses.length) {
+                html += `
+                    <div class="result-group">
+                        <div class="result-group-header">
+                            <svg class="result-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                            </svg>
+                            <span class="result-group-title">课程</span>
+                            <span class="result-group-count">${results.courses.length}</span>
+                        </div>
+                        <div class="result-list">
+                            ${results.courses.map((item, i) => `
+                                <a href="${item.url}" class="result-item" data-type="courses" data-index="${i}">
+                                    <div class="result-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(item.title)}</div>
+                                        <div class="result-desc">${highlightText(item.desc)}</div>
+                                    </div>
+                                    <svg class="result-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14"></path>
+                                        <path d="m12 5 7 7-7 7"></path>
+                                    </svg>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 命令结果
+            if (results.commands.length) {
+                html += `
+                    <div class="result-group">
+                        <div class="result-group-header">
+                            <svg class="result-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 17 10 11 4 5"></polyline>
+                                <line x1="12" y1="19" x2="20" y2="19"></line>
+                            </svg>
+                            <span class="result-group-title">命令</span>
+                            <span class="result-group-count">${results.commands.length}</span>
+                        </div>
+                        <div class="result-list">
+                            ${results.commands.map((item, i) => `
+                                <div class="result-item" data-type="commands" data-index="${i}">
+                                    <div class="result-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="4 17 10 11 4 5"></polyline>
+                                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                                        </svg>
+                                    </div>
+                                    <div class="result-content">
+                                        <div class="result-title">
+                                            <code>${highlightText(item.cmd)}</code>
+                                            <span class="result-tag">${item.category}</span>
+                                        </div>
+                                        <div class="result-desc">${highlightText(item.desc)}</div>
+                                    </div>
+                                    <svg class="result-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14"></path>
+                                        <path d="m12 5 7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 概念结果
+            if (results.concepts.length) {
+                html += `
+                    <div class="result-group">
+                        <div class="result-group-header">
+                            <svg class="result-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <path d="M12 17h.01"></path>
+                            </svg>
+                            <span class="result-group-title">概念</span>
+                            <span class="result-group-count">${results.concepts.length}</span>
+                        </div>
+                        <div class="result-list">
+                            ${results.concepts.map((item, i) => `
+                                <div class="result-item" data-type="concepts" data-index="${i}">
+                                    <div class="result-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                            <path d="M12 17h.01"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(item.name)}</div>
+                                        <div class="result-desc">${highlightText(item.desc)}</div>
+                                    </div>
+                                    <svg class="result-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14"></path>
+                                        <path d="m12 5 7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            searchResults.innerHTML = html;
+        }
+
+        function highlightText(text) {
+            const query = searchInput.value.trim();
+            if (!query) return text;
+            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+            return text.replace(regex, '<mark style="background: var(--accent-light); color: var(--accent-primary); padding: 0 2px; border-radius: 2px;">$1</mark>');
+        }
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // 键盘导航
+        function getAllResultItems() {
+            return document.querySelectorAll('.result-item');
+        }
+
+        function updateActiveItem(newIndex) {
+            const items = getAllResultItems();
+            if (items.length === 0) return;
+
+            // 移除旧的高亮
+            items.forEach(item => item.classList.remove('active'));
+
+            // 边界检查
+            if (newIndex < 0) newIndex = 0;
+            if (newIndex >= items.length) newIndex = items.length - 1;
+
+            activeIndex = newIndex;
+
+            // 添加新的高亮
+            const activeItem = items[activeIndex];
+            activeItem.classList.add('active');
+
+            // 滚动到可见区域
+            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function handleKeyDown(e) {
+            const totalItems = getAllResultItems().length;
+            if (totalItems === 0) return;
+
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (activeIndex < totalItems - 1) {
+                        updateActiveItem(activeIndex + 1);
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (activeIndex > 0) {
+                        updateActiveItem(activeIndex - 1);
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    const activeItem = document.querySelector('.result-item.active');
+                    if (activeItem && activeItem.tagName === 'A') {
+                        activeItem.click();
+                    } else if (activeItem) {
+                        // 对于非链接项（如命令和概念），复制到剪贴板或显示提示
+                        const title = activeItem.querySelector('.result-title');
+                        if (title) {
+                            const text = title.textContent || title.innerText;
+                            navigator.clipboard.writeText(text.trim()).then(() => {
+                                // 显示简短提示
+                                showToast('已复制到剪贴板');
+                            });
+                        }
+                    }
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    searchInput.value = '';
+                    searchInput.focus();
+                    searchClear.classList.remove('visible');
+                    search('');
+                    break;
+            }
+        }
+
+        function updateKeyboardHint() {
+            if (currentResults.length > 0) {
+                keyboardHint.classList.add('visible');
+            } else {
+                keyboardHint.classList.remove('visible');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                padding: 12px 24px;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                border: 1px solid var(--border-color);
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeIn 0.2s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 事件监听
+        searchInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            searchClear.classList.toggle('visible', value.length > 0);
+            search(value);
+        });
+
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.focus();
+            searchClear.classList.remove('visible');
+            search('');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            // 按 / 聚焦搜索框
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        searchInput.addEventListener('keydown', handleKeyDown);
+
+        // 初始化
+        renderEmptyState('输入关键词开始搜索');
+    </script>
+</body>
+</html>

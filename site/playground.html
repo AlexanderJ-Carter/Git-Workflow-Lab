@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 命令练习场 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gp-primary: #6366f1;
+            --gp-primary-dark: #4f46e5;
+            --gp-secondary: #8b5cf6;
+            --gp-success: #10b981;
+            --gp-warning: #f59e0b;
+            --gp-error: #ef4444;
+            --gp-bg: #0f172a;
+            --gp-bg-light: #1e293b;
+            --gp-border: #334155;
+            --gp-text: #f1f5f9;
+            --gp-text-muted: #94a3b8;
+            --gp-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--gp-bg);
+            color: var(--gp-text);
+            min-height: 100vh;
+        }
+
+        .gp-header {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gp-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .gp-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--gp-text);
+        }
+
+        .gp-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gp-primary), var(--gp-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+        }
+
+        .gp-logo-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .gp-logo-sub {
+            font-size: 12px;
+            color: var(--gp-text-muted);
+        }
+
+        .gp-nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        .gp-nav a {
+            color: var(--gp-text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .gp-nav a:hover {
+            color: var(--gp-text);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .gp-main {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            height: calc(100vh - 81px);
+        }
+
+        .gp-terminal {
+            background: var(--gp-bg);
+            border-right: 1px solid var(--gp-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .gp-terminal-header {
+            padding: 12px 16px;
+            background: var(--gp-bg-light);
+            border-bottom: 1px solid var(--gp-border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gp-terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .gp-terminal-dot.red { background: #ff5f56; }
+        .gp-terminal-dot.yellow { background: #ffbd2e; }
+        .gp-terminal-dot.green { background: #27c93f; }
+
+        .gp-terminal-title {
+            margin-left: 12px;
+            font-size: 13px;
+            color: var(--gp-text-muted);
+        }
+
+        .gp-terminal-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .gp-output-line {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .gp-output-line.prompt {
+            color: var(--gp-success);
+        }
+
+        .gp-output-line.error {
+            color: var(--gp-error);
+        }
+
+        .gp-output-line.info {
+            color: var(--gp-primary);
+        }
+
+        .gp-output-line.success {
+            color: var(--gp-success);
+        }
+
+        .gp-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--gp-bg-light);
+            border-top: 1px solid var(--gp-border);
+        }
+
+        .gp-prompt-symbol {
+            color: var(--gp-success);
+            font-weight: 600;
+        }
+
+        .gp-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--gp-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .gp-input::placeholder {
+            color: var(--gp-text-muted);
+        }
+
+        /* 侧边栏 */
+        .gp-sidebar {
+            background: var(--gp-bg-light);
+            overflow-y: auto;
+        }
+
+        .gp-sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--gp-border);
+        }
+
+        .gp-sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--gp-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gp-sidebar-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--gp-primary);
+        }
+
+        /* 快速命令 */
+        .gp-commands {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .gp-command-btn {
+            background: var(--gp-bg);
+            border: 1px solid var(--gp-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--gp-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .gp-command-btn:hover {
+            border-color: var(--gp-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* 常用命令列表 */
+        .gp-cmd-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .gp-cmd-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: var(--gp-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .gp-cmd-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .gp-cmd-item code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--gp-primary);
+        }
+
+        .gp-cmd-item span {
+            font-size: 12px;
+            color: var(--gp-text-muted);
+        }
+
+        /* Git 状态可视化 */
+        .gp-git-visual {
+            padding: 20px;
+            background: var(--gp-bg);
+            margin: 20px;
+            border-radius: var(--gp-radius);
+            border: 1px solid var(--gp-border);
+        }
+
+        .gp-visual-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--gp-text);
+        }
+
+        .gp-visual-area {
+            display: flex;
+            gap: 2px;
+            height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .gp-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .gp-area-header {
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .gp-area-content {
+            flex: 1;
+            padding: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            overflow: hidden;
+        }
+
+        .gp-area.working {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .gp-area.working .gp-area-header {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .gp-area.staging {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .gp-area.staging .gp-area-header {
+            background: rgba(99, 102, 241, 0.2);
+            color: #6366f1;
+        }
+
+        .gp-area.repo {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .gp-area.repo .gp-area-header {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .gp-file {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .gp-file.modified { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .gp-file.added { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .gp-file.deleted { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .gp-file.untracked { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+
+        .gp-branch-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--gp-bg-light);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .gp-branch-icon {
+            color: var(--gp-primary);
+        }
+
+        .gp-branch-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--gp-success);
+        }
+
+        .gp-hint {
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--gp-text-muted);
+            line-height: 1.6;
+        }
+
+        .gp-hint code {
+            color: var(--gp-primary);
+            background: rgba(99, 102, 241, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        @media (max-width: 900px) {
+            .gp-main {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .gp-terminal {
+                height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid var(--gp-border);
+            }
+
+            .gp-sidebar {
+                height: auto;
+            }
+
+            .gp-commands {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="gp-header">
+        <a href="index.html" class="gp-logo">
+            <div class="gp-logo-icon">G</div>
+            <div>
+                <div class="gp-logo-text">Git 命令练习场</div>
+                <div class="gp-logo-sub">Git Workflow Lab</div>
+            </div>
+        </a>
+        <nav class="gp-nav">
+            <a href="lessons/index.html">课程中心</a>
+            <a href="docs/viewer.html?file=lessons-overview.md">文档</a>
+            <a href="workspace.html">工作台</a>
+        </nav>
+    </header>
+
+    <main class="gp-main">
+        <section class="gp-terminal">
+            <div class="gp-terminal-header">
+                <span class="gp-terminal-dot red"></span>
+                <span class="gp-terminal-dot yellow"></span>
+                <span class="gp-terminal-dot green"></span>
+                <span class="gp-terminal-title">playground — bash</span>
+            </div>
+            <div class="gp-terminal-body" id="terminal-output">
+                <div class="gp-output-line info">欢迎使用 Git 命令练习场！</div>
+                <div class="gp-output-line">这是一个模拟的 Git 环境，用于学习 Git 命令。</div>
+                <div class="gp-output-line">输入 <code>help</code> 查看可用命令。</div>
+                <div class="gp-output-line">────────────────────────────</div>
+            </div>
+            <div class="gp-input-line">
+                <span class="gp-prompt-symbol">$</span>
+                <input type="text" class="gp-input" id="command-input" placeholder="输入 Git 命令..." autocomplete="off" autofocus>
+            </div>
+        </section>
+
+        <aside class="gp-sidebar">
+            <!-- Git 状态可视化 -->
+            <div class="gp-git-visual">
+                <div class="gp-visual-title">📊 Git 工作区状态</div>
+                <div class="gp-visual-area">
+                    <div class="gp-area working">
+                        <div class="gp-area-header">工作区</div>
+                        <div class="gp-area-content" id="working-area">
+                            <div class="gp-file untracked">README.md</div>
+                            <div class="gp-file modified">index.js</div>
+                        </div>
+                    </div>
+                    <div class="gp-area staging">
+                        <div class="gp-area-header">暂存区</div>
+                        <div class="gp-area-content" id="staging-area">
+                            <div class="gp-file added">style.css</div>
+                        </div>
+                    </div>
+                    <div class="gp-area repo">
+                        <div class="gp-area-header">本地仓库</div>
+                        <div class="gp-area-content" id="repo-area">
+                            <div class="gp-file">最新提交: abc1234</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gp-branch-info">
+                    <span class="gp-branch-icon">⎇</span>
+                    <span>当前分支:</span>
+                    <span class="gp-branch-name" id="current-branch">main</span>
+                </div>
+            </div>
+
+            <!-- 常用命令 -->
+            <div class="gp-sidebar-section">
+                <div class="gp-sidebar-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    基础命令
+                </div>
+                <div class="gp-cmd-list">
+                    <div class="gp-cmd-item" onclick="insertCommand('git status')">
+                        <code>git status</code>
+                        <span>查看状态</span>
+                    </div>
+                    <div class="gp-cmd-item" onclick="insertCommand('git add .')">
+                        <code>git add .</code>
+                        <span>暂存所有</span>
+                    </div>
+                    <div class="gp-cmd-item" onclick="insertCommand('git commit -m \"\"')">
+                        <code>git commit</code>
+                        <span>提交</span>
+                    </div>
+                    <div class="gp-cmd-item" onclick="insertCommand('git log --oneline')">
+                        <code>git log</code>
+                        <span>查看历史</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gp-sidebar-section">
+                <div class="gp-sidebar-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+                    分支操作
+                </div>
+                <div class="gp-cmd-list">
+                    <div class="gp-cmd-item" onclick="insertCommand('git branch')">
+                        <code>git branch</code>
+                        <span>列出分支</span>
+                    </div>
+                    <div class="gp-cmd-item" onclick="insertCommand('git checkout -b feature/')">
+                        <code>git checkout -b</code>
+                        <span>创建并切换</span>
+                    </div>
+                    <div class="gp-cmd-item" onclick="insertCommand('git merge ')">
+                        <code>git merge</code>
+                        <span>合并分支</span>
+                    </div>
+                    <div class="gp-cmd-item" onclick="insertCommand('git rebase ')">
+                        <code>git rebase</code>
+                        <span>变基</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gp-sidebar-section">
+                <div class="gp-hint">
+                    💡 <strong>小提示：</strong><br>
+                    点击侧边栏命令可自动插入。<br>
+                    输入 <code>help</code> 查看所有可用命令。<br>
+                    输入 <code>clear</code> 清空终端。
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // 模拟 Git 状态
+        const gitState = {
+            branch: 'main',
+            workingArea: ['README.md (修改)', 'index.js (修改)'],
+            stagingArea: ['style.css (新文件)'],
+            commits: [
+                { hash: 'abc1234', msg: 'feat: initial commit' },
+                { hash: 'def5678', msg: 'feat: add components' },
+                { hash: 'ghi9012', msg: 'fix: resolve conflicts' }
+            ]
+        };
+
+        const outputEl = document.getElementById('terminal-output');
+        const inputEl = document.getElementById('command-input');
+
+        // 模拟命令
+        const commands = {
+            'help': () => {
+                return `<span class="success">=== 可用命令 ===</span>
+<span class="info">git status</span>     - 查看工作区状态
+<span class="info">git add</span>      - 暂存文件
+<span class="info">git commit</span>   - 提交更改
+<span class="info">git log</span>      - 查看提交历史
+<span class="info">git branch</span>   - 查看/创建分支
+<span class="info">git checkout</span>  - 切换分支
+<span class="info">git merge</span>    - 合并分支
+<span class="info">git diff</span>      - 查看文件差异
+<span class="info">clear</span>         - 清空终端
+<span class="info">reset</span>         - 重置 Git 状态（模拟）`;
+            },
+
+            'git status': () => {
+                return `On branch <span class="success">${gitState.branch}</span>
+Changes not staged for commit:
+  <span class="error">(modified)</span>  ${gitState.workingArea.join('\n  ')}
+Untracked files:
+  <span class="info">(use "git add &lt;file&gt;..." to include in what will be committed)</span>
+  ${gitState.stagingArea.join('\n  ')}`;
+            },
+
+            'git add .': () => {
+                const files = [...gitState.workingArea];
+                gitState.stagingArea.push(...files);
+                gitState.workingArea = [];
+                return files.length > 0
+                    ? `Changes to be committed:\n  ${files.map(f => `<span class="success">new file:   ${f}</span>`).join('\n  ')}`
+                    : 'Nothing to commit.';
+            },
+
+            'git add': () => commands['git add .'](),
+
+            'git commit -m ""': () => {
+                return `<span class="error">错误:</span> 请提供提交信息\n用法: git commit -m "提交信息"`;
+            },
+
+            'git commit': (args) => {
+                if (gitState.stagingArea.length === 0) {
+                    return `<span class="error">错误:</span> 没有要提交的内容\n请先使用 <code>git add</code> 暂存文件。`;
+                }
+                const msg = args.find(a => a.startsWith('-m'))?.replace('-m', '').replace(/["']/g, '') || 'update';
+                const hash = Math.random().toString(16).substr(2, 7);
+                gitState.commits.unshift({ hash, msg });
+                gitState.stagingArea = [];
+                return `[${gitState.branch} ${hash}] ${msg}
+ Author: User <user@example.com>
+ Date:   ${new Date().toLocaleString()}
+
+ ${gitState.stagingArea.length} file changed`;
+            },
+
+            'git log': () => {
+                return gitState.commits.map(c =>
+                    `<span class="success">${c.hash}</span> ${c.msg}`
+                ).join('\n');
+            },
+
+            'git log --oneline': () => {
+                return gitState.commits.map(c =>
+                    `<span class="success">${c.hash}</span> ${c.msg}`
+                ).join('\n');
+            },
+
+            'git branch': () => {
+                return `  <span class="success">* main</span>
+  feature/login
+  feature/dashboard
+  bugfix/header`;
+            },
+
+            'git branch ': (args) => {
+                const name = args[0];
+                if (!name) return '用法: git branch &lt;分支名&gt;';
+                return `Created branch ${name}`;
+            },
+
+            'git checkout': (args) => {
+                if (args[0] === '-b') {
+                    const name = args[1];
+                    if (!name) return '用法: git checkout -b &lt;分支名&gt;';
+                    return `Switched to a new branch '${name}'`;
+                }
+                const branch = args[0];
+                if (!branch) return '用法: git checkout &lt;分支名&gt;';
+                gitState.branch = branch;
+                return `Switched to branch '${branch}'`;
+            },
+
+            'git checkout -b': (args) => {
+                const name = args[0];
+                if (!name) return '用法: git checkout -b &lt;分支名&gt;';
+                return `Switched to a new branch '${name}'`;
+            },
+
+            'git merge': (args) => {
+                const branch = args[0];
+                if (!branch) return '用法: git merge &lt;分支名&gt;';
+                return `Merge made by the 'recursive' strategy.`;
+            },
+
+            'git rebase': (args) => {
+                const branch = args[0];
+                if (!branch) return '用法: git rebase &lt;分支名&gt;';
+                return `Successfully rebased and updated refs/heads/${gitState.branch}.`;
+            },
+
+            'git diff': () => {
+                return `diff --git a/index.js b/index.js
+--- a/index.js
++++ b/index.js
+@@ -1,5 +1,6 @@
+ console.log('Hello World');
++console.log('New feature');
+ console.log('End');`;
+            },
+
+            'clear': () => {
+                outputEl.innerHTML = '';
+                return null;
+            },
+
+            'reset': () => {
+                gitState.branch = 'main';
+                gitState.workingArea = ['README.md (修改)', 'index.js (修改)'];
+                gitState.stagingArea = ['style.css (新文件)'];
+                return '<span class="success">✓ Git 状态已重置</span>';
+            }
+        };
+
+        // 输出到终端
+        function output(text) {
+            const line = document.createElement('div');
+            line.className = 'gp-output-line';
+            line.innerHTML = text || '&nbsp;';
+            outputEl.appendChild(line);
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+
+        // 执行命令
+        function execute(input) {
+            const trimmed = input.trim();
+            if (!trimmed) return;
+
+            output(`<span class="prompt">$</span> ${trimmed}`);
+
+            const parts = trimmed.split(/\s+/);
+            const cmd = parts[0];
+            const args = parts.slice(1);
+
+            if (cmd === 'git' && args.length > 0) {
+                const gitCmd = args.join(' ');
+                const handler = commands[gitCmd] || commands[`git ${args[0]}`];
+                if (handler) {
+                    output(handler(args.slice(1)));
+                } else {
+                    output(`<span class="error">git: '${args[0]}' 不是有效的 git 命令</span>`);
+                }
+            } else if (commands[trimmed]) {
+                const result = commands[trimmed]();
+                if (result) output(result);
+            } else {
+                output(`<span class="error">命令未找到: ${trimmed}</span>`);
+                output('输入 <code>help</code> 查看可用命令。');
+            }
+        }
+
+        // 插入命令
+        function insertCommand(cmd) {
+            inputEl.value = cmd;
+            inputEl.focus();
+        }
+
+        // 事件监听
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                execute(inputEl.value);
+                inputEl.value = '';
+            }
+        });
+
+        // 聚焦输入框
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.gp-sidebar') && !e.target.closest('.gp-input')) {
+                inputEl.focus();
+            }
+        });
+    </script>
+</body>
+</html>

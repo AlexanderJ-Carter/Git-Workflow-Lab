@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 命令速查表 - Git Workflow Lab</title>
+    <meta name="description" content="Git 命令速查表，包含基础命令、远程操作、分支操作、撤销操作等常用命令的完整参考。">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 页面特定样式 */
+        .page-header {
+            padding: 48px 0 32px;
+            text-align: center;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+                var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 搜索框 */
+        .search-container {
+            max-width: 600px;
+            margin: 24px auto 0;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            font-size: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-full);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all var(--transition-base);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* 标签页导航 */
+        .tabs-container {
+            position: sticky;
+            top: 64px;
+            z-index: 50;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 0 24px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tabs-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-button {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--radius-full);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background: var(--accent-light);
+            color: var(--accent-primary);
+        }
+
+        .tab-button.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* 标签页内容 */
+        .tabs-content {
+            padding: 32px 0 80px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .tab-panel-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-light);
+            border-radius: var(--radius-md);
+            font-size: 20px;
+        }
+
+        .tab-panel h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tab-panel p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* 命令卡片网格 */
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        /* 命令卡片 */
+        .command-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .command-card:hover {
+            border-color: var(--accent-light);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .command-card:hover::before {
+            opacity: 1;
+        }
+
+        .command-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .command-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+            color: white;
+        }
+
+        .copy-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .command-format {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--code-bg);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .command-format code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--code-text);
+            white-space: nowrap;
+        }
+
+        .command-format .prompt {
+            color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .command-params {
+            margin-bottom: 12px;
+        }
+
+        .command-params h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .param-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .param-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+        }
+
+        .param-tag code {
+            color: var(--accent-primary);
+            margin-right: 4px;
+        }
+
+        .command-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .command-examples {
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .command-examples h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .example-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .example-item code {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .example-item span {
+            color: var(--text-secondary);
+        }
+
+        /* 无结果提示 */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-results h3 {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        /* 分类统计 */
+        .category-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .stat-item strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 快捷键提示 */
+        .keyboard-hints {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 40;
+        }
+
+        .keyboard-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .keyboard-hint kbd {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 22px;
+            padding: 0 6px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-primary);
+        }
+
+        /* 页脚 */
+        footer {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .command-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .keyboard-hints {
+                display: none;
+            }
+
+            .tabs-container {
+                top: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <h1>Git 命令速查表</h1>
+            <p>常用 Git 命令的快速参考，包含命令格式、参数说明和使用示例</p>
+            <div class="search-container">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索命令、参数或描述...">
+            </div>
+            <div class="category-stats">
+                <span class="stat-item">基础命令: <strong id="basicCount">0</strong></span>
+                <span class="stat-item">远程操作: <strong id="remoteCount">0</strong></span>
+                <span class="stat-item">分支操作: <strong id="branchCount">0</strong></span>
+                <span class="stat-item">撤销操作: <strong id="undoCount">0</strong></span>
+                <span class="stat-item">标签操作: <strong id="tagCount">0</strong></span>
+                <span class="stat-item">查看操作: <strong id="showCount">0</strong></span>
+                <span class="stat-item">配置命令: <strong id="configCount">0</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="tabs-container">
+        <div class="container">
+            <div class="tabs-nav" role="tablist">
+                <button class="tab-button active" data-tab="basic" role="tab" aria-selected="true">
+                    基础命令
+                </button>
+                <button class="tab-button" data-tab="remote" role="tab" aria-selected="false">
+                    远程操作
+                </button>
+                <button class="tab-button" data-tab="branch" role="tab" aria-selected="false">
+                    分支操作
+                </button>
+                <button class="tab-button" data-tab="undo" role="tab" aria-selected="false">
+                    撤销操作
+                </button>
+                <button class="tab-button" data-tab="tag" role="tab" aria-selected="false">
+                    标签操作
+                </button>
+                <button class="tab-button" data-tab="show" role="tab" aria-selected="false">
+                    查看操作
+                </button>
+                <button class="tab-button" data-tab="config" role="tab" aria-selected="false">
+                    配置命令
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container tabs-content">
+        <!-- 基础命令 -->
+        <div class="tab-panel active" id="basic" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">📁</div>
+                <h2>基础命令</h2>
+            </div>
+            <p>Git 最常用的基础操作命令，用于初始化仓库、提交更改等。</p>
+            <div class="command-grid" id="basicCommands"></div>
+        </div>
+
+        <!-- 远程操作 -->
+        <div class="tab-panel" id="remote" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">☁️</div>
+                <h2>远程操作</h2>
+            </div>
+            <p>管理与远程仓库的连接、推送和拉取代码。</p>
+            <div class="command-grid" id="remoteCommands"></div>
+        </div>
+
+        <!-- 分支操作 -->
+        <div class="tab-panel" id="branch" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">🌿</div>
+                <h2>分支操作</h2>
+            </div>
+            <p>创建、切换、合并和删除分支的命令。</p>
+            <div class="command-grid" id="branchCommands"></div>
+        </div>
+
+        <!-- 撤销操作 -->
+        <div class="tab-panel" id="undo" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">↩️</div>
+                <h2>撤销操作</h2>
+            </div>
+            <p>撤销更改、恢复文件和储藏工作进度。</p>
+            <div class="command-grid" id="undoCommands"></div>
+        </div>
+
+        <!-- 标签操作 -->
+        <div class="tab-panel" id="tag" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">🏷️</div>
+                <h2>标签操作</h2>
+            </div>
+            <p>创建和管理版本标签，用于标记发布版本。</p>
+            <div class="command-grid" id="tagCommands"></div>
+        </div>
+
+        <!-- 查看操作 -->
+        <div class="tab-panel" id="show" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">🔍</div>
+                <h2>查看操作</h2>
+            </div>
+            <p>查看提交历史、文件差异和引用日志。</p>
+            <div class="command-grid" id="showCommands"></div>
+        </div>
+
+        <!-- 配置命令 -->
+        <div class="tab-panel" id="config" role="tabpanel">
+            <div class="tab-panel-header">
+                <div class="tab-panel-icon">⚙️</div>
+                <h2>配置命令</h2>
+            </div>
+            <p>配置 Git 选项，包括用户信息、别名等。</p>
+            <div class="command-grid" id="configCommands"></div>
+        </div>
+
+        <!-- 无结果提示 -->
+        <div class="no-results" id="noResults" style="display: none;">
+            <div class="no-results-icon">🔍</div>
+            <h3>未找到匹配的命令</h3>
+            <p>请尝试其他关键词</p>
+        </div>
+    </main>
+
+    <div class="keyboard-hints">
+        <div class="keyboard-hint">
+            <kbd>/</kbd>
+            <span>聚焦搜索</span>
+        </div>
+        <div class="keyboard-hint">
+            <kbd>1-7</kbd>
+            <span>切换标签页</span>
+        </div>
+        <div class="keyboard-hint">
+            <kbd>Esc</kbd>
+            <span>清除搜索</span>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Git Workflow Lab · <a href="./index.html">返回首页</a></p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js" defer></script>
+    <script>
+        // Git 命令数据
+        const gitCommands = {
+            basic: [
+                {
+                    name: 'git init',
+                    format: 'git init [directory]',
+                    params: [
+                        { flag: '', desc: '当前目录' },
+                        { flag: '-b', desc: '设置初始分支名' },
+                        { flag: '--template', desc: '指定模板目录' }
+                    ],
+                    description: '在指定目录初始化一个新的 Git 仓库。如果不指定目录，则在当前目录初始化。',
+                    examples: [
+                        { code: 'git init', desc: '在当前目录初始化仓库' },
+                        { code: 'git init my-project', desc: '创建并初始化 my-project 目录' },
+                        { code: 'git init -b main', desc: '初始化并设置主分支名为 main' }
+                    ]
+                },
+                {
+                    name: 'git clone',
+                    format: 'git clone <repository> [directory]',
+                    params: [
+                        { flag: '--depth', desc: '浅克隆，指定历史深度' },
+                        { flag: '-b', desc: '指定克隆的分支' },
+                        { flag: '--single-branch', desc: '只克隆单个分支' },
+                        { flag: '--recursive', desc: '递归克隆子模块' }
+                    ],
+                    description: '克隆一个远程仓库到本地指定目录。',
+                    examples: [
+                        { code: 'git clone https://github.com/user/repo.git', desc: '克隆仓库到当前目录' },
+                        { code: 'git clone url my-folder', desc: '克隆到 my-folder 目录' },
+                        { code: 'git clone --depth 1 url', desc: '浅克隆，只获取最新版本' }
+                    ]
+                },
+                {
+                    name: 'git status',
+                    format: 'git status [options]',
+                    params: [
+                        { flag: '-s', desc: '简短输出格式' },
+                        { flag: '-b', desc: '显示分支信息' },
+                        { flag: '--short', desc: '同 -s' }
+                    ],
+                    description: '显示工作区的当前状态，包括已修改、已暂存和未跟踪的文件。',
+                    examples: [
+                        { code: 'git status', desc: '查看完整状态' },
+                        { code: 'git status -s', desc: '简短格式输出' },
+                        { code: 'git status -sb', desc: '简短格式 + 分支信息' }
+                    ]
+                },
+                {
+                    name: 'git add',
+                    format: 'git add <pathspec>',
+                    params: [
+                        { flag: '-A', desc: '添加所有文件' },
+                        { flag: '-p', desc: '交互式选择更改' },
+                        { flag: '-u', desc: '只添加已跟踪文件' },
+                        { flag: '.', desc: '添加当前目录所有文件' }
+                    ],
+                    description: '将文件内容添加到暂存区，准备提交。',
+                    examples: [
+                        { code: 'git add file.txt', desc: '添加指定文件' },
+                        { code: 'git add .', desc: '添加所有修改' },
+                        { code: 'git add -A', desc: '添加所有文件（包括删除）' },
+                        { code: 'git add *.js', desc: '添加所有 JS 文件' }
+                    ]
+                },
+                {
+                    name: 'git commit',
+                    format: 'git commit [options] [-m <msg>]',
+                    params: [
+                        { flag: '-m', desc: '提交信息' },
+                        { flag: '-a', desc: '自动暂存已跟踪文件' },
+                        { flag: '--amend', desc: '修改最后一次提交' },
+                        { flag: '--no-edit', desc: '不修改提交信息' }
+                    ],
+                    description: '将暂存区的更改提交到本地仓库。',
+                    examples: [
+                        { code: 'git commit -m "提交信息"', desc: '提交并添加信息' },
+                        { code: 'git commit -am "信息"', desc: '暂存并提交（仅已跟踪文件）' },
+                        { code: 'git commit --amend', desc: '修改最后一次提交' },
+                        { code: 'git commit -m "信息" --no-verify', desc: '跳过 hooks 提交' }
+                    ]
+                },
+                {
+                    name: 'git diff',
+                    format: 'git diff [options] [<commit>] [--] [<path>]',
+                    params: [
+                        { flag: '--staged', desc: '查看暂存区差异' },
+                        { flag: '--stat', desc: '显示统计信息' },
+                        { flag: '--name-only', desc: '只显示文件名' },
+                        { flag: '--color', desc: '输出颜色' }
+                    ],
+                    description: '显示文件之间的差异，可用于比较工作区、暂存区和提交之间的差异。',
+                    examples: [
+                        { code: 'git diff', desc: '查看工作区与暂存区差异' },
+                        { code: 'git diff --staged', desc: '查看暂存区与最后一次提交差异' },
+                        { code: 'git diff HEAD', desc: '查看工作区与最后一次提交差异' },
+                        { code: 'git diff commit1 commit2', desc: '比较两次提交' }
+                    ]
+                },
+                {
+                    name: 'git log',
+                    format: 'git log [options] [<range>] [[--] <path>]',
+                    params: [
+                        { flag: '--oneline', desc: '单行显示' },
+                        { flag: '--graph', desc: '显示分支图' },
+                        { flag: '-n', desc: '显示最近 n 条' },
+                        { flag: '--author', desc: '按作者筛选' }
+                    ],
+                    description: '查看提交历史记录。',
+                    examples: [
+                        { code: 'git log', desc: '查看完整提交历史' },
+                        { code: 'git log --oneline', desc: '单行简洁格式' },
+                        { code: 'git log -5', desc: '查看最近 5 条' },
+                        { code: 'git log --graph --oneline', desc: '图形化分支历史' }
+                    ]
+                }
+            ],
+            remote: [
+                {
+                    name: 'git remote',
+                    format: 'git remote [command] [name] [url]',
+                    params: [
+                        { flag: '-v', desc: '显示 URL' },
+                        { flag: 'add', desc: '添加远程仓库' },
+                        { flag: 'remove', desc: '删除远程仓库' },
+                        { flag: 'rename', desc: '重命名远程仓库' }
+                    ],
+                    description: '管理远程仓库连接。',
+                    examples: [
+                        { code: 'git remote -v', desc: '查看所有远程仓库' },
+                        { code: 'git remote add origin url', desc: '添加远程仓库 origin' },
+                        { code: 'git remote remove origin', desc: '删除远程仓库' },
+                        { code: 'git remote rename origin upstream', desc: '重命名' }
+                    ]
+                },
+                {
+                    name: 'git push',
+                    format: 'git push [remote] [branch] [options]',
+                    params: [
+                        { flag: '-u', desc: '设置上游分支' },
+                        { flag: '--force', desc: '强制推送' },
+                        { flag: '--tags', desc: '推送所有标签' },
+                        { flag: '--delete', desc: '删除远程分支' }
+                    ],
+                    description: '将本地提交推送到远程仓库。',
+                    examples: [
+                        { code: 'git push origin main', desc: '推送到远程 main 分支' },
+                        { code: 'git push -u origin feature', desc: '推送并设置上游' },
+                        { code: 'git push --force', desc: '强制推送（慎用）' },
+                        { code: 'git push origin --delete old-branch', desc: '删除远程分支' }
+                    ]
+                },
+                {
+                    name: 'git pull',
+                    format: 'git pull [remote] [branch] [options]',
+                    params: [
+                        { flag: '--rebase', desc: '使用 rebase 合并' },
+                        { flag: '--no-commit', desc: '不自动提交' },
+                        { flag: '--ff-only', desc: '仅快进合并' }
+                    ],
+                    description: '从远程仓库获取并合并到当前分支，相当于 fetch + merge。',
+                    examples: [
+                        { code: 'git pull', desc: '拉取当前分支上游' },
+                        { code: 'git pull origin main', desc: '拉取 origin/main' },
+                        { code: 'git pull --rebase', desc: '使用 rebase 拉取' }
+                    ]
+                },
+                {
+                    name: 'git fetch',
+                    format: 'git fetch [remote] [branch] [options]',
+                    params: [
+                        { flag: '--all', desc: '获取所有远程' },
+                        { flag: '--prune', desc: '清理已删除的远程分支' },
+                        { flag: '--tags', desc: '获取所有标签' }
+                    ],
+                    description: '从远程仓库获取最新数据，但不合并到本地分支。',
+                    examples: [
+                        { code: 'git fetch', desc: '获取当前远程' },
+                        { code: 'git fetch --all', desc: '获取所有远程' },
+                        { code: 'git fetch --prune', desc: '获取并清理' }
+                    ]
+                }
+            ],
+            branch: [
+                {
+                    name: 'git branch',
+                    format: 'git branch [command] [options] [branch-name]',
+                    params: [
+                        { flag: '-a', desc: '显示所有分支' },
+                        { flag: '-d', desc: '删除分支' },
+                        { flag: '-D', desc: '强制删除' },
+                        { flag: '-m', desc: '重命名分支' },
+                        { flag: '-r', desc: '显示远程分支' }
+                    ],
+                    description: '列出、创建、删除分支。',
+                    examples: [
+                        { code: 'git branch', desc: '列出本地分支' },
+                        { code: 'git branch -a', desc: '列出所有分支' },
+                        { code: 'git branch feature', desc: '创建新分支' },
+                        { code: 'git branch -d feature', desc: '删除分支' }
+                    ]
+                },
+                {
+                    name: 'git checkout',
+                    format: 'git checkout [options] <branch|file>',
+                    params: [
+                        { flag: '-b', desc: '创建并切换分支' },
+                        { flag: '-B', desc: '强制创建/重置分支' },
+                        { flag: '--', desc: '分隔分支和文件' }
+                    ],
+                    description: '切换分支或恢复工作区文件。（Git 2.23+ 推荐使用 git switch）',
+                    examples: [
+                        { code: 'git checkout main', desc: '切换到 main 分支' },
+                        { code: 'git checkout -b feature', desc: '创建并切换到新分支' },
+                        { code: 'git checkout -- file', desc: '恢复文件' },
+                        { code: 'git checkout -b fix origin/main', desc: '基于远程分支创建' }
+                    ]
+                },
+                {
+                    name: 'git switch',
+                    format: 'git switch [options] <branch>',
+                    params: [
+                        { flag: '-c', desc: '创建并切换分支' },
+                        { flag: '-C', desc: '强制创建/重置' },
+                        { flag: '--detach', desc: '切换到分离 HEAD' }
+                    ],
+                    description: '切换分支（Git 2.23+ 推荐，更清晰的命令名）。',
+                    examples: [
+                        { code: 'git switch main', desc: '切换到 main 分支' },
+                        { code: 'git switch -c feature', desc: '创建并切换到新分支' },
+                        { code: 'git switch -c fix origin/dev', desc: '基于远程分支创建' }
+                    ]
+                },
+                {
+                    name: 'git merge',
+                    format: 'git merge [options] <branch>',
+                    params: [
+                        { flag: '--no-ff', desc: '禁用快进合并' },
+                        { flag: '--squash', desc: '压缩合并' },
+                        { flag: '--abort', desc: '中止合并' },
+                        { flag: '-m', desc: '提交信息' }
+                    ],
+                    description: '将指定分支合并到当前分支。',
+                    examples: [
+                        { code: 'git merge feature', desc: '合并 feature 到当前分支' },
+                        { code: 'git merge --no-ff feature', desc: '禁止快进，保留合并历史' },
+                        { code: 'git merge --abort', desc: '取消合并' }
+                    ]
+                },
+                {
+                    name: 'git rebase',
+                    format: 'git rebase [options] <upstream> [<branch>]',
+                    params: [
+                        { flag: '-i', desc: '交互式变基' },
+                        { flag: '--onto', desc: '指定新基础' },
+                        { flag: '--abort', desc: '中止变基' },
+                        { flag: '--continue', desc: '继续变基' }
+                    ],
+                    description: '将提交重新应用到另一个分支之上，产生线性历史。',
+                    examples: [
+                        { code: 'git rebase main', desc: '将当前分支变基到 main' },
+                        { code: 'git rebase -i HEAD~3', desc: '交互式变基最近 3 个提交' },
+                        { code: 'git rebase --abort', desc: '取消变基' },
+                        { code: 'git rebase --continue', desc: '解决冲突后继续' }
+                    ]
+                }
+            ],
+            undo: [
+                {
+                    name: 'git reset',
+                    format: 'git reset [mode] [<commit>]',
+                    params: [
+                        { flag: '--soft', desc: '保留工作区和暂存区' },
+                        { flag: '--mixed', desc: '保留工作区（默认）' },
+                        { flag: '--hard', desc: '重置所有内容' }
+                    ],
+                    description: '撤销提交或暂存的文件，可选择保留或丢弃更改。',
+                    examples: [
+                        { code: 'git reset --soft HEAD~1', desc: '撤销最后一次提交，保留暂存' },
+                        { code: 'git reset HEAD~1', desc: '撤销提交，保留更改在工作区' },
+                        { code: 'git reset --hard HEAD~1', desc: '撤销提交，丢弃所有更改' },
+                        { code: 'git reset file.txt', desc: '取消暂存文件' }
+                    ]
+                },
+                {
+                    name: 'git revert',
+                    format: 'git revert [<options>] <commit>',
+                    params: [
+                        { flag: '-n', desc: '不自动提交' },
+                        { flag: '-m', desc: '选择主父提交' }
+                    ],
+                    description: '创建一个新提交来撤销指定提交的操作，会保留历史记录。',
+                    examples: [
+                        { code: 'git revert abc123', desc: '撤销指定提交' },
+                        { code: 'git revert HEAD', desc: '撤销最后一次提交' },
+                        { code: 'git revert -n HEAD~3..HEAD', desc: '撤销最近 3 个提交' }
+                    ]
+                },
+                {
+                    name: 'git restore',
+                    format: 'git restore [options] <path>',
+                    params: [
+                        { flag: '--staged', desc: '取消暂存' },
+                        { flag: '--worktree', desc: '恢复工作区' },
+                        { flag: '-s', desc: '从指定提交恢复' }
+                    ],
+                    description: '恢复工作区文件或取消暂存（Git 2.23+ 推荐）。',
+                    examples: [
+                        { code: 'git restore file.txt', desc: '恢复文件到 HEAD' },
+                        { code: 'git restore --staged file.txt', desc: '取消暂存文件' },
+                        { code: 'git restore -s HEAD~1 file', desc: '从上一个提交恢复文件' }
+                    ]
+                },
+                {
+                    name: 'git stash',
+                    format: 'git stash [command] [options]',
+                    params: [
+                        { flag: 'push', desc: '储藏更改（默认）' },
+                        { flag: 'pop', desc: '应用并删除储藏' },
+                        { flag: 'apply', desc: '应用储藏（保留）' },
+                        { flag: 'list', desc: '列出储藏' },
+                        { flag: 'drop', desc: '删除储藏' }
+                    ],
+                    description: '临时保存未提交的工作进度，以便切换分支。',
+                    examples: [
+                        { code: 'git stash', desc: '储藏当前更改' },
+                        { code: 'git stash push -m "message"', desc: '带信息储藏' },
+                        { code: 'git stash pop', desc: '恢复并删除最新储藏' },
+                        { code: 'git stash apply stash@{0}', desc: '应用指定储藏' },
+                        { code: 'git stash list', desc: '查看储藏列表' }
+                    ]
+                }
+            ],
+            tag: [
+                {
+                    name: 'git tag',
+                    format: 'git tag [command] [options] [tagname] [commit]',
+                    params: [
+                        { flag: '-a', desc: '创建附注标签' },
+                        { flag: '-m', desc: '标签信息' },
+                        { flag: '-d', desc: '删除标签' },
+                        { flag: '-l', desc: '列出标签' }
+                    ],
+                    description: '创建、列出、删除标签，通常用于标记发布版本。',
+                    examples: [
+                        { code: 'git tag v1.0', desc: '创建轻量标签' },
+                        { code: 'git tag -a v1.0 -m "版本1.0"', desc: '创建附注标签' },
+                        { code: 'git tag -l "v1.*"', desc: '列出 v1.x 版本标签' },
+                        { code: 'git tag -d v1.0', desc: '删除本地标签' }
+                    ]
+                },
+                {
+                    name: 'git release',
+                    format: '通过 GitHub CLI 或手动创建',
+                    params: [
+                        { flag: 'gh release create', desc: '创建 GitHub Release' },
+                        { flag: '--title', desc: '发布标题' },
+                        { flag: '--notes', desc: '发布说明' }
+                    ],
+                    description: '创建发布版本，通常结合标签使用。需使用 GitHub CLI (gh) 或手动在 GitHub 界面创建。',
+                    examples: [
+                        { code: 'gh release create v1.0 --title "v1.0"', desc: '创建 GitHub Release' },
+                        { code: 'gh release create v1.0 --notes-file CHANGELOG.md', desc: '从文件添加发布说明' },
+                        { code: 'gh release list', desc: '列出所有发布' }
+                    ]
+                }
+            ],
+            show: [
+                {
+                    name: 'git show',
+                    format: 'git show [options] <object>',
+                    params: [
+                        { flag: '--stat', desc: '显示统计信息' },
+                        { flag: '--name-only', desc: '只显示文件名' },
+                        { flag: '--format', desc: '格式化输出' }
+                    ],
+                    description: '显示提交、标签等 Git 对象的详细信息。',
+                    examples: [
+                        { code: 'git show HEAD', desc: '显示最后一次提交' },
+                        { code: 'git show abc123', desc: '显示指定提交' },
+                        { code: 'git show --stat HEAD', desc: '显示提交及统计' },
+                        { code: 'git show v1.0:file.txt', desc: '查看标签对应的文件' }
+                    ]
+                },
+                {
+                    name: 'git reflog',
+                    format: 'git reflog [show] [options]',
+                    params: [
+                        { flag: '-n', desc: '显示条数' },
+                        { flag: '--date', desc: '日期格式' }
+                    ],
+                    description: '显示引用的操作历史，可用于恢复误操作后的提交。',
+                    examples: [
+                        { code: 'git reflog', desc: '查看 HEAD 引用日志' },
+                        { code: 'git reflog -20', desc: '查看最近 20 条' },
+                        { code: 'git reflog show feature', desc: '查看分支引用日志' },
+                        { code: 'git checkout HEAD@{2}', desc: '恢复到指定历史' }
+                    ]
+                },
+                {
+                    name: 'git shortlog',
+                    format: 'git shortlog [options] [<revision range>]',
+                    params: [
+                        { flag: '-n', desc: '按提交数排序' },
+                        { flag: '-s', desc: '只显示提交数' },
+                        { flag: '-e', desc: '显示邮箱' }
+                    ],
+                    description: '按作者分组显示提交概要，常用于生成发布公告。',
+                    examples: [
+                        { code: 'git shortlog', desc: '按作者分组显示' },
+                        { code: 'git shortlog -n', desc: '按提交数排序' },
+                        { code: 'git shortlog -sn', desc: '只显示提交数统计' },
+                        { code: 'git shortlog v1.0..v2.0', desc: '版本间提交统计' }
+                    ]
+                }
+            ],
+            config: [
+                {
+                    name: 'git config',
+                    format: 'git config [level] [option] [value]',
+                    params: [
+                        { flag: '--local', desc: '仓库级配置' },
+                        { flag: '--global', desc: '用户级配置' },
+                        { flag: '--system', desc: '系统级配置' },
+                        { flag: '--list', desc: '列出配置' },
+                        { flag: '--unset', desc: '删除配置' }
+                    ],
+                    description: '配置 Git 选项，包括用户信息、别名、行为等。',
+                    examples: [
+                        { code: 'git config --global user.name "姓名"', desc: '设置用户名' },
+                        { code: 'git config --global user.email "邮箱"', desc: '设置邮箱' },
+                        { code: 'git config --global alias.st status', desc: '设置别名' },
+                        { code: 'git config --list', desc: '列出所有配置' }
+                    ]
+                },
+                {
+                    name: 'git --global',
+                    format: 'git config --global <option> <value>',
+                    params: [
+                        { flag: 'user.name', desc: '全局用户名' },
+                        { flag: 'user.email', desc: '全局邮箱' },
+                        { flag: 'core.editor', desc: '默认编辑器' },
+                        { flag: 'init.defaultBranch', desc: '默认分支名' }
+                    ],
+                    description: '--global 选项用于设置全局配置，作用于当前用户的所有仓库。',
+                    examples: [
+                        { code: 'git config --global user.name "张三"', desc: '设置全局用户名' },
+                        { code: 'git config --global core.editor vim', desc: '设置默认编辑器' },
+                        { code: 'git config --global init.defaultBranch main', desc: '设置默认分支名' },
+                        { code: 'git config --global --list', desc: '查看全局配置' }
+                    ]
+                }
+            ]
+        };
+
+        // 创建命令卡片
+        function createCommandCard(command) {
+            const card = document.createElement('div');
+            card.className = 'command-card';
+            card.dataset.name = command.name.toLowerCase();
+            card.dataset.description = command.description.toLowerCase();
+            card.dataset.examples = command.examples.map(e => e.code + ' ' + e.desc).join(' ').toLowerCase();
+
+            const paramsHtml = command.params.map(p =>
+                `<span class="param-tag"><code>${p.flag}</code>${p.desc}</span>`
+            ).join('');
+
+            const examplesHtml = command.examples.map(e =>
+                `<div class="example-item"><code>${e.code}</code><span>${e.desc}</span></div>`
+            ).join('');
+
+            card.innerHTML = `
+                <div class="command-card-header">
+                    <span class="command-name">${command.name}</span>
+                    <button class="copy-btn" data-command="${command.format}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <div class="command-format">
+                    <span class="prompt">$</span>
+                    <code>${command.format}</code>
+                </div>
+                <div class="command-params">
+                    <h4>常用参数</h4>
+                    <div class="param-list">${paramsHtml}</div>
+                </div>
+                <p class="command-description">${command.description}</p>
+                <div class="command-examples">
+                    <h4>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                        示例
+                    </h4>
+                    ${examplesHtml}
+                </div>
+            `;
+
+            return card;
+        }
+
+        // 初始化所有命令卡片
+        function initCommands() {
+            const counts = { basic: 0, remote: 0, branch: 0, undo: 0, tag: 0, show: 0, config: 0 };
+
+            Object.keys(gitCommands).forEach(category => {
+                const container = document.getElementById(category + 'Commands');
+                if (!container) return;
+
+                gitCommands[category].forEach(command => {
+                    container.appendChild(createCommandCard(command));
+                    counts[category]++;
+                });
+            });
+
+            // 更新统计
+            document.getElementById('basicCount').textContent = counts.basic;
+            document.getElementById('remoteCount').textContent = counts.remote;
+            document.getElementById('branchCount').textContent = counts.branch;
+            document.getElementById('undoCount').textContent = counts.undo;
+            document.getElementById('tagCount').textContent = counts.tag;
+            document.getElementById('showCount').textContent = counts.show;
+            document.getElementById('configCount').textContent = counts.config;
+        }
+
+        // 标签页切换
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+
+                    tabPanels.forEach(panel => {
+                        panel.classList.remove('active');
+                    });
+
+                    button.classList.add('active');
+                    button.setAttribute('aria-selected', 'true');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+        }
+
+        // 搜索功能
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const cards = document.querySelectorAll('.command-card');
+            const noResults = document.getElementById('noResults');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                let visibleCount = 0;
+                let hasVisibleTab = false;
+
+                tabPanels.forEach(panel => {
+                    const panelCards = panel.querySelectorAll('.command-card');
+                    let panelVisibleCount = 0;
+
+                    panelCards.forEach(card => {
+                        const name = card.dataset.name;
+                        const desc = card.dataset.description;
+                        const examples = card.dataset.examples;
+
+                        if (!query || name.includes(query) || desc.includes(query) || examples.includes(query)) {
+                            card.style.display = 'block';
+                            panelVisibleCount++;
+                            visibleCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    if (panelVisibleCount > 0) {
+                        panel.style.display = 'block';
+                        hasVisibleTab = true;
+                    } else {
+                        panel.style.display = 'none';
+                    }
+                });
+
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+
+                // 更新标签页按钮状态
+                const tabButtons = document.querySelectorAll('.tab-button');
+                tabButtons.forEach((btn, index) => {
+                    const panel = tabPanels[index];
+                    if (panel.style.display !== 'none') {
+                        btn.style.display = 'inline-flex';
+                    } else {
+                        btn.style.display = 'none';
+                    }
+                });
+            });
+
+            // 键盘快捷键
+            document.addEventListener('keydown', (e) => {
+                // 聚焦搜索框
+                if (e.key === '/' && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+
+                // 清除搜索
+                if (e.key === 'Escape' && document.activeElement === searchInput) {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.blur();
+                }
+
+                // 数字键切换标签页
+                if (e.key >= '1' && e.key <= '7' && document.activeElement !== searchInput) {
+                    const index = parseInt(e.key) - 1;
+                    const buttons = document.querySelectorAll('.tab-button');
+                    if (buttons[index]) {
+                        buttons[index].click();
+                    }
+                }
+            });
+        }
+
+        // 复制功能
+        function initCopy() {
+            document.addEventListener('click', async (e) => {
+                const copyBtn = e.target.closest('.copy-btn');
+                if (!copyBtn) return;
+
+                const command = copyBtn.dataset.command;
+                try {
+                    await navigator.clipboard.writeText(command);
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        已复制
+                    `;
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = `
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            复制
+                        `;
+                    }, 2000);
+                } catch (err) {
+                    console.error('复制失败:', err);
+                }
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initCommands();
+            initTabs();
+            initSearch();
+            initCopy();
+        });
+    </script>
+</body>
+</html>

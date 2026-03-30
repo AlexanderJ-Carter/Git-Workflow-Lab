@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏中心 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 游戏化页面样式 */
+        .gamification-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hero 区域 */
+        .game-hero {
+            padding: 80px 0 60px;
+            text-align: center;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08), transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1), transparent 40%),
+                var(--bg-secondary);
+            position: relative;
+        }
+
+        .game-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .game-hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .game-hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 用户信息头部 */
+        .user-header {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+        }
+
+        .user-header-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            position: relative;
+        }
+
+        .level-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+        }
+
+        .user-stats {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .user-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .exp-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .exp-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .exp-bar-container {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .exp-bar-bg {
+            height: 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .exp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-full);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .exp-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quick-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .quick-stat {
+            text-align: center;
+        }
+
+        .quick-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .quick-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 主要内容区域 */
+        .game-content {
+            padding: 0 0 80px;
+            flex: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* 卡片通用样式 */
+        .game-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title-icon {
+            font-size: 20px;
+        }
+
+        .card-badge {
+            background: var(--accent-light);
+            color: var(--accent-primary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+        }
+
+        /* 每日任务 */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+
+        .task-item.completed {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .task-checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .task-item.completed .task-name {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .task-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .task-reward {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--warning);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 积分商城 */
+        .points-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-points {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .points-icon {
+            font-size: 24px;
+        }
+
+        .points-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--warning);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .points-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .reward-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reward-item:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .reward-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reward-item.disabled:hover {
+            transform: none;
+            border-color: var(--border-color);
+        }
+
+        .reward-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .reward-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .reward-cost {
+            font-size: 12px;
+            color: var(--warning);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .reward-item.owned {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .reward-item.owned .reward-cost {
+            color: var(--success);
+        }
+
+        /* 连续学习 */
+        .streak-card {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .streak-card {
+                grid-column: span 1;
+            }
+        }
+
+        .streak-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .streak-icon {
+            font-size: 48px;
+            animation: fire-pulse 1.5s infinite;
+        }
+
+        @keyframes fire-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .streak-count {
+            text-align: center;
+        }
+
+        .streak-number {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--warning);
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1;
+        }
+
+        .streak-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .streak-message {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 每周挑战 */
+        .weekly-challenges {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .challenge-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .challenge-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .challenge-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .challenge-progress-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .challenge-progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .challenge-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-full);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .challenge-reward {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .challenge-reward-label {
+            color: var(--text-muted);
+        }
+
+        .challenge-reward-value {
+            color: var(--warning);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .challenge-completed {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .challenge-completed .challenge-name {
+            color: var(--success);
+        }
+
+        .challenge-completed .challenge-progress-fill {
+            background: var(--success);
+        }
+
+        /* 等级特权 */
+        .level-benefits {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .current-benefit {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .current-benefit strong {
+            color: var(--accent-primary);
+        }
+
+        /* 活动提示 */
+        .activity-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-primary);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(120%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .activity-toast.show {
+            transform: translateY(0);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .toast-message {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 页脚 */
+        .game-footer {
+            padding: 32px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .game-hero h1 {
+                font-size: 32px;
+            }
+
+            .game-hero p {
+                font-size: 16px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .exp-bar-container {
+                max-width: 100%;
+            }
+
+            .quick-stats {
+                justify-content: center;
+            }
+
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rewards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="gamification-page">
+    <!-- Hero 区域 -->
+    <section class="game-hero">
+        <h1>游戏中心</h1>
+        <p>完成课程和任务来获得经验值和积分，提升等级，解锁成就！</p>
+    </section>
+
+    <!-- 用户信息头部 -->
+    <div class="user-header">
+        <div class="user-header-card">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="avatar-emoji">🧑‍💻</span>
+                    <span class="level-badge" id="level-badge">Lv.1</span>
+                </div>
+                <div class="user-stats">
+                    <div class="user-name" id="user-name">学习者</div>
+                    <div class="exp-info">
+                        <span class="exp-text" id="exp-text">0 / 100 经验值</span>
+                        <div class="exp-bar-container">
+                            <div class="exp-bar-bg">
+                                <div class="exp-bar-fill" id="exp-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <div class="quick-stat-value" id="total-points">0</div>
+                            <div class="quick-stat-label">总积分</div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="quick-stat-value" id="current-streak">0</div>
+                            <div class="quick-stat-label">连续学习</div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="quick-stat-value" id="total-exp">0</div>
+                            <div class="quick-stat-label">总经验</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="level-benefits">
+                <div class="current-benefit" id="level-benefit">
+                    当前等级 Lv.1：完成课程 +10 经验值
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="game-content">
+        <div class="container">
+            <div class="game-grid">
+                <!-- 每日任务 -->
+                <div class="game-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="card-title-icon">📋</span>
+                            今日任务
+                        </span>
+                        <span class="card-badge" id="tasks-badge">0/5</span>
+                    </div>
+                    <div class="task-list" id="daily-tasks">
+                        <!-- 任务由 JavaScript 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 每周挑战 -->
+                <div class="game-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="card-title-icon">🏆</span>
+                            本周挑战
+                        </span>
+                    </div>
+                    <div class="weekly-challenges" id="weekly-challenges">
+                        <!-- 挑战由 JavaScript 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 积分商城 -->
+                <div class="game-card">
+                    <div class="points-header">
+                        <div>
+                            <div class="card-title" style="margin-bottom: 4px;">
+                                <span class="card-title-icon">🎁</span>
+                                积分商城
+                            </div>
+                        </div>
+                        <div class="user-points">
+                            <span class="points-icon">🪙</span>
+                            <div>
+                                <div class="points-value" id="shop-points">0</div>
+                                <div class="points-label">可用积分</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rewards-grid" id="rewards-grid">
+                        <!-- 奖励由 JavaScript 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 连续学习 -->
+                <div class="game-card streak-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="card-title-icon">🔥</span>
+                            连续学习
+                        </span>
+                    </div>
+                    <div class="streak-display">
+                        <div class="streak-icon" id="streak-icon">🔥</div>
+                        <div class="streak-count">
+                            <div class="streak-number" id="streak-number">0</div>
+                            <div class="streak-label">天</div>
+                        </div>
+                        <div class="streak-icon" id="streak-icon-2">🔥</div>
+                    </div>
+                    <div class="streak-message" id="streak-message">
+                        连续学习来获得额外经验奖励！
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 活动提示 -->
+    <div class="activity-toast" id="activity-toast">
+        <span class="toast-icon" id="toast-icon">⭐</span>
+        <div class="toast-content">
+            <div class="toast-title" id="toast-title">获得经验</div>
+            <div class="toast-message" id="toast-message">+10 经验值</div>
+        </div>
+    </div>
+
+    <footer class="game-footer">
+        <button class="theme-toggle" aria-label="切换主题">🌙</button>
+        <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub</a></p>
+    </footer>
+
+    <script src="assets/js/main.js" defer></script>
+    <script>
+        // ==================== 游戏化系统 ====================
+
+        // 等级配置 (每级需要的累计经验)
+        const LEVEL_CONFIG = [
+            { level: 1, exp: 0, bonus: '完成课程 +10 经验值' },
+            { level: 2, exp: 100, bonus: '完成课程 +12 经验值' },
+            { level: 3, exp: 250, bonus: '完成课程 +14 经验值' },
+            { level: 4, exp: 450, bonus: '完成课程 +16 经验值' },
+            { level: 5, exp: 700, bonus: '完成课程 +18 经验值' },
+            { level: 6, exp: 1000, bonus: '完成课程 +20 经验值' },
+            { level: 7, exp: 1400, bonus: '完成课程 +22 经验值' },
+            { level: 8, exp: 1900, bonus: '完成课程 +25 经验值' },
+            { level: 9, exp: 2500, bonus: '完成课程 +28 经验值' },
+            { level: 10, exp: 3200, bonus: '完成课程 +30 经验值' }
+        ];
+
+        // 经验值获取规则
+        const EXP_RULES = {
+            completeLesson: 10,      // 完成课程
+            quizPerfect: 20,         // 测验满分
+            streakBonus: 5,           // 连续学习奖励
+            practiceCommand: 3       // 练习命令
+        };
+
+        // 每日任务配置
+        const DAILY_TASKS = [
+            { id: 'complete-lesson', name: '完成1节课', desc: '完成任意课程学习', exp: 10, points: 5 },
+            { id: 'pass-quiz', name: '通过测验', desc: '完成一次测验', exp: 15, points: 8 },
+            { id: 'practice-command', name: '练习命令', desc: '在实验室完成5个命令', exp: 8, points: 3 },
+            { id: 'streak-day', name: '保持连续', desc: '今天已学习', exp: 5, points: 2 },
+            { id: 'review-lesson', name: '复习课程', desc: '回顾已学过的课程', exp: 5, points: 2 }
+        ];
+
+        // 每周挑战配置
+        const WEEKLY_CHALLENGES = [
+            { id: 'week-lessons', name: '本周学习', target: 10, current: 0, exp: 100, points: 50, unit: '节课' },
+            { id: 'week-quizzes', name: '本周测验', target: 5, current: 0, exp: 80, points: 40, unit: '次' },
+            { id: 'week-streak', name: '持续学习', target: 7, current: 0, exp: 150, points: 80, unit: '天' }
+        ];
+
+        // 积分商城奖励
+        const REWARDS = [
+            { id: 'avatar-1', name: '极客头像', icon: '🧑‍💻', cost: 100, type: 'avatar' },
+            { id: 'avatar-2', name: '勋章头像', icon: '🏅', cost: 200, type: 'avatar' },
+            { id: 'avatar-3', name: '冠军头像', icon: '👑', cost: 500, type: 'avatar' },
+            { id: 'theme-1', name: '主题徽章', icon: '🎨', cost: 150, type: 'theme' },
+            { id: 'theme-2', name: '炫彩边框', icon: '✨', cost: 300, type: 'theme' },
+            { id: 'bonus-1', name: '双倍经验卡(1天)', icon: '⚡', cost: 80, type: 'bonus' }
+        ];
+
+        // localStorage 键名
+        const STORAGE_KEYS = {
+            experience: 'git-workflow-lab-experience',
+            level: 'git-workflow-lab-level',
+            points: 'git-workflow-lab-points',
+            streakDays: 'git-workflow-lab-streak-days',
+            lastVisit: 'git-workflow-lab-last-visit',
+            dailyTasks: 'git-workflow-lab-daily-tasks',
+            weeklyChallenges: 'git-workflow-lab-weekly-challenges',
+            ownedRewards: 'git-workflow-lab-owned-rewards'
+        };
+
+        // 游戏状态管理
+        const GameSystem = {
+            // 获取用户数据
+            getData() {
+                const data = {
+                    experience: this.getFromStorage(STORAGE_KEYS.experience, 0),
+                    level: this.getFromStorage(STORAGE_KEYS.level, 1),
+                    points: this.getFromStorage(STORAGE_KEYS.points, 0),
+                    streakDays: this.getFromStorage(STORAGE_KEYS.streakDays, 0),
+                    lastVisit: this.getFromStorage(STORAGE_KEYS.lastVisit, null),
+                    dailyTasks: this.getFromStorage(STORAGE_KEYS.dailyTasks, {}),
+                    weeklyChallenges: this.getFromStorage(STORAGE_KEYS.weeklyChallenges,
+                        WEEKLY_CHALLENGES.map(c => ({ ...c, current: 0 }))),
+                    ownedRewards: this.getFromStorage(STORAGE_KEYS.ownedRewards, [])
+                };
+                return data;
+            },
+
+            // 从 localStorage 获取数据
+            getFromStorage(key, defaultValue) {
+                try {
+                    const value = localStorage.getItem(key);
+                    return value !== null ? JSON.parse(value) : defaultValue;
+                } catch {
+                    return defaultValue;
+                }
+            },
+
+            // 保存到 localStorage
+            saveToStorage(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            },
+
+            // 获取当前等级配置
+            getCurrentLevelConfig(level) {
+                return LEVEL_CONFIG.find(l => l.level === level) || LEVEL_CONFIG[LEVEL_CONFIG.length - 1];
+            },
+
+            // 获取下一等级配置
+            getNextLevelConfig(level) {
+                return LEVEL_CONFIG.find(l => l.level === level + 1) || null;
+            },
+
+            // 计算当前等级
+            calculateLevel(totalExp) {
+                let level = 1;
+                for (let i = LEVEL_CONFIG.length - 1; i >= 0; i--) {
+                    if (totalExp >= LEVEL_CONFIG[i].exp) {
+                        level = LEVEL_CONFIG[i].level;
+                        break;
+                    }
+                }
+                return level;
+            },
+
+            // 计算当前等级经验
+            getCurrentLevelExp(level) {
+                const currentConfig = this.getCurrentLevelConfig(level);
+                const prevConfig = LEVEL_CONFIG.find(l => l.level === level - 1);
+                return prevConfig ? currentConfig.exp - prevConfig.exp : currentConfig.exp;
+            },
+
+            // 获取当前等级已有经验
+            getLevelProgress(totalExp, level) {
+                const currentConfig = this.getCurrentLevelConfig(level);
+                const prevConfig = LEVEL_CONFIG.find(l => l.level === level - 1);
+                const startExp = prevConfig ? prevConfig.exp : 0;
+                return totalExp - startExp;
+            },
+
+            // 检查并更新等级
+            checkLevelUp(data) {
+                const newLevel = this.calculateLevel(data.experience);
+                if (newLevel > data.level) {
+                    this.showToast('🎉 等级提升！', `恭喜升到 Lv.${newLevel}！`, '⬆️');
+                    this.saveToStorage(STORAGE_KEYS.level, newLevel);
+                    return true;
+                }
+                return false;
+            },
+
+            // 添加经验值
+            addExperience(amount, reason = '') {
+                const data = this.getData();
+                const currentConfig = this.getCurrentLevelConfig(data.level);
+
+                // 根据等级获取加成
+                const baseExp = amount;
+                const levelBonus = Math.floor(baseExp * (data.level - 1) * 0.1); // 每级 10% 加成
+                const totalExp = baseExp + levelBonus;
+
+                data.experience += totalExp;
+                this.saveToStorage(STORAGE_KEYS.experience, data.experience);
+
+                // 检查升级
+                this.checkLevelUp(data);
+
+                // 显示提示
+                let message = `+${totalExp} 经验值`;
+                if (levelBonus > 0) message += ` (含 +${levelBonus} 等级加成)`;
+                if (reason) message += ` - ${reason}`;
+
+                this.showToast('⭐ 获得经验', message, '📈');
+
+                // 更新 UI
+                this.updateUI();
+
+                return totalExp;
+            },
+
+            // 添加积分
+            addPoints(amount, reason = '') {
+                const data = this.getData();
+                data.points += amount;
+                this.saveToStorage(STORAGE_KEYS.points, data.points);
+
+                this.showToast('🪙 获得积分', `+${amount} 积分 - ${reason}`, '💰');
+                this.updateUI();
+
+                return amount;
+            },
+
+            // 消费积分
+            spendPoints(cost, rewardId) {
+                const data = this.getData();
+                if (data.points < cost) {
+                    this.showToast('❌ 积分不足', `需要 ${cost} 积分，当前仅 ${data.points} 积分`, '💸');
+                    return false;
+                }
+
+                data.points -= cost;
+                data.ownedRewards.push(rewardId);
+                this.saveToStorage(STORAGE_KEYS.points, data.points);
+                this.saveToStorage(STORAGE_KEYS.ownedRewards, data.ownedRewards);
+
+                const reward = REWARDS.find(r => r.id === rewardId);
+                this.showToast('🎁 兑换成功', `已兑换: ${reward.name}`, '✅');
+                this.updateUI();
+                this.renderRewards();
+
+                return true;
+            },
+
+            // 更新连续学习天数
+            updateStreak() {
+                const data = this.getData();
+                const today = new Date().toDateString();
+                const lastVisit = data.lastVisit;
+
+                if (lastVisit === today) {
+                    // 今天已经计算过
+                    return data.streakDays;
+                }
+
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                if (lastVisit === yesterday.toDateString()) {
+                    // 昨天学习过，连续天数 +1
+                    data.streakDays += 1;
+                } else if (lastVisit !== today) {
+                    // 中断了，重新开始
+                    data.streakDays = 1;
+                }
+
+                data.lastVisit = today;
+                this.saveToStorage(STORAGE_KEYS.streakDays, data.streakDays);
+                this.saveToStorage(STORAGE_KEYS.lastVisit, data.lastVisit);
+
+                return data.streakDays;
+            },
+
+            // 更新每日任务
+            updateDailyTasks() {
+                const data = this.getData();
+                const today = new Date().toDateString();
+                const lastTaskDate = data.dailyTasks.date;
+
+                // 检查是否需要重置任务
+                if (lastTaskDate !== today) {
+                    // 新的一天，重置任务
+                    const newTasks = {};
+                    DAILY_TASKS.forEach(task => {
+                        newTasks[task.id] = {
+                            completed: false,
+                            date: today
+                        };
+                    });
+
+                    data.dailyTasks = {
+                        date: today,
+                        tasks: newTasks
+                    };
+                    this.saveToStorage(STORAGE_KEYS.dailyTasks, data.dailyTasks);
+                }
+
+                return data.dailyTasks;
+            },
+
+            // 完成每日任务
+            completeTask(taskId) {
+                const data = this.getData();
+                const tasks = data.dailyTasks.tasks || {};
+
+                if (tasks[taskId]?.completed) {
+                    return false; // 已完成
+                }
+
+                const task = DAILY_TASKS.find(t => t.id === taskId);
+                if (!task) return false;
+
+                // 标记完成
+                tasks[taskId] = {
+                    completed: true,
+                    completedAt: Date.now()
+                };
+                data.dailyTasks.tasks = tasks;
+                this.saveToStorage(STORAGE_KEYS.dailyTasks, data.dailyTasks);
+
+                // 发放奖励
+                this.addExperience(task.exp, task.name);
+                this.addPoints(task.points, task.name);
+
+                // 更新每周挑战
+                this.updateWeeklyChallenge('week-lessons', 1);
+
+                // 更新 UI
+                this.updateUI();
+                this.renderTasks();
+
+                return true;
+            },
+
+            // 更新每周挑战进度
+            updateWeeklyChallenge(challengeId, amount) {
+                const data = this.getData();
+                const challenges = data.weeklyChallenges;
+
+                const challenge = challenges.find(c => c.id === challengeId);
+                if (challenge) {
+                    challenge.current = Math.min(challenge.current + amount, challenge.target);
+                    this.saveToStorage(STORAGE_KEYS.weeklyChallenges, challenges);
+
+                    // 检查是否完成
+                    if (challenge.current >= challenge.target) {
+                        const challengeConfig = WEEKLY_CHALLENGES.find(c => c.id === challengeId);
+                        if (challengeConfig) {
+                            this.addExperience(challengeConfig.exp, `${challengeConfig.name}挑战`);
+                            this.addPoints(challengeConfig.points, `${challengeConfig.name}挑战`);
+                            this.showToast('🏆 挑战完成', `恭喜完成本周${challengeConfig.name}！`, '🎉');
+                        }
+                    }
+                }
+
+                this.renderWeeklyChallenges();
+            },
+
+            // 初始化
+            init() {
+                this.updateStreak();
+                this.updateDailyTasks();
+                this.updateUI();
+            },
+
+            // 显示提示
+            showToast(title, message, icon) {
+                const toast = document.getElementById('activity-toast');
+                const toastIcon = document.getElementById('toast-icon');
+                const toastTitle = document.getElementById('toast-title');
+                const toastMessage = document.getElementById('toast-message');
+
+                toastIcon.textContent = icon;
+                toastTitle.textContent = title;
+                toastMessage.textContent = message;
+
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            },
+
+            // 更新 UI
+            updateUI() {
+                const data = this.getData();
+                const currentConfig = this.getCurrentLevelConfig(data.level);
+                const nextConfig = this.getNextLevelConfig(data.level);
+                const levelProgress = this.getLevelProgress(data.experience, data.level);
+                const levelExp = this.getCurrentLevelExp(data.level);
+                const progressPercent = Math.min((levelProgress / levelExp) * 100, 100);
+
+                // 头像和等级
+                const ownedRewards = data.ownedRewards;
+                const hasCrown = ownedRewards.includes('avatar-3');
+                document.getElementById('avatar-emoji').textContent = hasCrown ? '👑' : '🧑‍💻';
+                document.getElementById('level-badge').textContent = `Lv.${data.level}`;
+
+                // 经验值
+                document.getElementById('exp-text').textContent =
+                    nextConfig
+                        ? `${levelProgress} / ${levelExp} 经验值 (距离 Lv.${data.level + 1} 还需 ${nextConfig.exp - data.experience})`
+                        : `${levelProgress} / ${levelExp} 经验值 (已达最高等级)`;
+                document.getElementById('exp-bar').style.width = `${progressPercent}%`;
+
+                // 统计
+                document.getElementById('total-points').textContent = data.points;
+                document.getElementById('current-streak').textContent = data.streakDays;
+                document.getElementById('total-exp').textContent = data.experience;
+                document.getElementById('shop-points').textContent = data.points;
+
+                // 连续学习
+                document.getElementById('streak-number').textContent = data.streakDays;
+                const streakIcon = document.getElementById('streak-icon');
+                const streakIcon2 = document.getElementById('streak-icon-2');
+                const streakMessage = document.getElementById('streak-message');
+
+                if (data.streakDays >= 7) {
+                    streakIcon.textContent = '🔥';
+                    streakIcon2.textContent = '🔥';
+                    streakMessage.textContent = '太厉害了！连续学习超过一周！保持这个好习惯！';
+                } else if (data.streakDays >= 3) {
+                    streakIcon.textContent = '💪';
+                    streakIcon2.textContent = '💪';
+                    streakMessage.textContent = '不错！继续保持，明天也要来学习哦！';
+                } else if (data.streakDays > 0) {
+                    streakIcon.textContent = '🌟';
+                    streakIcon2.textContent = '🌟';
+                    streakMessage.textContent = '开始连续学习了！坚持就是胜利！';
+                } else {
+                    streakIcon.textContent = '🎯';
+                    streakIcon2.textContent = '🎯';
+                    streakMessage.textContent = '今天还没有学习，快去完成课程吧！';
+                }
+
+                // 等级特权
+                document.getElementById('level-benefit').innerHTML =
+                    `当前等级 Lv.${data.level}：${currentConfig.bonus}`;
+            },
+
+            // 渲染任务
+            renderTasks() {
+                const data = this.getData();
+                const tasks = data.dailyTasks.tasks || {};
+                const taskList = document.getElementById('daily-tasks');
+                let completedCount = 0;
+
+                taskList.innerHTML = DAILY_TASKS.map(task => {
+                    const taskData = tasks[task.id] || {};
+                    const isCompleted = taskData.completed;
+                    if (isCompleted) completedCount++;
+
+                    return `
+                        <div class="task-item ${isCompleted ? 'completed' : ''}" onclick="GameSystem.handleTaskClick('${task.id}')">
+                            <div class="task-checkbox ${isCompleted ? 'checked' : ''}" onclick="event.stopPropagation(); GameSystem.toggleTask('${task.id}')">
+                                ${isCompleted ? '✓' : ''}
+                            </div>
+                            <div class="task-info">
+                                <div class="task-name">${task.name}</div>
+                                <div class="task-desc">${task.desc}</div>
+                            </div>
+                            <div class="task-reward">
+                                +${task.exp} EXP
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('tasks-badge').textContent = `${completedCount}/${DAILY_TASKS.length}`;
+            },
+
+            // 处理任务点击
+            handleTaskClick(taskId) {
+                const data = this.getData();
+                const tasks = data.dailyTasks.tasks || {};
+
+                if (!tasks[taskId]?.completed) {
+                    this.completeTask(taskId);
+                }
+            },
+
+            // 切换任务状态（手动）
+            toggleTask(taskId) {
+                const data = this.getData();
+                const tasks = data.dailyTasks.tasks || {};
+
+                if (tasks[taskId]?.completed) {
+                    // 不允许取消完成
+                    return;
+                }
+
+                this.completeTask(taskId);
+            },
+
+            // 渲染每周挑战
+            renderWeeklyChallenges() {
+                const data = this.getData();
+                const challenges = data.weeklyChallenges;
+                const container = document.getElementById('weekly-challenges');
+
+                container.innerHTML = challenges.map(challenge => {
+                    const progress = Math.min((challenge.current / challenge.target) * 100, 100);
+                    const isCompleted = challenge.current >= challenge.target;
+                    const challengeConfig = WEEKLY_CHALLENGES.find(c => c.id === challenge.id);
+
+                    return `
+                        <div class="challenge-item ${isCompleted ? 'challenge-completed' : ''}">
+                            <div class="challenge-header">
+                                <span class="challenge-name">
+                                    ${isCompleted ? '✅' : '🎯'} ${challenge.name}
+                                </span>
+                                <span class="challenge-progress-text">${challenge.current} / ${challenge.target}${challengeConfig?.unit || ''}</span>
+                            </div>
+                            <div class="challenge-progress-bar">
+                                <div class="challenge-progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="challenge-reward">
+                                <span class="challenge-reward-label">奖励</span>
+                                <span class="challenge-reward-value">+${challenge.exp} EXP, +${challenge.points} 积分</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            // 渲染积分商城
+            renderRewards() {
+                const data = this.getData();
+                const ownedRewards = data.ownedRewards;
+                const container = document.getElementById('rewards-grid');
+
+                container.innerHTML = REWARDS.map(reward => {
+                    const isOwned = ownedRewards.includes(reward.id);
+                    const canAfford = data.points >= reward.cost;
+                    const isDisabled = isOwned || !canAfford;
+
+                    return `
+                        <div class="reward-item ${isOwned ? 'owned' : ''} ${isDisabled ? 'disabled' : ''}"
+                             onclick="GameSystem.purchaseReward('${reward.id}', ${reward.cost})"
+                             title="${isOwned ? '已拥有' : canAfford ? '点击兑换' : '积分不足'}">
+                            <div class="reward-icon">${reward.icon}</div>
+                            <div class="reward-name">${reward.name}</div>
+                            <div class="reward-cost">${isOwned ? '已拥有' : reward.cost + ' 积分'}</div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            // 购买奖励
+            purchaseReward(rewardId, cost) {
+                this.spendPoints(cost, rewardId);
+            }
+        };
+
+        // ==================== 页面初始化 ====================
+
+        // 为了测试，暴露一些全局函数
+        window.GameSystem = GameSystem;
+
+        // 模拟完成课程（可从其他页面调用）
+        window.completeLesson = function() {
+            GameSystem.addExperience(EXP_RULES.completeLesson, '完成课程');
+            GameSystem.updateWeeklyChallenge('week-lessons', 1);
+            GameSystem.updateStreak();
+        };
+
+        // 模拟测验满分
+        window.quizPerfect = function() {
+            GameSystem.addExperience(EXP_RULES.quizPerfect, '测验满分');
+            GameSystem.updateWeeklyChallenge('week-quizzes', 1);
+        };
+
+        // 模拟练习命令
+        window.practiceCommand = function() {
+            GameSystem.addExperience(EXP_RULES.practiceCommand, '练习命令');
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            GameSystem.init();
+            GameSystem.renderTasks();
+            GameSystem.renderWeeklyChallenges();
+            GameSystem.renderRewards();
+
+            // 监听 localStorage 变化
+            window.addEventListener('storage', () => {
+                GameSystem.init();
+                GameSystem.renderTasks();
+                GameSystem.renderWeeklyChallenges();
+                GameSystem.renderRewards();
+            });
+        });
+    </script>
+</body>
+</html>

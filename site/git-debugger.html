@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 错误排查工具 - Git Workflow Lab</title>
+    <meta name="description" content="交互式 Git 错误排查学习工具，包含常见错误场景、解决方法逐步指引">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --debugger-bg: var(--bg-primary, #ffffff);
+            --debugger-bg-secondary: var(--bg-secondary, #f8fafc);
+            --debugger-border: var(--border-color, #e2e8f0);
+            --debugger-text: var(--text-primary, #1e293b);
+            --debugger-text-muted: var(--text-secondary, #64748b);
+            --debugger-accent: var(--accent-primary, #6366f1);
+            --debugger-accent-secondary: var(--accent-secondary, #8b5cf6);
+            --debugger-success: var(--success, #10b981);
+            --debugger-warning: var(--warning, #f59e0b);
+            --debugger-error: var(--error, #ef4444);
+            --debugger-info: var(--info, #3b82f6);
+            --terminal-bg: #1e1e2e;
+            --terminal-text: #cdd6f4;
+            --terminal-prompt: #89b4fa;
+            --terminal-success: #a6e3a1;
+            --terminal-error: #f38ba8;
+            --terminal-warning: #fab387;
+            --terminal-comment: #6c7086;
+        }
+
+        [data-theme="dark"] {
+            --debugger-bg: #0f172a;
+            --debugger-bg-secondary: #1e293b;
+            --debugger-border: #334155;
+            --debugger-text: #f1f5f9;
+            --debugger-text-muted: #94a3b8;
+            --debugger-accent: #818cf8;
+            --debugger-accent-secondary: #a78bfa;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--debugger-bg);
+            color: var(--debugger-text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            padding: 48px 0 32px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--debugger-bg) 0%, var(--debugger-bg-secondary) 100%);
+            border-bottom: 1px solid var(--debugger-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--debugger-accent), var(--debugger-accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .page-header p {
+            color: var(--debugger-text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 搜索区域 */
+        .search-section {
+            padding: 32px 0;
+            background: var(--debugger-bg-secondary);
+            border-bottom: 1px solid var(--debugger-border);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            width: 20px;
+            height: 20px;
+            color: var(--debugger-text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            font-size: 16px;
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--debugger-bg);
+            border: 2px solid var(--debugger-border);
+            border-radius: 12px;
+            color: var(--debugger-text);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--debugger-accent);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 12px;
+            padding: 24px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-tab {
+            padding: 10px 20px;
+            border-radius: 99px;
+            border: 2px solid var(--debugger-border);
+            background: var(--debugger-bg);
+            color: var(--debugger-text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-tab:hover {
+            border-color: var(--debugger-accent);
+            color: var(--debugger-accent);
+        }
+
+        .category-tab.active {
+            background: var(--debugger-accent);
+            border-color: var(--debugger-accent);
+            color: white;
+        }
+
+        /* 错误卡片 */
+        .errors-section {
+            padding: 32px 0 80px;
+        }
+
+        .errors-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .error-card {
+            background: var(--debugger-bg);
+            border: 1px solid var(--debugger-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .error-card:hover {
+            border-color: var(--debugger-accent);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+        }
+
+        .error-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .error-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--debugger-error), #f87171);
+            border-radius: 12px;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .error-icon.warning {
+            background: linear-gradient(135deg, var(--debugger-warning), #fbbf24);
+        }
+
+        .error-icon.info {
+            background: linear-gradient(135deg, var(--debugger-info), #60a5fa);
+        }
+
+        .error-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .error-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--debugger-text);
+            margin-bottom: 4px;
+        }
+
+        .error-desc {
+            font-size: 14px;
+            color: var(--debugger-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .error-toggle {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--debugger-text-muted);
+            transition: transform 0.3s;
+        }
+
+        .error-card.expanded .error-toggle {
+            transform: rotate(180deg);
+        }
+
+        /* 错误详情 */
+        .error-detail {
+            display: none;
+            padding: 0 24px 24px;
+            border-top: 1px solid var(--debugger-border);
+        }
+
+        .error-card.expanded .error-detail {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-section {
+            padding-top: 20px;
+        }
+
+        .detail-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--debugger-text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-section h4::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--debugger-accent);
+            border-radius: 2px;
+        }
+
+        /* 终端代码块 */
+        .terminal-block {
+            background: var(--terminal-bg);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .terminal-block .prompt {
+            color: var(--terminal-prompt);
+        }
+
+        .terminal-block .command {
+            color: var(--terminal-text);
+        }
+
+        .terminal-block .output {
+            color: var(--terminal-text);
+            white-space: pre-wrap;
+        }
+
+        .terminal-block .error {
+            color: var(--terminal-error);
+        }
+
+        .terminal-block .success {
+            color: var(--terminal-success);
+        }
+
+        .terminal-block .warning {
+            color: var(--terminal-warning);
+        }
+
+        .terminal-block .comment {
+            color: var(--terminal-comment);
+        }
+
+        /* 步骤列表 */
+        .steps-list {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .steps-list li {
+            position: relative;
+            padding-left: 36px;
+            margin-bottom: 12px;
+            color: var(--debugger-text);
+            font-size: 14px;
+        }
+
+        .steps-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--debugger-accent);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .steps-list li code {
+            background: var(--debugger-bg-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--debugger-accent);
+        }
+
+        /* 预防措施 */
+        .prevention-list {
+            list-style: none;
+        }
+
+        .prevention-list li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 10px;
+            color: var(--debugger-text-muted);
+            font-size: 14px;
+        }
+
+        .prevention-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--debugger-success);
+            border-radius: 50%;
+        }
+
+        /* 模拟器区域 */
+        .simulator-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--debugger-bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--debugger-border);
+        }
+
+        .simulator-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .simulator-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--debugger-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .simulator-title span {
+            background: var(--debugger-warning);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .simulator-terminal {
+            background: var(--terminal-bg);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .simulator-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .simulator-input-line .prompt {
+            color: var(--terminal-prompt);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .simulator-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--terminal-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .simulator-output {
+            margin-bottom: 8px;
+            color: var(--terminal-text);
+        }
+
+        .simulator-output.error {
+            color: var(--terminal-error);
+        }
+
+        .simulator-output.success {
+            color: var(--terminal-success);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--debugger-text-muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--debugger-text);
+        }
+
+        /* 结果统计 */
+        .results-info {
+            text-align: center;
+            padding: 16px;
+            color: var(--debugger-text-muted);
+            font-size: 14px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .category-tabs {
+                gap: 8px;
+            }
+
+            .category-tab {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .error-card-header {
+                padding: 16px;
+            }
+
+            .error-detail {
+                padding: 0 16px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <h1>Git 错误排查工具</h1>
+            <p>交互式 Git 常见错误排查指南，点击错误查看详情和解决方法</p>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索错误类型、命令或关键词...">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="errors-section">
+        <div class="container">
+            <div class="category-tabs">
+                <button class="category-tab active" data-category="all">全部</button>
+                <button class="category-tab" data-category="merge">合并冲突</button>
+                <button class="category-tab" data-category="push">推送问题</button>
+                <button class="category-tab" data-category="branch">分支问题</button>
+                <button class="category-tab" data-category="recovery">恢复数据</button>
+                <button class="category-tab" data-category="auth">凭证问题</button>
+            </div>
+
+            <div class="results-info" id="resultsInfo">共收录 8 个常见错误场景</div>
+
+            <div class="errors-grid" id="errorsGrid">
+                <!-- 错误卡片将由 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Git 错误数据
+        const gitErrors = [
+            {
+                id: 'merge-conflict',
+                category: 'merge',
+                icon: 'conflict',
+                iconType: 'warning',
+                title: '合并冲突 (Merge Conflict)',
+                desc: '两个分支修改了同一文件的同一部分，无法自动合并',
+                errorMessage: `<<<<<<< HEAD
+# 当前分支的修改
+=======
+# 被合并分支的修改
+>>>>>>> feature-branch`,
+                cause: `1. 两个分支修改了同一文件的同一行代码
+2. 一个分支删除了文件，另一个分支修改了它
+3. 相同的文件名在不同分支中被创建`,
+                steps: [
+                    '运行 <code>git status</code> 查看冲突文件',
+                    '打开冲突文件，查找 <code><<<<<<<</code>、<code>=======</code>、<code>>>>>>>></code> 标记',
+                    '手动决定保留哪部分修改，或合并两者',
+                    '删除冲突标记并保存文件',
+                    '运行 <code>git add &lt;文件名&gt;</code> 标记冲突已解决',
+                    '运行 <code>git commit</code> 完成合并'
+                ],
+                prevention: [
+                    '频繁同步远程分支，减少长期分支',
+                    '使用 <code>git pull --rebase</code> 保持线性历史',
+                    '团队协商好代码规范，避免多人修改同一文件'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git merge feature/login', output: 'Auto-merging src/auth.js\nCONFLICT (content): Merge conflict in src/auth.js\nAutomatic merge failed; fix conflicts and then commit.', type: 'error' },
+                        { cmd: 'git status', output: 'Unmerged paths:\n  (both modified): src/auth.js', type: 'output' }
+                    ]
+                }
+            },
+            {
+                id: 'push-rejected',
+                category: 'push',
+                icon: 'push',
+                iconType: 'error',
+                title: '推送被拒绝 (Push Rejected)',
+                desc: '远程分支包含本地没有的提交，需要先拉取合并',
+                errorMessage: `! [rejected] main -> main (fetch first)
+error: failed to push some refs to 'origin'`,
+                cause: `1. 远程分支有本地没有的新提交
+2. 其他人已推送代码到远程
+3. 本地分支落后于远程`,
+                steps: [
+                    '运行 <code>git pull origin &lt;分支名&gt;</code> 拉取远程更新',
+                    '如果有冲突，解决冲突后 <code>git add .</code> 并 <code>git commit</code>',
+                    '再次运行 <code>git push origin &lt;分支名&gt;</code>',
+                    '或者使用 <code>git push --force</code> 强制推送（谨慎使用）'
+                ],
+                prevention: [
+                    '推送前先 <code>git pull</code> 同步最新代码',
+                    '使用 <code>git pull --rebase</code> 避免多余合并提交',
+                    '及时推送，避免长时间本地开发'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git push origin main', output: '! [rejected] main -> main (fetch first)\nerror: failed to push some refs', type: 'error' },
+                        { cmd: 'git pull origin main', output: 'Merge made by the \'recursive\' strategy.\n   auth.py | 2 +-\n   main.py | 5 +++---', type: 'success' }
+                    ]
+                }
+            },
+            {
+                id: 'detached-head',
+                category: 'branch',
+                icon: 'branch',
+                iconType: 'info',
+                title: '分离 HEAD (Detached HEAD)',
+                desc: '当前不在分支上，而是处于游离状态，提交的代码可能丢失',
+                errorMessage: `Note: switching to 'detached HEAD' mode.
+You are in 'detached HEAD' state.`,
+                cause: `1. 使用 <code>git checkout &lt;commit-hash&gt;</code> 切换到特定提交
+2. 使用 <code>git checkout --detach</code> 分离 HEAD
+3. 使用 <code>git checkout &lt;标签名&gt;</code> 检出一个标签`,
+                steps: [
+                    '方法一：创建新分支保存修改 <code>git checkout -b &lt;新分支名&gt;</code>',
+                    '方法二：将修改合并到当前分支 <code>git checkout &lt;目标分支&gt;</code> 然后 <code>git cherry-pick &lt;commit&gt;</code>',
+                    '方法三：如果不想要这些修改，直接切换回分支 <code>git checkout &lt;分支名&gt;</code>'
+                ],
+                prevention: [
+                    '避免直接使用 commit hash 切换',
+                    '使用 <code>git checkout -b</code> 创建新分支进行实验',
+                    '可使用 <code>git config --global advice.detachedHead false</code> 关闭警告'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git checkout abc1234', output: 'Note: switching to \'abc1234\',\nYou are in \'detached HEAD\' state.', type: 'warning' },
+                        { cmd: 'git status', output: 'HEAD detached at abc1234\nnothing to commit, working tree clean', type: 'output' }
+                    ]
+                }
+            },
+            {
+                id: 'deleted-commit',
+                category: 'recovery',
+                icon: 'restore',
+                iconType: 'warning',
+                title: '误删除提交恢复',
+                desc: '提交被 reset 或回退后找不回之前的修改',
+                errorMessage: `fatal: ambiguous argument 'abc1234': unknown revision`,
+                cause: `1. 使用 <code>git reset --hard</code> 丢失了提交
+2. 使用 <code>git rebase -i</code> 删除了提交
+3. <code>git checkout --.</code> 撤销了未提交的修改`,
+                steps: [
+                    '运行 <code>git reflog</code> 查看操作历史',
+                    '找到丢失提交前的 HEAD 位置',
+                    '使用 <code>git checkout &lt;commit-hash&gt;</code> 恢复到那个提交',
+                    '或使用 <code>git reset --hard &lt;commit-hash&gt;</code> 强制回退',
+                    '建议先创建分支保存：<code>git branch &lt;分支名&gt; &lt;commit-hash&gt;</code>'
+                ],
+                prevention: [
+                    '永远不要使用 <code>git reset --hard</code> 提交未备份的修改',
+                    '使用 <code>git reset --soft</code> 替代 --hard 保留修改',
+                    '定期备份重要分支到远程'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git reflog', output: 'abc1234 HEAD@{0}: reset: moving to abc1234\ndef5678 HEAD@{1}: commit: Add login feature', type: 'output' },
+                        { cmd: 'git checkout def5678', output: 'Note: switching to \'def5678\'.', type: 'success' }
+                    ]
+                }
+            },
+            {
+                id: 'commit-message',
+                category: 'branch',
+                icon: 'edit',
+                iconType: 'info',
+                title: '提交信息错误',
+                desc: '提交信息写错或需要补充说明',
+                errorMessage: `Commit message is too short or contains invalid format`,
+                cause: `1. 提交信息写错字
+2. 提交信息格式不符合规范
+3. 忘记添加关联的 issue 编号`,
+                steps: [
+                    '修改最后一次提交：<code>git commit --amend -m "新提交信息"</code>',
+                    '仅修改提交信息不修改内容：<code>git commit --amend</code>',
+                    '如果已推送，使用 <code>git push --force-with-lease</code> 更新远程',
+                    '修改历史提交需要使用 rebase'
+                ],
+                prevention: [
+                    '使用 <code>git commit --verbose</code> 查看差异再提交',
+                    '配置合适的提交信息模板',
+                    '遵循 Conventional Commits 规范'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git commit --amend -m "fix: 修复登录页面样式问题"', output: '[main abc1234] fix: 修复登录页面样式问题\n Date: Mon Mar 30 10:30:00 2026', type: 'success' }
+                    ]
+                }
+            },
+            {
+                id: 'branch-name',
+                category: 'branch',
+                icon: 'git-branch',
+                iconType: 'warning',
+                title: '分支命名问题',
+                desc: '分支名不符合规范或包含非法字符',
+                errorMessage: `error: invalid branch name: 'feature/test case'`,
+                cause: `1. 分支名包含空格或特殊字符
+2. 分支名以 <code>-</code> 开头或结尾
+3. 分支名超过 100 个字符`,
+                steps: [
+                    '查看 Git 分支命名规则：<code>git check-ref-format --branch &lt;分支名&gt;</code>',
+                    '重命名本地分支：<code>git branch -m old-name new-name</code>',
+                    '重命名远程分支：删除旧分支，推送新分支',
+                    '使用规范命名：<code>feature/功能名</code>、<code>fix/问题描述</code>'
+                ],
+                prevention: [
+                    '建立团队分支命名规范',
+                    '使用 <code>feature/</code>、<code>bugfix/</code>、<code>hotfix/</code> 前缀',
+                    '避免中文、空格和特殊字符'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git branch "feature/login page"', output: 'error: invalid branch name', type: 'error' },
+                        { cmd: 'git branch feature/login-page', output: 'Branch feature/login-page created.', type: 'success' }
+                    ]
+                }
+            },
+            {
+                id: 'credential',
+                category: 'auth',
+                icon: 'key',
+                iconType: 'error',
+                title: '凭证问题 (Credential Issues)',
+                desc: 'Git 无法验证身份，无法推送或拉取代码',
+                errorMessage: `fatal: Authentication failed for 'https://github.com/...'`,
+                cause: `1. 用户名或密码/token 过期
+2. SSH 密钥未配置或未添加到 SSH agent
+3. 仓库访问权限不足`,
+                steps: [
+                    'HTTPS 方式：更新凭证 <code>git config --local credential.helper store</code> 或使用 token',
+                    'SSH 方式：检查 <code>git remote -v</code> 确认使用 SSH 地址',
+                    '配置 SSH：<code>ssh-keygen -t ed25519 -C "your@email.com"</code>',
+                    '添加公钥到 GitHub：<code>cat ~/.ssh/id_ed25519.pub</code> 复制到 GitHub SSH Keys',
+                    '测试连接：<code>ssh -T git@github.com</code>'
+                ],
+                prevention: [
+                    '使用 SSH 方式代替 HTTPS',
+                    '定期更新 GitHub Personal Access Token',
+                    '配置 <code>git config --global user.name</code> 和 <code>user.email</code>'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git push origin main', output: 'fatal: Authentication failed', type: 'error' },
+                        { cmd: 'ssh -T git@github.com', output: 'Hi username! You have successfully authenticated.', type: 'success' }
+                    ]
+                }
+            },
+            {
+                id: 'large-file',
+                category: 'push',
+                icon: 'file',
+                iconType: 'warning',
+                title: '大文件问题 (Large File)',
+                desc: '推送的文件超过 GitHub 100MB 限制',
+                errorMessage: `remote: error: File large-file.zip is 150.00 MB, exceeds 100.00 MB`,
+                cause: `1. 误提交了大文件（数据库、二进制文件、压缩包）
+2. 本地大文件被跟踪后无法从历史删除
+3. 没有使用 Git LFS 管理大文件`,
+                steps: [
+                    '从当前提交移除：<code>git rm --cached &lt;文件名&gt;</code>',
+                    '添加到 <code>.gitignore</code> 防止再次跟踪',
+                    '提交更改：<code>git commit -m "移除大文件"</code>',
+                    '如果需要从历史删除：使用 <code>git filter-repo</code> 或 BFG Repo-Cleaner',
+                    '以后使用 Git LFS：<code>git lfs track "*.zip"</code>'
+                ],
+                prevention: [
+                    '始终使用 <code>.gitignore</code> 排除编译产物和大文件',
+                    '使用 Git LFS 管理大文件',
+                    '提交前使用 <code>git status</code> 检查',
+                    '使用 <code>git lfs ls-files</code> 查看 LFS 跟踪的文件'
+                ],
+                simulator: {
+                    steps: [
+                        { cmd: 'git push origin main', output: 'remote: error: File dataset.zip is 150MB', type: 'error' },
+                        { cmd: 'git rm --cached dataset.zip', output: 'rm \'dataset.zip\'', type: 'success' }
+                    ]
+                }
+            }
+        ];
+
+        // 图标映射
+        const iconMap = {
+            'conflict': '⚔️',
+            'push': '⬆️',
+            'branch': '🔀',
+            'restore': '♻️',
+            'edit': '✏️',
+            'git-branch': '🌿',
+            'key': '🔑',
+            'file': '📦'
+        };
+
+        // 渲染错误卡片
+        function renderErrors(errors) {
+            const grid = document.getElementById('errorsGrid');
+
+            if (errors.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                        <h3>未找到匹配的错误</h3>
+                        <p>请尝试其他关键词或清除搜索</p>
+                    </div>
+                `;
+                document.getElementById('resultsInfo').textContent = '没有找到匹配的错误';
+                return;
+            }
+
+            document.getElementById('resultsInfo').textContent = `共收录 ${errors.length} 个错误场景`;
+
+            grid.innerHTML = errors.map(error => `
+                <div class="error-card" data-category="${error.category}">
+                    <div class="error-card-header" onclick="toggleErrorCard(this)">
+                        <div class="error-icon ${error.iconType}">${iconMap[error.icon]}</div>
+                        <div class="error-info">
+                            <div class="error-title">${error.title}</div>
+                            <div class="error-desc">${error.desc}</div>
+                        </div>
+                        <div class="error-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="error-detail">
+                        <div class="detail-section">
+                            <h4>错误信息示例</h4>
+                            <div class="terminal-block">
+                                <span class="comment"># 终端输出</span>
+                                <span class="output">${escapeHtml(error.errorMessage)}</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>原因分析</h4>
+                            <div style="font-size: 14px; color: var(--debugger-text-muted); line-height: 1.8;">
+                                ${error.cause.split('\n').map(line => line.replace(/^\d+\.\s*/, '')).join('<br>')}
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>解决方法</h4>
+                            <ol class="steps-list">
+                                ${error.steps.map(step => `<li>${step}</li>`).join('')}
+                            </ol>
+                        </div>
+
+                        <div class="detail-section">
+                            <h4>预防措施</h4>
+                            <ul class="prevention-list">
+                                ${error.prevention.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        ${error.simulator ? `
+                        <div class="simulator-section">
+                            <div class="simulator-title">
+                                模拟演示 <span>交互式</span>
+                            </div>
+                            <div class="simulator-terminal" id="simulator-${error.id}">
+                                <div class="simulator-output comment"># 点击下方按钮逐步演示</div>
+                            </div>
+                            <div class="simulator-input-line">
+                                <span class="prompt">$</span>
+                                <button class="btn btn-primary" style="padding: 6px 16px; font-size: 13px;" onclick="runSimulator('${error.id}')">开始模拟</button>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 转义 HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 切换卡片展开状态
+        function toggleErrorCard(header) {
+            const card = header.parentElement;
+            const wasExpanded = card.classList.contains('expanded');
+
+            // 关闭所有卡片
+            document.querySelectorAll('.error-card').forEach(c => c.classList.remove('expanded'));
+
+            // 如果之前未展开，则展开当前卡片
+            if (!wasExpanded) {
+                card.classList.add('expanded');
+            }
+        }
+
+        // 模拟器状态
+        const simulatorState = {};
+
+        // 运行模拟器
+        function runSimulator(errorId) {
+            const error = gitErrors.find(e => e.id === errorId);
+            if (!error || !error.simulator) return;
+
+            const terminal = document.getElementById(`simulator-${errorId}`);
+            const steps = error.simulator.steps;
+
+            // 重置状态
+            simulatorState[errorId] = { step: 0, interval: null };
+            terminal.innerHTML = '';
+
+            function showNextStep() {
+                const state = simulatorState[errorId];
+                if (!state || state.step >= steps.length) {
+                    if (state) clearInterval(state.interval);
+                    return;
+                }
+
+                const step = steps[state.step];
+                const outputDiv = document.createElement('div');
+                outputDiv.className = `simulator-output ${step.type === 'error' ? 'error' : step.type === 'success' ? 'success' : ''}`;
+                outputDiv.innerHTML = `<span class="prompt">$</span> <span class="command">${step.cmd}</span>`;
+                terminal.appendChild(outputDiv);
+
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `simulator-output ${step.type === 'error' ? 'error' : step.type === 'success' ? 'success' : ''}`;
+                resultDiv.textContent = step.output;
+                terminal.appendChild(resultDiv);
+
+                terminal.scrollTop = terminal.scrollHeight;
+                state.step++;
+
+                if (state.step >= steps.length) {
+                    const doneDiv = document.createElement('div');
+                    doneDiv.className = 'simulator-output success';
+                    doneDiv.textContent = '✓ 模拟完成';
+                    terminal.appendChild(doneDiv);
+                    clearInterval(state.interval);
+                }
+            }
+
+            simulatorState[errorId].interval = setInterval(showNextStep, 1200);
+            showNextStep();
+        }
+
+        // 搜索功能
+        function handleSearch(query) {
+            const searchTerm = query.toLowerCase().trim();
+
+            if (!searchTerm) {
+                filterByCategory(currentCategory);
+                return;
+            }
+
+            const filtered = gitErrors.filter(error => {
+                return error.title.toLowerCase().includes(searchTerm) ||
+                       error.desc.toLowerCase().includes(searchTerm) ||
+                       error.errorMessage.toLowerCase().includes(searchTerm) ||
+                       error.steps.some(step => step.toLowerCase().includes(searchTerm));
+            });
+
+            renderErrors(filtered);
+        }
+
+        // 分类过滤
+        let currentCategory = 'all';
+
+        function filterByCategory(category) {
+            currentCategory = category;
+
+            // 更新标签状态
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+
+            // 过滤错误
+            const searchTerm = document.getElementById('searchInput').value.trim();
+
+            if (searchTerm) {
+                handleSearch(searchTerm);
+                return;
+            }
+
+            const filtered = category === 'all'
+                ? gitErrors
+                : gitErrors.filter(error => error.category === category);
+
+            renderErrors(filtered);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderErrors(gitErrors);
+
+            // 搜索事件
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                handleSearch(e.target.value);
+            });
+
+            // 分类标签事件
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    filterByCategory(tab.dataset.category);
+                });
+            });
+
+            // 键盘快捷键
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                if (e.key === 'Escape') {
+                    document.getElementById('searchInput').blur();
+                    document.getElementById('searchInput').value = '';
+                    filterByCategory('all');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

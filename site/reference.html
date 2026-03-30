@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参考文档中心 - Git Workflow Lab</title>
+    <meta name="description" content="Git 参考文档中心 - 官方文档链接、配置模板、最佳实践和术语表">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 参考文档中心专用样式 */
+        .reference-page {
+            min-height: 100vh;
+            padding-top: 64px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            padding: 48px 0 32px;
+            text-align: center;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .page-header p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* 标签页导航 */
+        .tabs-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 24px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 64px;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: var(--accent-primary);
+        }
+
+        .tab-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 标签页内容 */
+        .tab-content {
+            display: none;
+            padding: 40px 0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 内容区域标题 */
+        .content-section {
+            margin-bottom: 48px;
+        }
+
+        .content-section h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-section h2 .icon {
+            font-size: 24px;
+        }
+
+        .content-section > p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        /* 卡片网格 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* 参考卡片 */
+        .ref-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ref-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .ref-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .ref-card:hover::before {
+            opacity: 1;
+        }
+
+        .ref-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .ref-card-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-light);
+            border-radius: var(--radius-md);
+            font-size: 20px;
+        }
+
+        .ref-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .ref-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .ref-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .ref-tag {
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: var(--radius-full);
+        }
+
+        .ref-card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        .ref-card-link:hover {
+            color: var(--accent-secondary);
+            gap: 8px;
+        }
+
+        /* 代码块 */
+        .code-block {
+            position: relative;
+            margin: 16px 0;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: var(--code-bg);
+            color: var(--code-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-lang {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-tertiary);
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .copy-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .copy-btn.copied {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .copy-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 配置模板专用卡片 */
+        .template-card {
+            grid-column: span 1;
+        }
+
+        .template-card .template-usage {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .template-card .template-usage h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .template-card .template-usage p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        /* 最佳实践卡片 */
+        .practice-card {
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .practice-card.danger {
+            border-left-color: var(--error);
+        }
+
+        .practice-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .practice-card.success {
+            border-left-color: var(--success);
+        }
+
+        .practice-do, .practice-dont {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+        }
+
+        .practice-do {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        [data-theme="dark"] .practice-do {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .practice-dont {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+        }
+
+        [data-theme="dark"] .practice-dont {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        .practice-do::before {
+            content: '\2713';
+            font-weight: bold;
+        }
+
+        .practice-dont::before {
+            content: '\2717';
+            font-weight: bold;
+        }
+
+        /* FAQ 手风琴 */
+        .faq-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .faq-question:hover {
+            background: var(--bg-secondary);
+        }
+
+        .faq-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: transform var(--transition-base);
+        }
+
+        .faq-item.open .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-answer-inner {
+            padding: 0 20px 20px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .faq-answer-inner code {
+            padding: 2px 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        /* 术语表 */
+        .glossary-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .glossary-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: all var(--transition-base);
+        }
+
+        .glossary-item:hover {
+            border-color: var(--accent-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .glossary-term {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .glossary-term h4 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .glossary-en {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glossary-item > p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .glossary-example {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 快速链接网格 */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all var(--transition-base);
+        }
+
+        .quick-link:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quick-link-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            font-size: 18px;
+        }
+
+        .quick-link-text {
+            flex: 1;
+        }
+
+        .quick-link-text strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .quick-link-text span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 注意事项框 */
+        .notice-box {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .notice-box.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .notice-box.info .notice-icon {
+            color: #3b82f6;
+        }
+
+        .notice-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .notice-box.warning .notice-icon {
+            color: #f59e0b;
+        }
+
+        .notice-box.tip {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .notice-box.tip .notice-icon {
+            color: #10b981;
+        }
+
+        .notice-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .notice-content {
+            flex: 1;
+        }
+
+        .notice-content strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notice-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 32px;
+            }
+
+            .tabs-nav {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding: 16px;
+                gap: 8px;
+            }
+
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            .tab-btn span {
+                display: none;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="reference-page">
+    <!-- 导航栏 -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="./index.html" class="logo">
+                <span class="logo-icon">&#128187;</span>
+                <span>Git Workflow Lab</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="./index.html">首页</a></li>
+                <li><a href="./lessons/index.html">课程</a></li>
+                <li><a href="./reference.html" class="active">参考</a></li>
+                <li><a href="./command-sheet.html">命令表</a></li>
+            </ul>
+            <button class="theme-toggle" aria-label="切换主题">&#127769;</button>
+        </nav>
+    </header>
+
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <div class="container">
+            <h1>参考文档中心</h1>
+            <p>整合的 Git 参考文档中心，包含官方文档链接、配置模板、最佳实践指南和常用术语表</p>
+        </div>
+    </div>
+
+    <!-- 标签页导航 -->
+    <nav class="tabs-nav">
+        <button class="tab-btn active" data-tab="docs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>官方文档</span>
+        </button>
+        <button class="tab-btn" data-tab="templates">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>配置模板</span>
+        </button>
+        <button class="tab-btn" data-tab="practices">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>最佳实践</span>
+        </button>
+        <button class="tab-btn" data-tab="faq">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>常见问题</span>
+        </button>
+        <button class="tab-btn" data-tab="glossary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>术语表</span>
+        </button>
+    </nav>
+
+    <!-- 标签页内容 -->
+    <main class="container">
+        <!-- 官方文档 -->
+        <section class="tab-content active" id="docs">
+            <div class="content-section">
+                <h2><span class="icon">&#128279;</span> 快速链接</h2>
+                <p>常用 Git 官方文档和资源链接，一键直达</p>
+
+                <div class="quick-links">
+                    <a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noreferrer" class="quick-link">
+                        <div class="quick-link-icon">&#128214;</div>
+                        <div class="quick-link-text">
+                            <strong>Pro Git 手册</strong>
+                            <span>官方权威指南</span>
+                        </div>
+                    </a>
+                    <a href="https://git-scm.com/docs" target="_blank" rel="noreferrer" class="quick-link">
+                        <div class="quick-link-icon">&#128221;</div>
+                        <div class="quick-link-text">
+                            <strong>命令参考</strong>
+                            <span>完整命令文档</span>
+                        </div>
+                    </a>
+                    <a href="https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B5-%E5%8F%82%E6%95%B0%E4%B8%8E%E9%80%89%E9%A1%B9" target="_blank" rel="noreferrer" class="quick-link">
+                        <div class="quick-link-icon">&#9881;</div>
+                        <div class="quick-link-text">
+                            <strong>Git 参数</strong>
+                            <span>命令选项详解</span>
+                        </div>
+                    </a>
+                    <a href="https://git-scm.com/docs/git-checkout" target="_blank" rel="noreferrer" class="quick-link">
+                        <div class="quick-link-icon">&#128270;</div>
+                        <div class="quick-link-text">
+                            <strong>分支操作</strong>
+                            <span>checkout/branch</span>
+                        </div>
+                    </a>
+                    <a href="https://git-scm.com/docs/git-merge" target="_blank" rel="noreferrer" class="quick-link">
+                        <div class="quick-link-icon">&#10067;</div>
+                        <div class="quick-link-text">
+                            <strong>合并操作</strong>
+                            <span>merge/rebase</span>
+                        </div>
+                    </a>
+                    <a href="https://git-scm.com/docs/git-reset" target="_blank" rel="noreferrer" class="quick-link">
+                        <div class="quick-link-icon">&#8617;</div>
+                        <div class="quick-link-text">
+                            <strong>历史回退</strong>
+                            <span>reset/revert</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2><span class="icon">&#128218;</span> 官方文档资源</h2>
+                <div class="card-grid">
+                    <article class="ref-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128214;</div>
+                            <h3>Pro Git 电子书</h3>
+                        </div>
+                        <p>官方出品的免费电子书，全面介绍 Git 的原理和使用技巧，被翻译成多国语言。</p>
+                        <div class="ref-card-tags">
+                            <span class="ref-tag">入门必读</span>
+                            <span class="ref-tag">中文版</span>
+                        </div>
+                        <a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noreferrer" class="ref-card-link">
+                            访问文档 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                    </article>
+
+                    <article class="ref-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128187;</div>
+                            <h3>Git 官网</h3>
+                        </div>
+                        <p>Git 官方网站，提供下载、文档、教程等资源，是获取 Git 工具的最佳渠道。</p>
+                        <div class="ref-card-tags">
+                            <span class="ref-tag">官方下载</span>
+                            <span class="ref-tag">资源中心</span>
+                        </div>
+                        <a href="https://git-scm.com" target="_blank" rel="noreferrer" class="ref-card-link">
+                            访问官网 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                    </article>
+
+                    <article class="ref-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128202;</div>
+                            <h3>Git 内部原理</h3>
+                        </div>
+                        <p>深入了解 Git 的内部数据结构和工作原理，适合想深入掌握 Git 的开发者。</p>
+                        <div class="ref-card-tags">
+                            <span class="ref-tag">高级</span>
+                            <span class="ref-tag">原理深入</span>
+                        </div>
+                        <a href="https://git-scm.com/book/zh/v2/Git-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86" target="_blank" rel="noreferrer" class="ref-card-link">
+                            访问文档 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                    </article>
+
+                    <article class="ref-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128736;</div>
+                            <h3>Flight rules for Git</h3>
+                        </div>
+                        <p>Git 飞行规则手册，收集了各种"出问题后怎么办"的场景解决方案。</p>
+                        <div class="ref-card-tags">
+                            <span class="ref-tag">问题解决</span>
+                            <span class="ref-tag">应急手册</span>
+                        </div>
+                        <a href="https://github.com/k88hudson/git-flight-rules/blob/master/README_zh.md" target="_blank" rel="noreferrer" class="ref-card-link">
+                            访问手册 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        </a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- 配置模板 -->
+        <section class="tab-content" id="templates">
+            <div class="content-section">
+                <h2><span class="icon">&#128196;</span> 常用配置模板</h2>
+                <p>开箱即用的 Git 配置文件模板，复制即可使用</p>
+
+                <div class="card-grid">
+                    <article class="ref-card template-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128196;</div>
+                            <h3>.gitignore</h3>
+                        </div>
+                        <p>忽略不需要纳入版本控制的文件，如编译产物、日志、临时文件等。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">.gitignore</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 操作系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建产物
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# 日志
+*.log
+logs/
+
+# 环境变量
+.env
+.env.local
+.env.*.local</code></pre>
+                        </div>
+                        <div class="template-usage">
+                            <h4>使用方式</h4>
+                            <p>将文件保存为项目根目录的 <code>.gitignore</code>，支持全局忽略和仓库级别忽略。</p>
+                        </div>
+                    </article>
+
+                    <article class="ref-card template-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#9881;</div>
+                            <h3>.gitconfig</h3>
+                        </div>
+                        <p>Git 全局配置文件，设置用户名、邮箱、别名、合并工具等。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">~/.gitconfig</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code>[user]
+    name = Your Name
+    email = your.email@example.com
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset' --abbrev-commit
+    undo = reset --soft HEAD~1
+    amend = commit --amend --no-edit
+
+[core]
+    editor = code --wait
+    autocrlf = input
+    excludesfile = ~/.gitignore_global
+
+[push]
+    default = simple
+
+[pull]
+    rebase = false
+
+[credential]
+    helper = store</code></pre>
+                        </div>
+                        <div class="template-usage">
+                            <h4>使用方式</h4>
+                            <p>运行 <code>git config --global -e</code> 编辑全局配置，或创建 <code>~/.gitconfig</code> 文件。</p>
+                        </div>
+                    </article>
+
+                    <article class="ref-card template-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128230;</div>
+                            <h3>提交信息规范</h3>
+                        </div>
+                        <p>Conventional Commits 格式规范，使提交信息结构化，便于自动化工具处理。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">Commit Message</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 类型: 简短描述 (不超过50字)
+# |类型|描述|
+# |---|---|
+# |feat|新功能|
+# |fix|bug 修复|
+# |docs|文档更新|
+# |style|代码格式|
+# |refactor|重构|
+# |perf|性能优化|
+# |test|测试相关|
+# |chore|构建/工具|
+
+# 示例:
+feat: 添加用户登录功能
+fix: 修复购物车数量计算错误
+docs: 更新 API 文档
+
+# 详细描述 (可选)
+# 正文描述_what/why/how，72字符换行
+
+# 相关 issue (可选)
+Closes #123
+Fixes #456</code></pre>
+                        </div>
+                        <div class="template-usage">
+                            <h4>使用方式</h4>
+                            <p>可配合 commitizen 工具或 Git Hooks 强制执行规范格式。</p>
+                        </div>
+                    </article>
+
+                    <article class="ref-card template-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128171;</div>
+                            <h3>Commit Template</h3>
+                        </div>
+                        <p>Git 提交信息模板，规范团队提交信息格式。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">~/.gitmessage</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+
+# -----------------
+# type: feat, fix, docs, style, refactor, perf, test, chore
+# scope: 影响的范围（可选）
+# subject: 简短描述，不超过50字符
+# body: 详细描述（可选）
+# footer: 关联的 Issue（可选）
+# -----------------
+
+# 示例:
+# feat(auth): 添加 OAuth 第三方登录
+#
+# 实现 Google 和 GitHub 账号的 OAuth 登录
+# 支持自动绑定已有账户
+#
+# Closes #123</code></pre>
+                        </div>
+                        <div class="template-usage">
+                            <h4>使用方式</h4>
+                            <p><code>git config --global commit.template ~/.gitmessage</code></p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2><span class="icon">&#128230;</span> Git Hooks 模板</h2>
+                <div class="card-grid">
+                    <article class="ref-card template-card">
+                        <div class="ref-card-header">
+                            <div class="ref-card-icon">&#128736;</div>
+                            <h3>pre-commit Hook</h3>
+                        </div>
+                        <p>提交前自动检查：代码格式、语法错误、敏感信息等。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">.git/hooks/pre-commit</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code>#!/bin/sh
+
+# 检查是否有敏感信息泄露
+if git diff --cached --name-only --diff-filter=ACM | xargs grep -i "password\|secret\|api_key" 2>/dev/null; then
+    echo "Error: 敏感信息不应被提交!"
+    exit 1
+fi
+
+# 检查代码格式 (Node.js)
+if [ -f "package.json" ]; then
+    npx prettier --check "src/**/*.{js,jsx}" || exit 1
+fi
+
+# 运行单元测试
+npm test || exit 1
+
+exit 0</code></pre>
+                        </div>
+                        <div class="template-usage">
+                            <h4>使用方式</h4>
+                            <p>保存为 <code>.git/hooks/pre-commit</code> 并添加执行权限 <code>chmod +x .git/hooks/pre-commit</code></p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最佳实践 -->
+        <section class="tab-content" id="practices">
+            <div class="content-section">
+                <h2><span class="icon">&#127919;</span> 分支管理策略</h2>
+                <p>推荐使用 Git Flow 或 Trunk-Based Development 等分支策略</p>
+
+                <div class="card-grid">
+                    <article class="ref-card practice-card">
+                        <h3>Git Flow 工作流</h3>
+                        <p>适合有计划发布周期的项目，有明确的功能、发布、维护分支。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">分支结构</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code>main (生产)     ─●──●──●──●──●──●──
+                 \               /
+develop (开发)   ─●──●──●──●──●──●
+                  |             |
+feature/        f1 f2         f3
+                  |             |
+release/                              r1 r2
+                                  |
+
+hotfix/                          h1</code></pre>
+                        </div>
+                        <div class="practice-do">主分支只接受合并，不直接提交</div>
+                        <div class="practice-dont">不要在 main 分支上直接开发</div>
+                    </article>
+
+                    <article class="ref-card practice-card">
+                        <h3>Trunk-Based Development</h3>
+                        <p>适合持续交付的团队，所有开发在主干进行，使用短生命周期分支。</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">分支策略</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 推荐策略
+main ─●──●──●──●──●──●──●──●──
+      │  │  │  │  │  │
+      f1 │  │  │  │  └─ f4 (1-2天)
+      │  f2 f3│  │  │
+      └───────┘  │  └────── f5
+                 └────────── f6
+
+# 规则
+- 分支生命周期 &lt; 2 天
+- 频繁集成到主干
+- 功能开关控制发布</code></pre>
+                        </div>
+                        <div class="practice-do">保持分支短小，频繁合并</div>
+                        <div class="practice-dont">避免长时间存在的分支</div>
+                    </article>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2><span class="icon">&#128221;</span> 提交规范</h2>
+                <div class="card-grid">
+                    <article class="ref-card practice-card success">
+                        <h3>良好的提交习惯</h3>
+                        <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 14px; line-height: 1.8;">
+                            <li>每次提交只做一件事</li>
+                            <li>提交信息清晰描述"做了什么"和"为什么"</li>
+                            <li>保持提交原子性（不可再分）</li>
+                            <li>先测试再提交</li>
+                        </ul>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">好的提交示例</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 好的提交
+feat: 添加用户头像上传功能
+- 支持 JPG/PNG/GIF 格式
+- 最大 2MB 限制
+- 上传前进行图片压缩
+
+fix: 修复登录页面验证码不刷新的问题
+- 点击验证码图片时自动刷新</code></pre>
+                        </div>
+                    </article>
+
+                    <article class="ref-card practice-card danger">
+                        <h3>需要避免的做法</h3>
+                        <ul style="padding-left: 20px; color: var(--text-secondary); font-size: 14px; line-height: 1.8;">
+                            <li>提交信息过于笼统（如 "fix"）</li>
+                            <li>把多个不相关的更改放在一起提交</li>
+                            <li>提交未测试的代码</li>
+                            <li>在提交信息中解释如何修复</li>
+                        </ul>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">需要避免的提交</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 需要避免的提交
+update
+asdf
+fix bug
+WIP
+merged from origin
+</code></pre>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2><span class="icon">&#128295;</span> 常用工作流</h2>
+                <div class="card-grid">
+                    <article class="ref-card practice-card">
+                        <h3>同步远程仓库</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">Bash</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 获取远程更新并合并
+git pull
+
+# 或者分步执行
+git fetch origin
+git merge origin/main
+
+# 使用 rebase 保持线性历史
+git pull --rebase</code></pre>
+                        </div>
+                    </article>
+
+                    <article class="ref-card practice-card">
+                        <h3>整理提交历史</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">Bash</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 合并最近3个提交
+git rebase -i HEAD~3
+
+# 压缩合并
+git rebase -i HEAD~3
+# 将 pick 改为 squash 或 s
+
+# 修改最后一次提交
+git commit --amend</code></pre>
+                        </div>
+                    </article>
+
+                    <article class="ref-card practice-card warning">
+                        <h3>撤销操作</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">Bash</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code># 撤销工作区修改
+git checkout -- file
+git restore file
+
+# 撤销暂存区
+git reset HEAD file
+
+# 撤销提交 (保留修改)
+git reset --soft HEAD~1
+
+# 撤销提交 (不保留修改)
+git reset --hard HEAD~1
+
+# 创建撤销提交
+git revert HEAD</code></pre>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <div class="notice-box tip">
+                <span class="notice-icon">&#128161;</span>
+                <div class="notice-content">
+                    <strong>提示</strong>
+                    <p>在团队协作中，优先使用 <code>revert</code> 而非 <code>reset</code> 来撤销公开提交的更改，这样可以保留完整的提交历史。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 常见问题 -->
+        <section class="tab-content" id="faq">
+            <div class="content-section">
+                <h2><span class="icon">&#10067;</span> 常见问题解答</h2>
+                <p>精选高频问题，快速定位解决方案</p>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>如何撤销最后一次提交？</span>
+                        <span class="faq-icon">&#9660;</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>根据需求选择不同的撤销方式：</p>
+                            <ul style="margin: 12px 0; padding-left: 20px;">
+                                <li><code>git reset --soft HEAD~1</code> - 撤销提交，保留修改在暂存区</li>
+                                <li><code>git reset --hard HEAD~1</code> - 撤销提交和修改，完全删除</li>
+                                <li><code>git revert HEAD</code> - 创建新的撤销提交（推荐用于已推送的提交）</li>
+                            </ul>
+                            <div class="notice-box warning" style="margin-top: 12px;">
+                                <span class="notice-icon">&#9888;</span>
+                                <div class="notice-content">
+                                    <p>如果是已推送到远程的提交，建议使用 <code>git revert</code> 而非 <code>git reset</code>，以避免影响他人。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>如何解决合并冲突？</span>
+                        <span class="faq-icon">&#9660;</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>合并冲突发生时，按以下步骤处理：</p>
+                            <ol style="margin: 12px 0; padding-left: 20px;">
+                                <li>运行 <code>git status</code> 查看冲突文件</li>
+                                <li>手动编辑冲突文件，保留需要的代码</li>
+                                <li>冲突标记格式如下：</li>
+                            </ol>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">冲突文件</span>
+                                </div>
+                                <pre><code>&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+const a = 1;
+=======
+const a = 2;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-branch</code></pre>
+                            </div>
+                            <ol style="margin: 12px 0; padding-left: 20px;">
+                                <li>删除冲突标记，保留正确代码</li>
+                                <li><code>git add .</code> 标记已解决</li>
+                                <li><code>git commit</code> 完成合并</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>如何修改已推送的提交信息？</span>
+                        <span class="faq-icon">&#9660;</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>如果需要修改最后一次已推送的提交：</p>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Bash</span>
+                                </div>
+                                <pre><code># 修改最后一次提交
+git commit --amend -m "新的提交信息"
+
+# 强制推送到远程
+git push --force-with-lease
+
+# 注意：修改已推送的提交会改写历史，
+# 在团队协作中请谨慎使用</code></pre>
+                            </div>
+                            <div class="notice-box warning" style="margin-top: 12px;">
+                                <span class="notice-icon">&#9888;</span>
+                                <div class="notice-content">
+                                    <p>修改已推送的提交会改写 Git 历史，可能影响其他协作者。建议只在个人分支上操作，或提前通知团队成员。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>如何恢复误删的分支或提交？</span>
+                        <span class="faq-icon">&#9660;</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>使用 <code>git reflog</code> 可以恢复误删的内容：</p>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Bash</span>
+                                </div>
+                                <pre><code># 查看操作历史
+git reflog
+
+# 从历史中恢复分支
+git checkout -b branch-name HEAD@{n}
+
+# 或者直接重置
+git reset --hard HEAD@{n}
+
+# 例如：恢复误删的分支
+git reflog                         # 找到删除前的 HEAD
+git branch recovered-branch HEAD@{1}
+</code></pre>
+                            </div>
+                            <div class="notice-box tip" style="margin-top: 12px;">
+                                <span class="notice-icon">&#128161;</span>
+                                <div class="notice-content">
+                                    <p>Git 会在 reflog 中记录约90天的操作历史，即使是删除的分支或提交也有机会恢复。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>merge 和 rebase 有什么区别？</span>
+                        <span class="faq-icon">&#9660;</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p><strong>merge</strong> 和 <strong>rebase</strong> 都是合并分支的方式，但有本质区别：</p>
+                            <div class="card-grid" style="margin-top: 16px;">
+                                <div style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                                    <h4 style="margin-bottom: 8px; font-size: 15px;">merge (合并)</h4>
+                                    <ul style="font-size: 13px; color: var(--text-secondary); padding-left: 16px; line-height: 1.8;">
+                                        <li>保留完整分支历史</li>
+                                        <li>创建合并提交</li>
+                                        <li>操作安全，不可破坏历史</li>
+                                        <li>历史图可能复杂</li>
+                                    </ul>
+                                </div>
+                                <div style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                                    <h4 style="margin-bottom: 8px; font-size: 15px;">rebase (变基)</h4>
+                                    <ul style="font-size: 13px; color: var(--text-secondary); padding-left: 16px; line-height: 1.8;">
+                                        <li>线性历史，更清晰</li>
+                                        <li>不创建额外提交</li>
+                                        <li>需要谨慎，不能在公共分支使用</li>
+                                        <li>可能需要强制推送</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="code-block" style="margin-top: 16px;">
+                                <div class="code-header">
+                                    <span class="code-lang">使用场景</span>
+                                </div>
+                                <pre><code># 本地分支整理，使用 rebase
+git checkout feature
+git rebase main
+
+# 合并功能分支，使用 merge
+git checkout main
+git merge feature</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>如何正确使用 .gitignore？</span>
+                        <span class="faq-icon">&#9660;</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p><code>.gitignore</code> 文件用于指定 Git 忽略的文件和目录：</p>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">.gitignore 规则</span>
+                                </div>
+                                <pre><code># 忽略特定文件
+secret.txt
+*.log
+
+# 忽略目录
+node_modules/
+dist/
+build/
+
+# 忽略除某个文件外的所有文件
+/*
+!/important.txt
+
+# 忽略以 debug 开头的文件
+debug*
+
+# 忽略特定后缀的文件
+*.tmp</code></pre>
+                            </div>
+                            <div class="notice-box info" style="margin-top: 12px;">
+                                <span class="notice-icon">&#128240;</span>
+                                <div class="notice-content">
+                                    <p>如果文件已被跟踪，需要先移除缓存：<code>git rm --cached file</code></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 术语表 -->
+        <section class="tab-content" id="glossary">
+            <div class="content-section">
+                <h2><span class="icon">&#128214;</span> Git 术语表</h2>
+                <p>常用 Git 术语中英文对照及解释</p>
+
+                <div class="glossary-list">
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>仓库</h4>
+                            <span class="glossary-en">Repository / Repo</span>
+                        </div>
+                        <p>存储项目代码和版本历史的地方，包含 .git 目录。分为本地仓库和远程仓库。</p>
+                        <div class="glossary-example">git init, git clone</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>提交</h4>
+                            <span class="glossary-en">Commit</span>
+                        </div>
+                        <p>对文件修改的快照，每次提交都会创建一个唯一的哈希标识。包含作者、时间、提交信息。</p>
+                        <div class="glossary-example">git commit -m "add feature"</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>分支</h4>
+                            <span class="glossary-en">Branch</span>
+                        </div>
+                        <p>从主分支分离出来的独立开发线，允许在不影响主线的情况下进行开发。</p>
+                        <div class="glossary-example">git branch, git checkout -b</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>合并</h4>
+                            <span class="glossary-en">Merge</span>
+                        </div>
+                        <p>将一个分支的修改整合到另一个分支。会产生一个新的合并提交。</p>
+                        <div class="glossary-example">git merge feature-branch</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>变基</h4>
+                            <span class="glossary-en">Rebase</span>
+                        </div>
+                        <p>将一系列提交"移动"到另一个基点上，产生线性历史。用于保持提交历史整洁。</p>
+                        <div class="glossary-example">git rebase main</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>暂存区</h4>
+                            <span class="glossary-en">Staging Area / Index</span>
+                        </div>
+                        <p>一个介于工作区和仓库之间的区域，用于准备要提交的修改。</p>
+                        <div class="glossary-example">git add file, git status</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>工作区</h4>
+                            <span class="glossary-en">Working Directory / Working Tree</span>
+                        </div>
+                        <p>项目文件的实际目录，可以看到的文件内容。</p>
+                        <div class="glossary-example">编辑文件、查看修改</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>远程仓库</h4>
+                            <span class="glossary-en">Remote</span>
+                        </div>
+                        <p>托管在网络上的仓库版本，通常用于团队协作和代码共享。</p>
+                        <div class="glossary-example">origin, upstream</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>拉取</h4>
+                            <span class="glossary-en">Pull</span>
+                        </div>
+                        <p>从远程仓库获取并合并更新。相当于 fetch + merge。</p>
+                        <div class="glossary-example">git pull origin main</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>推送</h4>
+                            <span class="glossary-en">Push</span>
+                        </div>
+                        <p>将本地仓库的提交上传到远程仓库。</p>
+                        <div class="glossary-example">git push origin main</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>检出</h4>
+                            <span class="glossary-en">Checkout</span>
+                        </div>
+                        <p>切换分支或恢复文件。可以移动 HEAD 指针到指定提交。</p>
+                        <div class="glossary-example">git checkout branch-name</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>储藏</h4>
+                            <span class="glossary-en">Stash</span>
+                        </div>
+                        <p>临时保存当前工作区的修改，以便切换到其他任务。</p>
+                        <div class="glossary-example">git stash, git stash pop</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>重置</h4>
+                            <span class="glossary-en">Reset</span>
+                        </div>
+                        <p>移动 HEAD 和分支指针，可以撤销提交或修改暂存区。</p>
+                        <div class="glossary-example">git reset --hard HEAD~1</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>还原</h4>
+                            <span class="glossary-en">Revert</span>
+                        </div>
+                        <p>创建一个新提交来撤销之前的修改，保留完整历史。</p>
+                        <div class="glossary-example">git revert HEAD</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>标签</h4>
+                            <span class="glossary-en">Tag</span>
+                        </div>
+                        <p>为特定提交添加标记，通常用于版本发布。</p>
+                        <div class="glossary-example">git tag v1.0.0</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>冲突</h4>
+                            <span class="glossary-en">Conflict</span>
+                        </div>
+                        <p>当两个分支修改了同一文件的同一位置时，合并无法自动进行，需要手动解决。</p>
+                        <div class="glossary-example">手动编辑、git add</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>引用日志</h4>
+                            <span class="glossary-en">Reflog</span>
+                        </div>
+                        <p>记录所有 HEAD 和分支引用的变化历史，可用于恢复误操作。</p>
+                        <div class="glossary-example">git reflog</div>
+                    </article>
+
+                    <article class="glossary-item">
+                        <div class="glossary-term">
+                            <h4>对象数据库</h4>
+                            <span class="glossary-en">Object Database</span>
+                        </div>
+                        <p>Git 存储内容的地方，包含 blob、tree、commit、tag 四种对象类型。</p>
+                        <div class="glossary-example">.git/objects/</div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <button class="theme-toggle" aria-label="切换主题">&#127769;</button>
+            <p>Git Workflow Lab - MIT License</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js" defer></script>
+    <script>
+        // 标签页切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有 active
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // 添加 active
+                btn.classList.add('active');
+                const tabId = btn.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // FAQ 手风琴
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('open');
+            });
+        });
+
+        // 复制代码功能
+        function copyCode(btn) {
+            const codeBlock = btn.closest('.code-block');
+            const code = codeBlock.querySelector('pre code')?.textContent || codeBlock.querySelector('pre').textContent;
+
+            navigator.clipboard.writeText(code.trim()).then(() => {
+                btn.classList.add('copied');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    已复制
+                `;
+
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        复制
+                    `;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

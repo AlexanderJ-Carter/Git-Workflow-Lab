@@ -157,7 +157,7 @@ git xxx -y -z
 
 | 上一关 | 下一关 |
 |--------|--------|
-| [关卡 XX：XXX](./lesson-xx-xxx.md) | [关卡 XX：YYY](./lesson-yyy.md) |
+| [关卡 XX：XXX](./lesson-00-install-and-config.md) | [关卡 XX：YYY](./lesson-01-init-push.md) |
 
 ---
 

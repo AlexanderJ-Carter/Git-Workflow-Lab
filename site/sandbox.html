@@ -1176,7 +1176,10 @@ Dropped refs/stash@{0}`
             if (output) {
                 const resultLine = document.createElement('div');
                 resultLine.className = 'sb-output-line result';
-                resultLine.innerHTML = `<pre class="sb-shell-output">${output}</pre>`;
+                const pre = document.createElement('pre');
+                pre.className = 'sb-shell-output';
+                pre.textContent = output;
+                resultLine.appendChild(pre);
                 outputContainer.appendChild(resultLine);
             }
 

@@ -43,7 +43,8 @@ Project: Git Workflow Lab - Git 与 CI/CD 教学仓库
 └── docker-compose.yml      # 本地实验环境
 ```
 
-## 本地开发命令
+
+### 本地开发命令
 
 ### 启动实验环境
 ```bash
@@ -80,25 +81,31 @@ docker-compose logs -f
 - `security-scan.yml` - 安全扫描
 
 ### 构建网站
+
 静态网站使用 GitHub Pages 部署，构建源在 `_site/` 目录。
 
 ## 课程体系
 
 ### 阶段 0-1: 基础与同步
+
 - 安装配置、终端基础、commit、push、pull
 
 ### 阶段 2: 分支与协作
+
 - 分支、PR、冲突处理、rebase、SSH
 
 ### 阶段 3: 救火与恢复
+
 - cherry-pick、revert、reflog、stash
 
 ### 阶段 4-5: 发布与自动化
+
 - 标签、Release、CI/CD、Secrets
 
 ## 站点功能页面
 
 ### 学习辅助
+
 - `ai-assistant.html` - AI 问答助手（需用户自己提供 API Key）
 - `flashcards.html` - 记忆闪卡系统（间隔重复学习）
 - `quiz.html` - 技能测验（含 17+ 课程题目）
@@ -106,11 +113,13 @@ docker-compose logs -f
 - `best-practices.html` - 最佳实践指南
 
 ### 实践练习
+
 - `playground.html` - 命令练习场
 - `challenges.html` - 场景挑战
 - `workspace.html` - 学习工作台（需本地 Docker 环境）
 
 ### 其他页面
+
 - `interview.html` - 面试题库
 - `gamification.html` - 游戏化系统
 - `skill-tree.html` - 技能树

@@ -194,12 +194,12 @@ const i18n = {
 ### Tools
 
 - [Sphinx Internationalization](https://www.sphinx-doc.org/en/master/usage/advanced/intl.html)
-- [gettext Manual](https://www.gnu.org/software/gettext/manual/)
+- [gettext Manual](https://www.gnu.org/software/gettext/manual/gettext.html)
 - [sphinx-intl](https://github.com/sphinx-doc/sphinx-intl)
 
 ### Guides
 
-- [Translation Best Practices](https://mozilla-l10n.github.io/documentation/localization/localization_best_practices.html)
+- [Translation Best Practices](https://github.com/sphinx-doc/sphinx-intl#translation-workflow)
 - [Git Documentation Translation Guide](https://github.com/jnavila/git-manpages-l10n)
 
 ## Contact

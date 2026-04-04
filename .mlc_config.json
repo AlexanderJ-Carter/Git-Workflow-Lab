@@ -33,5 +33,8 @@
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "30s",
-  "aliveStatusCodes": [200, 206]
+  "aliveStatusCodes": [200, 206],
+  "ignoreDirectories": [
+    "docs-sphinx"
+  ]
 }

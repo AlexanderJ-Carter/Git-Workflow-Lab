@@ -6,6 +6,18 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.3.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.3.0...v1.3.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* 修复 quiz.html 页面初始化问题 ([428ef25](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/428ef2560561fcce75ac94a6f40a16f8b36e25ef))
+* 修复 Sphinx 文档链接格式 ([78abbc9](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/78abbc92847d4a705fdb483a443470ab24cc867c))
+* 在 workflow 中排除 CHANGELOG.md 的 Markdown 检查 ([7b52213](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/7b5221381d3a67dde865ab1168c7fa8e28639c46))
+* 排除 CHANGELOG.md 的 Markdown 检查 ([2c2dcf1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/2c2dcf127e4bef3d143808e6701eb25b03a0cb52))
+* 正确配置链接检查器忽略 docs-sphinx 目录 ([277564b](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/277564b2d122739d6ea2ab603defbb3b0e94444d))
+* 配置链接检查只检查 docs 和根目录 ([7bd8cf6](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/7bd8cf6b658737ff7f561be474d6e7f264cd3ff9))
+
 ## [1.3.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.2.1...v1.3.0) (2026-04-04)
 
 

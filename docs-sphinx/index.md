@@ -1,55 +1,6 @@
 # Git Workflow Lab 文档
 
-🌐 **Language / 语言**: [English](en/index) | **中文**
-
----
-
-```{toctree}
-:maxdepth: 2
-:caption: 快速开始
-
-getting-started/introduction
-getting-started/installation
-getting-started/quickstart
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: 课程体系
-
-lessons/index
-lessons/basic
-lessons/branching
-lessons/collaboration
-lessons/advanced
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: 实践环境
-
-environment/docker-setup
-environment/gitea-usage
-environment/troubleshooting
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: 开发指南
-
-development/contributing
-development/architecture
-development/testing
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: 附录
-
-appendix/faq
-appendix/cheatsheet
-appendix/resources
-```
+🌐 **Language / 语言**: [English](index-en.md) | **中文**
 
 ---
 
@@ -66,14 +17,14 @@ appendix/resources
 
 ### 快速链接
 
-- [安装指南](getting-started/installation)
-- [快速开始](getting-started/quickstart)
-- [课程总览](lessons/index)
-- [常见问题](appendix/faq)
+- [安装指南](getting-started/installation.md)
+- [快速开始](getting-started/quickstart.md)
+- [课程总览](https://alexanderj-carter.github.io/Git-Workflow-Lab/lessons-overview.html)
+- [常见问题](https://alexanderj-carter.github.io/Git-Workflow-Lab/faq.html)
 
 ### 项目信息
 
 - **版本**: {version}
 - **许可证**: MIT License
-- **源码**: GitHub
-- **问题反馈**: GitHub Issues
+- **源码**: [GitHub](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab)
+- **问题反馈**: [GitHub Issues](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues)

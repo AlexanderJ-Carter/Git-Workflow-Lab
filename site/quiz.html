@@ -1098,6 +1098,84 @@
 
         // 导出到全局
         window.QuizApp = QuizApp;
+
+        // 初始化测验应用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从URL参数获取课程ID，默认显示课程选择
+            const urlParams = new URLSearchParams(window.location.search);
+            const lessonId = urlParams.get('lesson');
+
+            if (lessonId && QUIZ_DATA[lessonId]) {
+                // 显示指定课程的测验
+                new QuizApp('quiz-app', lessonId);
+            } else {
+                // 显示课程选择界面
+                renderLessonSelector();
+            }
+        });
+
+        function renderLessonSelector() {
+            const container = document.getElementById('quiz-app');
+            let html = `
+                <div class="quiz-header">
+                    <h1>📚 Git 技能测验</h1>
+                    <p>选择一个课程开始测验</p>
+                </div>
+                <div class="lesson-selector">
+            `;
+
+            for (const [id, data] of Object.entries(QUIZ_DATA)) {
+                const questionCount = data.questions.length;
+                html += `
+                    <a href="?lesson=${id}" class="lesson-card">
+                        <h3>${data.title}</h3>
+                        <p>${questionCount} 道题目</p>
+                        <span class="lesson-btn">开始测验 →</span>
+                    </a>
+                `;
+            }
+
+            html += `</div>
+                <style>
+                    .lesson-selector {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                        gap: 20px;
+                        margin-top: 32px;
+                    }
+                    .lesson-card {
+                        background: var(--quiz-bg-card);
+                        border: 1px solid var(--quiz-border);
+                        border-radius: var(--quiz-radius);
+                        padding: 24px;
+                        text-decoration: none;
+                        color: var(--quiz-text);
+                        transition: all 0.2s;
+                    }
+                    .lesson-card:hover {
+                        border-color: var(--quiz-primary);
+                        transform: translateY(-4px);
+                        box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+                    }
+                    .lesson-card h3 {
+                        margin: 0 0 8px;
+                        color: var(--quiz-primary);
+                    }
+                    .lesson-card p {
+                        color: var(--quiz-text-muted);
+                        font-size: 14px;
+                        margin: 0 0 16px;
+                    }
+                    .lesson-btn {
+                        color: var(--quiz-primary);
+                        font-weight: 500;
+                        font-size: 14px;
+                    }
+                </style>
+            `;
+
+            container.innerHTML = html;
+        }
     </script>
 </body>
 </html>

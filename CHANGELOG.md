@@ -6,6 +6,20 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.3.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.2.1...v1.3.0) (2026-04-04)
+
+
+### Features
+
+* v1.3.0 - 文档系统、国际化、安全修复与用户体验改进 ([7d6e4e6](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/7d6e4e662a08bb29e9521b039a9f729f103ebaac))
+
+
+### Bug Fixes
+
+* 修复链接检查失败的错误 ([586b52b](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/586b52b425999f48361902fd69e6eec0d2ad4849))
+* 忽略 GNU gettext 链接检查 ([a2079f2](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a2079f28a3db360cefba526f9bcd1b86e1f93fa4))
+* 添加 Sphinx 和 i18n 相关术语到拼写词典 ([35700e9](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/35700e9c1e20fb374300cbae62970bce9bb2ec8e))
+
 ## [1.2.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.2.0...v1.2.1) (2026-03-30)
 
 

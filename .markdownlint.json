@@ -4,6 +4,7 @@
   "MD007": false,
   "MD012": false,
   "MD013": false,
+  "MD022": false,
   "MD024": false,
   "MD025": false,
   "MD026": false,
@@ -14,5 +15,11 @@
   "MD034": false,
   "MD036": false,
   "MD040": false,
-  "MD041": false
+  "MD041": false,
+  "ignores": [
+    "CHANGELOG.md",
+    "_site/**",
+    "node_modules/**",
+    ".venv/**"
+  ]
 }

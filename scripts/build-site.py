@@ -1,22 +1,48 @@
 #!/usr/bin/env python3
-"""Git Workflow Lab - 静态网站构建脚本。"""
+"""Git Workflow Lab 静态网站构建脚本.
+
+本模块负责将 Markdown 格式的课程文档转换为静态 HTML 网站。
+主要功能包括:
+
+- Markdown 到 HTML 的转换
+- 自动生成课程索引页面
+- 处理文档间的相对链接
+- 复制静态资源文件
+
+使用方法:
+    $ python scripts/build-site.py
+
+输出目录:
+    _site/ - 构建后的静态网站
+
+Example:
+    >>> from scripts.build_site import build_site
+    >>> build_site()
+    🏗️  Building Git Workflow Lab website...
+    ✅ Built 17 lesson pages
+"""
 
 import posixpath
 import re
 import shutil
 from pathlib import Path, PurePosixPath
+from typing import Dict, List, Tuple
+
 import markdown
 from markdown.extensions.toc import TocExtension
 
+# 项目配置
 PROJECT_NAME = "Git Workflow Lab"
 REPO_URL = "https://github.com/AlexanderJ-Carter/Git-Workflow-Lab"
-PUBLIC_PAGES = [
+
+# 公开页面列表
+PUBLIC_PAGES: List[str] = [
     "lessons-overview.md",
     "learning-path.md",
     "faq.md",
 ]
 
-# 配置
+# 目录配置
 DOCS_DIR = Path("docs")
 SITE_DIR = Path("_site")
 LESSONS_DIR = SITE_DIR / "lessons"
@@ -72,7 +98,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     <script src="../assets/js/main.js"></script>
     <script>
-        // 生成目录
         document.querySelectorAll('.lesson-content h2').forEach(h2 => {{
             const li = document.createElement('li');
             const a = document.createElement('a');
@@ -137,16 +162,38 @@ LESSONS_INDEX_TEMPLATE = """<!DOCTYPE html>
 
 
 def extract_title(content: str) -> str:
-    """从 Markdown 内容中提取标题"""
+    """从 Markdown 内容中提取标题.
+
+    Args:
+        content: Markdown 格式的文档内容.
+
+    Returns:
+        提取到的标题文本，如果未找到则返回项目名称.
+
+    Example:
+        >>> extract_title('# Git 基础\\n\\n内容...')
+        'Git 基础'
+    """
     match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
-    if match:
-        return match.group(1)
-    return PROJECT_NAME
+    return match.group(1) if match else PROJECT_NAME
 
 
 def convert_markdown_to_html(md_content: str) -> str:
-    """将 Markdown 转换为 HTML"""
-    # 配置 Markdown 扩展
+    """将 Markdown 转换为 HTML.
+
+    Args:
+        md_content: Markdown 格式的文本内容.
+
+    Returns:
+        转换后的 HTML 字符串.
+
+    Note:
+        支持以下 Markdown 扩展:
+        - fenced_code: 代码块
+        - codehilite: 代码高亮
+        - tables: 表格
+        - toc: 目录生成
+    """
     extensions = [
         "fenced_code",
         "codehilite",
@@ -156,20 +203,42 @@ def convert_markdown_to_html(md_content: str) -> str:
     ]
 
     md = markdown.Markdown(extensions=extensions)
-    html = md.convert(md_content)
-
-    return html
+    return md.convert(md_content)
 
 
 def get_output_rel_path(md_path: Path) -> PurePosixPath:
-    """根据源 Markdown 路径返回站点中的输出相对路径。"""
+    """根据源 Markdown 路径返回站点中的输出相对路径.
+
+    Args:
+        md_path: Markdown 源文件的路径.
+
+    Returns:
+        输出 HTML 文件的相对路径.
+
+    Example:
+        >>> get_output_rel_path(Path('docs/lesson-01.md'))
+        PurePosixPath('lessons/lesson-01.html')
+    """
     if md_path.name.startswith("lesson-"):
         return PurePosixPath("lessons") / f"{md_path.stem}.html"
     return PurePosixPath("pages") / f"{md_path.stem}.html"
 
 
 def rewrite_markdown_links(content: str, md_path: Path) -> str:
-    """把 docs 中的 .md 链接改写为生成后的 HTML 路径。"""
+    """将文档中的 Markdown 链接重写为 HTML 链接.
+
+    Args:
+        content: Markdown 文档内容.
+        md_path: 当前文档的路径，用于计算相对路径.
+
+    Returns:
+        重写链接后的 Markdown 内容.
+
+    Note:
+        - 保留外部链接（http://, https://, mailto:）不变
+        - 保留锚点链接（#）不变
+        - 将 .md 链接转换为对应的 .html 链接
+    """
     current_output = get_output_rel_path(md_path)
     docs_root = DOCS_DIR.resolve()
 
@@ -210,14 +279,25 @@ def rewrite_markdown_links(content: str, md_path: Path) -> str:
     )
 
 
-def process_lesson_file(md_path: Path) -> tuple:
-    """处理单个课程文件"""
+def process_lesson_file(md_path: Path) -> Tuple[str, str]:
+    """处理单个课程文件.
+
+    Args:
+        md_path: 课程 Markdown 文件的路径.
+
+    Returns:
+        元组 (标题, 完整HTML内容).
+
+    Example:
+        >>> title, html = process_lesson_file(Path('docs/lesson-01.md'))
+        >>> print(title)
+        'Git 基础'
+    """
     content = md_path.read_text(encoding="utf-8")
     title = extract_title(content)
     content = rewrite_markdown_links(content, md_path)
     html_content = convert_markdown_to_html(content)
 
-    # 生成完整 HTML
     full_html = HTML_TEMPLATE.format(
         title=title,
         content=html_content,
@@ -227,8 +307,15 @@ def process_lesson_file(md_path: Path) -> tuple:
     return title, full_html
 
 
-def process_public_page(md_path: Path) -> tuple:
-    """处理公开说明页面。"""
+def process_public_page(md_path: Path) -> Tuple[str, str]:
+    """处理公开说明页面.
+
+    Args:
+        md_path: 页面 Markdown 文件的路径.
+
+    Returns:
+        元组 (标题, 完整HTML内容).
+    """
     content = md_path.read_text(encoding="utf-8")
     title = extract_title(content)
     content = rewrite_markdown_links(content, md_path)
@@ -242,16 +329,25 @@ def process_public_page(md_path: Path) -> tuple:
     return title, full_html
 
 
-def get_lesson_info(md_path: Path) -> dict:
-    """获取课程信息"""
+def get_lesson_info(md_path: Path) -> Dict[str, str]:
+    """获取课程元信息.
+
+    Args:
+        md_path: 课程 Markdown 文件的路径.
+
+    Returns:
+        包含课程信息的字典，包括:
+        - number: 课程编号
+        - title: 课程标题
+        - description: 课程描述
+        - filename: 文件名（不含扩展名）
+    """
     content = md_path.read_text(encoding="utf-8")
     title = extract_title(content)
 
-    # 提取课程编号
     match = re.search(r"lesson-(\d+)", md_path.name)
     number = match.group(1) if match else "?"
 
-    # 提取描述
     desc_match = re.search(
         r"\*\*所属阶段\*\*[：:].+\n\n(.+?)(?:\n\n|$)", content, re.DOTALL
     )
@@ -267,29 +363,53 @@ def get_lesson_info(md_path: Path) -> dict:
     }
 
 
-def build_site():
-    """构建静态网站"""
-    print(f"🏗️  Building {PROJECT_NAME} website...")
+def build_site() -> None:
+    """构建静态网站.
 
-    # 创建目录
+    主要步骤:
+        1. 创建输出目录结构
+        2. 复制静态资源（CSS/JS）
+        3. 复制站点 HTML 页面
+        4. 转换 Markdown 课程文档
+        5. 生成课程索引页面
+
+    输出目录结构:
+        _site/
+        ├── index.html
+        ├── assets/
+        │   ├── css/style.css
+        │   └── js/main.js
+        ├── lessons/
+        │   ├── index.html
+        │   └── lesson-*.html
+        └── pages/
+            └── *.html
+    """
+    print(f"Building {PROJECT_NAME} website...")
+
     SITE_DIR.mkdir(exist_ok=True)
     LESSONS_DIR.mkdir(exist_ok=True)
     PAGES_DIR.mkdir(exist_ok=True)
     (ASSETS_DIR / "css").mkdir(parents=True, exist_ok=True)
     (ASSETS_DIR / "js").mkdir(parents=True, exist_ok=True)
 
-    # 复制静态资源
     if Path("site/assets/css/style.css").exists():
         shutil.copy("site/assets/css/style.css", ASSETS_DIR / "css" / "style.css")
     if Path("site/assets/js/main.js").exists():
         shutil.copy("site/assets/js/main.js", ASSETS_DIR / "js" / "main.js")
 
-    # 复制所有 site 目录下的 HTML 页面（除了 docs 和 lessons 子目录）
+    # 复制docs目录到_site/docs/
+    if DOCS_DIR.exists():
+        docs_output = SITE_DIR / "docs"
+        if docs_output.exists():
+            shutil.rmtree(docs_output)
+        shutil.copytree(DOCS_DIR, docs_output)
+        print(f"  Copied docs/ directory")
+
     for html_file in Path("site").glob("*.html"):
         shutil.copy(html_file, SITE_DIR / html_file.name)
         print(f"  Copied {html_file.name}")
 
-    # 复制 site/index.html 作为主页面
     if Path("site/index.html").exists():
         shutil.copy("site/index.html", SITE_DIR / "index.html")
 
@@ -301,7 +421,6 @@ def build_site():
             output_path.write_text(html, encoding="utf-8")
             print(f"  Built page {title} -> {output_path.name}")
 
-    # 处理课程文件
     lessons = []
     for md_file in sorted(DOCS_DIR.glob("lesson-*.md")):
         print(f"  Processing {md_file.name}...")
@@ -312,7 +431,6 @@ def build_site():
 
         lessons.append(get_lesson_info(md_file))
 
-    # 创建课程索引页
     lessons_html = ""
     for lesson in sorted(
         lessons, key=lambda x: int(x["number"]) if x["number"].isdigit() else 999
@@ -331,8 +449,8 @@ def build_site():
     )
     (LESSONS_DIR / "index.html").write_text(index_html, encoding="utf-8")
 
-    print(f"✅ Built {len(lessons)} lesson pages")
-    print(f"📁 Output: {SITE_DIR.absolute()}")
+    print(f"Built {len(lessons)} lesson pages")
+    print(f"Output: {SITE_DIR.absolute()}")
 
 
 if __name__ == "__main__":

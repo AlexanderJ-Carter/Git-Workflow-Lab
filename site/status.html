@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务状态 - Git Workflow Lab</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .status-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 24px;
+        }
+
+        .status-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .status-header h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .overall-status {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .status-badge {
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge.all-ok {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.issues {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .service-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .service-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .service-status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .service-status-indicator.online {
+            background: #10b981;
+        }
+
+        .service-status-indicator.offline {
+            background: #ef4444;
+            animation: none;
+        }
+
+        .service-status-indicator.checking {
+            background: #f59e0b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .service-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 12px 0;
+            display: block;
+            text-decoration: none;
+        }
+
+        .service-url:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .service-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-small:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .info-box {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 32px;
+        }
+
+        [data-theme="dark"] .info-box {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .info-box h3 {
+            color: #4f46e5;
+            margin-bottom: 12px;
+        }
+
+        .credentials-table {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .credentials-table td {
+            padding: 8px 0;
+        }
+
+        .credentials-table td:first-child {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .credentials-table td:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: #6366f1;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-container">
+        <div class="status-header">
+            <h1>📊 服务状态监控</h1>
+            <p style="color: var(--text-secondary);">实时监控所有服务的运行状态</p>
+
+            <div class="overall-status">
+                <div class="status-badge all-ok" id="overall-status">
+                    <span>✓</span>
+                    <span>所有服务正常</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="services-grid" id="services-grid">
+            <!-- 动态生成 -->
+        </div>
+
+        <div class="info-box">
+            <h3>🔐 Gitea 登录信息</h3>
+            <table class="credentials-table">
+                <tr>
+                    <td>用户名</td>
+                    <td>playground</td>
+                </tr>
+                <tr>
+                    <td>密码</td>
+                    <td>playground2026</td>
+                </tr>
+                <tr>
+                    <td>邮箱</td>
+                    <td>playground@example.com</td>
+                </tr>
+            </table>
+        </div>
+
+        <p class="last-updated">
+            最后更新: <span id="last-updated"></span>
+        </p>
+    </div>
+
+    <script>
+        const services = [
+            {
+                name: '教程网站',
+                url: 'http://localhost:8082',
+                description: '主网站，包含所有课程和文档',
+                checkUrl: 'http://localhost:8082/index.html',
+                actions: [
+                    { label: '访问首页', url: '/' },
+                    { label: '快速开始', url: '/quick-start.html' }
+                ]
+            },
+            {
+                name: '学习工作台',
+                url: 'http://localhost:8082/workspace.html',
+                description: '左侧课程 + 右侧终端，边学边练',
+                checkUrl: 'http://localhost:8082/workspace.html',
+                actions: [
+                    { label: '打开工作台', url: '/workspace.html' }
+                ]
+            },
+            {
+                name: 'Web 终端',
+                url: 'http://localhost:8080',
+                description: '真实的 Linux 环境，练习 Git 命令',
+                checkUrl: 'http://localhost:8080',
+                actions: [
+                    { label: '打开终端', url: 'http://localhost:8080', external: true }
+                ]
+            },
+            {
+                name: 'Gitea 平台',
+                url: 'http://localhost:3000',
+                description: 'Git 托管平台，创建仓库和 PR',
+                checkUrl: 'http://localhost:3000',
+                actions: [
+                    { label: '登录 Gitea', url: 'http://localhost:3000', external: true }
+                ]
+            },
+            {
+                name: 'Sphinx 文档',
+                url: 'http://localhost:8000',
+                description: '技术文档系统',
+                checkUrl: 'http://localhost:8000',
+                actions: [
+                    { label: '查看文档', url: 'http://localhost:8000', external: true }
+                ]
+            }
+        ];
+
+        async function checkService(service) {
+            try {
+                const response = await fetch(service.checkUrl, {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('services-grid');
+
+            services.forEach(service => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-name">${service.name}</div>
+                        <div class="service-status-indicator checking"></div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <a href="${service.url}" target="_blank" class="service-url">${service.url}</a>
+                    <div class="service-actions">
+                        ${service.actions.map(action => `
+                            <a href="${action.url}" ${action.external ? 'target="_blank"' : ''} class="btn-small">
+                                ${action.label}
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+
+                // 检查服务状态
+                checkService(service).then(isOnline => {
+                    const indicator = card.querySelector('.service-status-indicator');
+                    indicator.classList.remove('checking');
+                    indicator.classList.add(isOnline ? 'online' : 'offline');
+                });
+            });
+        }
+
+        // 更新时间
+        document.getElementById('last-updated').textContent = new Date().toLocaleString('zh-CN');
+
+        // 渲染服务卡片
+        renderServices();
+    </script>
+</body>
+</html>

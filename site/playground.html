@@ -710,11 +710,28 @@ Untracked files:
             }
         };
 
+        // 安全地转义 HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // 输出到终端
         function output(text) {
             const line = document.createElement('div');
             line.className = 'gp-output-line';
-            line.innerHTML = text || '&nbsp;';
+            // 安全地设置文本内容，允许有限的 HTML 格式
+            if (text) {
+                // 只允许特定的 HTML 标签用于格式化
+                const safeText = text
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/&lt;(\/?(?:span|code|strong|em|br))(&nbsp;| class="[^"]*")?&gt;/g, '<$1$2>');
+                line.innerHTML = safeText;
+            } else {
+                line.innerHTML = '&nbsp;';
+            }
             outputEl.appendChild(line);
             outputEl.scrollTop = outputEl.scrollHeight;
         }

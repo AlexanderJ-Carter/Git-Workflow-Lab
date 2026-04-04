@@ -78,3 +78,54 @@ After the first automated release PR is merged, this file will be maintained by 
 
 * GitHub Actions and local teaching flow inconsistencies were cleaned up.
 * Fixed the lesson format mismatch that caused the lesson-check workflow to fail.
+
+## [1.3.0] - 2026-04-04
+
+### Added
+
+#### Documentation System
+- **Sphinx Integration**: Complete documentation system with Markdown support
+  - `docs-sphinx/` directory with full Sphinx setup
+  - MyST Parser for Markdown support
+  - Mermaid diagram integration
+  - Code copy buttons
+  - Responsive sphinx-rtd-theme
+
+#### Security Improvements
+- **XSS Fixes**: Fixed cross-site scripting vulnerabilities
+  - `site/ai-assistant.html`: Added HTML escaping for AI responses
+  - `site/playground.html`: Safe command output rendering
+- **Environment Variables**: Enforced secure configuration
+  - Docker Compose now requires password configuration
+  - No default weak passwords
+
+#### Developer Experience
+- **Makefile**: Unified command interface
+  - `make help`, `make build`, `make docs`, `make test`, etc.
+- **Code Quality Tools**:
+  - `pyproject.toml`: Python project standard configuration
+  - `.pre-commit-config.yaml`: Automated code checks
+  - Black, isort, MyPy integration
+- **Testing Framework**:
+  - pytest setup with unit tests
+  - Test coverage configuration
+
+### Changed
+
+#### Code Refactoring
+- **Python Scripts**: Complete rewrite with type hints and docstrings
+  - `scripts/build-site.py`: Full type annotations
+  - `scripts/fix-quotes.py`: Sphinx-standard documentation
+- **Documentation**: Improved README with Sphinx instructions
+
+### Fixed
+
+- Security vulnerabilities in AI assistant and playground
+- Weak default passwords in Docker setup
+- Missing type hints in Python code
+- Inconsistent code style across the project
+
+### Security
+
+- **High Priority**: XSS vulnerabilities patched
+- **Medium Priority**: Enforced secure password configuration

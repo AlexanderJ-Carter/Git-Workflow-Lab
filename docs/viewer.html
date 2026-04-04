@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>Git Workflow Lab 文档中心</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../site/assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
     <style>
       :root {
         --viewer-primary: #6366f1;
@@ -981,6 +981,34 @@
       renderNav(initialLesson.file, searchEl.value);
       const metaText = LESSON_DETAILS[initialLesson.file];
       loadDoc(initialLesson.file, initialLesson.title, metaText);
+    </script>
+
+    <!-- 加载主脚本和代码块增强 -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+      // 文档加载完成后增强代码块
+      document.addEventListener('DOMContentLoaded', function() {
+        // 等待一小段时间确保内容已加载
+        setTimeout(function() {
+          if (typeof window.enhanceCodeBlocks === 'function') {
+            window.enhanceCodeBlocks();
+          }
+        }, 500);
+      });
+
+      // 监听内容变化（用于动态加载的文档）
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes.length && typeof window.enhanceCodeBlocks === 'function') {
+            window.enhanceCodeBlocks();
+          }
+        });
+      });
+
+      observer.observe(document.getElementById('content'), {
+        childList: true,
+        subtree: true
+      });
     </script>
   </body>
 </html>

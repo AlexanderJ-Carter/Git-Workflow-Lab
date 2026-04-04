@@ -2,6 +2,11 @@
 data/
 _site/
 
+# Sphinx documentation build
+docs-sphinx/_build/
+docs-sphinx/_static/img/
+docs-sphinx/locale/**/*.mo
+
 # Environment variables
 .env
 .env.local
@@ -18,6 +23,10 @@ __pycache__/
 venv/
 ENV/
 env/
+*.egg-info/
+dist/
+build/
+.eggs/
 
 # Logs and runtime files
 *.log
@@ -36,6 +45,7 @@ Thumbs.db
 *.iml
 *.sublime-project
 *.sublime-workspace
+.vscode/
 
 # Docker
 docker-compose.override.yml
@@ -44,3 +54,14 @@ docker-compose.override.yml
 *.bak
 *.tmp
 .cache/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# Bandit
+.bandit/

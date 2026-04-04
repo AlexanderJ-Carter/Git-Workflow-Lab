@@ -2480,3 +2480,178 @@ textarea.form-input {
         transition: none;
     }
 }
+
+/* ============================================
+   改进的代码块样式 - 更好的可读性和交互
+   ============================================ */
+
+/* 代码块容器 */
+.lesson-content pre,
+.article-content pre {
+    position: relative;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    overflow-x: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 代码块头部 */
+.lesson-content pre::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+    border-radius: 12px 12px 0 0;
+}
+
+/* 代码文本 */
+.lesson-content pre code,
+.article-content pre code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e2e8f0;
+    background: transparent;
+    padding: 0;
+    display: block;
+}
+
+/* 行内代码 */
+.lesson-content code,
+.article-content code {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .lesson-content code,
+[data-theme="dark"] .article-content code {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* 代码块操作按钮容器 */
+.code-block-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.lesson-content pre:hover .code-block-actions,
+.article-content pre:hover .code-block-actions,
+.content pre:hover .code-block-actions,
+.markdown-body pre:hover .code-block-actions,
+#content pre:hover .code-block-actions {
+    opacity: 1;
+}
+
+/* 操作按钮通用样式 */
+.code-action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.code-action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.code-action-btn:active {
+    transform: translateY(0);
+}
+
+/* 复制按钮 */
+.code-action-btn.copy-btn {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.code-action-btn.copy-btn:hover {
+    background: rgba(99, 102, 241, 0.3);
+}
+
+.code-action-btn.copy-btn.copied {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+/* 运行按钮 */
+.code-action-btn.run-btn {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.code-action-btn.run-btn:hover {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+/* 代码块语言标签 */
+.code-lang-label {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 语法高亮增强 */
+.lesson-content pre .keyword { color: #c792ea; }
+.lesson-content pre .string { color: #c3e88d; }
+.lesson-content pre .function { color: #82aaff; }
+.lesson-content pre .comment { color: #636b7a; font-style: italic; }
+.lesson-content pre .number { color: #f78c6c; }
+.lesson-content pre .operator { color: #89ddff; }
+
+/* 特殊命令高亮 */
+.lesson-content pre code .git-command {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .lesson-content pre,
+    .article-content pre {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .lesson-content pre code,
+    .article-content pre code {
+        font-size: 13px;
+    }
+
+    .code-block-actions {
+        opacity: 1; /* 移动端始终显示 */
+    }
+}

@@ -356,7 +356,7 @@
           <span class="pane-hint">建议从关卡总览开始</span>
         </div>
         <div class="pane-body">
-          <div class="pane-loading">
+          <div class="pane-loading" id="docs-loading">
             <div class="pane-loading-spinner"></div>
             加载中...
           </div>
@@ -364,7 +364,7 @@
             id="docs-frame"
             src="/docs/viewer.html?file=lessons-overview.md"
             title="Docs Viewer"
-            onload="this.parentElement.querySelector('.pane-loading').style.display='none'"
+            onload="document.getElementById('docs-loading').style.display='none'"
           ></iframe>
         </div>
       </section>
@@ -379,9 +379,12 @@
             <span class="terminal-status-dot"></span>
             <span>未连接</span>
           </div>
+          <a href="http://localhost:8080" target="_blank" style="margin-left: auto; font-size: 13px; color: var(--ws-primary); text-decoration: none;">
+            在新窗口打开 →
+          </a>
         </div>
         <div class="pane-body">
-          <div class="pane-loading">
+          <div class="pane-loading" id="terminal-loading">
             <div class="pane-loading-spinner"></div>
             连接终端中...
           </div>
@@ -389,7 +392,7 @@
             id="terminal-frame"
             src="http://localhost:8080"
             title="Web Terminal"
-            onload="this.parentElement.querySelector('.pane-loading').style.display='none'; updateTerminalStatus(true)"
+            onload="document.getElementById('terminal-loading').style.display='none'; updateTerminalStatus(true)"
             onerror="updateTerminalStatus(false)"
           ></iframe>
         </div>
@@ -444,9 +447,54 @@
         }
       }
 
+      // 超时处理
+      function handleLoadingTimeout() {
+        const docsLoading = document.getElementById('docs-loading');
+        const terminalLoading = document.getElementById('terminal-loading');
+
+        if (docsLoading && docsLoading.style.display !== 'none') {
+          docsLoading.innerHTML = `
+            <div style="color: #e17055;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 12px;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p>文档加载失败</p>
+              <button onclick="location.reload()" style="margin-top: 12px; padding: 8px 16px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                重新加载
+              </button>
+            </div>
+          `;
+        }
+
+        if (terminalLoading && terminalLoading.style.display !== 'none') {
+          terminalLoading.innerHTML = `
+            <div style="color: #e17055;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 12px;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p>终端连接失败</p>
+              <p style="font-size: 12px; margin-top: 8px; color: var(--ws-text-muted);">
+                请确认 Docker 服务正在运行
+              </p>
+              <button onclick="location.reload()" style="margin-top: 12px; padding: 8px 16px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                重新加载
+              </button>
+            </div>
+          `;
+          updateTerminalStatus(false);
+        }
+      }
+
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         LearningProgress.init();
+
+        // 设置加载超时（15秒）
+        setTimeout(handleLoadingTimeout, 15000);
 
         // 定期检查终端状态
         setInterval(() => {

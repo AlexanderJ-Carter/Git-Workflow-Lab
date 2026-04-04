@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe 测试 - Git Workflow Lab</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .info { background: #dbeafe; color: #1e40af; }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #4f46e5; }
+        h1 { color: #6366f1; }
+        code { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Iframe 加载测试</h1>
+    <p>测试各个页面在 iframe 中是否能正常加载</p>
+
+    <div class="test-section">
+        <h2>测试 1: 直接访问文档</h2>
+        <p>直接在浏览器打开文档页面测试：</p>
+        <button onclick="window.open('/docs/viewer.html?file=lessons-overview.md')">
+            打开文档页面
+        </button>
+        <div id="test1-status" class="status info">点击按钮测试直接访问</div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试 2: Iframe 加载文档</h2>
+        <p>在 iframe 中加载文档页面：</p>
+        <button onclick="loadDocsIframe()">加载文档 Iframe</button>
+        <div id="test2-status" class="status info">等待测试...</div>
+        <div id="iframe-container-1"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试 3: 简单 HTML 页面</h2>
+        <p>加载一个简单的 HTML 测试 iframe 是否工作：</p>
+        <button onclick="loadSimpleIframe()">加载简单页面</button>
+        <div id="test3-status" class="status info">等待测试...</div>
+        <div id="iframe-container-2"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试 4: 终端页面</h2>
+        <p>加载 Web 终端：</p>
+        <button onclick="loadTerminalIframe()">加载终端 Iframe</button>
+        <div id="test4-status" class="status info">等待测试...</div>
+        <div id="iframe-container-3"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 浏览器控制台</h2>
+        <p>按 <kbd>F12</kbd> 打开开发者工具，查看 Console 标签页是否有错误信息</p>
+        <p>常见问题：</p>
+        <ul>
+            <li><strong>跨域错误</strong>: 检查是否使用了 file:// 协议</li>
+            <li><strong>404错误</strong>: 检查文件路径是否正确</li>
+            <li><strong>CSP错误</strong>: 内容安全策略阻止加载</li>
+            <li><strong>JavaScript错误</strong>: 页面脚本有bug</li>
+        </ul>
+    </div>
+
+    <script>
+        function updateStatus(id, message, type) {
+            const statusEl = document.getElementById(id);
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+
+        function loadDocsIframe() {
+            updateStatus('test2-status', '⏳ 加载中...', 'info');
+            const container = document.getElementById('iframe-container-2');
+            container.innerHTML = '<iframe id="docs-iframe" src="/docs/viewer.html?file=lessons-overview.md" onload="updateStatus(\'test2-status\', \'✓ 加载成功!\', \'success\')" onerror="updateStatus(\'test2-status\', \'✗ 加载失败!\', \'error\')"></iframe>';
+
+            // 超时检测
+            setTimeout(() => {
+                const iframe = document.getElementById('docs-iframe');
+                if (iframe && !iframe.contentDocument) {
+                    updateStatus('test2-status', '⚠️ 可能被浏览器阻止', 'error');
+                }
+            }, 5000);
+        }
+
+        function loadSimpleIframe() {
+            updateStatus('test3-status', '⏳ 加载中...', 'info');
+            const container = document.getElementById('iframe-container-2');
+            const simpleHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head><title>测试页面</title></head>
+                <body style="padding: 20px;">
+                    <h1 style="color: #6366f1;">✓ Iframe 正常工作!</h1>
+                    <p>如果你看到这个消息，说明 iframe 功能正常。</p>
+                    <p>问题可能出在文档页面本身。</p>
+                </body>
+                </html>
+            `;
+            const blob = new Blob([simpleHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            container.innerHTML = `<iframe src="${url}" onload="updateStatus('test3-status', '✓ 简单页面加载成功!', 'success')"></iframe>`;
+        }
+
+        function loadTerminalIframe() {
+            updateStatus('test4-status', '⏳ 加载中...', 'info');
+            const container = document.getElementById('iframe-container-3');
+            container.innerHTML = '<iframe src="http://localhost:8080" onload="updateStatus(\'test4-status\', \'✓ 终端加载成功!\', \'success\')" onerror="updateStatus(\'test4-status\', \'✗ 终端加载失败!\', \'error\')"></iframe>';
+        }
+
+        // 自动检测浏览器信息
+        console.log('浏览器信息:', navigator.userAgent);
+        console.log('当前协议:', window.location.protocol);
+        console.log('是否在iframe中:', window.self !== window.top);
+    </script>
+</body>
+</html>

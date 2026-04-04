@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务诊断 - Git Workflow Lab</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .status-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status.ok { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        .status.checking { background: #fef3c7; color: #92400e; }
+        h1 { color: #6366f1; }
+        h2 { margin-top: 0; }
+        code { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
+        .solution {
+            background: #eef2ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #6366f1;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #4f46e5; }
+    </style>
+</head>
+<body>
+    <h1>🔍 服务诊断</h1>
+    <p>检查所有服务的运行状态</p>
+
+    <div class="status-card">
+        <h2>📚 教程网站 (8082)</h2>
+        <p><span class="status checking" id="status-8082">检查中...</span></p>
+        <p>地址: <code>http://localhost:8082</code></p>
+    </div>
+
+    <div class="status-card">
+        <h2>💻 Web 终端 (8080)</h2>
+        <p><span class="status checking" id="status-8080">检查中...</span></p>
+        <p>地址: <code>http://localhost:8080</code></p>
+        <div id="solution-8080" style="display:none;" class="solution">
+            <strong>🔧 解决方案：</strong>
+            <ol>
+                <li>确认 Docker 正在运行: <code>docker ps</code></li>
+                <li>重启终端容器: <code>docker-compose restart terminal</code></li>
+                <li>查看日志: <code>docker-compose logs terminal</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="status-card">
+        <h2>🐙 Gitea (3000)</h2>
+        <p><span class="status checking" id="status-3000">检查中...</span></p>
+        <p>地址: <code>http://localhost:3000</code></p>
+        <p>登录: <code>playground / playground2026</code></p>
+    </div>
+
+    <div class="status-card">
+        <h2>🌐 浏览器信息</h2>
+        <p>User Agent: <code id="user-agent"></code></p>
+        <p>当前URL: <code id="current-url"></code></p>
+    </div>
+
+    <button onclick="location.reload()">🔄 重新检查</button>
+    <button onclick="window.open('/workspace.html')">📂 打开工作台</button>
+
+    <script>
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        document.getElementById('current-url').textContent = window.location.href;
+
+        async function checkService(port, elementId, solutionId) {
+            const url = `http://localhost:${port}`;
+            const statusEl = document.getElementById(elementId);
+            const solutionEl = document.getElementById(solutionId);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    signal: AbortSignal.timeout(3000)
+                });
+                statusEl.textContent = '✓ 运行正常';
+                statusEl.className = 'status ok';
+            } catch (error) {
+                statusEl.textContent = '✗ 无法连接';
+                statusEl.className = 'status error';
+                if (solutionEl) solutionEl.style.display = 'block';
+            }
+        }
+
+        // 检查所有服务
+        checkService(8082, 'status-8082', null);
+        checkService(8080, 'status-8080', 'solution-8080');
+        checkService(3000, 'status-3000', null);
+    </script>
+</body>
+</html>

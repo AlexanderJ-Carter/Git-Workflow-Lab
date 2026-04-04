@@ -920,19 +920,40 @@ ${selectedContent}
             renderMessage(role, content);
         }
 
+        // 安全地转义 HTML 特殊字符
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 安全地格式化消息内容
+        function formatMessageContent(content) {
+            // 先转义所有 HTML
+            let escaped = escapeHtml(content);
+
+            // 然后安全地添加格式化
+            // 代码块
+            escaped = escaped.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<pre><code class="language-${lang || ''}">${code}</code></pre>`;
+            });
+            // 行内代码
+            escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+            // 粗体
+            escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // 换行
+            escaped = escaped.replace(/\n/g, '<br>');
+
+            return escaped;
+        }
+
         // 渲染消息
         function renderMessage(role, content) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `ai-message ${role}`;
 
-            // 格式化内容
-            let formattedContent = content
-                .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
-                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
-
-            messageDiv.innerHTML = formattedContent;
+            // 使用安全的格式化函数
+            messageDiv.innerHTML = formatMessageContent(content);
             elements.chatMessages.appendChild(messageDiv);
 
             // 滚动到底部

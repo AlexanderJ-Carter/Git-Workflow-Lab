@@ -1100,3 +1100,200 @@
     };
 
 })();
+
+// ============================================
+// 代码块增强功能 - 复制和运行按钮
+// ============================================
+
+(function() {
+    'use strict';
+
+    // 为代码块添加操作按钮
+    function enhanceCodeBlocks() {
+        // 支持多种内容容器类名
+        const codeBlocks = document.querySelectorAll('.lesson-content pre, .article-content pre, .content pre, .markdown-body pre, #content pre');
+
+        codeBlocks.forEach((pre) => {
+            // 跳过已处理的代码块
+            if (pre.querySelector('.code-block-actions')) return;
+
+            const code = pre.querySelector('code');
+            if (!code) return;
+
+            // 创建按钮容器
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'code-block-actions';
+
+            // 判断是否为可执行命令
+            const codeText = code.textContent.trim();
+            const isExecutable = isExecutableCommand(codeText);
+
+            // 添加复制按钮
+            const copyBtn = createCopyButton(code);
+            actionsContainer.appendChild(copyBtn);
+
+            // 如果是可执行命令，添加运行按钮
+            if (isExecutable) {
+                const runBtn = createRunButton(codeText);
+                actionsContainer.appendChild(runBtn);
+            }
+
+            // 添加语言标签
+            const langLabel = detectLanguage(code);
+            if (langLabel) {
+                const label = document.createElement('span');
+                label.className = 'code-lang-label';
+                label.textContent = langLabel;
+                pre.appendChild(label);
+            }
+
+            pre.appendChild(actionsContainer);
+        });
+    }
+
+    // 判断是否为可执行命令
+    function isExecutableCommand(codeText) {
+        const lines = codeText.split('\n');
+        // 检查是否包含常见的 Git/Shell 命令
+        const executablePatterns = [
+            /^\s*git\s+/,
+            /^\s*docker\s+/,
+            /^\s*docker-compose\s+/,
+            /^\s*npm\s+/,
+            /^\s*yarn\s+/,
+            /^\s*pip\s+/,
+            /^\s*python\s+/,
+            /^\s*ls\s+/,
+            /^\s*cd\s+/,
+            /^\s*mkdir\s+/,
+            /^\s*touch\s+/,
+            /^\s*cat\s+/,
+            /^\s*echo\s+/,
+            /^\s*curl\s+/,
+            /^\s*wget\s+/,
+        ];
+
+        return lines.some(line => {
+            const trimmedLine = line.trim();
+            // 跳过注释和空行
+            if (trimmedLine.startsWith('#') || trimmedLine === '') return false;
+            return executablePatterns.some(pattern => pattern.test(trimmedLine));
+        });
+    }
+
+    // 创建复制按钮
+    function createCopyButton(codeElement) {
+        const btn = document.createElement('button');
+        btn.className = 'code-action-btn copy-btn';
+        btn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>复制</span>
+        `;
+
+        btn.addEventListener('click', async () => {
+            const text = codeElement.textContent;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                btn.classList.add('copied');
+                btn.querySelector('span').textContent = '已复制!';
+
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.querySelector('span').textContent = '复制';
+                }, 2000);
+            } catch (err) {
+                console.error('复制失败:', err);
+                btn.querySelector('span').textContent = '复制失败';
+                setTimeout(() => {
+                    btn.querySelector('span').textContent = '复制';
+                }, 2000);
+            }
+        });
+
+        return btn;
+    }
+
+    // 创建运行按钮
+    function createRunButton(command) {
+        const btn = document.createElement('button');
+        btn.className = 'code-action-btn run-btn';
+        btn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>运行</span>
+        `;
+
+        btn.addEventListener('click', () => {
+            // 检查是否有打开的终端
+            const workspace = window.parent || window;
+            const terminalFrame = workspace.document.getElementById('terminal-frame');
+
+            if (terminalFrame) {
+                // 在工作台环境中，发送命令到终端
+                alert('命令已复制! 请在右侧终端中粘贴运行。\n\n提示: 按 Ctrl+Shift+V 或右键粘贴');
+                navigator.clipboard.writeText(command);
+            } else {
+                // 独立页面，提示用户打开工作台
+                if (confirm('需要在学习工作台中运行命令。是否打开工作台?')) {
+                    localStorage.setItem('pendingCommand', command);
+                    // 使用绝对路径确保从任何位置都能正确跳转
+                    const basePath = window.location.pathname.includes('/docs/') ? '../workspace.html' : 'workspace.html';
+                    window.location.href = basePath;
+                }
+            }
+        });
+
+        return btn;
+    }
+
+    // 检测代码语言
+    function detectLanguage(codeElement) {
+        const classList = codeElement.className;
+        const langMatch = classList.match(/language-(\w+)/);
+        if (langMatch) {
+            const langMap = {
+                'bash': 'Bash',
+                'shell': 'Shell',
+                'javascript': 'JS',
+                'js': 'JS',
+                'typescript': 'TS',
+                'ts': 'TS',
+                'python': 'Python',
+                'py': 'Python',
+                'git': 'Git',
+                'yaml': 'YAML',
+                'yml': 'YAML',
+                'json': 'JSON',
+                'html': 'HTML',
+                'css': 'CSS',
+                'markdown': 'MD',
+                'md': 'MD',
+            };
+            return langMap[langMatch[1]] || langMatch[1].toUpperCase();
+        }
+
+        // 根据内容推断
+        const text = codeElement.textContent;
+        if (text.includes('git ')) return 'Git';
+        if (text.includes('npm ') || text.includes('yarn ')) return 'Shell';
+        if (text.includes('def ') || text.includes('import ')) return 'Python';
+
+        return null;
+    }
+
+    // 初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enhanceCodeBlocks);
+    } else {
+        enhanceCodeBlocks();
+    }
+
+    // 暴露API
+    window.enhanceCodeBlocks = enhanceCodeBlocks;
+
+})();

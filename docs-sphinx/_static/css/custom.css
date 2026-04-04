@@ -1,0 +1,394 @@
+/**
+ * Git Workflow Lab - Sphinx Custom Styles
+ * Modern, clean design with improved readability
+ */
+
+/* ============================================
+   Root Variables
+   ============================================ */
+:root {
+  /* Color Palette */
+  --primary-color: #4a90e2;
+  --primary-dark: #357abd;
+  --secondary-color: #6c5ce7;
+  --accent-color: #00b894;
+  --warning-color: #fdcb6e;
+  --danger-color: #e17055;
+
+  /* Neutral Colors */
+  --bg-color: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-color: #2d3436;
+  --text-muted: #636e72;
+  --border-color: #dfe6e9;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Effects */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 6px 10px rgba(0,0,0,0.08);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-color: #1e1e1e;
+  --bg-secondary: #2d2d2d;
+  --text-color: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --border-color: #404040;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+body {
+  font-family: var(--font-sans);
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+h1 {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: 2rem;
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 0.3em;
+  margin-top: 2em;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+}
+
+p {
+  margin-bottom: 1.2em;
+}
+
+/* ============================================
+   Links
+   ============================================ */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s, border-bottom 0.2s;
+  border-bottom: 1px solid transparent;
+}
+
+a:hover {
+  color: var(--primary-dark);
+  border-bottom: 1px solid var(--primary-color);
+}
+
+a.headerlink {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+:hover > a.headerlink {
+  opacity: 1;
+}
+
+/* ============================================
+   Code Blocks
+   ============================================ */
+code {
+  font-family: var(--font-mono);
+  background-color: var(--bg-secondary);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+  color: var(--secondary-color);
+}
+
+pre {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  overflow-x: auto;
+  margin: 1.5em 0;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+pre::before {
+  content: attr(data-language);
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-md);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+pre code {
+  background: transparent;
+  color: #ffffff;
+  padding: 0;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+/* Copy Button Enhancement */
+.copybutton {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-md);
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+pre:hover .copybutton {
+  opacity: 1;
+}
+
+.copybutton:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* ============================================
+   Admonitions
+   ============================================ */
+.admonition {
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin: 1.5em 0;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--primary-color);
+  background: var(--bg-secondary);
+}
+
+.admonition-title {
+  font-weight: 600;
+  margin-bottom: 0.5em;
+  font-size: 1.1em;
+}
+
+.admonition.note {
+  border-left-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), transparent);
+}
+
+.admonition.warning {
+  border-left-color: var(--warning-color);
+  background: linear-gradient(135deg, rgba(253, 203, 110, 0.1), transparent);
+}
+
+.admonition.danger {
+  border-left-color: var(--danger-color);
+  background: linear-gradient(135deg, rgba(225, 112, 85, 0.1), transparent);
+}
+
+.admonition.tip {
+  border-left-color: var(--accent-color);
+  background: linear-gradient(135deg, rgba(0, 184, 148, 0.1), transparent);
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+thead {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+}
+
+th, td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+tbody tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+   Lists
+   ============================================ */
+ul, ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+li {
+  margin-bottom: 0.5em;
+}
+
+/* ============================================
+   Sidebar & Navigation
+   ============================================ */
+.wy-side-nav-search {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: var(--spacing-lg);
+}
+
+.wy-side-nav-search input[type="text"] {
+  border-radius: var(--radius-md);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  width: 100%;
+}
+
+.wy-nav-side {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+.wy-menu-vertical li.current {
+  background: var(--bg-color);
+}
+
+.wy-menu-vertical li.current a {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+footer {
+  margin-top: 3em;
+  padding: var(--spacing-xl) 0;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   Mermaid Diagrams
+   ============================================ */
+.mermaid {
+  background: var(--bg-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-lg) 0;
+  text-align: center;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  pre {
+    padding: var(--spacing-md);
+  }
+
+  table {
+    font-size: 0.9em;
+  }
+
+  th, td {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admonition, table, pre {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+  .wy-nav-side, .copybutton {
+    display: none;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  pre {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    color: black;
+  }
+
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+}

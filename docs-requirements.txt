@@ -1,0 +1,19 @@
+# ============================================
+# Git Workflow Lab - 文档构建依赖
+# ============================================
+
+# Sphinx 核心
+sphinx>=7.0.0,<8.0.0
+
+# 主题和扩展
+sphinx-rtd-theme>=2.0.0
+sphinx-autobuild>=2024.0.0
+myst-parser>=2.0.0  # 支持 Markdown
+sphinx-copybutton>=0.5.0
+sphinxcontrib-mermaid>=0.9.0  # 流程图支持
+
+# 国际化
+sphinx-intl>=2.1.0
+
+# API 文档（如需要）
+sphinx-autodoc-typehints>=2.0.0

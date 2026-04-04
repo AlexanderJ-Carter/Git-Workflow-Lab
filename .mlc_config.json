@@ -29,6 +29,9 @@
     },
     {
       "pattern": "^https://www\\.gnu\\.org/software/gettext/.*$"
+    },
+    {
+      "pattern": "^docs-sphinx/.*\\.md$"
     }
   ],
   "replacementPatterns": [],
@@ -36,8 +39,5 @@
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "30s",
-  "aliveStatusCodes": [200, 206],
-  "ignoreDirectories": [
-    "docs-sphinx"
-  ]
+  "aliveStatusCodes": [200, 206]
 }

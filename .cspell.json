@@ -53,7 +53,19 @@
     "mainwork",
     "cheatsheet",
     "flashcards",
-    "gamification"
+    "gamification",
+    "toctree",
+    "quickstart",
+    "BUILDDIR",
+    "SPHINXOPTS",
+    "gettext",
+    "Transifex",
+    "Crowdin",
+    "urlsafe",
+    "i18n",
+    "Noto",
+    "JetBrains",
+    "worktrees"
   ],
   "ignorePaths": [
     "node_modules/**",

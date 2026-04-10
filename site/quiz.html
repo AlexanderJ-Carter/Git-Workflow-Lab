@@ -340,7 +340,30 @@
         <!-- 测验内容将由 JavaScript 渲染 -->
     </div>
 
+    <script src="assets/js/main.js" defer></script>
     <script>
+        const LESSON_CONFIG = {
+            'lesson-00': { lessonHref: 'lessons/lesson-00-install-and-config.html' },
+            'lesson-00b': { lessonHref: 'lessons/lesson-00-terminal-basics.html' },
+            'lesson-01': { lessonHref: 'lessons/lesson-01-init-push.html' },
+            'lesson-02': { lessonHref: 'lessons/lesson-02-workspace-staging-history.html' },
+            'lesson-03': { lessonHref: 'lessons/lesson-03-remote-and-sync.html' },
+            'lesson-04': { lessonHref: 'lessons/lesson-04-branches-and-pr.html' },
+            'lesson-05': { lessonHref: 'lessons/lesson-05-merge-conflict.html' },
+            'lesson-06': { lessonHref: 'lessons/lesson-06-rebase-clean-history.html' },
+            'lesson-06a': { lessonHref: 'lessons/lesson-06a-ssh-setup-and-clone.html' },
+            'lesson-06b': { lessonHref: 'lessons/lesson-06b-collaboration-conventions.html' },
+            'lesson-07': { lessonHref: 'lessons/lesson-07-cherry-pick-and-revert.html' },
+            'lesson-08': { lessonHref: 'lessons/lesson-08-reflog-and-recovery.html' },
+            'lesson-09': { lessonHref: 'lessons/lesson-09-stash-usage.html' },
+            'lesson-10': { lessonHref: 'lessons/lesson-10-first-ci-workflow.html' },
+            'lesson-11': { lessonHref: 'lessons/lesson-11-fix-broken-pipeline.html' },
+            'lesson-12': { lessonHref: 'lessons/lesson-12-multi-stage-pipeline-and-secrets.html' },
+            'lesson-13': { lessonHref: 'lessons/lesson-13-tags-and-releases.html' },
+            'lesson-15': { lessonHref: 'lessons/lesson-15-git-hooks.html' },
+            'lesson-16': { lessonHref: 'lessons/lesson-16-large-repo.html' }
+        };
+
         // 测验题库
         const QUIZ_BANK = {
             'lesson-01': {
@@ -948,6 +971,27 @@
                 const { questions } = this.quizData;
                 const correctCount = this.answers.filter(a => a.correct).length;
                 const score = Math.round((correctCount / questions.length) * 100);
+                const lessonHref = LESSON_CONFIG[this.lessonId]?.lessonHref || 'lessons/index.html';
+                const passed = score >= 60;
+
+                if (window.GitWorkflowLab?.QuizProgress) {
+                    window.GitWorkflowLab.QuizProgress.saveResult(
+                        this.lessonId,
+                        score,
+                        correctCount,
+                        questions.length
+                    );
+                } else {
+                    saveQuizResultFallback(this.lessonId, score, correctCount, questions.length);
+                }
+
+                if (passed) {
+                    if (window.GitWorkflowLab?.LearningProgress) {
+                        window.GitWorkflowLab.LearningProgress.saveProgress(this.lessonId, true);
+                    } else {
+                        saveLessonProgressFallback(this.lessonId, true);
+                    }
+                }
 
                 let resultClass = 'partial';
                 let resultIcon = '🎉';
@@ -968,9 +1012,11 @@
                             <div class="quiz-result-title">${resultTitle}</div>
                             <div class="quiz-result-score">${score}%</div>
                             <div class="quiz-result-msg">${resultMsg} (${correctCount}/${questions.length} 题正确)</div>
+                            <div class="quiz-result-msg">${passed ? '本课已自动记为完成。' : '达到 60% 可自动记为完成。'}</div>
                             <div class="quiz-actions">
                                 <button class="quiz-btn quiz-btn-primary" onclick="location.reload()">重新测验</button>
-                                <a href="../../docs/viewer.html?file=lesson-01-init-push.md" class="quiz-btn quiz-btn-secondary">返回课程</a>
+                                <a href="${lessonHref}" class="quiz-btn quiz-btn-secondary">返回课程</a>
+                                <a href="achievements.html" class="quiz-btn quiz-btn-secondary">查看成就</a>
                             </div>
                         </div>
                     </div>
@@ -1099,13 +1145,36 @@
         // 导出到全局
         window.QuizApp = QuizApp;
 
+        function saveQuizResultFallback(lessonId, score, correctCount, totalQuestions) {
+            const key = 'git-workflow-lab-quiz-results';
+            const results = JSON.parse(localStorage.getItem(key) || '{}');
+            results[lessonId] = {
+                score,
+                correctCount,
+                totalQuestions,
+                passed: score >= 60,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(key, JSON.stringify(results));
+        }
+
+        function saveLessonProgressFallback(lessonId, completed) {
+            const key = 'git-workflow-lab-progress';
+            const progress = JSON.parse(localStorage.getItem(key) || '{}');
+            progress[lessonId] = {
+                completed,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(key, JSON.stringify(progress));
+        }
+
         // 初始化测验应用
         document.addEventListener('DOMContentLoaded', function() {
             // 从URL参数获取课程ID，默认显示课程选择
             const urlParams = new URLSearchParams(window.location.search);
             const lessonId = urlParams.get('lesson');
 
-            if (lessonId && QUIZ_DATA[lessonId]) {
+            if (lessonId && QUIZ_BANK[lessonId]) {
                 // 显示指定课程的测验
                 new QuizApp('quiz-app', lessonId);
             } else {
@@ -1124,7 +1193,7 @@
                 <div class="lesson-selector">
             `;
 
-            for (const [id, data] of Object.entries(QUIZ_DATA)) {
+            for (const [id, data] of Object.entries(QUIZ_BANK)) {
                 const questionCount = data.questions.length;
                 html += `
                     <a href="?lesson=${id}" class="lesson-card">

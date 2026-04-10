@@ -729,8 +729,8 @@ CI/CD 相关：
             // 绑定点击事件
             elements.courseList.querySelectorAll('.ai-course-item').forEach(item => {
                 item.addEventListener('click', (e) => {
+                    const checkbox = item.querySelector('input');
                     if (e.target.type !== 'checkbox') {
-                        const checkbox = item.querySelector('input');
                         checkbox.checked = !checkbox.checked;
                     }
                     item.classList.toggle('active', checkbox.checked);

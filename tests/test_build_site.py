@@ -8,11 +8,12 @@ import pytest
 from pathlib import Path
 
 from build_site import (
-    extract_title,
     convert_markdown_to_html,
-    fix_quotes,
+    extract_title,
+    get_lesson_id,
     get_output_rel_path,
 )
+from fix_quotes import fix_quotes
 
 
 class TestExtractTitle:
@@ -113,6 +114,20 @@ class TestGetOutputRelPath:
         md_path = Path("docs/faq.md")
         result = get_output_rel_path(md_path)
         assert str(result) == "pages/faq.html"
+
+
+class TestGetLessonId:
+    """Test cases for normalized lesson IDs."""
+
+    def test_extract_base_lesson_id(self) -> None:
+        """Lesson IDs should ignore slug suffixes."""
+        md_path = Path("docs/lesson-01-init-push.md")
+        assert get_lesson_id(md_path) == "lesson-01"
+
+    def test_extract_lettered_lesson_id(self) -> None:
+        """Lesson IDs should preserve letter suffixes."""
+        md_path = Path("docs/lesson-06a-ssh-setup-and-clone.md")
+        assert get_lesson_id(md_path) == "lesson-06a"
 
 
 if __name__ == "__main__":

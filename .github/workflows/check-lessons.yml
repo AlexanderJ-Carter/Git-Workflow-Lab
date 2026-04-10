@@ -77,7 +77,6 @@ jobs:
         with:
           globs: "docs/*.md"
           config: ".markdownlint.json"
-        continue-on-error: true
 
       - name: Check links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
@@ -85,4 +84,3 @@ jobs:
           use-quiet-mode: "yes"
           use-verbose-mode: "yes"
           config-file: ".mlc_config.json"
-        continue-on-error: true

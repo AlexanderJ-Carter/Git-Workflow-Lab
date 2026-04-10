@@ -775,16 +775,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
             const primaryLink = document.getElementById('primary-link');
-            const overviewLink = document.getElementById('overview-link');
             const pathLink = document.getElementById('path-link');
-            const labSection = document.getElementById('lab-section');
 
             if (isLocal) {
                 primaryLink.href = './workspace.html';
                 primaryLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> 打开学习工作台';
-                overviewLink.href = './docs/viewer.html?file=lessons-overview.md';
-                pathLink.href = './docs/viewer.html?file=learning-path.md';
-                labSection.style.display = 'block';
+                if (pathLink) {
+                    pathLink.href = './docs/viewer.html?file=learning-path.md';
+                }
             }
         });
     </script>

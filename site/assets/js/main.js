@@ -169,6 +169,91 @@
         }
     };
 
+    /**
+     * 测验结果管理
+     * @namespace QuizProgress
+     */
+    const QuizProgress = {
+        /** @type {string} */
+        STORAGE_KEY: 'git-workflow-lab-quiz-results',
+
+        /**
+         * 获取全部测验结果
+         * @returns {Object}
+         */
+        getResults() {
+            if (!supportsFeature('localStorage')) {
+                return {};
+            }
+            return safeExecute(() => {
+                const data = localStorage.getItem(this.STORAGE_KEY);
+                return data ? JSON.parse(data) : {};
+            }, {});
+        },
+
+        /**
+         * 获取单节课测验结果
+         * @param {string} lessonId
+         * @returns {Object|null}
+         */
+        getResult(lessonId) {
+            const results = this.getResults();
+            return results[lessonId] || null;
+        },
+
+        /**
+         * 保存测验结果
+         * @param {string} lessonId
+         * @param {number} score
+         * @param {number} correctCount
+         * @param {number} totalQuestions
+         */
+        saveResult(lessonId, score, correctCount, totalQuestions) {
+            if (!supportsFeature('localStorage')) {
+                return;
+            }
+            try {
+                const results = this.getResults();
+                results[lessonId] = {
+                    score,
+                    correctCount,
+                    totalQuestions,
+                    passed: score >= 60,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(results));
+            } catch (error) {
+                console.warn('[QuizProgress] Failed to save result:', error);
+            }
+        },
+
+        /**
+         * 获取统计信息
+         * @returns {{passedCount: number, totalCount: number, averageScore: number}}
+         */
+        getStats() {
+            const results = Object.values(this.getResults());
+            if (results.length === 0) {
+                return {
+                    passedCount: 0,
+                    totalCount: 0,
+                    averageScore: 0
+                };
+            }
+
+            const passedCount = results.filter(result => result.passed).length;
+            const averageScore = Math.round(
+                results.reduce((sum, result) => sum + (result.score || 0), 0) / results.length
+            );
+
+            return {
+                passedCount,
+                totalCount: results.length,
+                averageScore
+            };
+        }
+    };
+
     // ============================================
     // 主题管理模块
     // ============================================
@@ -1079,6 +1164,7 @@
     // 暴露API到全局（保持向后兼容）
     window.GitWorkflowLab = {
         LearningProgress,
+        QuizProgress,
         ThemeManager,
         SmoothScroll,
         ScrollAnimation,

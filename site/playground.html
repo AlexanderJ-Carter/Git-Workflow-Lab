@@ -623,13 +623,14 @@ Untracked files:
                 }
                 const msg = args.find(a => a.startsWith('-m'))?.replace('-m', '').replace(/["']/g, '') || 'update';
                 const hash = Math.random().toString(16).substr(2, 7);
+                const changedFiles = gitState.stagingArea.length;
                 gitState.commits.unshift({ hash, msg });
                 gitState.stagingArea = [];
                 return `[${gitState.branch} ${hash}] ${msg}
  Author: User <user@example.com>
  Date:   ${new Date().toLocaleString()}
 
- ${gitState.stagingArea.length} file changed`;
+ ${changedFiles} file changed`;
             },
 
             'git log': () => {

@@ -406,8 +406,12 @@
                             <div class="progress-stat-label">已解锁成就</div>
                         </div>
                         <div class="progress-stat">
-                            <div class="progress-stat-value" id="total-count">8</div>
-                            <div class="progress-stat-label">总成就数</div>
+                            <div class="progress-stat-value" id="completed-lessons-count">0</div>
+                            <div class="progress-stat-label">已完成课程</div>
+                        </div>
+                        <div class="progress-stat">
+                            <div class="progress-stat-value" id="passed-quiz-count">0</div>
+                            <div class="progress-stat-label">通过测验</div>
                         </div>
                     </div>
                 </div>
@@ -637,7 +641,7 @@
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
-            return `${year}年${month}月${day日}`;
+            return `${year}年${month}月${day}日`;
         }
 
         // 渲染成就卡片
@@ -698,9 +702,15 @@
             const unlockedCount = Object.values(savedAchievements).filter(a => a.unlocked).length;
             const totalCount = ACHIEVEMENTS.length;
             const percentage = Math.round((unlockedCount / totalCount) * 100);
+            const learningStats = LearningProgress.getStats();
+            const quizStats = window.GitWorkflowLab?.QuizProgress?.getStats?.() || {
+                passedCount: 0,
+                totalCount: 0
+            };
 
             document.getElementById('unlocked-count').textContent = unlockedCount;
-            document.getElementById('total-count').textContent = totalCount;
+            document.getElementById('completed-lessons-count').textContent = `${learningStats.completedLessons}/${learningStats.totalLessons}`;
+            document.getElementById('passed-quiz-count').textContent = `${quizStats.passedCount}/${quizStats.totalCount}`;
             document.getElementById('progress-fill').style.width = `${percentage}%`;
             document.getElementById('progress-percent').textContent = `${percentage}%`;
         }

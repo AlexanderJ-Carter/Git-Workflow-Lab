@@ -6,6 +6,21 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.4.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.3.1...v1.4.0) (2026-04-27)
+
+
+### Features
+
+* 优化 CI/CD 流水线和提升用户体验 ([44bfbfe](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/44bfbfee320c9e33f23735869416bcd46f0a2542))
+* 优化 CI/CD 流水线和提升用户体验 ([d121543](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/d121543308a6090a11c74638c550f11c1204369f))
+
+
+### Bug Fixes
+
+* stabilize learning flow pages ([f05601e](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/f05601eedaa9faed10e405c720e329ba6a0cd84e))
+* stabilize learning flow pages ([0c4cd4d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/0c4cd4d4b7dac8bbbd338731d66eb72c48b65ba4))
+* 修复 CI 流水线错误 ([df5c4e5](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/df5c4e55cc5bb2e2b2ca3068b423449ad536abe3))
+
 ## [1.3.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.3.0...v1.3.1) (2026-04-04)
 
 

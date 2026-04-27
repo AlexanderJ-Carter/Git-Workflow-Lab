@@ -1,3 +1,4 @@
+---
 name: Build and Publish Container Images
 
 on:
@@ -73,7 +74,8 @@ jobs:
         with:
           images: |
             ${{ env.GHCR_IMAGE_PREFIX }}-${{ matrix.component }}
-            ${{ steps.check_dockerhub.outputs.has_dockerhub == 'true' && format('{0}-{1}', env.DOCKERHUB_IMAGE_PREFIX, matrix.component) || '' }}
+            ${{ steps.check_dockerhub.outputs.has_dockerhub == 'true' &&
+                format('{0}-{1}', env.DOCKERHUB_IMAGE_PREFIX, matrix.component) || '' }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}

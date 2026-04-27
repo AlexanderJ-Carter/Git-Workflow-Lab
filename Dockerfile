@@ -7,11 +7,8 @@ LABEL maintainer="Git Workflow Lab"
 LABEL description="Pre-configured Git learning environment with Gitea"
 LABEL version="2.0.0"
 
-# 复制自定义启动脚本
+# 复制自定义启动脚本并设置权限
 COPY docker/gitea/entrypoint.sh /custom-entrypoint.sh
-RUN chmod +x /custom-entrypoint.sh
-
-# 设置权限
 USER root
 RUN chmod +x /custom-entrypoint.sh
 

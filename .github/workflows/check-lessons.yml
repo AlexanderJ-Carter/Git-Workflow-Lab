@@ -1,3 +1,4 @@
+---
 name: Check Lessons
 
 on:
@@ -60,8 +61,13 @@ jobs:
         run: |
           echo "Checking lesson numbering..."
 
-          # 提取所有课程编号
-          numbers=$(grep -ohP 'lesson-\K\d+' docs/lesson-*.md | sort -n)
+          # 提取所有课程编号（使用 sed 替代 grep -P 提高兼容性）
+          numbers=$(ls docs/lesson-*.md 2>/dev/null | sed -n 's/.*lesson-\([0-9]\+\)\.md/\1/p' | sort -n)
+
+          if [ -z "$numbers" ]; then
+            echo "No lesson files found"
+            exit 1
+          fi
 
           # 检查是否有重复
           duplicates=$(echo "$numbers" | uniq -d)
@@ -73,7 +79,7 @@ jobs:
           echo "✓ Lesson numbering is valid"
 
       - name: Check Markdown format
-        uses: DavidAnson/markdownlint-cli2-action@v15
+        uses: DavidAnson/markdownlint-cli2-action@v16
         with:
           globs: "docs/*.md"
           config: ".markdownlint.json"

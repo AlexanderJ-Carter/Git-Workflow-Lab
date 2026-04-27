@@ -1126,6 +1126,310 @@
     };
 
     // ============================================
+    // 全局导航栏模块
+    // ============================================
+
+    /**
+     * 全局导航栏管理
+     * @namespace GlobalNavbar
+     */
+    const GlobalNavbar = {
+        /** @type {HTMLElement|null} */
+        navbar: null,
+
+        /** @type {HTMLElement|null} */
+        menuToggle: null,
+
+        /** @type {HTMLElement|null} */
+        mobileMenu: null,
+
+        /**
+         * 初始化全局导航栏
+         */
+        init() {
+            this.navbar = document.querySelector('.global-navbar');
+            if (!this.navbar) return;
+
+            this.menuToggle = this.navbar.querySelector('.nav-menu-toggle');
+            this.mobileMenu = this.navbar.querySelector('.global-navbar-menu');
+
+            // 移动端菜单切换
+            if (this.menuToggle && this.mobileMenu) {
+                this.menuToggle.addEventListener('click', () => {
+                    this.mobileMenu.classList.toggle('active');
+                    const isOpen = this.mobileMenu.classList.contains('active');
+                    this.menuToggle.innerHTML = isOpen
+                        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+                        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+                });
+
+                // 点击外部关闭菜单
+                document.addEventListener('click', (e) => {
+                    if (!this.navbar.contains(e.target)) {
+                        this.mobileMenu.classList.remove('active');
+                        this.menuToggle.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+                    }
+                });
+            }
+
+            // 滚动时改变导航栏样式（仅首页）
+            if (document.body.classList.contains('landing-page')) {
+                const handleScroll = throttle(() => {
+                    const scrolled = window.scrollY > 50;
+                    this.navbar.classList.toggle('scrolled', scrolled);
+                }, 100);
+
+                window.addEventListener('scroll', handleScroll, { passive: true });
+            }
+
+            // 高亮当前页面链接
+            this.highlightCurrentPage();
+
+            // 初始化搜索功能
+            this.initSearch();
+        },
+
+        /**
+         * 高亮当前页面的导航链接
+         */
+        highlightCurrentPage() {
+            const currentPath = window.location.pathname;
+            const links = this.navbar.querySelectorAll('.nav-link');
+
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.endsWith(href)) {
+                    link.classList.add('active');
+                }
+            });
+        },
+
+        /**
+         * 初始化搜索功能
+         */
+        initSearch() {
+            const searchInput = this.navbar.querySelector('.nav-search-input');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        // 跳转到搜索页面或执行搜索
+                        window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        },
+
+        /**
+         * 销毁导航栏
+         */
+        destroy() {
+            if (this.menuToggle) {
+                this.menuToggle.removeEventListener('click', () => {});
+            }
+        }
+    };
+
+    // ============================================
+    // 键盘快捷键模块
+    // ============================================
+
+    /**
+     * 键盘快捷键管理
+     * @namespace KeyboardShortcuts
+     */
+    const KeyboardShortcuts = {
+        /**
+         * 初始化键盘快捷键
+         */
+        init() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + K: 聚焦搜索框
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    const searchInput = document.querySelector('.nav-search-input');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                }
+
+                // Ctrl/Cmd + /: 显示快捷键帮助
+                if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                    e.preventDefault();
+                    this.showHelp();
+                }
+
+                // Ctrl/Cmd + D: 切换主题
+                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    const themeToggle = document.querySelector('.theme-toggle');
+                    if (themeToggle) {
+                        themeToggle.click();
+                    }
+                }
+
+                // Escape: 关闭模态框/菜单
+                if (e.key === 'Escape') {
+                    const mobileMenu = document.querySelector('.global-navbar-menu');
+                    if (mobileMenu?.classList.contains('active')) {
+                        mobileMenu.classList.remove('active');
+                    }
+                }
+
+                // 数字键 1-9: 快速导航
+                if (e.altKey && e.key >= '1' && e.key <= '9') {
+                    e.preventDefault();
+                    this.quickNavigate(parseInt(e.key));
+                }
+            });
+        },
+
+        /**
+         * 显示快捷键帮助
+         */
+        showHelp() {
+            const existing = document.querySelector('.shortcut-help-modal');
+            if (existing) {
+                existing.remove();
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'shortcut-help-modal';
+            modal.innerHTML = `
+                <div class="shortcut-help-content">
+                    <h3>键盘快捷键</h3>
+                    <div class="shortcut-list">
+                        <div class="shortcut-item">
+                            <kbd>Ctrl/⌘</kbd> + <kbd>K</kbd>
+                            <span>搜索</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl/⌘</kbd> + <kbd>D</kbd>
+                            <span>切换主题</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl/⌘</kbd> + <kbd>/</kbd>
+                            <span>显示/隐藏帮助</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Alt</kbd> + <kbd>1-9</kbd>
+                            <span>快速导航</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Esc</kbd>
+                            <span>关闭菜单</span>
+                        </div>
+                    </div>
+                    <button class="shortcut-close" onclick="this.parentElement.parentElement.remove()">关闭</button>
+                </div>
+            `;
+
+            // 添加样式
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.2s ease-out;
+            `;
+
+            const content = modal.querySelector('.shortcut-help-content');
+            content.style.cssText = `
+                background: var(--bg-primary);
+                padding: 32px;
+                border-radius: 16px;
+                max-width: 480px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            `;
+
+            const h3 = modal.querySelector('h3');
+            h3.style.cssText = `
+                font-size: 24px;
+                margin-bottom: 24px;
+                color: var(--text-primary);
+            `;
+
+            const items = modal.querySelectorAll('.shortcut-item');
+            items.forEach(item => {
+                item.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px 0;
+                    border-bottom: 1px solid var(--border-color);
+                `;
+            });
+
+            const kbds = modal.querySelectorAll('kbd');
+            kbds.forEach(kbd => {
+                kbd.style.cssText = `
+                    background: var(--bg-tertiary);
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    font-family: 'JetBrains Mono', monospace;
+                    border: 1px solid var(--border-color);
+                `;
+            });
+
+            const closeBtn = modal.querySelector('.shortcut-close');
+            closeBtn.style.cssText = `
+                margin-top: 24px;
+                padding: 10px 24px;
+                background: var(--accent-primary);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 15px;
+                width: 100%;
+            `;
+
+            document.body.appendChild(modal);
+
+            // 点击背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        },
+
+        /**
+         * 快速导航
+         * @param {number} index
+         */
+        quickNavigate(index) {
+            const navLinks = [
+                'index.html',
+                'lessons/index.html',
+                'learning-path.html',
+                'playground.html',
+                'quiz.html',
+                'cheatsheet.html',
+                'ai-assistant.html',
+                'flashcards.html',
+                'best-practices.html'
+            ];
+
+            if (navLinks[index - 1]) {
+                window.location.href = navLinks[index - 1];
+            }
+        }
+    };
+
+    // ============================================
     // 初始化入口
     // ============================================
 
@@ -1137,11 +1441,13 @@
         StyleManager.init();
 
         // 初始化各个模块
+        GlobalNavbar.init();
         ThemeManager.init();
         SmoothScroll.init();
         ScrollAnimation.init();
         SidebarActive.init();
         CodeCopy.init();
+        KeyboardShortcuts.init();
         MobileNav.init();
         PageTransition.init();
         ScrollProgress.init();

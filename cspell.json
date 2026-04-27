@@ -1,0 +1,70 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "Gitea",
+    "ttyd",
+    "playground",
+    "nginx",
+    "alpine",
+    "codehilite",
+    "fenced",
+    "rebase",
+    "cherry-pick",
+    "cherrypick",
+    "reflog",
+    "stash",
+    "mergetool",
+    "worktree",
+    "blame",
+    "submodule",
+    "gitignore",
+    "gitattributes",
+    "prepush",
+    "precommit",
+    "postcommit",
+    "husky",
+    "commitlint",
+    "conventionalcommits",
+    "release-please",
+    "Trivy",
+    "CodeQL",
+    "hadolint",
+    "markdownlint",
+    "yamllint",
+    "cspell",
+    "ghcr",
+    "dockerhub",
+    "semver",
+    "minio",
+    "posixpath",
+    "PurePosixPath",
+    "ohmyzsh",
+    "robbyrussell"
+  ],
+  "flagWords": [],
+  "ignorePaths": [
+    "node_modules/**",
+    "_site/**",
+    ".venv/**",
+    "CHANGELOG.md",
+    "__pycache__/**",
+    "*.pyc",
+    "*.pyo",
+    ".git/**",
+    "package-lock.json",
+    "yarn.lock"
+  ],
+  "languageSettings": [
+    {
+      "languageId": "markdown",
+      "allowCompoundWords": true
+    }
+  ],
+  "dictionaries": [
+    "en_US",
+    "softwareTerms",
+    "git"
+  ]
+}

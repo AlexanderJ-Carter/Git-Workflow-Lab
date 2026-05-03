@@ -532,7 +532,7 @@
                     const quizText = quizResult ? ` · 测验 ${quizResult.score}%` : '';
                     return `
                         <a href="lessons/${lesson.file.replace('.md', '.html')}" class="path-card ${isCompleted ? 'completed' : ''}">
-                            <div class="path-card-icon">${isCompleted ? '✓' : lesson.id.replace('lesson-', '').replace('b', 'b')}</div>
+                            <div class="path-card-icon">${isCompleted ? '✓' : lesson.id.replace('lesson-', '')}</div>
                             <div class="path-card-content">
                                 <h4>${lesson.title}</h4>
                                 <p>${lesson.desc}${quizText}</p>

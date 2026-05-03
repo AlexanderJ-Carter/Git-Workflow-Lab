@@ -674,6 +674,10 @@ CI/CD 相关：
         }
 
         // 保存设置
+        // Note: API key is stored in localStorage for client-side use.
+        // This is a known limitation of browser-based applications without a backend.
+        // Users should be aware that the key is stored locally in their browser.
+        // For production use, consider using a backend proxy to protect API keys.
         function saveSettings() {
             const settings = {
                 apiProvider: elements.apiProvider.value,

@@ -1170,7 +1170,15 @@ Dropped refs/stash@{0}`
 
             const line = document.createElement('div');
             line.className = 'sb-output-line system';
-            line.innerHTML = `<span class="prompt">$</span><span class="command">${command}</span>`;
+            // Use textContent to prevent XSS from command injection
+            const promptSpan = document.createElement('span');
+            promptSpan.className = 'prompt';
+            promptSpan.textContent = '$';
+            const commandSpan = document.createElement('span');
+            commandSpan.className = 'command';
+            commandSpan.textContent = command;
+            line.appendChild(promptSpan);
+            line.appendChild(commandSpan);
             outputContainer.appendChild(line);
 
             if (output) {

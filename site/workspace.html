@@ -388,10 +388,13 @@
             <div class="pane-loading-spinner"></div>
             连接终端中...
           </div>
+          <!-- Local development iframe: connects to local ttyd terminal for hands-on Git practice -->
+          <!-- This is intentionally a local service (localhost:8080) for the learning environment -->
           <iframe
             id="terminal-frame"
             src="http://localhost:8080"
             title="Web Terminal"
+            sandbox="allow-scripts allow-same-origin"
             onload="document.getElementById('terminal-loading').style.display='none'; updateTerminalStatus(true)"
             onerror="updateTerminalStatus(false)"
           ></iframe>

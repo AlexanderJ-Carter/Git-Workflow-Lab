@@ -6,6 +6,13 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.4.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.4.0...v1.4.1) (2026-05-03)
+
+
+### Bug Fixes
+
+* 修复 CodeQL 和 Hadolint 安全警告 ([377704a](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/377704a19e045b74bf0802ccd9450a93968518cb))
+
 ## [1.4.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.3.1...v1.4.0) (2026-04-27)
 
 

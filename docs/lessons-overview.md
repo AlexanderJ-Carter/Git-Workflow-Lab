@@ -115,6 +115,15 @@
     - 位置：`docs/lesson-12-multi-stage-pipeline-and-secrets.md`
     - 内容：多 Job 依赖、Secrets 使用
 
+### 阶段 6：安全与规范
+
+1. **关卡 18：提交签名与标签签名**
+    - 位置：`docs/lesson-18-commit-and-tag-signing.md`
+    - 内容：GPG 密钥生成、提交签名、标签签名、签名验证
+2. **关卡 19：Secrets 与安全实践**
+    - 位置：`docs/lesson-19-secrets-and-security.md`
+    - 内容：敏感信息管理、.gitignore、历史清除、CI/CD Secrets
+
 ---
 
 ## 规划中的关卡清单（示例）

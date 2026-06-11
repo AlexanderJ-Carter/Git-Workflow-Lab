@@ -361,8 +361,12 @@
             'lesson-11': { lessonHref: 'lessons/lesson-11-fix-broken-pipeline.html' },
             'lesson-12': { lessonHref: 'lessons/lesson-12-multi-stage-pipeline-and-secrets.html' },
             'lesson-13': { lessonHref: 'lessons/lesson-13-tags-and-releases.html' },
+            'lesson-14': { lessonHref: 'lessons/lesson-14-project-files.html' },
             'lesson-15': { lessonHref: 'lessons/lesson-15-git-hooks.html' },
-            'lesson-16': { lessonHref: 'lessons/lesson-16-large-repo.html' }
+            'lesson-16': { lessonHref: 'lessons/lesson-16-large-repo.html' },
+            'lesson-17': { lessonHref: 'lessons/lesson-17-release-automation.html' },
+            'lesson-18': { lessonHref: 'lessons/lesson-18-commit-and-tag-signing.html' },
+            'lesson-19': { lessonHref: 'lessons/lesson-19-secrets-and-security.html' }
         };
 
         // 测验题库
@@ -883,6 +887,237 @@
                         question: '查看仓库大小的命令是：du -sh .____',
                         answer: 'git',
                         explanation: 'du -sh .git 可以查看 .git 目录的大小。'
+                    }
+                ]
+            },
+            'lesson-00': {
+                title: '安装与配置',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '查看 Git 版本的命令是什么？',
+                        options: [
+                            { text: 'git version', correct: true },
+                            { text: 'git --version', correct: false },
+                            { text: 'git info', correct: false },
+                            { text: 'git status', correct: false }
+                        ],
+                        explanation: 'git version 显示当前安装的 Git 版本号。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '设置全局用户名的命令是什么？',
+                        options: [
+                            { text: 'git config --global user.name "名字"', correct: true },
+                            { text: 'git set --global user.name "名字"', correct: false },
+                            { text: 'git user --name "名字"', correct: false },
+                            { text: 'git global --user "名字"', correct: false }
+                        ],
+                        explanation: 'git config --global user.name 用于设置全局用户名。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '设置全局邮箱的命令是：git config --global user.____ "邮箱"',
+                        answer: 'email',
+                        explanation: 'git config --global user.email 用于设置全局邮箱。'
+                    }
+                ]
+            },
+            'lesson-06a': {
+                title: 'SSH 密钥配置',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '生成 SSH 密钥对的命令是什么？',
+                        options: [
+                            { text: 'ssh-keygen', correct: true },
+                            { text: 'ssh-generate', correct: false },
+                            { text: 'git ssh-key', correct: false },
+                            { text: 'ssh-create', correct: false }
+                        ],
+                        explanation: 'ssh-keygen 用于生成 SSH 公钥和私钥对。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '测试 SSH 连接的命令是什么？',
+                        options: [
+                            { text: 'ssh -T git@github.com', correct: true },
+                            { text: 'ssh --test', correct: false },
+                            { text: 'ssh connect', correct: false },
+                            { text: 'git ssh-verify', correct: false }
+                        ],
+                        explanation: 'ssh -T 用于测试 SSH 连接，验证密钥是否配置正确。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '将远程仓库 URL 从 HTTPS 改为 SSH 的命令是：git remote set-url origin ____',
+                        answer: 'git@',
+                        explanation: 'git remote set-url origin git@github.com:user/repo.git 将 URL 改为 SSH 格式。'
+                    }
+                ]
+            },
+            'lesson-06b': {
+                title: '协作规范',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '分支命名规范中，功能分支通常使用什么前缀？',
+                        options: [
+                            { text: 'feature/', correct: true },
+                            { text: 'func/', correct: false },
+                            { text: 'dev/', correct: false },
+                            { text: 'task/', correct: false }
+                        ],
+                        explanation: 'feature/ 是标准的功能分支命名前缀。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '禁止对哪个分支执行 force push？',
+                        options: [
+                            { text: 'main/master', correct: true },
+                            { text: 'feature/*', correct: false },
+                            { text: 'develop', correct: false },
+                            { text: '任何分支都不行', correct: false }
+                        ],
+                        explanation: 'main/master 是共享分支，force push 会破坏团队成员的历史。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '修复分支通常使用 ____/issue-xxx 格式',
+                        answer: 'fix',
+                        explanation: 'fix/ 是修复分支的标准前缀。'
+                    }
+                ]
+            },
+            'lesson-14': {
+                title: '项目文件规范',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'README.md 文件的主要作用是什么？',
+                        options: [
+                            { text: '项目介绍和使用说明', correct: true },
+                            { text: '存储密码', correct: false },
+                            { text: '记录 Git 历史', correct: false },
+                            { text: '存放配置文件', correct: false }
+                        ],
+                        explanation: 'README.md 是项目的门面，提供项目介绍、安装和使用说明。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '开源项目通常使用什么许可证？',
+                        options: [
+                            { text: 'MIT License', correct: true },
+                            { text: '没有许可证', correct: false },
+                            { text: '私有许可证', correct: false },
+                            { text: '任何许可证都可以', correct: false }
+                        ],
+                        explanation: 'MIT 是最常用的开源许可证之一，允许自由使用和修改。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '贡献指南文件通常命名为 CONTRIBUT____.md',
+                        answer: 'ING',
+                        explanation: 'CONTRIBUTING.md 文件说明如何为项目做贡献。'
+                    }
+                ]
+            },
+            'lesson-17': {
+                title: '自动版本发布',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'Release Please 的主要作用是什么？',
+                        options: [
+                            { text: '自动生成版本号和 Changelog', correct: true },
+                            { text: '手动创建 Release', correct: false },
+                            { text: '删除旧版本', correct: false },
+                            { text: '备份代码', correct: false }
+                        ],
+                        explanation: 'Release Please 自动根据提交信息生成版本号和更新日志。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '语义化版本中，MAJOR 版本号何时递增？',
+                        options: [
+                            { text: '有不兼容的 API 修改时', correct: true },
+                            { text: '每次提交时', correct: false },
+                            { text: '修复 Bug 时', correct: false },
+                            { text: '添加新功能时', correct: false }
+                        ],
+                        explanation: 'MAJOR 版本号在有破坏性变更时递增。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '语义化版本格式是：____.MINOR.PATCH',
+                        answer: 'MAJOR',
+                        explanation: '语义化版本由 MAJOR.MINOR.PATCH 三部分组成。'
+                    }
+                ]
+            },
+            'lesson-18': {
+                title: '提交签名与标签签名',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '创建签名提交应该使用什么参数？',
+                        options: [
+                            { text: 'git commit -S', correct: true },
+                            { text: 'git commit --sign', correct: false },
+                            { text: 'git commit -g', correct: false },
+                            { text: 'git commit --gpg', correct: false }
+                        ],
+                        explanation: '-S 参数（大写）用于创建 GPG 签名的提交。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '查看提交签名状态的命令是什么？',
+                        options: [
+                            { text: 'git log --show-signature', correct: true },
+                            { text: 'git log --verify', correct: false },
+                            { text: 'git check-signature', correct: false },
+                            { text: 'git status --sign', correct: false }
+                        ],
+                        explanation: '--show-signature 显示提交的 GPG 签名信息。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '创建签名标签的命令是：git tag ____ v1.0.0',
+                        answer: '-s',
+                        explanation: 'git tag -s 创建 GPG 签名的标签。'
+                    }
+                ]
+            },
+            'lesson-19': {
+                title: 'Secrets 与安全实践',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '以下哪个文件应该被 .gitignore 忽略？',
+                        options: [
+                            { text: '.env', correct: true },
+                            { text: 'README.md', correct: false },
+                            { text: 'package.json', correct: false },
+                            { text: 'index.js', correct: false }
+                        ],
+                        explanation: '.env 文件包含敏感信息（如 API 密钥），不应提交到 Git。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '如果敏感信息已经提交到 Git 历史，应该使用什么命令清除？',
+                        options: [
+                            { text: 'git filter-branch', correct: true },
+                            { text: 'git delete-history', correct: false },
+                            { text: 'git clear-secrets', correct: false },
+                            { text: 'git reset --hard', correct: false }
+                        ],
+                        explanation: 'git filter-branch 可以从历史中删除特定文件的所有提交。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '在 CI/CD 中安全存储密钥的方式是使用 ____',
+                        answer: 'Secrets',
+                        explanation: 'CI/CD 平台的 Secrets 功能可以安全地存储和使用敏感信息。'
                     }
                 ]
             }

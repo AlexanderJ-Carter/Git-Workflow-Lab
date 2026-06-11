@@ -43,12 +43,15 @@ PUBLIC_PAGES: List[str] = [
 ]
 
 QUIZ_SUPPORTED_LESSONS = {
+    "lesson-00",
     "lesson-01",
     "lesson-02",
     "lesson-03",
     "lesson-04",
     "lesson-05",
     "lesson-06",
+    "lesson-06a",
+    "lesson-06b",
     "lesson-07",
     "lesson-08",
     "lesson-09",
@@ -56,8 +59,12 @@ QUIZ_SUPPORTED_LESSONS = {
     "lesson-11",
     "lesson-12",
     "lesson-13",
+    "lesson-14",
     "lesson-15",
     "lesson-16",
+    "lesson-17",
+    "lesson-18",
+    "lesson-19",
 }
 
 # 目录配置

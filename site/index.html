@@ -16,14 +16,14 @@
             flex-direction: column;
         }
 
-        /* Hero 区域 - 现代渐变 */
+        /* Hero 区域 - 玻璃态渐变 */
         .hero {
             padding: 100px 0 70px;
             text-align: center;
             background:
-                radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
-                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08), transparent 40%),
-                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1), transparent 40%),
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.2), transparent),
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.12), transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15), transparent 40%),
                 var(--bg-secondary);
             position: relative;
             overflow: hidden;
@@ -41,6 +41,26 @@
             pointer-events: none;
         }
 
+        /* 动态光效背景 */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: floatLight 15s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floatLight {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-50px, 30px) scale(1.1); }
+            66% { transform: translate(30px, -20px) scale(0.95); }
+        }
+
         .hero-content {
             position: relative;
             z-index: 1;
@@ -50,15 +70,18 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 16px;
-            background: var(--accent-light);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 8px 18px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius-full);
             font-size: 13px;
             font-weight: 500;
             color: var(--accent-primary);
             margin-bottom: 24px;
             animation: fadeInDown 0.6s ease-out;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1);
         }
 
         .hero-badge-dot {
@@ -109,33 +132,52 @@
             gap: 8px;
             padding: 14px 28px;
             border-radius: var(--radius-full);
-            border: 1.5px solid var(--border-color);
-            background: var(--bg-primary);
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: var(--text-primary);
             font-weight: 600;
             font-size: 15px;
             text-decoration: none;
             transition: all var(--transition-base);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%);
+            pointer-events: none;
         }
 
         .hero-link:hover {
             border-color: var(--accent-primary);
             color: var(--accent-primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+            background: var(--glass-bg-hover);
         }
 
         .hero-link.primary {
-            background: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            border-color: var(--accent-primary);
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .hero-link.primary::before {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 50%);
         }
 
         .hero-link.primary:hover {
-            background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-tertiary));
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
             color: white;
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
         }
 
         .hero-link svg {
@@ -178,13 +220,15 @@
             gap: 24px;
         }
 
-        /* 信息卡片 */
+        /* 信息卡片 - 玻璃态 */
         .info-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
             padding: 28px;
-            box-shadow: var(--shadow-card);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
             transition: all var(--transition-slow);
             position: relative;
             overflow: hidden;
@@ -194,59 +238,65 @@
         .info-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform var(--transition-base);
-        }
-
-        .info-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-primary);
-        }
-
-        .info-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        /* 卡片悬停光效 */
-        .info-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity var(--transition-base);
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(99, 102, 241, 0.2) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
             pointer-events: none;
         }
 
-        .info-card:hover::after {
-            opacity: 0.3;
+        /* 卡片顶部光泽 */
+        .info-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .info-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(99, 102, 241, 0.18);
+            border-color: var(--accent-primary);
+            background: var(--glass-bg-hover);
+        }
+
+        /* 卡片内部元素需要相对定位以显示在伪元素上方 */
+        .info-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .info-card-icon {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.15) 100%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(99, 102, 241, 0.1);
             border-radius: var(--radius-md);
             margin-bottom: 20px;
             font-size: 24px;
             transition: all var(--transition-base);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
         }
 
         .info-card:hover .info-card-icon {
             transform: scale(1.1) rotate(-5deg);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.25) 100%);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
         }
 
         .info-card h3 {
@@ -273,56 +323,67 @@
             margin-bottom: 8px;
         }
 
-        /* 阶段标签 */
+        /* 阶段标签 - 玻璃态 */
         .stage-pill {
             display: inline-flex;
             align-items: center;
-            padding: 5px 14px;
+            padding: 6px 14px;
             border-radius: var(--radius-full);
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid transparent;
         }
 
         .stage-pill.stage-0 {
-            background: #d1fae5;
-            color: #065f46;
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #059669;
         }
 
         .stage-pill.stage-2 {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #2563eb;
         }
 
         .stage-pill.stage-3 {
-            background: #fef3c7;
-            color: #92400e;
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #d97706;
         }
 
         .stage-pill.stage-4 {
-            background: #fce7f3;
-            color: #9d174d;
+            background: rgba(236, 72, 153, 0.15);
+            border-color: rgba(236, 72, 153, 0.3);
+            color: #db2777;
         }
 
         [data-theme="dark"] .stage-pill.stage-0 {
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(52, 211, 153, 0.3);
             color: #34d399;
         }
 
         [data-theme="dark"] .stage-pill.stage-2 {
             background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(96, 165, 250, 0.3);
             color: #60a5fa;
         }
 
         [data-theme="dark"] .stage-pill.stage-3 {
-            background: rgba(245, 158, 11, 0.15);
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(251, 191, 36, 0.3);
             color: #fbbf24;
         }
 
         [data-theme="dark"] .stage-pill.stage-4 {
-            background: rgba(236, 72, 153, 0.15);
+            background: rgba(236, 72, 153, 0.2);
+            border-color: rgba(244, 114, 182, 0.3);
             color: #f472b6;
         }
 
@@ -347,12 +408,16 @@
             align-items: center;
             gap: 6px;
             margin-top: 16px;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: var(--radius-full);
             font-size: 12px;
             font-weight: 500;
-            background: #fef3c7;
-            color: #92400e;
+            background: rgba(245, 158, 11, 0.12);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: #b45309;
+            transition: all var(--transition-fast);
         }
 
         .lab-meta::before {
@@ -361,14 +426,31 @@
             height: 6px;
             background: currentColor;
             border-radius: 50%;
+            animation: pulse 2s infinite;
         }
 
-        /* 统计区域 */
+        .lab-card:hover .lab-meta {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* 统计区域 - 玻璃态 */
         .stats-section {
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
             padding: 48px 0;
+            position: relative;
+        }
+
+        .stats-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .stats-grid {
@@ -380,12 +462,35 @@
 
         .stat-item {
             padding: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-full);
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .stat-item:hover::after {
+            opacity: 1;
         }
 
         .stat-number {
             font-size: 42px;
             font-weight: 700;
-            color: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-family: 'JetBrains Mono', monospace;
             line-height: 1;
             margin-bottom: 8px;
@@ -397,18 +502,21 @@
             font-weight: 500;
         }
 
-        /* 项目说明 */
+        /* 项目说明 - 玻璃态 */
         .project-note {
             text-align: center;
             color: var(--text-secondary);
             max-width: 680px;
             margin: 32px auto 0;
-            padding: 20px;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
+            padding: 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
             font-size: 14px;
             line-height: 1.7;
-            border: 1px dashed var(--border-color);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.06);
         }
 
         footer {
@@ -417,12 +525,34 @@
             text-align: center;
             color: var(--text-muted);
             font-size: 14px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--glass-border);
         }
 
         footer p {
             margin-top: 12px;
+        }
+
+        /* 暗色主题玻璃效果增强 */
+        [data-theme="dark"] .hero::after {
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, transparent 70%);
+        }
+
+        [data-theme="dark"] .stats-section::before {
+            background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 70%);
+        }
+
+        /* 玻璃态容器 - 用于内容区域 */
+        .glass-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            margin: 20px 0;
         }
 
         /* 动画 */
@@ -783,6 +913,18 @@
                     <h3>学习工作台</h3>
                     <p>左侧课程、右侧终端，本地 Docker 环境实战</p>
                     <span class="lab-meta">本地入口</span>
+                </a>
+                <a class="info-card lab-card" href="./quick-start.html">
+                    <div class="info-card-icon">🚀</div>
+                    <h3>快速开始</h3>
+                    <p>5 分钟快速上手 Git Workflow Lab，开启学习之旅</p>
+                    <span class="lab-meta" style="background: #d1fae5; color: #065f46;">入门</span>
+                </a>
+                <a class="info-card lab-card" href="./reference.html">
+                    <div class="info-card-icon">📚</div>
+                    <h3>参考文档</h3>
+                    <p>官方文档链接、配置模板、最佳实践和术语表</p>
+                    <span class="lab-meta" style="background: #e0e7ff; color: #4338ca;">参考</span>
                 </a>
             </div>
         </section>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git 命令生成�?- Git Workflow Lab</title>
-    <meta name="description" content="交互�?Git 命令构建工具，可视化生成 git add、commit、branch、merge 等命令�?>
+    <title>Git 命令生成器 - Git Workflow Lab</title>
+    <meta name="description" content="交互式 Git 命令构建工具，可视化生成 git add、commit、branch、merge 等命令">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -321,7 +321,7 @@
             margin-top: 6px;
         }
 
-        /* 工具标签�?*/
+        /* 工具标签�?*/
         .tools-nav {
             display: flex;
             gap: 4px;
@@ -358,7 +358,7 @@
             color: white;
         }
 
-        /* .gitignore 生成�?*/
+        /* .gitignore 生成�?*/
         .ignore-categories {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -417,7 +417,7 @@
             color: var(--text-secondary);
         }
 
-        /* Commit Message 生成�?*/
+        /* Commit Message 生成�?*/
         .commit-type-select {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -595,19 +595,19 @@
     </style>
 </head>
 <body>
-    <!-- 导航�?-->
+    <!-- 导航�?-->
     <header class="header">
         <div class="container">
             <nav class="nav">
                 <a href="index.html" class="logo">
-                    <span class="logo-icon">�?/span>
+                    <span class="logo-icon">�?/span>
                     <span>Git Workflow Lab</span>
                 </a>
                 <ul class="nav-links">
                     <li><a href="lessons/index.html">课程</a></li>
-                    <li><a href="playground.html">实验�?/a></li>
+                    <li><a href="playground.html">实验�?/a></li>
                     <li><a href="challenges.html">挑战</a></li>
-                    <li><a href="command-sheet.html">命令�?/a></li>
+                    <li><a href="command-sheet.html">命令�?/a></li>
                 </ul>
                 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -619,8 +619,8 @@
     <!-- 页面头部 -->
     <div class="page-header">
         <div class="container">
-            <h1>Git 命令生成�?/h1>
-            <p>可视化构�?Git 命令，支持多种操作类型，实时预览，一键复�?/p>
+            <h1>Git 命令生成�?/h1>
+            <p>可视化构�?Git 命令，支持多种操作类型，实时预览，一键复�?/p>
         </div>
     </div>
 
@@ -647,7 +647,7 @@
 
             <!-- Git 命令配置 -->
             <div class="config-form">
-                <!-- git add 配置�?-->
+                <!-- git add 配置�?-->
                 <div class="command-config active" id="config-add">
                     <div class="form-section">
                         <div class="form-section-title">
@@ -665,19 +665,19 @@
                                 <input type="checkbox" id="add-force">
                                 <span>-f / --force</span>
                             </label>
-                            <p class="checkbox-desc">强制添加忽略的文�?/p>
+                            <p class="checkbox-desc">强制添加忽略的文�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="add-p">
                                 <span>-p / --patch</span>
                             </label>
-                            <p class="checkbox-desc">交互式选择每个补丁�?/p>
+                            <p class="checkbox-desc">交互式选择每个补丁�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="add-u">
                                 <span>-u / --update</span>
                             </label>
-                            <p class="checkbox-desc">只添加已跟踪文件的修�?/p>
+                            <p class="checkbox-desc">只添加已跟踪文件的修�?/p>
                         </div>
                     </div>
 
@@ -685,17 +685,17 @@
                         <div class="form-group">
                             <label class="form-label">指定文件或目录（可选）</label>
                             <input type="text" class="form-input" id="add-path" placeholder="例如: src/ app.js">
-                            <p class="option-hint">留空则添加当前目录所有内�?/p>
+                            <p class="option-hint">留空则添加当前目录所有内�?/p>
                         </div>
                     </div>
                 </div>
 
-                <!-- git commit 配置�?-->
+                <!-- git commit 配置�?-->
                 <div class="command-config" id="config-commit">
                     <div class="form-section">
                         <div class="form-group">
                             <label class="form-label">提交信息 *</label>
-                            <input type="text" class="form-input" id="commit-message" placeholder="描述本次提交的更�?>
+                            <input type="text" class="form-input" id="commit-message" placeholder="描述本次提交的更�?>
                         </div>
                     </div>
 
@@ -706,13 +706,13 @@
                                 <input type="checkbox" id="commit-amend">
                                 <span>--amend</span>
                             </label>
-                            <p class="checkbox-desc">修改最后一次提�?/p>
+                            <p class="checkbox-desc">修改最后一次提�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="commit-no-edit">
                                 <span>--no-edit</span>
                             </label>
-                            <p class="checkbox-desc">使用上次提交信息（与 --amend 配合�?/p>
+                            <p class="checkbox-desc">使用上次提交信息（与 --amend 配合�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="commit-all">
@@ -725,22 +725,22 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label class="form-label">详细描述（可选）</label>
-                            <input type="text" class="form-input" id="commit-body" placeholder="补充说明本次更改的详细内�?>
+                            <input type="text" class="form-input" id="commit-body" placeholder="补充说明本次更改的详细内�?>
                         </div>
                     </div>
                 </div>
 
-                <!-- git branch 配置�?-->
+                <!-- git branch 配置�?-->
                 <div class="command-config" id="config-branch">
                     <div class="form-section">
                         <div class="form-section-title">操作类型</div>
                         <div class="form-group">
                             <select class="form-select" id="branch-action">
                                 <option value="list">列出分支 (-a)</option>
-                                <option value="create">创建新分�?/option>
+                                <option value="create">创建新分�?/option>
                                 <option value="delete">删除分支</option>
-                                <option value="rename">重命名分�?/option>
-                                <option value="checkout">检出分�?/option>
+                                <option value="rename">重命名分�?/option>
+                                <option value="checkout">检出分�?/option>
                             </select>
                         </div>
                     </div>
@@ -754,8 +754,8 @@
 
                     <div class="form-section branch-extra">
                         <div class="form-group">
-                            <label class="form-label">目标分支（创�?重命名时�?/label>
-                            <input type="text" class="form-input" id="branch-target" placeholder="例如: main �?develop">
+                            <label class="form-label">目标分支（创�?重命名时�?/label>
+                            <input type="text" class="form-input" id="branch-target" placeholder="例如: main �?develop">
                         </div>
                     </div>
 
@@ -767,7 +767,7 @@
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" id="branch-move">
-                                <span>-m (重命�?</span>
+                                <span>-m (重命�?</span>
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" id="branch-verbose">
@@ -777,11 +777,11 @@
                     </div>
                 </div>
 
-                <!-- git merge 配置�?-->
+                <!-- git merge 配置�?-->
                 <div class="command-config" id="config-merge">
                     <div class="form-section">
                         <div class="form-group">
-                            <label class="form-label">源分�?*</label>
+                            <label class="form-label">源分�?*</label>
                             <input type="text" class="form-input" id="merge-source" placeholder="例如: feature/login">
                         </div>
                     </div>
@@ -793,31 +793,31 @@
                                 <input type="checkbox" id="merge-no-ff">
                                 <span>--no-ff</span>
                             </label>
-                            <p class="checkbox-desc">强制创建合并提交，即使可以快进合�?/p>
+                            <p class="checkbox-desc">强制创建合并提交，即使可以快进合�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="merge-squash">
                                 <span>--squash</span>
                             </label>
-                            <p class="checkbox-desc">将所有合并的提交压缩为一�?/p>
+                            <p class="checkbox-desc">将所有合并的提交压缩为一�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="merge-abort">
                                 <span>--abort</span>
                             </label>
-                            <p class="checkbox-desc">中止当前合并（撤销合并�?/p>
+                            <p class="checkbox-desc">中止当前合并（撤销合并�?/p>
                         </div>
                     </div>
 
                     <div class="form-section">
                         <div class="form-group">
                             <label class="form-label">合并信息（可选）</label>
-                            <input type="text" class="form-input" id="merge-message" placeholder="自定义合并提交信�?>
+                            <input type="text" class="form-input" id="merge-message" placeholder="自定义合并提交信�?>
                         </div>
                     </div>
                 </div>
 
-                <!-- git log 配置�?-->
+                <!-- git log 配置�?-->
                 <div class="command-config" id="config-log">
                     <div class="form-section">
                         <div class="form-section-title">显示选项</div>
@@ -826,7 +826,7 @@
                                 <input type="checkbox" id="log-oneline">
                                 <span>--oneline</span>
                             </label>
-                            <p class="checkbox-desc">简洁格式，每行显示一个提�?/p>
+                            <p class="checkbox-desc">简洁格式，每行显示一个提�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="log-graph">
@@ -838,7 +838,7 @@
                                 <input type="checkbox" id="log-decorate">
                                 <span>--decorate</span>
                             </label>
-                            <p class="checkbox-desc">显示分支和标签引�?/p>
+                            <p class="checkbox-desc">显示分支和标签引�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="log-stat">
@@ -850,7 +850,7 @@
                                 <input type="checkbox" id="log-patch">
                                 <span>-p</span>
                             </label>
-                            <p class="checkbox-desc">显示完整的补丁内�?/p>
+                            <p class="checkbox-desc">显示完整的补丁内�?/p>
                         </div>
                     </div>
 
@@ -864,13 +864,13 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label class="form-label">提交过滤</label>
-                            <input type="text" class="form-input" id="log-author" placeholder="作者过�?>
-                            <input type="text" class="form-input" id="log-grep" placeholder="提交信息关键词搜�? style="margin-top: 10px;">
+                            <input type="text" class="form-input" id="log-author" placeholder="作者过�?>
+                            <input type="text" class="form-input" id="log-grep" placeholder="提交信息关键词搜�? style="margin-top: 10px;">
                         </div>
                     </div>
                 </div>
 
-                <!-- git remote 配置�?-->
+                <!-- git remote 配置�?-->
                 <div class="command-config" id="config-remote">
                     <div class="form-section">
                         <div class="form-section-title">操作类型</div>
@@ -879,7 +879,7 @@
                                 <option value="list">列出远程仓库 (-v)</option>
                                 <option value="add">添加远程仓库</option>
                                 <option value="remove">删除远程仓库</option>
-                                <option value="rename">重命名远程仓�?/option>
+                                <option value="rename">重命名远程仓�?/option>
                                 <option value="set-url">修改远程仓库 URL</option>
                                 <option value="fetch">获取远程更新</option>
                                 <option value="pull">拉取远程更新</option>
@@ -908,7 +908,7 @@
                                 <input type="checkbox" id="remote-tags">
                                 <span>--tags</span>
                             </label>
-                            <p class="checkbox-desc">获取所有标�?/p>
+                            <p class="checkbox-desc">获取所有标�?/p>
 
                             <label class="checkbox-item">
                                 <input type="checkbox" id="remote-force">
@@ -919,7 +919,7 @@
                 </div>
             </div>
 
-            <!-- 工具标签页导�?-->
+            <!-- 工具标签页导�?-->
             <div class="tools-nav">
                 <button class="tool-tab" data-tool="git">Git 命令</button>
                 <button class="tool-tab" data-tool="ignore">.gitignore</button>
@@ -940,7 +940,7 @@
             <div class="command-desc">
                 <div class="desc-title">命令说明</div>
                 <p class="desc-text" id="commandDesc">
-                    将所有修改、新增和删除的文件添加到暂存区。这是使�?git commit 前的必要步骤�?                </p>
+                    将所有修改、新增和删除的文件添加到暂存区。这是使�?git commit 前的必要步骤�?                </p>
             </div>
 
             <!-- .gitignore 工具面板 -->
@@ -962,7 +962,7 @@
                             <div class="ignore-category">
                                 <div class="ignore-category-header">
                                     <input type="checkbox" id="ignore-ide" checked>
-                                    <span class="ignore-category-title">编辑�?IDE</span>
+                                    <span class="ignore-category-title">编辑�?IDE</span>
                                 </div>
                                 <div class="ignore-items">
                                     <span class="ignore-tag">.vscode/</span>
@@ -1050,8 +1050,8 @@
                         <div class="form-section-title">选择提交类型</div>
                         <div class="commit-type-select">
                             <div class="commit-type-btn active" data-type="feat">
-                                <div class="commit-type-icon">�?/div>
-                                <div class="commit-type-name">新功�?/div>
+                                <div class="commit-type-icon">�?/div>
+                                <div class="commit-type-name">新功�?/div>
                             </div>
                             <div class="commit-type-btn" data-type="fix">
                                 <div class="commit-type-icon">🐛</div>
@@ -1078,7 +1078,7 @@
                                 <div class="commit-type-name">构建</div>
                             </div>
                             <div class="commit-type-btn" data-type="perf">
-                                <div class="commit-type-icon">�?/div>
+                                <div class="commit-type-icon">�?/div>
                                 <div class="commit-type-name">性能</div>
                             </div>
                             <div class="commit-type-btn" data-type="ci">
@@ -1097,7 +1097,7 @@
 
                     <div class="form-section">
                         <div class="form-group">
-                            <label class="form-label">简短描�?*</label>
+                            <label class="form-label">简短描�?*</label>
                             <input type="text" class="form-input" id="commit-short-desc" placeholder="用一句话描述这个更改">
                         </div>
                     </div>
@@ -1119,7 +1119,7 @@
                     <div class="commit-preview-box">
                         <div class="commit-preview-label">预览</div>
                         <div class="commit-preview-text" id="commit-preview">
-                            <span class="type">feat</span>: 简短描�?                        </div>
+                            <span class="type">feat</span>: 简短描�?                        </div>
                     </div>
                 </div>
             </div>
@@ -1139,7 +1139,7 @@
                         <div class="ssh-step">
                             <div class="ssh-step-number">2</div>
                             <div class="ssh-step-content">
-                                <h4>添加�?SSH Agent</h4>
+                                <h4>添加�?SSH Agent</h4>
                                 <p>启动 SSH Agent 并添加私钥：</p>
                                 <div class="ssh-code">eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519</div>
@@ -1148,14 +1148,14 @@ ssh-add ~/.ssh/id_ed25519</div>
                         <div class="ssh-step">
                             <div class="ssh-step-number">3</div>
                             <div class="ssh-step-content">
-                                <h4>添加公钥�?Git 服务</h4>
+                                <h4>添加公钥�?Git 服务</h4>
                                 <p>复制公钥内容并添加到 GitHub/GitLab 等平台：</p>
                                 <div class="ssh-code">cat ~/.ssh/id_ed25519.pub</div>
                             </div>
                         </div>
                         <div class="ssh-note">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                            <p>Ed25519 算法被推荐使用，�?RSA 更安全且密钥更短。如果你的系统不支持，可以使�?rsa 算法�?code>ssh-keygen -t rsa -C "your_email@example.com"</code></p>
+                            <p>Ed25519 算法被推荐使用，�?RSA 更安全且密钥更短。如果你的系统不支持，可以使�?rsa 算法�?code>ssh-keygen -t rsa -C "your_email@example.com"</code></p>
                         </div>
                     </div>
                 </div>
@@ -1164,24 +1164,24 @@ ssh-add ~/.ssh/id_ed25519</div>
     </div>
 
     <script>
-        // 命令类型和配置映�?        const commandConfigs = {
+        // 命令类型和配置映�?        const commandConfigs = {
             add: {
-                desc: '将所有修改、新增和删除的文件添加到暂存区。这是使�?git commit 前的必要步骤�?
+                desc: '将所有修改、新增和删除的文件添加到暂存区。这是使�?git commit 前的必要步骤�?
             },
             commit: {
-                desc: '将暂存区的更改提交到本地仓库。每次提交都会创建一个快照，记录项目的当前状态�?
+                desc: '将暂存区的更改提交到本地仓库。每次提交都会创建一个快照，记录项目的当前状态�?
             },
             branch: {
-                desc: '用于列出、创建、删除或重命名分支。分支是 Git 最强大的功能之一，让你可以在不影响主线的情况下开发新功能�?
+                desc: '用于列出、创建、删除或重命名分支。分支是 Git 最强大的功能之一，让你可以在不影响主线的情况下开发新功能�?
             },
             merge: {
-                desc: '将一个分支的更改合并到当前分支。合并可能会产生冲突，需要手动解决�?
+                desc: '将一个分支的更改合并到当前分支。合并可能会产生冲突，需要手动解决�?
             },
             log: {
-                desc: '查看项目的提交历史。可以使用各种选项来过滤和格式化输出�?
+                desc: '查看项目的提交历史。可以使用各种选项来过滤和格式化输出�?
             },
             remote: {
-                desc: '管理远程仓库连接。可以添加、删除或修改远程仓库�?URL�?
+                desc: '管理远程仓库连接。可以添加、删除或修改远程仓库�?URL�?
             }
         };
 
@@ -1195,10 +1195,10 @@ ssh-add ~/.ssh/id_ed25519</div>
                 btn.classList.add('active');
                 currentCommand = btn.dataset.type;
 
-                // 显示对应的配置面�?                document.querySelectorAll('.command-config').forEach(config => config.classList.remove('active'));
+                // 显示对应的配置面�?                document.querySelectorAll('.command-config').forEach(config => config.classList.remove('active'));
                 document.getElementById(`config-${currentCommand}`).classList.add('active');
 
-                // 切换�?Git 命令工具
+                // 切换�?Git 命令工具
                 document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('active'));
                 document.querySelector('.tool-tab[data-tool="git"]').classList.add('active');
                 document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
@@ -1227,7 +1227,7 @@ ssh-add ~/.ssh/id_ed25519</div>
                     document.querySelector('.preview-panel .command-desc').style.display = 'block';
                     document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
                 } else {
-                    // 隐藏 Git 命令配置，显示工具面�?                    document.querySelector('.command-types').style.display = 'none';
+                    // 隐藏 Git 命令配置，显示工具面�?                    document.querySelector('.command-types').style.display = 'none';
                     document.querySelector('.config-form').style.display = 'none';
                     document.querySelector('.preview-panel .preview-output').style.display = 'none';
                     document.querySelector('.preview-panel .command-desc').style.display = 'none';
@@ -1385,7 +1385,7 @@ ssh-add ~/.ssh/id_ed25519</div>
             const command = document.getElementById('commandOutput').textContent;
             navigator.clipboard.writeText(command).then(() => {
                 const btn = document.querySelector('.copy-btn');
-                btn.textContent = '已复�?;
+                btn.textContent = '已复�?;
                 btn.classList.add('copied');
                 setTimeout(() => {
                     btn.textContent = '复制';
@@ -1451,7 +1451,7 @@ ssh-add ~/.ssh/id_ed25519</div>
 
             let preview = `<span class="type">${type}</span>`;
             if (scope) preview += `(<span class="scope">${scope}</span>)`;
-            preview += `: ${shortDesc || '简短描�?}`;
+            preview += `: ${shortDesc || '简短描�?}`;
 
             if (longDesc) {
                 preview += `\n\n${longDesc}`;
@@ -1464,7 +1464,7 @@ ssh-add ~/.ssh/id_ed25519</div>
             document.getElementById('commit-preview').textContent = preview;
         }
 
-        // 监听所有输入变�?        document.querySelectorAll('input, select').forEach(input => {
+        // 监听所有输入变�?        document.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', generateCommand);
             input.addEventListener('change', generateCommand);
         });
@@ -1483,7 +1483,7 @@ ssh-add ~/.ssh/id_ed25519</div>
             localStorage.setItem('theme', newTheme);
         });
 
-        // 初始�?        generateCommand();
+        // 初始�?        generateCommand();
     </script>
 </body>
 </html>

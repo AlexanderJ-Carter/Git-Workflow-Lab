@@ -388,7 +388,53 @@
     </style>
 </head>
 <body class="achievements-page">
-    <div class="container">
+    <!-- Global Navbar -->
+    <nav class="global-navbar">
+        <div class="global-navbar-content">
+            <div class="global-navbar-left">
+                <a href="index.html" class="global-navbar-brand">
+                    <div class="global-navbar-logo">📖</div>
+                    <span>Git Workflow Lab</span>
+                </a>
+                <div class="global-navbar-links">
+                    <a href="lessons/index.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        课程
+                    </a>
+                    <a href="learning-path.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        学习路径
+                    </a>
+                    <a href="playground.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        练习
+                    </a>
+                    <a href="quiz.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        测验
+                    </a>
+                </div>
+            </div>
+            <div class="global-navbar-right">
+                <button class="nav-theme-toggle theme-toggle" aria-label="切换主题">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="nav-menu-toggle" aria-label="菜单">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+        <div class="global-navbar-menu">
+            <a href="lessons/index.html" class="nav-link">📚 课程</a>
+            <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
+            <a href="playground.html" class="nav-link">⚡ 练习</a>
+            <a href="quiz.html" class="nav-link">✅ 测验</a>
+            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 100px;">
         <!-- Hero 区域 -->
         <section class="achievements-hero">
             <h1>成就中心</h1>

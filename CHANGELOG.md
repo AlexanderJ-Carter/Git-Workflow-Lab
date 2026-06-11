@@ -6,6 +6,21 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.5.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.4.1...v1.5.0) (2026-06-11)
+
+
+### Features
+
+* 添加 Stage 6 课程和补充测验题目 ([c376725](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/c376725bbceb1caa3e75a3225f22ef4367aee485))
+* 统一全局导航栏和课程数据 ([ce37f99](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/ce37f99807f31d198ce170c0fb01bf4a3b55e3e8))
+
+
+### Bug Fixes
+
+* 修复 CI 检查错误 ([b802dea](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/b802dea48f37ad1aa8e1244b5da140fed984b0fb))
+* 完善站点一致性与修复核心问题 ([092a624](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/092a62495bd280aa591c0e9a9341402e69f8ce07))
+* 更新 .cspell.json 添加技术术语 ([50068b6](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/50068b6cba6b86841a3a72f25511353fc782f61a))
+
 ## [1.4.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.4.0...v1.4.1) (2026-05-03)
 
 

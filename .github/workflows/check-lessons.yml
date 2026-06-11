@@ -61,8 +61,8 @@ jobs:
         run: |
           echo "Checking lesson numbering..."
 
-          # 提取所有课程编号（使用 sed 替代 grep -P 提高兼容性）
-          numbers=$(ls docs/lesson-*.md 2>/dev/null | sed -n 's/.*lesson-\([0-9]\+\)\.md/\1/p' | sort -n)
+          # 提取所有课程编号（支持 lesson-XX.md 和 lesson-XX-name.md 格式）
+          numbers=$(ls docs/lesson-*.md 2>/dev/null | sed -n 's/.*lesson-\([0-9]\+\).*/\1/p' | sort -n)
 
           if [ -z "$numbers" ]; then
             echo "No lesson files found"

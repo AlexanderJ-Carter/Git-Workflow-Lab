@@ -41,7 +41,14 @@
     "posixpath",
     "PurePosixPath",
     "ohmyzsh",
-    "robbyrussell"
+    "robbyrussell",
+    "keyid",
+    "signingkey",
+    "gpgsign",
+    "pinentry",
+    "reloadagent",
+    "mydb",
+    "unmatch"
   ],
   "flagWords": [],
   "ignorePaths": [

@@ -65,7 +65,14 @@
     "i18n",
     "Noto",
     "JetBrains",
-    "worktrees"
+    "worktrees",
+    "keyid",
+    "signingkey",
+    "gpgsign",
+    "pinentry",
+    "reloadagent",
+    "mydb",
+    "unmatch"
   ],
   "ignorePaths": [
     "node_modules/**",

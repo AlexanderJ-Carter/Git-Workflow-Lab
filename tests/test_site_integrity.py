@@ -174,3 +174,11 @@ def test_diagnostics_uses_design_system() -> None:
     assert "assets/css/style.css" in text
     assert "8081" in text
     assert "8082" not in text
+
+
+def test_lessons_index_asset_paths_are_parent_relative() -> None:
+    """课程中心位于 lessons/ 下，静态资源必须用 ../assets。"""
+    text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
+    assert 'href="../assets/css/style.css"' in text
+    assert 'src="../assets/js/main.js"' in text
+    assert 'href="assets/css/style.css"' not in text

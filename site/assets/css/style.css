@@ -755,6 +755,25 @@ a {
 .nav-link svg {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+/* 防止样式未加载时导航 SVG 撑满视口 */
+.global-navbar svg {
+    width: 18px;
+    height: 18px;
+    max-width: 24px;
+    max-height: 24px;
+}
+
+.global-navbar .nav-menu-toggle svg,
+.global-navbar .nav-theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    max-width: 20px;
+    max-height: 20px;
 }
 
 .global-navbar-right {

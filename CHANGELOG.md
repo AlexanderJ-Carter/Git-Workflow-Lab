@@ -6,6 +6,13 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.6.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.5.0...v1.6.0) (2026-07-19)
+
+
+### Features
+
+* 全面优化站点一致性、进度联动与静态页面体验 ([a0f4625](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a0f4625b3f9c781d92f0524e9078952719a75647))
+
 ## [1.5.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.4.1...v1.5.0) (2026-06-11)
 
 

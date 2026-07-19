@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="系统化 Git 与 CI/CD 课程目录，含进度追踪。">
     <title>课程中心 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -492,7 +494,7 @@
             <a href="../learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="../playground.html" class="nav-link">⚡ 练习</a>
             <a href="../quiz.html" class="nav-link">✅ 测验</a>
-            <a href="../cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="../command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="../ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -568,15 +570,15 @@
         </section>
 
         <div class="ls-quick-nav">
-            <a href="docs/viewer.html?file=lessons-overview.md" class="ls-quick-link" target="_blank">
+            <a href="../docs/viewer.html?file=lessons-overview.md" class="ls-quick-link" target="_blank">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 课程总览
             </a>
-            <a href="docs/viewer.html?file=learning-path.md" class="ls-quick-link" target="_blank">
+            <a href="../docs/viewer.html?file=learning-path.md" class="ls-quick-link" target="_blank">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 学习路径
             </a>
-            <a href="workspace.html" class="ls-quick-link">
+            <a href="../workspace.html" class="ls-quick-link">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                 进入工作台
             </a>
@@ -658,7 +660,7 @@
                 container.innerHTML = stageLessons.map(lesson => {
                     const isCompleted = LearningProgress.isCompleted(lesson.id);
                     return `
-                        <a href="docs/viewer.html?file=${lesson.file}" class="ls-card ${isCompleted ? 'completed' : ''}" target="_blank" data-id="${lesson.id}">
+                        <a href="../docs/viewer.html?file=${lesson.file}" class="ls-card ${isCompleted ? 'completed' : ''}" target="_blank" data-id="${lesson.id}">
                             <div class="ls-card-header">
                                 <div class="ls-card-number">${lesson.id.replace('lesson-', '')}</div>
                                 <div class="ls-card-title">${lesson.title}</div>

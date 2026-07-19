@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="在真实协作场景中练习冲突解决、恢复与协作流程。">
     <title>场景挑战 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -745,7 +747,7 @@
             <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="playground.html" class="nav-link">⚡ 练习</a>
             <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -956,7 +958,7 @@
         ];
 
         // 状态管理
-        let userProgress = JSON.parse(localStorage.getItem('challengeProgress')) || {
+        let userProgress = JSON.parse(localStorage.getItem('git-workflow-lab-challenge-progress')) || {
             completed: [],
             xp: 0
         };
@@ -1550,7 +1552,11 @@
 
         // 保存进度
         function saveProgress() {
-            localStorage.setItem('challengeProgress', JSON.stringify(userProgress));
+            localStorage.setItem('git-workflow-lab-challenge-progress', JSON.stringify(userProgress));
+            window.GitWorkflowLab?.ActivityProgress?.notify?.('challenge', {
+                completedCount: userProgress.completed.length,
+                xp: userProgress.xp
+            });
         }
 
         // 关闭模态框

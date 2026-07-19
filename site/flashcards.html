@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="用间隔重复记忆 Git 命令与核心概念。">
     <title>记忆闪卡 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -484,7 +486,7 @@
             <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="playground.html" class="nav-link">⚡ 练习</a>
             <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -718,7 +720,7 @@
 
         // 加载统计数据
         function loadStats() {
-            const saved = localStorage.getItem('flashcard-stats');
+            const saved = localStorage.getItem('git-workflow-lab-flashcard-stats');
             if (saved) {
                 state.stats = JSON.parse(saved);
             }
@@ -726,7 +728,11 @@
 
         // 保存统计数据
         function saveStats() {
-            localStorage.setItem('flashcard-stats', JSON.stringify(state.stats));
+            localStorage.setItem('git-workflow-lab-flashcard-stats', JSON.stringify(state.stats));
+            window.GitWorkflowLab?.ActivityProgress?.notify?.('flashcard', {
+                mastered: state.stats.mastered,
+                today: state.stats.today
+            });
         }
 
         // 更新统计显示

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="可视化 Git 学习路线，按阶段跟踪进度。">
     <title>学习路径 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -215,6 +217,38 @@
             color: var(--path-text-muted);
         }
 
+        .path-activity-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--path-border);
+        }
+
+        .path-activity-item {
+            text-align: center;
+        }
+
+        .path-activity-item strong {
+            display: block;
+            font-size: 22px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--path-primary);
+            margin-bottom: 4px;
+        }
+
+        .path-activity-item span {
+            font-size: 12px;
+            color: var(--path-text-muted);
+        }
+
+        @media (max-width: 700px) {
+            .path-activity-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .path-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -414,6 +448,12 @@
                 <div class="path-stage-item"><strong>100%</strong><span>CI/CD</span></div>
             </div>
         </div>
+        <div class="path-activity-strip" id="path-activity-strip" hidden>
+            <div class="path-activity-item"><strong id="path-dash-lessons">0</strong><span>已完成课程</span></div>
+            <div class="path-activity-item"><strong id="path-dash-quizzes">0</strong><span>通过测验</span></div>
+            <div class="path-activity-item"><strong id="path-dash-challenges">0</strong><span>完成挑战</span></div>
+            <div class="path-activity-item"><strong id="path-dash-flashcards">0</strong><span>掌握闪卡</span></div>
+        </div>
     </div>
 
     <div class="path-recommend">
@@ -501,6 +541,8 @@
             { stage: 3, id: 'lesson-15', file: 'lesson-15-git-hooks.md', title: 'Git Hooks', desc: 'pre-commit、Husky、commitlint' },
             { stage: 3, id: 'lesson-16', file: 'lesson-16-large-repo.md', title: '大仓库优化', desc: '浅克隆、Git LFS、性能调优' },
             { stage: 3, id: 'lesson-17', file: 'lesson-17-release-automation.md', title: '自动发布', desc: 'Release Please、自动版本与 Changelog' },
+            { stage: 3, id: 'lesson-18', file: 'lesson-18-commit-and-tag-signing.md', title: '提交签名', desc: 'Commit / Tag 签名与验证' },
+            { stage: 3, id: 'lesson-19', file: 'lesson-19-secrets-and-security.md', title: '密钥安全', desc: 'Secrets 管理与安全实践' },
         ];
 
         // 学习进度
@@ -519,6 +561,21 @@
             }
         };
 
+        function renderActivityStrip() {
+            const strip = document.getElementById('path-activity-strip');
+            if (!strip) return;
+            const snap = window.GitWorkflowLab?.ActivityProgress?.getSnapshot?.();
+            if (!snap) {
+                strip.hidden = true;
+                return;
+            }
+            strip.hidden = false;
+            document.getElementById('path-dash-lessons').textContent = snap.completedLessons;
+            document.getElementById('path-dash-quizzes').textContent = snap.passedQuizzes;
+            document.getElementById('path-dash-challenges').textContent = snap.completedChallenges;
+            document.getElementById('path-dash-flashcards').textContent = snap.flashcardsMastered;
+        }
+
         // 渲染课程卡片
         function renderCards() {
             [0, 1, 2, 3].forEach(stageIndex => {
@@ -530,7 +587,7 @@
                     const quizResult = window.GitWorkflowLab?.QuizProgress?.getResult(lesson.id);
                     const quizText = quizResult ? ` · 测验 ${quizResult.score}%` : '';
                     return `
-                        <a href="lessons/${lesson.file.replace('.md', '.html')}" class="path-card ${isCompleted ? 'completed' : ''}">
+                        <a href="docs/viewer.html?file=${encodeURIComponent(lesson.file)}" class="path-card ${isCompleted ? 'completed' : ''}">
                             <div class="path-card-icon">${isCompleted ? '✓' : lesson.id.replace('lesson-', '')}</div>
                             <div class="path-card-content">
                                 <h4>${lesson.title}</h4>
@@ -559,19 +616,20 @@
                     icon.classList.add('completed');
                 }
             });
+            renderActivityStrip();
+        }
+
+        function refreshPath() {
+            renderCards();
+            updateProgress();
         }
 
         // 监听进度更新
-        window.addEventListener('storage', () => {
-            renderCards();
-            updateProgress();
-        });
+        window.addEventListener('storage', refreshPath);
+        window.addEventListener('git-workflow-lab:progress', refreshPath);
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCards();
-            updateProgress();
-        });
+        document.addEventListener('DOMContentLoaded', refreshPath);
     </script>
 </body>
 </html>

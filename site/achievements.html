@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="完成课程与测验解锁成就徽章。">
     <title>成就中心 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -429,7 +431,7 @@
             <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="playground.html" class="nav-link">⚡ 练习</a>
             <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -538,7 +540,7 @@
                 desc: '完成所有课程',
                 icon: '🏆',
                 requirement: '完成全部课程',
-                condition: (progress, stats) => stats.completedLessons >= 21 && stats.totalLessons >= 21,
+                condition: (progress, stats) => stats.completedLessons >= stats.totalLessons && stats.totalLessons > 0,
                 tooltip: '太棒了！你已完成所有课程，成为 Git 和 CI/CD 全栈工程师！'
             },
             {
@@ -547,7 +549,7 @@
                 desc: '使用所有主要 Git 命令',
                 icon: '⌨️',
                 requirement: '完成全部课程',
-                condition: (progress, stats) => stats.completedLessons >= 21,
+                condition: (progress, stats) => stats.completedLessons >= stats.totalLessons && stats.totalLessons > 0,
                 tooltip: '你已经使用过 Git 的所有核心命令：add, commit, push, pull, branch, merge, rebase, stash, tag 等。'
             },
             {
@@ -558,6 +560,33 @@
                 requirement: '连续学习 7 天',
                 condition: (progress, stats) => stats.streakDays >= 7,
                 tooltip: '坚持就是胜利！你已经连续学习 7 天了，保持这个好习惯！'
+            },
+            {
+                id: 'quiz-starter',
+                name: '测验初体验',
+                desc: '通过第一场测验',
+                icon: '📝',
+                requirement: '通过 1 场测验',
+                condition: (progress, stats) => stats.passedQuizzes >= 1,
+                tooltip: '不错！你已经开始用测验检验学习成果了。'
+            },
+            {
+                id: 'challenge-rookie',
+                name: '挑战新手',
+                desc: '完成一个场景挑战',
+                icon: '⚔️',
+                requirement: '完成 1 个挑战',
+                condition: (progress, stats) => stats.completedChallenges >= 1,
+                tooltip: '实战开局！继续挑战更难的场景吧。'
+            },
+            {
+                id: 'flashcard-learner',
+                name: '闪卡学习者',
+                desc: '掌握 5 张闪卡',
+                icon: '🧠',
+                requirement: '掌握 5 张闪卡',
+                condition: (progress, stats) => stats.flashcardsMastered >= 5,
+                tooltip: '间隔重复正在生效，继续巩固命令记忆！'
             }
         ];
 
@@ -584,6 +613,8 @@
             { stage: 3, id: 'lesson-15' },
             { stage: 3, id: 'lesson-16' },
             { stage: 3, id: 'lesson-17' },
+            { stage: 4, id: 'lesson-18' },
+            { stage: 4, id: 'lesson-19' },
         ];
 
         // 学习进度管理
@@ -621,14 +652,20 @@
             getStats() {
                 const progress = this.getProgress();
                 const completedLessons = Object.values(progress).filter(p => p.completed).length;
-
-                // 计算连续学习天数
                 const streakDays = this.calculateStreak(progress);
+                const snapshot = window.GitWorkflowLab?.ActivityProgress?.getSnapshot?.() || {
+                    passedQuizzes: 0,
+                    completedChallenges: 0,
+                    flashcardsMastered: 0
+                };
 
                 return {
                     completedLessons,
                     totalLessons: LESSONS.length,
-                    streakDays
+                    streakDays,
+                    passedQuizzes: snapshot.passedQuizzes,
+                    completedChallenges: snapshot.completedChallenges,
+                    flashcardsMastered: snapshot.flashcardsMastered
                 };
             },
 
@@ -764,11 +801,8 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             renderAchievements();
-
-            // 监听 localStorage 变化
-            window.addEventListener('storage', () => {
-                renderAchievements();
-            });
+            window.addEventListener('storage', renderAchievements);
+            window.addEventListener('git-workflow-lab:progress', renderAchievements);
         });
     </script>
 </body>

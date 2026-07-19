@@ -9,6 +9,7 @@ services:
     ports:
       - "8081:80"
     volumes:
+      # site/ 为站点根；docs/ 覆盖 /docs，提供课程 Markdown 与 viewer.html（单一真相源）
       - ./site:/usr/share/nginx/html
       - ./docs:/usr/share/nginx/html/docs:ro
     depends_on:

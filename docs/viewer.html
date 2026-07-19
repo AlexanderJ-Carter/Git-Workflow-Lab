@@ -524,10 +524,17 @@
     </div>
 
     <script>
+      function normalizeLessonId(fileOrId) {
+        const stem = String(fileOrId).replace(/\.md$/i, '');
+        if (stem === 'lesson-00-terminal-basics') return 'lesson-00b';
+        const match = stem.match(/^(lesson-\d+[a-z]?)/);
+        return match ? match[1] : stem;
+      }
+
       // 学习进度管理
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 17,
+        TOTAL_LESSONS: 23,
 
         getProgress() {
           try {
@@ -539,18 +546,23 @@
         },
 
         toggleComplete(lessonId) {
+          const id = normalizeLessonId(lessonId);
           const progress = this.getProgress();
-          progress[lessonId] = {
-            completed: !progress[lessonId]?.completed,
+          progress[id] = {
+            completed: !progress[id]?.completed,
             timestamp: Date.now()
           };
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
-          return progress[lessonId].completed;
+          window.GitWorkflowLab?.ActivityProgress?.notify?.('lesson', {
+            lessonId: id,
+            completed: progress[id].completed
+          });
+          return progress[id].completed;
         },
 
         isCompleted(lessonId) {
           const progress = this.getProgress();
-          return progress[lessonId]?.completed || false;
+          return progress[normalizeLessonId(lessonId)]?.completed || false;
         },
 
         getCompletedCount() {
@@ -850,7 +862,7 @@
             const a = document.createElement("a");
             a.href = `?file=${encodeURIComponent(item.file)}`;
             // 检查课程是否已完成
-            const lessonId = item.id || item.file.replace('.md', '');
+            const lessonId = normalizeLessonId(item.id || item.file);
             const isCompleted = LearningProgress.isCompleted(lessonId);
             a.className = "lesson-link" + (item.file === currentFile ? " active" : "") + (isCompleted ? " completed" : "");
             a.onclick = (e) => {
@@ -891,7 +903,7 @@
           : null;
 
         // 更新完成状态按钮
-        const lessonId = file.replace('.md', '');
+        const lessonId = normalizeLessonId(file);
         const isCompleted = LearningProgress.isCompleted(lessonId);
         const markCompleteBtn = document.getElementById('mark-complete');
         if (isCompleted) {
@@ -915,7 +927,8 @@
         errorEl.textContent = "";
         contentEl.textContent = "加载中...";
 
-        fetch(`/docs/${file}`)
+        // 相对当前 viewer 所在目录加载，兼容本地 /docs、Pages 子路径与镜像部署
+        fetch(new URL(file, window.location.href).toString())
           .then((res) => {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status}`);
@@ -954,7 +967,7 @@
       // 标记完成按钮
       document.getElementById('mark-complete').addEventListener('click', () => {
         const file = getQueryParam("file") || "lessons-overview.md";
-        const lessonId = file.replace('.md', '');
+        const lessonId = normalizeLessonId(file);
         LearningProgress.toggleComplete(lessonId);
         updateLessonButtons(file);
         LearningProgress.updateUI();
@@ -983,7 +996,7 @@
         } else if (e.key === ' ' || e.key === 'Enter') {
           // 空格键标记完成
           e.preventDefault();
-          const lessonId = file.replace('.md', '');
+          const lessonId = normalizeLessonId(file);
           LearningProgress.toggleComplete(lessonId);
           updateLessonButtons(file);
           LearningProgress.updateUI();

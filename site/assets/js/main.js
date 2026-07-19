@@ -129,6 +129,7 @@
                     timestamp: Date.now()
                 };
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
+                ActivityProgress.notify('lesson', { lessonId, completed });
             } catch (error) {
                 console.warn('[LearningProgress] Failed to save progress:', error);
             }
@@ -222,6 +223,11 @@
                     timestamp: Date.now()
                 };
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(results));
+                ActivityProgress.notify('quiz', {
+                    lessonId,
+                    score,
+                    passed: score >= 60
+                });
             } catch (error) {
                 console.warn('[QuizProgress] Failed to save result:', error);
             }
@@ -251,6 +257,77 @@
                 totalCount: results.length,
                 averageScore
             };
+        }
+    };
+
+    /**
+     * 挑战 / 闪卡等跨页活动进度。
+     * @namespace ActivityProgress
+     */
+    const ActivityProgress = {
+        CHALLENGE_KEY: 'git-workflow-lab-challenge-progress',
+        FLASHCARD_KEY: 'git-workflow-lab-flashcard-stats',
+        SKILL_TREE_KEY: 'git-workflow-lab-skill-tree-progress',
+
+        getChallengeProgress() {
+            if (!supportsFeature('localStorage')) {
+                return { completed: [], xp: 0 };
+            }
+            return safeExecute(() => {
+                const data = localStorage.getItem(this.CHALLENGE_KEY);
+                if (!data) return { completed: [], xp: 0 };
+                const parsed = JSON.parse(data);
+                return {
+                    completed: Array.isArray(parsed.completed) ? parsed.completed : [],
+                    xp: Number(parsed.xp) || 0
+                };
+            }, { completed: [], xp: 0 });
+        },
+
+        getFlashcardStats() {
+            if (!supportsFeature('localStorage')) {
+                return { today: 0, mastered: 0, streak: 0 };
+            }
+            return safeExecute(() => {
+                const data = localStorage.getItem(this.FLASHCARD_KEY);
+                if (!data) return { today: 0, mastered: 0, streak: 0 };
+                const parsed = JSON.parse(data);
+                return {
+                    today: Number(parsed.today) || 0,
+                    mastered: Number(parsed.mastered) || 0,
+                    streak: Number(parsed.streak) || 0
+                };
+            }, { today: 0, mastered: 0, streak: 0 });
+        },
+
+        getSnapshot() {
+            const quiz = QuizProgress.getStats();
+            const challenge = this.getChallengeProgress();
+            const flashcard = this.getFlashcardStats();
+            return {
+                completedLessons: LearningProgress.getCompletedCount(),
+                passedQuizzes: quiz.passedCount,
+                quizAverage: quiz.averageScore,
+                completedChallenges: challenge.completed.length,
+                challengeXp: challenge.xp,
+                flashcardsMastered: flashcard.mastered,
+                flashcardStreak: flashcard.streak
+            };
+        },
+
+        /**
+         * 广播进度变更，供游戏化 / 仪表盘等同页或跨模块即时刷新。
+         * @param {string} type
+         * @param {Object} [detail]
+         */
+        notify(type, detail = {}) {
+            window.dispatchEvent(new CustomEvent('git-workflow-lab:progress', {
+                detail: {
+                    type,
+                    ...detail,
+                    snapshot: this.getSnapshot()
+                }
+            }));
         }
     };
 
@@ -1144,9 +1221,84 @@
         mobileMenu: null,
 
         /**
+         * 根据当前路径计算站点根相对前缀（site/ 或 site/lessons/）。
+         * @returns {string}
+         */
+        resolveBasePath() {
+            const path = window.location.pathname.replace(/\\/g, '/');
+            if (path.includes('/lessons/') || path.endsWith('/lessons')) {
+                return '../';
+            }
+            return '';
+        },
+
+        /**
+         * 页面缺少导航时注入统一全局导航栏。
+         * 在 body 上设置 data-no-global-nav 可跳过。
+         */
+        ensure() {
+            if (document.querySelector('.global-navbar')) return;
+            if (document.body.dataset.noGlobalNav === 'true') return;
+
+            const base = this.resolveBasePath();
+            const html = `
+    <nav class="global-navbar">
+        <div class="global-navbar-content">
+            <div class="global-navbar-left">
+                <a href="${base}index.html" class="global-navbar-brand">
+                    <div class="global-navbar-logo">📖</div>
+                    <span>Git Workflow Lab</span>
+                </a>
+                <div class="global-navbar-links">
+                    <a href="${base}lessons/index.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        课程
+                    </a>
+                    <a href="${base}learning-path.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        学习路径
+                    </a>
+                    <a href="${base}playground.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        练习
+                    </a>
+                    <a href="${base}quiz.html" class="nav-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        测验
+                    </a>
+                </div>
+            </div>
+            <div class="global-navbar-right">
+                <div class="nav-search">
+                    <svg class="nav-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="nav-search-input" placeholder="搜索..." aria-label="搜索">
+                </div>
+                <button class="nav-theme-toggle theme-toggle" aria-label="切换主题">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="nav-menu-toggle" aria-label="菜单">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+        <div class="global-navbar-menu">
+            <a href="${base}lessons/index.html" class="nav-link">📚 课程</a>
+            <a href="${base}learning-path.html" class="nav-link">🎯 学习路径</a>
+            <a href="${base}playground.html" class="nav-link">⚡ 练习</a>
+            <a href="${base}quiz.html" class="nav-link">✅ 测验</a>
+            <a href="${base}command-sheet.html" class="nav-link">📋 速查表</a>
+            <a href="${base}ai-assistant.html" class="nav-link">🤖 AI助手</a>
+            <a href="${base}reference.html" class="nav-link">📚 参考</a>
+        </div>
+    </nav>`;
+            document.body.insertAdjacentHTML('afterbegin', html);
+        },
+
+        /**
          * 初始化全局导航栏
          */
         init() {
+            this.ensure();
             this.navbar = document.querySelector('.global-navbar');
             if (!this.navbar) return;
 
@@ -1193,14 +1345,19 @@
          * 高亮当前页面的导航链接
          */
         highlightCurrentPage() {
-            const currentPath = window.location.pathname;
+            const currentPath = window.location.pathname.replace(/\\/g, '/');
+            const currentFile = currentPath.split('/').filter(Boolean).pop() || 'index.html';
+            const inLessons = currentPath.includes('/lessons/');
             const links = this.navbar.querySelectorAll('.nav-link');
 
             links.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && currentPath.endsWith(href)) {
-                    link.classList.add('active');
-                }
+                const href = (link.getAttribute('href') || '').replace(/\\/g, '/');
+                const hrefFile = href.split('/').pop()?.split('?')[0] || '';
+                const isLessonLink = href.includes('lessons/');
+                const active = inLessons
+                    ? isLessonLink
+                    : Boolean(hrefFile && hrefFile === currentFile);
+                link.classList.toggle('active', active);
             });
         },
 
@@ -1216,20 +1373,64 @@
                     e.preventDefault();
                     const query = searchInput.value.trim();
                     if (query) {
-                        // 跳转到搜索页面或执行搜索
-                        window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+                        const base = this.resolveBasePath();
+                        window.location.href = `${base}search.html?q=${encodeURIComponent(query)}`;
                     }
                 }
             });
         },
 
-        /**
-         * 销毁导航栏
-         */
-        destroy() {
-            if (this.menuToggle) {
-                this.menuToggle.removeEventListener('click', () => {});
+    };
+
+    /**
+     * 统一页脚与无障碍跳转。
+     * @namespace SiteChrome
+     */
+    const SiteChrome = {
+        ensureSkipLink() {
+            if (document.querySelector('.skip-link')) return;
+            if (document.body.dataset.noSkipLink === 'true') return;
+            const main = document.querySelector('main') || document.querySelector('.page-header') || document.body;
+            if (main !== document.body && !main.id) {
+                main.id = 'main';
             }
+            const target = main.id ? `#${main.id}` : '#main';
+            if (main === document.body && !document.getElementById('main')) {
+                const anchor = document.createElement('div');
+                anchor.id = 'main';
+                anchor.setAttribute('tabindex', '-1');
+                document.body.insertBefore(anchor, document.body.firstChild);
+            }
+            const link = document.createElement('a');
+            link.className = 'skip-link';
+            link.href = target === '#main' || document.getElementById('main') ? '#main' : target;
+            link.textContent = '跳到主要内容';
+            document.body.insertBefore(link, document.body.firstChild);
+        },
+
+        ensureFooter() {
+            if (document.querySelector('.site-footer')) return;
+            if (document.body.dataset.noSiteFooter === 'true') return;
+            if (document.querySelector('footer') && !document.body.dataset.forceSiteFooter) return;
+
+            const base = GlobalNavbar.resolveBasePath();
+            const footer = document.createElement('footer');
+            footer.className = 'site-footer';
+            footer.innerHTML = `
+                <p class="footer-links">
+                    <span>Git Workflow Lab</span>
+                    <span>·</span>
+                    <span>MIT License</span>
+                    <span>·</span>
+                    <a href="${base}index.html">首页</a>
+                    <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub</a>
+                </p>`;
+            document.body.appendChild(footer);
+        },
+
+        init() {
+            this.ensureSkipLink();
+            this.ensureFooter();
         }
     };
 
@@ -1411,20 +1612,21 @@
          * @param {number} index
          */
         quickNavigate(index) {
+            const base = GlobalNavbar.resolveBasePath();
             const navLinks = [
                 'index.html',
                 'lessons/index.html',
                 'learning-path.html',
                 'playground.html',
                 'quiz.html',
-                'cheatsheet.html',
+                'command-sheet.html',
                 'ai-assistant.html',
                 'flashcards.html',
                 'best-practices.html'
             ];
 
             if (navLinks[index - 1]) {
-                window.location.href = navLinks[index - 1];
+                window.location.href = `${base}${navLinks[index - 1]}`;
             }
         }
     };
@@ -1442,6 +1644,7 @@
 
         // 初始化各个模块
         GlobalNavbar.init();
+        SiteChrome.init();
         ThemeManager.init();
         SmoothScroll.init();
         ScrollAnimation.init();
@@ -1471,6 +1674,8 @@
     window.GitWorkflowLab = {
         LearningProgress,
         QuizProgress,
+        ActivityProgress,
+        SiteChrome,
         ThemeManager,
         SmoothScroll,
         ScrollAnimation,

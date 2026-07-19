@@ -4,29 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>服务状态 - Git Workflow Lab</title>
+    <meta name="description" content="查看本地 Git Workflow Lab 实验服务的运行状态与端口信息。">
+    <meta name="theme-color" content="#6366f1">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         .status-container {
             max-width: 1200px;
-            margin: 60px auto;
-            padding: 0 24px;
-        }
-
-        .status-header {
-            text-align: center;
-            margin-bottom: 48px;
-        }
-
-        .status-header h1 {
-            font-size: 36px;
-            margin-bottom: 16px;
+            margin: 0 auto 64px;
+            padding: 32px 24px 0;
         }
 
         .overall-status {
             display: flex;
             justify-content: center;
             gap: 16px;
-            margin-top: 24px;
+            margin: 8px 0 32px;
         }
 
         .status-badge {
@@ -51,7 +46,7 @@
 
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
             gap: 24px;
         }
 
@@ -197,37 +192,36 @@
     </style>
 </head>
 <body>
-    <div class="status-container">
-        <div class="status-header">
-            <h1>📊 服务状态监控</h1>
-            <p style="color: var(--text-secondary);">实时监控所有服务的运行状态</p>
+    <header class="page-header">
+        <div class="container">
+            <h1>服务状态监控</h1>
+            <p>实时监控本地实验环境中各服务的运行状态</p>
+        </div>
+    </header>
 
+    <main class="status-container" id="main">
             <div class="overall-status">
                 <div class="status-badge all-ok" id="overall-status">
                     <span>✓</span>
                     <span>所有服务正常</span>
                 </div>
             </div>
-        </div>
 
         <div class="services-grid" id="services-grid">
             <!-- 动态生成 -->
         </div>
 
         <div class="info-box">
-            <h3>🔐 Gitea 登录信息</h3>
+            <h3>Gitea 登录信息</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">账号密码以本地 <code>.env</code> 为准，默认值见 <code>.env.example</code>。</p>
             <table class="credentials-table">
                 <tr>
                     <td>用户名</td>
-                    <td>playground</td>
+                    <td>见 GITEA_ADMIN_USER</td>
                 </tr>
                 <tr>
                     <td>密码</td>
-                    <td>playground2026</td>
-                </tr>
-                <tr>
-                    <td>邮箱</td>
-                    <td>playground@example.com</td>
+                    <td>见 GITEA_ADMIN_PASSWORD</td>
                 </tr>
             </table>
         </div>
@@ -235,27 +229,27 @@
         <p class="last-updated">
             最后更新: <span id="last-updated"></span>
         </p>
-    </div>
+    </main>
 
     <script>
         const services = [
             {
                 name: '教程网站',
-                url: 'http://localhost:8082',
+                url: 'http://localhost:8081',
                 description: '主网站，包含所有课程和文档',
-                checkUrl: 'http://localhost:8082/index.html',
+                checkUrl: 'http://localhost:8081/index.html',
                 actions: [
-                    { label: '访问首页', url: '/' },
-                    { label: '快速开始', url: '/quick-start.html' }
+                    { label: '访问首页', url: './index.html' },
+                    { label: '快速开始', url: './quick-start.html' }
                 ]
             },
             {
                 name: '学习工作台',
-                url: 'http://localhost:8082/workspace.html',
+                url: 'http://localhost:8081/workspace.html',
                 description: '左侧课程 + 右侧终端，边学边练',
-                checkUrl: 'http://localhost:8082/workspace.html',
+                checkUrl: 'http://localhost:8081/workspace.html',
                 actions: [
-                    { label: '打开工作台', url: '/workspace.html' }
+                    { label: '打开工作台', url: './workspace.html' }
                 ]
             },
             {
@@ -338,5 +332,6 @@
         // 渲染服务卡片
         renderServices();
     </script>
+    <script src="assets/js/main.js" defer></script>
 </body>
 </html>

@@ -89,9 +89,9 @@ class TestFixQuotes:
 
     def test_mixed_quotes(self) -> None:
         """Test mixed quote types."""
-        content = '他说："你好"，她回答\'谢谢\''
+        content = "他说：\"你好\"，她回答'谢谢'"
         result = fix_quotes(content)
-        assert result == '他说："你好"，她回答\'谢谢\''
+        assert result == "他说：\"你好\"，她回答'谢谢'"
 
     def test_no_change_needed(self) -> None:
         """Test content that doesn't need changes."""
@@ -128,6 +128,16 @@ class TestGetLessonId:
         """Lesson IDs should preserve letter suffixes."""
         md_path = Path("docs/lesson-06a-ssh-setup-and-clone.md")
         assert get_lesson_id(md_path) == "lesson-06a"
+
+    def test_terminal_basics_maps_to_lesson_00b(self) -> None:
+        """Terminal basics must not collide with lesson-00 install ID."""
+        md_path = Path("docs/lesson-00-terminal-basics.md")
+        assert get_lesson_id(md_path) == "lesson-00b"
+
+    def test_install_lesson_keeps_lesson_00(self) -> None:
+        """Install lesson remains lesson-00."""
+        md_path = Path("docs/lesson-00-install-and-config.md")
+        assert get_lesson_id(md_path) == "lesson-00"
 
 
 if __name__ == "__main__":

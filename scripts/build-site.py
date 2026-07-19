@@ -44,6 +44,7 @@ PUBLIC_PAGES: List[str] = [
 
 QUIZ_SUPPORTED_LESSONS = {
     "lesson-00",
+    "lesson-00b",
     "lesson-01",
     "lesson-02",
     "lesson-03",
@@ -85,21 +86,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     {extra_styles}
 </head>
 <body {page_data_attrs}>
-    <header class="header">
-        <nav class="nav container">
-            <a href="../index.html" class="logo">
-                <span class="logo-icon">📚</span>
-                Git Workflow Lab
-            </a>
-            <ul class="nav-links">
-                <li><a href="../index.html#highlights">亮点</a></li>
-                <li><a href="../lessons/index.html">课程</a></li>
-                <li><a href="../pages/learning-path.html">学习路径</a></li>
-                <li><a href="{repo_url}" target="_blank" rel="noreferrer">GitHub</a></li>
-            </ul>
-            <button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌙</button>
-        </nav>
-    </header>
+    <!-- 导航栏由 main.js 注入 -->
 
     <main class="lesson-layout container">
         <aside class="lesson-sidebar">
@@ -123,7 +110,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
     </footer>
 
-    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/main.js" defer></script>
     <script>
         document.querySelectorAll('.lesson-content h2').forEach(h2 => {{
             const li = document.createElement('li');
@@ -148,21 +135,7 @@ LESSONS_INDEX_TEMPLATE = """<!DOCTYPE html>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav container">
-            <a href="../index.html" class="logo">
-                <span class="logo-icon">📚</span>
-                Git Workflow Lab
-            </a>
-            <ul class="nav-links">
-                <li><a href="../index.html#highlights">亮点</a></li>
-                <li><a href="index.html">课程</a></li>
-                <li><a href="../pages/learning-path.html">学习路径</a></li>
-                <li><a href="{repo_url}" target="_blank" rel="noreferrer">GitHub</a></li>
-            </ul>
-            <button class="theme-toggle" id="themeToggle">🌙</button>
-        </nav>
-    </header>
+    <!-- 导航栏由 main.js 注入 -->
 
     <main class="container" style="padding: 48px 0;">
         <h1>📚 课程目录</h1>
@@ -183,7 +156,7 @@ LESSONS_INDEX_TEMPLATE = """<!DOCTYPE html>
         </div>
     </footer>
 
-    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/main.js" defer></script>
 </body>
 </html>
 """
@@ -208,8 +181,11 @@ def extract_title(content: str) -> str:
 
 def get_lesson_id(md_path: Path) -> str:
     """从课程文件路径中提取统一的课程 ID."""
-    match = re.match(r"(lesson-\d+[a-z]?)", md_path.stem)
-    return match.group(1) if match else md_path.stem
+    stem = md_path.stem
+    if stem == "lesson-00-terminal-basics":
+        return "lesson-00b"
+    match = re.match(r"(lesson-\d+[a-z]?)", stem)
+    return match.group(1) if match else stem
 
 
 def convert_markdown_to_html(md_content: str) -> str:
@@ -306,9 +282,7 @@ def rewrite_markdown_links(content: str, md_path: Path) -> str:
 
     return re.sub(
         r"(?P<image>!?)\[(?P<text>[^\]]+)\]\((?P<target>[^)]+)\)",
-        lambda match: (
-            match.group(0) if match.group("image") == "!" else replace_link(match)
-        ),
+        lambda match: (match.group(0) if match.group("image") == "!" else replace_link(match)),
         content,
     )
 
@@ -599,17 +573,13 @@ def get_lesson_info(md_path: Path) -> Dict[str, str]:
     match = re.search(r"lesson-(\d+)", md_path.name)
     number = match.group(1) if match else "?"
 
-    desc_match = re.search(
-        r"\*\*所属阶段\*\*[：:].+\n\n(.+?)(?:\n\n|$)", content, re.DOTALL
-    )
+    desc_match = re.search(r"\*\*所属阶段\*\*[：:].+\n\n(.+?)(?:\n\n|$)", content, re.DOTALL)
     description = desc_match.group(1).strip() if desc_match else ""
 
     return {
         "number": number,
         "title": title,
-        "description": (
-            description[:100] + "..." if len(description) > 100 else description
-        ),
+        "description": (description[:100] + "..." if len(description) > 100 else description),
         "filename": md_path.stem,
     }
 
@@ -661,8 +631,9 @@ def build_site() -> None:
         shutil.copy(html_file, SITE_DIR / html_file.name)
         print(f"  Copied {html_file.name}")
 
-    if Path("site/index.html").exists():
-        shutil.copy("site/index.html", SITE_DIR / "index.html")
+    # 保留 site/lessons 下的精美索引页；无则再回退到模板生成
+    site_lessons_index = Path("site/lessons/index.html")
+    prefer_site_lessons_index = site_lessons_index.exists()
 
     for page_name in PUBLIC_PAGES:
         page_path = DOCS_DIR / page_name
@@ -682,11 +653,15 @@ def build_site() -> None:
 
         lessons.append(get_lesson_info(md_file))
 
-    lessons_html = ""
-    for lesson in sorted(
-        lessons, key=lambda x: int(x["number"]) if x["number"].isdigit() else 999
-    ):
-        lessons_html += f"""
+    if prefer_site_lessons_index:
+        shutil.copy(site_lessons_index, LESSONS_DIR / "index.html")
+        print("  Copied site/lessons/index.html")
+    else:
+        lessons_html = ""
+        for lesson in sorted(
+            lessons, key=lambda x: int(x["number"]) if x["number"].isdigit() else 999
+        ):
+            lessons_html += f"""
             <a href="{lesson['filename']}.html" class="lesson-card">
                 <span class="lesson-number">{lesson['number']}</span>
                 <h3>{lesson['title']}</h3>
@@ -694,11 +669,11 @@ def build_site() -> None:
             </a>
         """
 
-    index_html = LESSONS_INDEX_TEMPLATE.format(
-        lessons_list=lessons_html,
-        repo_url=REPO_URL,
-    )
-    (LESSONS_DIR / "index.html").write_text(index_html, encoding="utf-8")
+        index_html = LESSONS_INDEX_TEMPLATE.format(
+            lessons_list=lessons_html,
+            repo_url=REPO_URL,
+        )
+        (LESSONS_DIR / "index.html").write_text(index_html, encoding="utf-8")
 
     print(f"Built {len(lessons)} lesson pages")
     print(f"Output: {SITE_DIR.absolute()}")

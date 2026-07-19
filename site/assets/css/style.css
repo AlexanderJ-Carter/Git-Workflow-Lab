@@ -1,9 +1,11 @@
 /* Git Workflow Lab - 样式表 */
-
-/* 字体 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* 字体由各 HTML 页面统一引入，避免 @import 阻塞渲染 */
 
 :root {
+    --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --focus-ring: 0 0 0 3px var(--accent-glow);
+    --nav-offset: 64px;
     /* 亮色主题 - 现代蓝紫渐变 */
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
@@ -92,15 +94,26 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-offset) + 12px);
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.6;
     color: var(--text-primary);
     background-color: var(--bg-primary);
     transition: background-color 0.3s, color 0.3s;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
 }
 
 .container {
@@ -902,14 +915,118 @@ a {
     }
 }
 
+.skip-link {
+    position: absolute;
+    left: 12px;
+    top: -48px;
+    z-index: 2000;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--accent-primary, #4f46e5);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.skip-link:focus {
+    top: 12px;
+}
+
+/* 统一页头 */
+.page-header {
+    padding: 48px 0 32px;
+    text-align: center;
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+        var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-header h1 {
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.page-header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* 统一页脚 */
+.site-footer {
+    margin-top: auto;
+    padding: 32px 24px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    text-align: center;
+}
+
+.site-footer p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.site-footer a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+.site-footer .footer-links {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 首页工具卡片标签 */
+.lab-meta {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lab-meta--learn { background: #dbeafe; color: #1d4ed8; }
+.lab-meta--new { background: #e0e7ff; color: #4338ca; }
+.lab-meta--practice { background: #dcfce7; color: #166534; }
+.lab-meta--local { background: #fef3c7; color: #92400e; }
+.lab-meta--challenge { background: #fee2e2; color: #dc2626; }
+.lab-meta--tool { background: #f1f5f9; color: #475569; }
+.lab-meta--quiz { background: #fef08a; color: #a16207; }
+
+[data-theme="dark"] .lab-meta--learn { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+[data-theme="dark"] .lab-meta--new { background: rgba(99, 102, 241, 0.25); color: #c7d2fe; }
+[data-theme="dark"] .lab-meta--practice { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+[data-theme="dark"] .lab-meta--local { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+[data-theme="dark"] .lab-meta--challenge { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+[data-theme="dark"] .lab-meta--tool { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }
+[data-theme="dark"] .lab-meta--quiz { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+
 /* 页面顶部留白（为固定导航栏预留空间） */
 body {
-    padding-top: 64px;
+    padding-top: var(--nav-offset);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 @media (max-width: 768px) {
-    body {
-        padding-top: 56px;
+    :root {
+        --nav-offset: 56px;
     }
 }
 
@@ -3304,12 +3421,17 @@ textarea.form-input {
 
 /* 减少动画（用户偏好） */
 @media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
     *,
     *::before,
     *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 
     .page-enter,

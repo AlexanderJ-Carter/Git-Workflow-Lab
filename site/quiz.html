@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="按课程检验 Git 与 CI/CD 知识，巩固学习成果。">
     <title>Git 技能测验 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -381,7 +383,7 @@
             <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="playground.html" class="nav-link">⚡ 练习</a>
             <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -946,12 +948,12 @@
                         type: 'choice',
                         question: '查看 Git 版本的命令是什么？',
                         options: [
-                            { text: 'git version', correct: true },
-                            { text: 'git --version', correct: false },
+                            { text: 'git --version', correct: true },
                             { text: 'git info', correct: false },
-                            { text: 'git status', correct: false }
+                            { text: 'git status', correct: false },
+                            { text: 'git check', correct: false }
                         ],
-                        explanation: 'git version 显示当前安装的 Git 版本号。'
+                        explanation: 'git --version 显示当前安装的 Git 版本号。'
                     },
                     {
                         type: 'choice',
@@ -969,6 +971,39 @@
                         question: '设置全局邮箱的命令是：git config --global user.____ "邮箱"',
                         answer: 'email',
                         explanation: 'git config --global user.email 用于设置全局邮箱。'
+                    }
+                ]
+            },
+            'lesson-00b': {
+                title: '命令行与工作目录基础',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: '查看当前所在目录的命令是什么？',
+                        options: [
+                            { text: 'pwd', correct: true },
+                            { text: 'ls', correct: false },
+                            { text: 'cd', correct: false },
+                            { text: 'path', correct: false }
+                        ],
+                        explanation: 'pwd（print working directory）用于打印当前工作目录。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '在 Linux / macOS 终端中，列出当前目录文件常用哪个命令？',
+                        options: [
+                            { text: 'ls', correct: true },
+                            { text: 'pwd', correct: false },
+                            { text: 'mkdir', correct: false },
+                            { text: 'rm', correct: false }
+                        ],
+                        explanation: 'ls 用于列出当前目录下的文件和文件夹；Windows 原生终端常用 dir。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '切换到 projects 目录的命令是：____ projects',
+                        answer: 'cd',
+                        explanation: 'cd（change directory）用于切换目录。'
                     }
                 ]
             },

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="积分、等级与每日任务，让 Git 学习更有动力。">
     <title>游戏中心 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -697,7 +699,7 @@
             <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="playground.html" class="nav-link">⚡ 练习</a>
             <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -861,19 +863,21 @@
 
         // 经验值获取规则
         const EXP_RULES = {
-            completeLesson: 10,      // 完成课程
-            quizPerfect: 20,         // 测验满分
-            streakBonus: 5,           // 连续学习奖励
-            practiceCommand: 3       // 练习命令
+            completeLesson: 10,
+            quizPerfect: 20,
+            streakBonus: 5,
+            practiceCommand: 3,
+            completeChallenge: 12,
+            flashcardMaster: 2
         };
 
         // 每日任务配置
         const DAILY_TASKS = [
             { id: 'complete-lesson', name: '完成1节课', desc: '完成任意课程学习', exp: 10, points: 5 },
             { id: 'pass-quiz', name: '通过测验', desc: '完成一次测验', exp: 15, points: 8 },
-            { id: 'practice-command', name: '练习命令', desc: '在实验室完成5个命令', exp: 8, points: 3 },
+            { id: 'practice-command', name: '练习命令', desc: '完成一个场景挑战', exp: 8, points: 3 },
             { id: 'streak-day', name: '保持连续', desc: '今天已学习', exp: 5, points: 2 },
-            { id: 'review-lesson', name: '复习课程', desc: '回顾已学过的课程', exp: 5, points: 2 }
+            { id: 'review-lesson', name: '复习课程', desc: '掌握新的闪卡', exp: 5, points: 2 }
         ];
 
         // 每周挑战配置
@@ -902,7 +906,8 @@
             lastVisit: 'git-workflow-lab-last-visit',
             dailyTasks: 'git-workflow-lab-daily-tasks',
             weeklyChallenges: 'git-workflow-lab-weekly-challenges',
-            ownedRewards: 'git-workflow-lab-owned-rewards'
+            ownedRewards: 'git-workflow-lab-owned-rewards',
+            activitySync: 'git-workflow-lab-game-activity-sync'
         };
 
         // 游戏状态管理
@@ -1145,11 +1150,12 @@
 
                 const challenge = challenges.find(c => c.id === challengeId);
                 if (challenge) {
+                    const before = challenge.current;
                     challenge.current = Math.min(challenge.current + amount, challenge.target);
                     this.saveToStorage(STORAGE_KEYS.weeklyChallenges, challenges);
 
-                    // 检查是否完成
-                    if (challenge.current >= challenge.target) {
+                    // 仅在首次跨过目标时发奖，避免重复同步刷经验
+                    if (before < challenge.target && challenge.current >= challenge.target) {
                         const challengeConfig = WEEKLY_CHALLENGES.find(c => c.id === challengeId);
                         if (challengeConfig) {
                             this.addExperience(challengeConfig.exp, `${challengeConfig.name}挑战`);
@@ -1162,10 +1168,95 @@
                 this.renderWeeklyChallenges();
             },
 
+            /**
+             * 仅标记每日任务完成，不重复发奖（发奖由 syncFromActivity 统一处理）。
+             */
+            markTaskDone(taskId) {
+                this.updateDailyTasks();
+                const data = this.getData();
+                const tasks = data.dailyTasks.tasks || {};
+                if (tasks[taskId]?.completed) return false;
+                tasks[taskId] = { completed: true, completedAt: Date.now(), synced: true };
+                data.dailyTasks.tasks = tasks;
+                this.saveToStorage(STORAGE_KEYS.dailyTasks, data.dailyTasks);
+                return true;
+            },
+
+            /**
+             * 从全站 ActivityProgress / LearningProgress 同步增量经验与任务。
+             */
+            syncFromActivity() {
+                const lab = window.GitWorkflowLab;
+                if (!lab?.ActivityProgress?.getSnapshot) return;
+
+                const snap = lab.ActivityProgress.getSnapshot();
+                const prev = this.getFromStorage(STORAGE_KEYS.activitySync, {
+                    lessonCount: 0,
+                    quizCount: 0,
+                    challengeCount: 0,
+                    flashMastered: 0
+                });
+
+                const deltaLessons = Math.max(0, snap.completedLessons - (prev.lessonCount || 0));
+                const deltaQuizzes = Math.max(0, snap.passedQuizzes - (prev.quizCount || 0));
+                const deltaChallenges = Math.max(0, snap.completedChallenges - (prev.challengeCount || 0));
+                const deltaFlash = Math.max(0, snap.flashcardsMastered - (prev.flashMastered || 0));
+
+                if (deltaLessons > 0) {
+                    this.addExperience(EXP_RULES.completeLesson * deltaLessons, `完成 ${deltaLessons} 节课`);
+                    this.updateWeeklyChallenge('week-lessons', deltaLessons);
+                    this.markTaskDone('complete-lesson');
+                    this.markTaskDone('streak-day');
+                }
+
+                if (deltaQuizzes > 0) {
+                    this.addExperience(EXP_RULES.quizPerfect * deltaQuizzes, `通过 ${deltaQuizzes} 场测验`);
+                    this.updateWeeklyChallenge('week-quizzes', deltaQuizzes);
+                    this.markTaskDone('pass-quiz');
+                    this.markTaskDone('streak-day');
+                }
+
+                if (deltaChallenges > 0) {
+                    this.addExperience(EXP_RULES.completeChallenge * deltaChallenges, `完成 ${deltaChallenges} 个挑战`);
+                    this.markTaskDone('practice-command');
+                    this.markTaskDone('streak-day');
+                }
+
+                if (deltaFlash > 0) {
+                    this.addExperience(EXP_RULES.flashcardMaster * deltaFlash, `掌握 ${deltaFlash} 张闪卡`);
+                    this.markTaskDone('review-lesson');
+                    this.markTaskDone('streak-day');
+                }
+
+                // 用真实学习活跃日同步「持续学习」周挑战（不重复发周奖励：只抬进度）
+                const progress = lab.LearningProgress?.getProgress?.() || {};
+                const activeDays = new Set();
+                Object.values(progress).forEach(item => {
+                    if (item?.completed && item.timestamp) {
+                        activeDays.add(new Date(item.timestamp).toDateString());
+                    }
+                });
+                const data = this.getData();
+                const weekStreak = data.weeklyChallenges.find(c => c.id === 'week-streak');
+                if (weekStreak) {
+                    weekStreak.current = Math.min(activeDays.size, weekStreak.target);
+                    this.saveToStorage(STORAGE_KEYS.weeklyChallenges, data.weeklyChallenges);
+                }
+
+                this.saveToStorage(STORAGE_KEYS.activitySync, {
+                    lessonCount: snap.completedLessons,
+                    quizCount: snap.passedQuizzes,
+                    challengeCount: snap.completedChallenges,
+                    flashMastered: snap.flashcardsMastered,
+                    syncedAt: Date.now()
+                });
+            },
+
             // 初始化
             init() {
                 this.updateStreak();
                 this.updateDailyTasks();
+                this.syncFromActivity();
                 this.updateUI();
             },
 
@@ -1380,20 +1471,19 @@
             GameSystem.addExperience(EXP_RULES.practiceCommand, '练习命令');
         };
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
+        function refreshGameUI() {
             GameSystem.init();
             GameSystem.renderTasks();
             GameSystem.renderWeeklyChallenges();
             GameSystem.renderRewards();
+        }
 
-            // 监听 localStorage 变化
-            window.addEventListener('storage', () => {
-                GameSystem.init();
-                GameSystem.renderTasks();
-                GameSystem.renderWeeklyChallenges();
-                GameSystem.renderRewards();
-            });
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshGameUI();
+
+            window.addEventListener('storage', refreshGameUI);
+            window.addEventListener('git-workflow-lab:progress', refreshGameUI);
         });
     </script>
 </body>

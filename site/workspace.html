@@ -406,7 +406,7 @@
       // 学习进度追踪
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 17,
+        TOTAL_LESSONS: 23,
 
         getProgress() {
           const data = localStorage.getItem(this.STORAGE_KEY);
@@ -428,10 +428,12 @@
 
         init() {
           this.updateUI();
-
-          // 监听 localStorage 变化以更新进度
-          window.addEventListener('storage', () => {
-            this.updateUI();
+          window.addEventListener('storage', () => this.updateUI());
+          window.addEventListener('git-workflow-lab:progress', () => this.updateUI());
+          window.addEventListener('message', (event) => {
+            if (event.data?.type === 'progress-update') {
+              this.updateUI();
+            }
           });
         }
       };
@@ -512,6 +514,7 @@
         }, 5000);
       });
     </script>
-  </body>
+      <script src="assets/js/main.js" defer></script>
+</body>
 </html>
 

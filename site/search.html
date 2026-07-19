@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
     <title>搜索 - Git Workflow Lab</title>
     <meta name="description" content="全局搜索课程、Git 命令和概念">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -421,25 +422,7 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <a href="index.html" class="logo">
-                    <span class="logo-icon">&#x1F4C4;</span>
-                    <span>Git Workflow Lab</span>
-                </a>
-                <ul class="nav-links">
-                    <li><a href="lessons/index.html">课程</a></li>
-                    <li><a href="playground.html">浏览器实验室</a></li>
-                    <li><a href="learning-path.html">学习路径</a></li>
-                    <li><a href="quiz.html">测验</a></li>
-                </ul>
-                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-                    &#9790;
-                </button>
-            </nav>
-        </div>
-    </header>
+    <!-- 导航栏由 main.js 注入 -->
 
     <main class="search-page">
         <div class="search-header">
@@ -770,7 +753,7 @@
                         </div>
                         <div class="result-list">
                             ${results.commands.map((item, i) => `
-                                <div class="result-item" data-type="commands" data-index="${i}">
+                                <a href="command-sheet.html?q=${encodeURIComponent(item.cmd)}" class="result-item" data-type="commands" data-index="${i}">
                                     <div class="result-icon">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="4 17 10 11 4 5"></polyline>
@@ -788,7 +771,7 @@
                                         <path d="M5 12h14"></path>
                                         <path d="m12 5 7 7-7 7"></path>
                                     </svg>
-                                </div>
+                                </a>
                             `).join('')}
                         </div>
                     </div>
@@ -810,7 +793,7 @@
                         </div>
                         <div class="result-list">
                             ${results.concepts.map((item, i) => `
-                                <div class="result-item" data-type="concepts" data-index="${i}">
+                                <a href="reference.html?q=${encodeURIComponent(item.name)}" class="result-item" data-type="concepts" data-index="${i}">
                                     <div class="result-icon">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10"></circle>
@@ -826,7 +809,7 @@
                                         <path d="M5 12h14"></path>
                                         <path d="m12 5 7 7-7 7"></path>
                                     </svg>
-                                </div>
+                                </a>
                             `).join('')}
                         </div>
                     </div>
@@ -974,5 +957,6 @@
         // 初始化
         renderEmptyState('输入关键词开始搜索');
     </script>
+    <script src="assets/js/main.js" defer></script>
 </body>
 </html>

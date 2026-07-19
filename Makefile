@@ -2,14 +2,14 @@
 # Git Workflow Lab - Makefile
 # ============================================
 
-.PHONY: help install build clean docs docs-clean docs-serve test lint docker-up docker-down docker-logs fix-quotes
+.PHONY: help install build clean docs docs-clean docs-serve test test-cov lint docker-up docker-down docker-logs docker-restart fix-quotes format security-check watch
 
 # 默认目标
 help:
 	@echo "Git Workflow Lab - 可用命令:"
 	@echo ""
 	@echo "  安装与构建:"
-	@echo "    install          安装 Python 依赖"
+	@echo "    install          用 uv 安装依赖 (含 dev)"
 	@echo "    build            构建静态网站 (_site/)"
 	@echo "    clean            清理构建输出"
 	@echo ""
@@ -25,6 +25,7 @@ help:
 	@echo ""
 	@echo "  代码质量:"
 	@echo "    test             运行测试"
+	@echo "    test-cov         运行测试并生成覆盖率"
 	@echo "    lint             代码检查"
 	@echo "    fix-quotes       修复中文引号"
 	@echo ""
@@ -34,17 +35,16 @@ help:
 # ============================================
 
 install:
-	pip install -r requirements-build.txt
-	pip install -r docs-requirements.txt
+	uv sync --extra dev
 
 build:
-	python scripts/build-site.py
+	uv run python scripts/build-site.py
 	@echo "✅ 网站构建完成: _site/"
 
 clean:
 	rm -rf _site/
 	rm -rf __pycache__/
-	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ 清理完成"
 
 # ============================================
@@ -61,7 +61,7 @@ docs-clean:
 
 docs-serve:
 	@echo "📚 启动文档服务器: http://localhost:8000"
-	cd docs-sphinx/_build/html && python -m http.server 8000
+	cd docs-sphinx/_build/html && uv run python -m http.server 8000
 
 # ============================================
 # Docker 服务
@@ -95,16 +95,20 @@ docker-restart: docker-down docker-up
 
 test:
 	@echo "运行测试..."
-	python -m pytest tests/ -v --cov=. --cov-report=html
+	uv run pytest tests/ -v
+
+test-cov:
+	@echo "运行测试（含覆盖率）..."
+	uv run pytest tests/ -v --cov=scripts --cov-report=term-missing --cov-report=html
 
 lint:
 	@echo "代码检查..."
-	python -m flake8 scripts/ --max-line-length=100
-	python -m black --check scripts/
-	python -m mypy scripts/
+	uv run flake8 scripts/ --max-line-length=100
+	uv run black --check scripts/
+	uv run mypy scripts/
 
 fix-quotes:
-	python scripts/fix-quotes.py
+	uv run python scripts/fix-quotes.py
 
 # ============================================
 # 发布
@@ -131,17 +135,15 @@ release-major:
 
 watch:
 	@echo "👀 监听文件变化并自动构建..."
-	@pip install watchdog 2>/dev/null
-	watchmedo shell-command -p "*.md;*.html;*.css;*.js" -R -c "make build" docs/ site/
+	uv run watchmedo shell-command -p "*.md;*.html;*.css;*.js" -R -c "make build" docs/ site/
 
 format:
 	@echo "格式化代码..."
-	python -m black scripts/
-	python -m isort scripts/
+	uv run black scripts/
+	uv run isort scripts/
 	@echo "✅ 代码格式化完成"
 
 security-check:
 	@echo "🔒 安全检查..."
-	pip install bandit safety
-	bandit -r scripts/
-	safety check
+	uv run bandit -r scripts/
+	uv run safety check

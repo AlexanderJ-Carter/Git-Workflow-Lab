@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="以技能树展示 Git 能力成长路径。">
     <title>技能树 - Git Workflow Lab</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -605,7 +607,7 @@
             <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
             <a href="playground.html" class="nav-link">⚡ 练习</a>
             <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="cheatsheet.html" class="nav-link">📋 速查表</a>
+            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
             <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
         </div>
     </nav>
@@ -860,7 +862,7 @@
         // 学习进度管理
         const LearningProgress = {
             STORAGE_KEY: 'git-workflow-lab-progress',
-            SKILL_PROGRESS_KEY: 'git-skill-tree-progress',
+            SKILL_PROGRESS_KEY: 'git-workflow-lab-skill-tree-progress',
 
             getLessonProgress() {
                 try {
@@ -1105,27 +1107,26 @@
             });
         });
 
-        // 监听 localStorage 变化
-        window.addEventListener('storage', () => {
-            renderSkillColumns();
-            updateStats();
-        });
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            renderSkillColumns();
-            updateStats();
-        });
-
-        // 刷新按钮
         function refreshProgress() {
-            // 清除技能进度缓存，重新计算
-            localStorage.removeItem('git-skill-tree-progress');
+            localStorage.removeItem('git-workflow-lab-skill-tree-progress');
             renderSkillColumns();
             updateStats();
         }
 
-        // 每30秒自动刷新（检测课程进度变化）
+        function softRefresh() {
+            renderSkillColumns();
+            updateStats();
+        }
+
+        window.addEventListener('storage', softRefresh);
+        window.addEventListener('git-workflow-lab:progress', refreshProgress);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSkillColumns();
+            updateStats();
+            window.lastProgress = localStorage.getItem('git-workflow-lab-progress');
+        });
+
         setInterval(() => {
             const currentProgress = localStorage.getItem('git-workflow-lab-progress');
             if (currentProgress !== window.lastProgress) {

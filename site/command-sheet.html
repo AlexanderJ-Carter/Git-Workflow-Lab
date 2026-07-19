@@ -1186,10 +1186,9 @@
             const noResults = document.getElementById('noResults');
             const tabPanels = document.querySelectorAll('.tab-panel');
 
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
+            function applySearch(rawQuery) {
+                const query = rawQuery.toLowerCase().trim();
                 let visibleCount = 0;
-                let hasVisibleTab = false;
 
                 tabPanels.forEach(panel => {
                     const panelCards = panel.querySelectorAll('.command-card');
@@ -1209,27 +1208,27 @@
                         }
                     });
 
-                    if (panelVisibleCount > 0) {
-                        panel.style.display = 'block';
-                        hasVisibleTab = true;
-                    } else {
-                        panel.style.display = 'none';
-                    }
+                    panel.style.display = panelVisibleCount > 0 ? 'block' : 'none';
                 });
 
                 noResults.style.display = visibleCount === 0 ? 'block' : 'none';
 
-                // 更新标签页按钮状态
                 const tabButtons = document.querySelectorAll('.tab-button');
                 tabButtons.forEach((btn, index) => {
                     const panel = tabPanels[index];
-                    if (panel.style.display !== 'none') {
-                        btn.style.display = 'inline-flex';
-                    } else {
-                        btn.style.display = 'none';
-                    }
+                    btn.style.display = panel.style.display !== 'none' ? 'inline-flex' : 'none';
                 });
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                applySearch(e.target.value);
             });
+
+            const initialQuery = new URLSearchParams(window.location.search).get('q');
+            if (initialQuery) {
+                searchInput.value = initialQuery;
+                applySearch(initialQuery);
+            }
 
             // 键盘快捷键
             document.addEventListener('keydown', (e) => {

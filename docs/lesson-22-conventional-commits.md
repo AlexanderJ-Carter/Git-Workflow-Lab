@@ -7,7 +7,7 @@
 
 ---
 
-> 💡 **学习提示**：左边打开本文件，右边打开 Web 终端（http://localhost:8080）和 Gitea（http://localhost:3000），在 `playground-hello` 仓库中逐条执行。
+> 💡 **学习提示**：左边打开本文件，右边打开 Web 终端（<http://localhost:8080>）和 Gitea（<http://localhost:3000>），在 `playground-hello` 仓库中逐条执行。
 
 ---
 
@@ -26,7 +26,7 @@
 
 - [ ] 已完成关卡 01–02（init、commit、log）
 - [ ] 本地实验环境已启动：`docker compose up -d`
-- [ ] 可访问 http://localhost:3000（Gitea）和 http://localhost:8080（Web 终端）
+- [ ] 可访问 <http://localhost:3000>（Gitea）和 <http://localhost:8080>（Web 终端）
 - [ ] 已 clone 演示仓库：
 
   ```bash
@@ -165,7 +165,7 @@ git log --grep="^docs" --oneline
 - [ ] ✓ 最近 3 条提交分别以 `docs:`、`feat(`、`fix(` 开头
 - [ ] ✓ 每条 subject 用英文或中文均可，但 type 必须准确
 - [ ] ✓ `git status` 显示工作区干净
-- [ ] ✓ 在 Gitea Web 界面（http://localhost:3000）能看到规范提交信息
+- [ ] ✓ 在 Gitea Web 界面（<http://localhost:3000>）能看到规范提交信息
 
 ---
 

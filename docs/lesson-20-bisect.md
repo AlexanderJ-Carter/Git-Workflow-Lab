@@ -26,7 +26,7 @@
 
 - [ ] 已完成关卡 07（cherry-pick / revert）或熟悉 `git log`
 - [ ] 本地实验环境已启动（`docker compose up -d`）
-- [ ] 可访问 http://localhost:8080（Web 终端）
+- [ ] 可访问 <http://localhost:8080>（Web 终端）
 - [ ] 已 clone 演示仓库（任选其一）：
 
   ```bash

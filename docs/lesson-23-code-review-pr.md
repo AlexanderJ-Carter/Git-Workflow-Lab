@@ -26,7 +26,7 @@
 
 - [ ] 已完成关卡 04（分支与 PR）和关卡 22（约定式提交）
 - [ ] 本地实验环境已启动：`docker compose up -d`
-- [ ] 可访问 http://localhost:3000（Gitea）、http://localhost:8080（终端）
+- [ ] 可访问 <http://localhost:3000>（Gitea）、<http://localhost:8080>（终端）
 - [ ] 已 clone `playground-hello`：
 
   ```bash

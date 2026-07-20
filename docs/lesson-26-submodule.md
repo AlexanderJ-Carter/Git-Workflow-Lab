@@ -35,7 +35,7 @@
 
 ### 步骤 1：创建主仓库并 clone
 
-在 Gitea（http://localhost:3000）创建仓库 `playground/playground-meta`，然后：
+在 Gitea（<http://localhost:3000>）创建仓库 `playground/playground-meta`，然后：
 
 ```bash
 cd ~
@@ -74,8 +74,8 @@ cat .gitmodules
 
 ```ini
 [submodule "ci"]
-	path = ci
-	url = http://localhost:3000/playground/playground-ci.git
+    path = ci
+    url = http://localhost:3000/playground/playground-ci.git
 ```
 
 提交 submodule 引用：

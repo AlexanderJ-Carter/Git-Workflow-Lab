@@ -62,7 +62,9 @@ jobs:
       - name: Lint YAML files
         uses: ibiqlik/action-yamllint@v3
         with:
-          file_or_dir: '.github/workflows/,docker-compose.yml'
+          file_or_dir: |
+            .github/workflows
+            docker-compose.yml
           config_data: |
             extends: default
             rules:

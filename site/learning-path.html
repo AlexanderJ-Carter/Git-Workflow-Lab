@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="description" content="可视化 Git 学习路线，按阶段跟踪进度。">
     <title>学习路径 - Git Workflow Lab</title>
+    <script src="assets/js/asset-base.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,72 +75,108 @@
         .path-progress-card {
             max-width: 900px;
             margin: -30px auto 40px;
-            padding: 28px 32px;
+            padding: 24px 28px;
             background: var(--path-bg-card);
             border: 1px solid var(--path-border);
             border-radius: var(--path-radius);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .path-progress-top {
             display: flex;
             align-items: center;
-            gap: 32px;
+            gap: 28px;
             flex-wrap: wrap;
         }
 
         .path-progress-info {
-            flex: 1;
-            min-width: 200px;
+            flex: 0 0 auto;
+            min-width: 120px;
         }
 
         .path-progress-label {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--path-text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .path-progress-value {
-            font-size: 32px;
+            font-size: 40px;
             font-weight: 700;
+            line-height: 1.1;
             color: var(--path-primary);
+            font-variant-numeric: tabular-nums;
         }
 
-        .path-progress-bar {
-            flex: 2;
-            min-width: 250px;
+        .path-progress-bar-wrap {
+            flex: 1 1 240px;
+            min-width: 0;
         }
 
         .path-progress-track {
-            height: 14px;
+            height: 12px;
             background: var(--path-border);
-            border-radius: 7px;
+            border-radius: 999px;
             overflow: hidden;
-            margin-bottom: 12px;
         }
 
         .path-progress-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--path-primary), var(--path-secondary));
-            border-radius: 7px;
+            border-radius: 999px;
             transition: width 0.5s ease;
         }
 
         .path-progress-stages {
             display: flex;
-            justify-content: space-between;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 2px 0 4px;
+            scrollbar-width: thin;
+        }
+
+        .path-progress-stages::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .path-progress-stages::-webkit-scrollbar-thumb {
+            background: var(--path-border);
+            border-radius: 4px;
         }
 
         .path-stage-item {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            min-width: 52px;
+            padding: 8px 10px;
+            background: var(--path-bg);
+            border: 1px solid var(--path-border);
+            border-radius: 10px;
             text-align: center;
-            font-size: 12px;
         }
 
-        .path-stage-item span {
-            display: block;
-            color: var(--path-text-muted);
+        .path-stage-item.is-done {
+            border-color: rgba(16, 185, 129, 0.35);
+            background: rgba(16, 185, 129, 0.08);
         }
 
         .path-stage-item strong {
-            color: var(--path-text);
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--path-primary);
+            letter-spacing: 0.02em;
+        }
+
+        .path-stage-item span {
+            font-size: 11px;
+            color: var(--path-text-muted);
+            white-space: nowrap;
         }
 
         /* 路径时间线 */
@@ -229,33 +266,40 @@
 
         .path-activity-strip {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 12px;
-            margin-top: 24px;
-            padding-top: 20px;
+            padding-top: 16px;
             border-top: 1px solid var(--path-border);
         }
 
         .path-activity-item {
             text-align: center;
+            padding: 14px 10px;
+            background: var(--path-bg);
+            border: 1px solid var(--path-border);
+            border-radius: 12px;
         }
 
         .path-activity-item strong {
             display: block;
-            font-size: 22px;
-            font-family: 'JetBrains Mono', monospace;
+            font-size: 26px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
             color: var(--path-primary);
-            margin-bottom: 4px;
+            line-height: 1.2;
+            margin-bottom: 6px;
         }
 
         .path-activity-item span {
+            display: block;
             font-size: 12px;
             color: var(--path-text-muted);
+            line-height: 1.4;
         }
 
         @media (max-width: 700px) {
             .path-activity-strip {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
@@ -361,13 +405,14 @@
         }
 
         @media (max-width: 768px) {
-            .path-progress-card {
+            .path-progress-top {
                 flex-direction: column;
+                align-items: stretch;
                 text-align: center;
             }
 
-            .path-progress-stages {
-                display: none;
+            .path-progress-value {
+                font-size: 36px;
             }
 
             .path-stage {
@@ -442,16 +487,18 @@
     </header>
 
     <div class="path-progress-card">
-        <div class="path-progress-info">
-            <div class="path-progress-label">总体学习进度</div>
-            <div class="path-progress-value" id="progress-value">0%</div>
-        </div>
-        <div class="path-progress-bar">
-            <div class="path-progress-track">
-                <div class="path-progress-fill" id="progress-fill" style="width: 0%"></div>
+        <div class="path-progress-top">
+            <div class="path-progress-info">
+                <div class="path-progress-label">总体学习进度</div>
+                <div class="path-progress-value" id="progress-value">0%</div>
             </div>
-            <div class="path-progress-stages" id="path-progress-stages"></div>
+            <div class="path-progress-bar-wrap">
+                <div class="path-progress-track">
+                    <div class="path-progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
         </div>
+        <div class="path-progress-stages" id="path-progress-stages" aria-label="阶段进度"></div>
         <div class="path-activity-strip" id="path-activity-strip" hidden>
             <div class="path-activity-item"><strong id="path-dash-lessons">0</strong><span>已完成课程</span></div>
             <div class="path-activity-item"><strong id="path-dash-quizzes">0</strong><span>通过测验</span></div>
@@ -525,12 +572,13 @@
             return [...map.entries()].sort((a, b) => a[0] - b[0]);
         }
 
-        function renderProgressStages(stageCount) {
+        function renderProgressStages(stageCount, completedStages = 0) {
             const container = document.getElementById('path-progress-stages');
             if (!container || stageCount <= 0) return;
-            container.innerHTML = STAGE_SHORT.slice(0, stageCount).map((label, index) => {
-                const pct = Math.round(((index + 1) / stageCount) * 100);
-                return `<div class="path-stage-item"><strong>${pct}%</strong><span>${escapeHtml(label)}</span></div>`;
+            container.innerHTML = STAGE_BADGES.slice(0, stageCount).map((badge, index) => {
+                const label = STAGE_SHORT[index] || badge;
+                const doneClass = index < completedStages ? ' is-done' : '';
+                return `<div class="path-stage-item${doneClass}"><strong>${escapeHtml(badge)}</strong><span>${escapeHtml(label)}</span></div>`;
             }).join('');
         }
 
@@ -569,8 +617,6 @@
                     </div>
                 `;
             }).join('');
-
-            renderProgressStages(grouped.length);
         }
 
         function renderActivityStrip() {
@@ -599,6 +645,7 @@
             const stageCount = groupLessonsByStage(LESSONS).length;
             if (stageCount > 0) {
                 const completedStages = Math.floor((completed / total) * stageCount);
+                renderProgressStages(stageCount, completedStages);
                 for (let i = 0; i < stageCount; i += 1) {
                     const icon = document.getElementById(`stage-icon-${i}`);
                     if (!icon) continue;

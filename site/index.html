@@ -127,6 +127,45 @@
             animation: fadeInUp 0.6s ease-out 0.3s backwards;
         }
 
+        .onboarding-wizard {
+            max-width: 780px;
+            margin: 28px auto 0;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            animation: fadeInUp 0.6s ease-out 0.4s backwards;
+        }
+
+        .onboarding-track {
+            text-align: left;
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.08);
+        }
+
+        .onboarding-track h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .onboarding-track ol {
+            margin-left: 18px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .onboarding-track a {
+            color: var(--accent-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
         .hero-link {
             display: inline-flex;
             align-items: center;
@@ -659,6 +698,10 @@
                 align-items: center;
             }
 
+            .onboarding-wizard {
+                grid-template-columns: 1fr;
+            }
+
             .hero-link {
                 width: 100%;
                 max-width: 280px;
@@ -758,6 +801,24 @@
                         GitHub
                     </a>
                 </div>
+                <div class="onboarding-wizard" aria-label="学习入口引导">
+                    <section class="onboarding-track">
+                        <h2>仅浏览 (Pages)</h2>
+                        <ol>
+                            <li><a href="./lessons/index.html">课程中心</a> 选择关卡</li>
+                            <li>在 viewer 中阅读课程正文</li>
+                            <li>完成 <a href="./quiz.html">随堂测验</a> 巩固知识</li>
+                        </ol>
+                    </section>
+                    <section class="onboarding-track">
+                        <h2>本地 Docker 实验</h2>
+                        <ol>
+                            <li><a href="./quick-start.html">快速开始</a> 启动环境</li>
+                            <li>进入 <a href="./workspace.html">学习工作台</a> 边看边练</li>
+                            <li>SSH 提示：<code>ssh -T git@localhost -p 2222</code></li>
+                        </ol>
+                    </section>
+                </div>
             </div>
         </section>
 
@@ -766,7 +827,7 @@
             <div class="container">
                 <div class="stats-grid" id="site-stats">
                     <div class="stat-item">
-                        <div class="stat-number">23</div>
+                        <div class="stat-number">25</div>
                         <div class="stat-label">课程关卡</div>
                     </div>
                     <div class="stat-item">
@@ -905,7 +966,7 @@
                 <a class="info-card lab-card" href="./lessons/index.html">
                     <div class="info-card-icon">📚</div>
                     <h3>课程中心</h3>
-                    <p>17+ 进阶课程，按阶段系统学习，含进度追踪</p>
+                    <p>25 个进阶课程，按阶段系统学习，含进度追踪</p>
                     <span class="lab-meta lab-meta--learn">在线学习</span>
                 </a>
                 <a class="info-card lab-card" href="./learning-path.html">

@@ -332,6 +332,35 @@
         color: #065f46 !important;
       }
 
+      .lesson-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--viewer-border);
+      }
+
+      .lesson-actions a,
+      .lesson-actions button {
+        border: 1px solid var(--viewer-border);
+        background: var(--viewer-bg-card);
+        color: var(--viewer-text);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s, transform 0.15s;
+      }
+
+      .lesson-actions a:hover,
+      .lesson-actions button:hover {
+        border-color: var(--viewer-primary);
+        color: var(--viewer-primary);
+      }
+
       [data-theme="dark"] .mark-complete-btn.completed {
         background: rgba(16, 185, 129, 0.2) !important;
         border-color: #10b981 !important;
@@ -485,7 +514,7 @@
           <div class="progress-section">
             <div class="progress-header">
               <span class="progress-label">学习进度</span>
-              <span class="progress-count" id="progress-count">0/17</span>
+              <span class="progress-count" id="progress-count">0/25</span>
             </div>
             <div class="progress-bar-container">
               <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
@@ -520,6 +549,12 @@
         <div class="doc-shell">
           <div id="doc-error" style="display: none"></div>
           <article id="doc-content">加载中...</article>
+          <div class="lesson-actions" id="lesson-actions">
+            <button id="mark-complete-footer" class="mark-complete-btn" type="button">标记完成</button>
+            <a id="lesson-quiz-link" href="../../quiz.html">本课测验</a>
+            <a id="lesson-flashcards-link" href="../../flashcards.html">复习闪卡</a>
+            <a id="lesson-workspace-link" href="../../workspace.html">打开工作台</a>
+          </div>
         </div>
       </main>
     </div>
@@ -535,7 +570,7 @@
       // 学习进度管理
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 23,
+        TOTAL_LESSONS: 25,
 
         getProgress() {
           try {
@@ -602,7 +637,7 @@
               badge: "00",
             },
             {
-              id: "lesson-00-terminal",
+              id: "lesson-00b",
               file: "lesson-00-terminal-basics.md",
               title: "关卡 00b：命令行基础（可选）",
               badge: "00b",
@@ -682,6 +717,18 @@
               file: "lesson-09-stash-usage.md",
               title: "关卡 09：stash 使用姿势",
               badge: "09",
+            },
+            {
+              id: "lesson-20",
+              file: "lesson-20-bisect.md",
+              title: "关卡 20：bisect 二分定位",
+              badge: "20",
+            },
+            {
+              id: "lesson-21",
+              file: "lesson-21-worktree.md",
+              title: "关卡 21：worktree 并行工作区",
+              badge: "21",
             },
           ],
         },
@@ -772,6 +819,8 @@
         "lesson-07-cherry-pick-and-revert.md": "阶段 3 · 30 分钟 · 错误提交补救",
         "lesson-08-reflog-and-recovery.md": "阶段 3 · 35 分钟 · 历史恢复与救火",
         "lesson-09-stash-usage.md": "阶段 3 · 25 分钟 · stash 正确姿势",
+        "lesson-20-bisect.md": "阶段 3 · 30 分钟 · 二分定位问题提交",
+        "lesson-21-worktree.md": "阶段 3 · 25 分钟 · 并行工作区与救火分支",
         "lesson-10-first-ci-workflow.md": "阶段 5 · 30 分钟 · 第一个 CI 工作流",
         "lesson-11-fix-broken-pipeline.md": "阶段 5 · 30 分钟 · 读日志与修流水线",
         "lesson-12-multi-stage-pipeline-and-secrets.md": "阶段 5 · 35 分钟 · 多阶段流水线",
@@ -807,6 +856,11 @@
       const searchEl = document.getElementById("lesson-search");
       const prevLessonEl = document.getElementById("prev-lesson");
       const nextLessonEl = document.getElementById("next-lesson");
+      const markCompleteHeaderEl = document.getElementById("mark-complete");
+      const markCompleteFooterEl = document.getElementById("mark-complete-footer");
+      const quizLinkEl = document.getElementById("lesson-quiz-link");
+      const flashcardsLinkEl = document.getElementById("lesson-flashcards-link");
+      const workspaceLinkEl = document.getElementById("lesson-workspace-link");
 
       function getFlatLessons() {
         return LESSONS.flatMap((group) => group.items);
@@ -906,14 +960,20 @@
         // 更新完成状态按钮
         const lessonId = normalizeLessonId(file);
         const isCompleted = LearningProgress.isCompleted(lessonId);
-        const markCompleteBtn = document.getElementById('mark-complete');
-        if (isCompleted) {
-          markCompleteBtn.classList.add('completed');
-          markCompleteBtn.textContent = '✓ 已完成';
-        } else {
-          markCompleteBtn.classList.remove('completed');
-          markCompleteBtn.textContent = '标记完成';
-        }
+        [markCompleteHeaderEl, markCompleteFooterEl].forEach((markCompleteBtn) => {
+          if (!markCompleteBtn) return;
+          if (isCompleted) {
+            markCompleteBtn.classList.add('completed');
+            markCompleteBtn.textContent = '✓ 已完成';
+          } else {
+            markCompleteBtn.classList.remove('completed', 'is-done');
+            markCompleteBtn.textContent = '标记完成';
+          }
+        });
+
+        quizLinkEl.href = `../../quiz.html?lesson=${encodeURIComponent(lessonId)}`;
+        flashcardsLinkEl.href = `../../flashcards.html?lesson=${encodeURIComponent(lessonId)}`;
+        workspaceLinkEl.href = `../../workspace.html?lesson=${encodeURIComponent(file)}`;
       }
 
       function loadDoc(file, displayTitle, extraMeta) {
@@ -966,18 +1026,29 @@
       });
 
       // 标记完成按钮
-      document.getElementById('mark-complete').addEventListener('click', () => {
+      function toggleCurrentLessonComplete() {
         const file = getQueryParam("file") || "lessons-overview.md";
         const lessonId = normalizeLessonId(file);
-        LearningProgress.toggleComplete(lessonId);
+        const completed = LearningProgress.toggleComplete(lessonId);
         updateLessonButtons(file);
         LearningProgress.updateUI();
+        if (completed) {
+          [markCompleteHeaderEl, markCompleteFooterEl].forEach((btn) => {
+            if (!btn) return;
+            btn.classList.remove('is-done');
+            void btn.offsetWidth;
+            btn.classList.add('is-done');
+          });
+        }
 
         // 通知父窗口更新进度（如果在 iframe 中）
         if (window.parent !== window) {
           window.parent.postMessage({ type: 'progress-update' }, '*');
         }
-      });
+      }
+
+      markCompleteHeaderEl.addEventListener('click', toggleCurrentLessonComplete);
+      markCompleteFooterEl.addEventListener('click', toggleCurrentLessonComplete);
 
       // 键盘导航
       document.addEventListener('keydown', (e) => {
@@ -998,9 +1069,12 @@
           // 空格键标记完成
           e.preventDefault();
           const lessonId = normalizeLessonId(file);
-          LearningProgress.toggleComplete(lessonId);
+          const completed = LearningProgress.toggleComplete(lessonId);
           updateLessonButtons(file);
           LearningProgress.updateUI();
+          if (completed) {
+            [markCompleteHeaderEl, markCompleteFooterEl].forEach((btn) => btn?.classList.add('is-done'));
+          }
 
           if (window.parent !== window) {
             window.parent.postMessage({ type: 'progress-update' }, '*');
@@ -1038,7 +1112,7 @@
         });
       });
 
-      observer.observe(document.getElementById('content'), {
+      observer.observe(document.getElementById('doc-content'), {
         childList: true,
         subtree: true
       });

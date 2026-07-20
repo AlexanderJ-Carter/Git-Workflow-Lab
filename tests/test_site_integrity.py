@@ -2,6 +2,7 @@
 """站点完整性检查：关键页面、导航脚本与测验覆盖。"""
 
 from pathlib import Path
+import json
 
 SITE_DIR = Path(__file__).resolve().parents[1] / "site"
 
@@ -42,6 +43,19 @@ def test_quiz_bank_covers_lesson_00b() -> None:
     text = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
     assert "'lesson-00b'" in text
     assert "命令行与工作目录基础" in text
+
+
+def test_lesson_catalog_covers_all_lessons() -> None:
+    """共享课程目录应覆盖 25 个课程关卡并保留 stage 映射。"""
+    catalog_path = SITE_DIR / "assets" / "data" / "lessons.json"
+    assert catalog_path.is_file()
+    lessons = json.loads(catalog_path.read_text(encoding="utf-8"))
+    lesson_entries = [lesson for lesson in lessons if str(lesson["id"]).startswith("lesson-")]
+    ids = {lesson["id"] for lesson in lesson_entries}
+    assert len(lesson_entries) == 25
+    assert {"lesson-00b", "lesson-06a", "lesson-06b", "lesson-20", "lesson-21"}.issubset(ids)
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 4} == {"lesson-18", "lesson-19"}
+    assert {lesson["id"] for lesson in lesson_entries if lesson["id"] in {"lesson-20", "lesson-21"} and lesson["stage"] == 2} == {"lesson-20", "lesson-21"}
 
 
 def test_command_builder_has_no_replacement_chars() -> None:
@@ -127,7 +141,9 @@ def test_index_has_personal_learning_dashboard() -> None:
     assert "personal-dashboard" in text
     assert "dash-lessons" in text
     assert "ActivityProgress" in text
-    assert ">23<" in text
+    assert ">25<" in text
+    assert "仅浏览 (Pages)" in text
+    assert "本地 Docker 实验" in text
 
 
 def test_progress_events_are_emitted() -> None:
@@ -151,7 +167,52 @@ def test_viewer_normalizes_lesson_ids() -> None:
     text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
     assert "normalizeLessonId" in text
     assert "lesson-00-terminal-basics" in text
-    assert "TOTAL_LESSONS: 23" in text
+    assert "TOTAL_LESSONS: 25" in text
+    assert "lesson-20-bisect.md" in text
+    assert "lesson-21-worktree.md" in text
+    assert "本课测验" in text
+    assert "复习闪卡" in text
+    assert "打开工作台" in text
+
+
+def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
+    """课程中心、学习路径、搜索、测验与工作台应接入 20/21。"""
+    for name in ("learning-path.html", "search.html", "lessons/index.html", "quiz.html", "workspace.html"):
+        text = (SITE_DIR / name).read_text(encoding="utf-8")
+        assert "lesson-20" in text, f"{name} missing lesson-20"
+        assert "lesson-21" in text, f"{name} missing lesson-21"
+
+    lessons_index = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
+    assert 'target="_blank"' not in lessons_index
+    assert "ActivityProgress.notify" in lessons_index
+
+    quiz = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
+    assert "docs/viewer.html?file=lesson-20-bisect.md" in quiz
+    assert "docs/viewer.html?file=lesson-21-worktree.md" in quiz
+    assert "lessons/lesson-20" not in quiz
+
+    workspace = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
+    assert "pendingCommand" in workspace
+    assert "ssh -T git@localhost -p 2222" in workspace
+    assert "playground-hello.git" in workspace
+
+
+def test_no_8082_leftovers() -> None:
+    """本地站点统一使用 8081，不应残留 8082。"""
+    for path in SITE_DIR.rglob("*.html"):
+        assert "8082" not in path.read_text(encoding="utf-8"), f"{path.name} contains 8082"
+
+
+def test_motion_micro_interactions_exist() -> None:
+    """样式系统提供轻量动效并尊重减少动态效果设置。"""
+    css = (SITE_DIR / "assets" / "css" / "style.css").read_text(encoding="utf-8")
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "--motion-duration-fast" in css
+    assert ".fade-in" in css
+    assert ":active" in css
+    assert ".mark-complete-btn.is-done" in css
+    assert "prefers-reduced-motion: reduce" in css
+    assert "fade-in" in main_js
 
 
 def test_shared_static_chrome_styles_exist() -> None:

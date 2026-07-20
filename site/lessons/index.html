@@ -504,11 +504,11 @@
         <p>从零开始，循序渐进掌握 Git 和 CI/CD 技能。每个关卡都配有动手实验，让你在实践中学习。</p>
         <div class="ls-stats">
             <div class="ls-stat">
-                <div class="ls-stat-value">19</div>
+                <div class="ls-stat-value">25</div>
                 <div class="ls-stat-label">课程关卡</div>
             </div>
             <div class="ls-stat">
-                <div class="ls-stat-value">6</div>
+                <div class="ls-stat-value">5</div>
                 <div class="ls-stat-label">学习阶段</div>
             </div>
             <div class="ls-stat">
@@ -544,7 +544,7 @@
             <div class="ls-stage-header">
                 <span class="ls-stage-badge stage-2">阶段 3</span>
                 <h2 class="ls-stage-title">救火与恢复</h2>
-                <span class="ls-stage-desc">3 个关卡 · 约 1.5 小时</span>
+                <span class="ls-stage-desc">5 个关卡 · 约 2.5 小时</span>
             </div>
             <div class="ls-cards" id="stage-2"></div>
         </section>
@@ -570,11 +570,11 @@
         </section>
 
         <div class="ls-quick-nav">
-            <a href="../docs/viewer.html?file=lessons-overview.md" class="ls-quick-link" target="_blank">
+            <a href="../docs/viewer.html?file=lessons-overview.md" class="ls-quick-link">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 课程总览
             </a>
-            <a href="../docs/viewer.html?file=learning-path.md" class="ls-quick-link" target="_blank">
+            <a href="../docs/viewer.html?file=learning-path.md" class="ls-quick-link">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 学习路径
             </a>
@@ -586,7 +586,7 @@
     </main>
 
     <footer class="ls-footer">
-        <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank">GitHub</a></p>
+        <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab">GitHub</a></p>
     </footer>
 
     <script src="../assets/js/main.js" defer></script>
@@ -609,6 +609,8 @@
             { stage: 2, id: 'lesson-07', file: 'lesson-07-cherry-pick-and-revert.md', title: '误提交到错误分支的补救', desc: '掌握 cherry-pick 和 revert 的正确用法。', time: '30分钟' },
             { stage: 2, id: 'lesson-08', file: 'lesson-08-reflog-and-recovery.md', title: '用 reflog 从历史中恢复', desc: '学习 reflog、reset --soft/--mixed/--hard 恢复操作。', time: '35分钟' },
             { stage: 2, id: 'lesson-09', file: 'lesson-09-stash-usage.md', title: 'stash 的正确使用姿势', desc: '掌握 stash push/pop/list/drop/apply。', time: '25分钟' },
+            { stage: 2, id: 'lesson-20', file: 'lesson-20-bisect.md', title: 'Bisect 二分定位', desc: '使用 git bisect 快速定位引入问题的提交。', time: '30分钟' },
+            { stage: 2, id: 'lesson-21', file: 'lesson-21-worktree.md', title: 'Worktree 并行工作区', desc: '用 git worktree 同时处理多个分支和紧急修复。', time: '25分钟' },
             // 阶段 4-5
             { stage: 3, id: 'lesson-10', file: 'lesson-10-first-ci-workflow.md', title: '第一个 CI 工作流', desc: 'Gitea Actions 基础，理解 Workflow / Job / Step。', time: '30分钟' },
             { stage: 3, id: 'lesson-11', file: 'lesson-11-fix-broken-pipeline.md', title: '修复一个失败的 CI 流水线', desc: '学习阅读日志、定位问题、修复流水线。', time: '30分钟' },
@@ -638,6 +640,10 @@
                 const progress = this.getProgress();
                 progress[lessonId] = { completed: !progress[lessonId]?.completed, timestamp: Date.now() };
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
+                window.GitWorkflowLab?.ActivityProgress.notify('lesson', {
+                    lessonId,
+                    completed: progress[lessonId].completed
+                });
                 return progress[lessonId].completed;
             },
 
@@ -661,7 +667,7 @@
                 container.innerHTML = stageLessons.map(lesson => {
                     const isCompleted = LearningProgress.isCompleted(lesson.id);
                     return `
-                        <a href="../docs/viewer.html?file=${lesson.file}" class="ls-card ${isCompleted ? 'completed' : ''}" target="_blank" data-id="${lesson.id}">
+                        <a href="../docs/viewer.html?file=${lesson.file}" class="ls-card ${isCompleted ? 'completed' : ''}" data-id="${lesson.id}">
                             <div class="ls-card-header">
                                 <div class="ls-card-number">${lesson.id.replace('lesson-', '')}</div>
                                 <div class="ls-card-title">${lesson.title}</div>

@@ -395,29 +395,31 @@
     <script src="assets/js/main.js" defer></script>
     <script>
         const LESSON_CONFIG = {
-            'lesson-00': { lessonHref: 'lessons/lesson-00-install-and-config.html' },
-            'lesson-00b': { lessonHref: 'lessons/lesson-00-terminal-basics.html' },
-            'lesson-01': { lessonHref: 'lessons/lesson-01-init-push.html' },
-            'lesson-02': { lessonHref: 'lessons/lesson-02-workspace-staging-history.html' },
-            'lesson-03': { lessonHref: 'lessons/lesson-03-remote-and-sync.html' },
-            'lesson-04': { lessonHref: 'lessons/lesson-04-branches-and-pr.html' },
-            'lesson-05': { lessonHref: 'lessons/lesson-05-merge-conflict.html' },
-            'lesson-06': { lessonHref: 'lessons/lesson-06-rebase-clean-history.html' },
-            'lesson-06a': { lessonHref: 'lessons/lesson-06a-ssh-setup-and-clone.html' },
-            'lesson-06b': { lessonHref: 'lessons/lesson-06b-collaboration-conventions.html' },
-            'lesson-07': { lessonHref: 'lessons/lesson-07-cherry-pick-and-revert.html' },
-            'lesson-08': { lessonHref: 'lessons/lesson-08-reflog-and-recovery.html' },
-            'lesson-09': { lessonHref: 'lessons/lesson-09-stash-usage.html' },
-            'lesson-10': { lessonHref: 'lessons/lesson-10-first-ci-workflow.html' },
-            'lesson-11': { lessonHref: 'lessons/lesson-11-fix-broken-pipeline.html' },
-            'lesson-12': { lessonHref: 'lessons/lesson-12-multi-stage-pipeline-and-secrets.html' },
-            'lesson-13': { lessonHref: 'lessons/lesson-13-tags-and-releases.html' },
-            'lesson-14': { lessonHref: 'lessons/lesson-14-project-files.html' },
-            'lesson-15': { lessonHref: 'lessons/lesson-15-git-hooks.html' },
-            'lesson-16': { lessonHref: 'lessons/lesson-16-large-repo.html' },
-            'lesson-17': { lessonHref: 'lessons/lesson-17-release-automation.html' },
-            'lesson-18': { lessonHref: 'lessons/lesson-18-commit-and-tag-signing.html' },
-            'lesson-19': { lessonHref: 'lessons/lesson-19-secrets-and-security.html' }
+            'lesson-00': { lessonHref: 'docs/viewer.html?file=lesson-00-install-and-config.md' },
+            'lesson-00b': { lessonHref: 'docs/viewer.html?file=lesson-00-terminal-basics.md' },
+            'lesson-01': { lessonHref: 'docs/viewer.html?file=lesson-01-init-push.md' },
+            'lesson-02': { lessonHref: 'docs/viewer.html?file=lesson-02-workspace-staging-history.md' },
+            'lesson-03': { lessonHref: 'docs/viewer.html?file=lesson-03-remote-and-sync.md' },
+            'lesson-04': { lessonHref: 'docs/viewer.html?file=lesson-04-branches-and-pr.md' },
+            'lesson-05': { lessonHref: 'docs/viewer.html?file=lesson-05-merge-conflict.md' },
+            'lesson-06': { lessonHref: 'docs/viewer.html?file=lesson-06-rebase-clean-history.md' },
+            'lesson-06a': { lessonHref: 'docs/viewer.html?file=lesson-06a-ssh-setup-and-clone.md' },
+            'lesson-06b': { lessonHref: 'docs/viewer.html?file=lesson-06b-collaboration-conventions.md' },
+            'lesson-07': { lessonHref: 'docs/viewer.html?file=lesson-07-cherry-pick-and-revert.md' },
+            'lesson-08': { lessonHref: 'docs/viewer.html?file=lesson-08-reflog-and-recovery.md' },
+            'lesson-09': { lessonHref: 'docs/viewer.html?file=lesson-09-stash-usage.md' },
+            'lesson-10': { lessonHref: 'docs/viewer.html?file=lesson-10-first-ci-workflow.md' },
+            'lesson-11': { lessonHref: 'docs/viewer.html?file=lesson-11-fix-broken-pipeline.md' },
+            'lesson-12': { lessonHref: 'docs/viewer.html?file=lesson-12-multi-stage-pipeline-and-secrets.md' },
+            'lesson-13': { lessonHref: 'docs/viewer.html?file=lesson-13-tags-and-releases.md' },
+            'lesson-14': { lessonHref: 'docs/viewer.html?file=lesson-14-project-files.md' },
+            'lesson-15': { lessonHref: 'docs/viewer.html?file=lesson-15-git-hooks.md' },
+            'lesson-16': { lessonHref: 'docs/viewer.html?file=lesson-16-large-repo.md' },
+            'lesson-17': { lessonHref: 'docs/viewer.html?file=lesson-17-release-automation.md' },
+            'lesson-18': { lessonHref: 'docs/viewer.html?file=lesson-18-commit-and-tag-signing.md' },
+            'lesson-19': { lessonHref: 'docs/viewer.html?file=lesson-19-secrets-and-security.md' },
+            'lesson-20': { lessonHref: 'docs/viewer.html?file=lesson-20-bisect.md' },
+            'lesson-21': { lessonHref: 'docs/viewer.html?file=lesson-21-worktree.md' }
         };
 
         // 测验题库
@@ -1202,6 +1204,72 @@
                         question: '在 CI/CD 中安全存储密钥的方式是使用 ____',
                         answer: 'Secrets',
                         explanation: 'CI/CD 平台的 Secrets 功能可以安全地存储和使用敏感信息。'
+                    }
+                ]
+            },
+            'lesson-20': {
+                title: 'Bisect 二分定位',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git bisect 最适合解决哪类问题？',
+                        options: [
+                            { text: '在历史中定位哪次提交引入了 bug', correct: true },
+                            { text: '一次性合并多个分支', correct: false },
+                            { text: '生成发布说明', correct: false },
+                            { text: '清理未跟踪文件', correct: false }
+                        ],
+                        explanation: 'bisect 会在好提交和坏提交之间二分查找，快速定位问题提交。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '开始一次二分排查时，通常先执行哪个命令？',
+                        options: [
+                            { text: 'git bisect start', correct: true },
+                            { text: 'git bisect init', correct: false },
+                            { text: 'git bisect run', correct: false },
+                            { text: 'git bisect stop', correct: false }
+                        ],
+                        explanation: 'git bisect start 用来进入二分排查模式。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '标记当前提交存在问题的命令是：git bisect ____',
+                        answer: 'bad',
+                        explanation: 'git bisect bad 表示当前提交包含问题；git bisect good 表示当前提交正常。'
+                    }
+                ]
+            },
+            'lesson-21': {
+                title: 'Worktree 并行工作区',
+                questions: [
+                    {
+                        type: 'choice',
+                        question: 'git worktree 的主要用途是什么？',
+                        options: [
+                            { text: '为同一个仓库创建多个并行工作目录', correct: true },
+                            { text: '删除远程分支', correct: false },
+                            { text: '压缩仓库对象', correct: false },
+                            { text: '自动生成提交信息', correct: false }
+                        ],
+                        explanation: 'worktree 允许一个仓库同时检出多个分支到不同目录，适合并行任务和紧急修复。'
+                    },
+                    {
+                        type: 'choice',
+                        question: '创建新 worktree 的常用命令是哪一个？',
+                        options: [
+                            { text: 'git worktree add ../hotfix hotfix', correct: true },
+                            { text: 'git worktree new hotfix', correct: false },
+                            { text: 'git branch worktree hotfix', correct: false },
+                            { text: 'git checkout --worktree hotfix', correct: false }
+                        ],
+                        explanation: 'git worktree add <路径> <分支> 会在指定路径创建并检出工作区。'
+                    },
+                    {
+                        type: 'fill-blank',
+                        question: '列出当前所有 worktree 的命令是：git worktree ____',
+                        answer: 'list',
+                        explanation: 'git worktree list 可查看主工作区和附加工作区。'
                     }
                 ]
             }

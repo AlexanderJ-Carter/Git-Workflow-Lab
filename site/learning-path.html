@@ -445,7 +445,7 @@
                 <div class="path-stage-item"><strong>25%</strong><span>进阶</span></div>
                 <div class="path-stage-item"><strong>50%</strong><span>协作</span></div>
                 <div class="path-stage-item"><strong>75%</strong><span>恢复</span></div>
-                <div class="path-stage-item"><strong>100%</strong><span>CI/CD</span></div>
+                <div class="path-stage-item"><strong>100%</strong><span>安全</span></div>
             </div>
         </div>
         <div class="path-activity-strip" id="path-activity-strip" hidden>
@@ -465,7 +465,8 @@
                 <li>阶段 0-1 基础入门：理解 Git 的基本概念和最常用的命令</li>
                 <li>阶段 2 分支与协作：学会使用分支，理解团队协作流程</li>
                 <li>阶段 3 救火与恢复：掌握误操作后的恢复技能</li>
-                <li>阶段 4-5 CI/CD：了解自动化和工程化实践</li>
+                <li>阶段 4-5 发布与自动化：了解标签、CI/CD 和工程化实践</li>
+                <li>阶段 4 安全与规范：补齐签名、Secrets 与安全习惯</li>
             </ol>
         </div>
     </div>
@@ -496,7 +497,7 @@
             <div class="path-stage-header">
                 <div class="path-stage-icon stage-2" id="stage-icon-2">3</div>
                 <div class="path-stage-title">阶段 3：救火与恢复</div>
-                <div class="path-stage-meta">3 个关卡 · 约 1.5 小时</div>
+                <div class="path-stage-meta">5 个关卡 · 约 2.5 小时</div>
             </div>
             <div class="path-cards" id="stage-2"></div>
         </div>
@@ -510,12 +511,22 @@
             </div>
             <div class="path-cards" id="stage-3"></div>
         </div>
+
+        <!-- 阶段 4：安全与规范 -->
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-4" id="stage-icon-4">4</div>
+                <div class="path-stage-title">阶段 4：安全与规范</div>
+                <div class="path-stage-meta">2 个关卡 · 约 1 小时</div>
+            </div>
+            <div class="path-cards" id="stage-4"></div>
+        </div>
     </div>
 
     <script src="assets/js/main.js" defer></script>
     <script>
         // 课程数据
-        const LESSONS = [
+        let LESSONS = [
             // 阶段 0-1
             { stage: 0, id: 'lesson-00', file: 'lesson-00-install-and-config.md', title: '安装与配置', desc: 'Git 安装、配置用户信息、全局 .gitignore' },
             { stage: 0, id: 'lesson-00b', file: 'lesson-00-terminal-basics.md', title: '命令行基础', desc: '熟悉终端，掌握 pwd / ls / cd 等命令' },
@@ -532,6 +543,8 @@
             { stage: 2, id: 'lesson-07', file: 'lesson-07-cherry-pick-and-revert.md', title: 'Cherry-pick 与 Revert', desc: '选择性应用提交、撤销变更' },
             { stage: 2, id: 'lesson-08', file: 'lesson-08-reflog-and-recovery.md', title: 'Reflog 恢复', desc: 'reflog、reset、恢复误删提交' },
             { stage: 2, id: 'lesson-09', file: 'lesson-09-stash-usage.md', title: 'Stash 暂存', desc: 'stash 保存工作进度、切换分支' },
+            { stage: 2, id: 'lesson-20', file: 'lesson-20-bisect.md', title: 'Bisect 二分定位', desc: '用二分法定位引入问题的提交' },
+            { stage: 2, id: 'lesson-21', file: 'lesson-21-worktree.md', title: 'Worktree 并行工作区', desc: '同时处理多个分支和紧急任务' },
             // 阶段 4-5
             { stage: 3, id: 'lesson-10', file: 'lesson-10-first-ci-workflow.md', title: '第一个 CI', desc: 'Gitea Actions、Workflow 入门' },
             { stage: 3, id: 'lesson-11', file: 'lesson-11-fix-broken-pipeline.md', title: '修复流水线', desc: '阅读日志、定位问题、修复 CI' },
@@ -541,8 +554,9 @@
             { stage: 3, id: 'lesson-15', file: 'lesson-15-git-hooks.md', title: 'Git Hooks', desc: 'pre-commit、Husky、commitlint' },
             { stage: 3, id: 'lesson-16', file: 'lesson-16-large-repo.md', title: '大仓库优化', desc: '浅克隆、Git LFS、性能调优' },
             { stage: 3, id: 'lesson-17', file: 'lesson-17-release-automation.md', title: '自动发布', desc: 'Release Please、自动版本与 Changelog' },
-            { stage: 3, id: 'lesson-18', file: 'lesson-18-commit-and-tag-signing.md', title: '提交签名', desc: 'Commit / Tag 签名与验证' },
-            { stage: 3, id: 'lesson-19', file: 'lesson-19-secrets-and-security.md', title: '密钥安全', desc: 'Secrets 管理与安全实践' },
+            // 阶段 4
+            { stage: 4, id: 'lesson-18', file: 'lesson-18-commit-and-tag-signing.md', title: '提交签名', desc: 'Commit / Tag 签名与验证' },
+            { stage: 4, id: 'lesson-19', file: 'lesson-19-secrets-and-security.md', title: '密钥安全', desc: 'Secrets 管理与安全实践' },
         ];
 
         // 学习进度
@@ -578,8 +592,9 @@
 
         // 渲染课程卡片
         function renderCards() {
-            [0, 1, 2, 3].forEach(stageIndex => {
+            [0, 1, 2, 3, 4].forEach(stageIndex => {
                 const container = document.getElementById(`stage-${stageIndex}`);
+                if (!container) return;
                 const stageLessons = LESSONS.filter(l => l.stage === stageIndex);
 
                 container.innerHTML = stageLessons.map(lesson => {
@@ -609,9 +624,10 @@
             document.getElementById('progress-fill').style.width = `${percentage}%`;
 
             // 更新阶段图标状态
-            const stageThresholds = [0.2, 0.4, 0.6, 0.8];
-            [0, 1, 2, 3].forEach(i => {
+            const stageThresholds = [0.2, 0.4, 0.6, 0.8, 1];
+            [0, 1, 2, 3, 4].forEach(i => {
                 const icon = document.getElementById(`stage-icon-${i}`);
+                if (!icon) return;
                 if (percentage >= stageThresholds[i] * 100) {
                     icon.classList.add('completed');
                 }
@@ -624,12 +640,29 @@
             updateProgress();
         }
 
+        async function loadLessonCatalog() {
+            if (!window.GitWorkflowLab?.LessonCatalog) return;
+            const catalog = await window.GitWorkflowLab.LessonCatalog.load();
+            LESSONS = catalog
+                .filter(lesson => lesson.id.startsWith('lesson-'))
+                .map(lesson => ({
+                    stage: lesson.stage,
+                    id: lesson.id,
+                    file: lesson.file,
+                    title: lesson.title,
+                    desc: lesson.desc
+                }));
+        }
+
         // 监听进度更新
         window.addEventListener('storage', refreshPath);
         window.addEventListener('git-workflow-lab:progress', refreshPath);
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', refreshPath);
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadLessonCatalog();
+            refreshPath();
+        });
     </script>
 </body>
 </html>

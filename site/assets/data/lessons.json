@@ -1,0 +1,262 @@
+[
+  {
+    "id": "lessons-overview",
+    "file": "lessons-overview.md",
+    "title": "课程总览",
+    "badge": "OV",
+    "stage": -1,
+    "group": "总览 / 阶段导航",
+    "desc": "了解课程结构、学习目标和推荐顺序。",
+    "quizId": ""
+  },
+  {
+    "id": "lesson-00",
+    "file": "lesson-00-install-and-config.md",
+    "title": "安装与配置",
+    "badge": "00",
+    "stage": 0,
+    "group": "阶段 0-1 · 基础入门",
+    "desc": "安装 Git，配置用户名、邮箱和默认编辑器。",
+    "quizId": "lesson-00"
+  },
+  {
+    "id": "lesson-00b",
+    "file": "lesson-00-terminal-basics.md",
+    "title": "命令行与工作目录基础",
+    "badge": "00b",
+    "stage": 0,
+    "group": "阶段 0-1 · 基础入门",
+    "desc": "熟悉终端，掌握 pwd、ls、cd、clear 等基础命令。",
+    "quizId": "lesson-00b"
+  },
+  {
+    "id": "lesson-01",
+    "file": "lesson-01-init-push.md",
+    "title": "创建仓库与推送",
+    "badge": "01",
+    "stage": 0,
+    "group": "阶段 0-1 · 基础入门",
+    "desc": "完成 clone、add、commit、push 的第一条闭环。",
+    "quizId": "lesson-01"
+  },
+  {
+    "id": "lesson-02",
+    "file": "lesson-02-workspace-staging-history.md",
+    "title": "工作区 / 暂存区 / 历史",
+    "badge": "02",
+    "stage": 0,
+    "group": "阶段 0-1 · 基础入门",
+    "desc": "理解 status、diff、restore、add -p 与提交历史。",
+    "quizId": "lesson-02"
+  },
+  {
+    "id": "lesson-03",
+    "file": "lesson-03-remote-and-sync.md",
+    "title": "远程仓库与同步",
+    "badge": "03",
+    "stage": 0,
+    "group": "阶段 0-1 · 基础入门",
+    "desc": "掌握 remote、fetch、pull、push 与同步策略。",
+    "quizId": "lesson-03"
+  },
+  {
+    "id": "lesson-04",
+    "file": "lesson-04-branches-and-pr.md",
+    "title": "分支与 PR",
+    "badge": "04",
+    "stage": 1,
+    "group": "阶段 2 · 分支与协作",
+    "desc": "创建分支，提交 Pull Request，理解协作入口。",
+    "quizId": "lesson-04"
+  },
+  {
+    "id": "lesson-05",
+    "file": "lesson-05-merge-conflict.md",
+    "title": "合并冲突",
+    "badge": "05",
+    "stage": 1,
+    "group": "阶段 2 · 分支与协作",
+    "desc": "制造并解决一次合并冲突，掌握冲突标记。",
+    "quizId": "lesson-05"
+  },
+  {
+    "id": "lesson-06",
+    "file": "lesson-06-rebase-clean-history.md",
+    "title": "Rebase 整理历史",
+    "badge": "06",
+    "stage": 1,
+    "group": "阶段 2 · 分支与协作",
+    "desc": "使用 rebase 和交互式 rebase 保持历史清晰。",
+    "quizId": "lesson-06"
+  },
+  {
+    "id": "lesson-06a",
+    "file": "lesson-06a-ssh-setup-and-clone.md",
+    "title": "SSH 密钥与 clone",
+    "badge": "06a",
+    "stage": 1,
+    "group": "阶段 2 · 分支与协作",
+    "desc": "生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库。",
+    "quizId": "lesson-06a"
+  },
+  {
+    "id": "lesson-06b",
+    "file": "lesson-06b-collaboration-conventions.md",
+    "title": "协作规则与约定",
+    "badge": "06b",
+    "stage": 1,
+    "group": "阶段 2 · 分支与协作",
+    "desc": "建立分支命名、PR 流程和团队协作规则。",
+    "quizId": "lesson-06b"
+  },
+  {
+    "id": "lesson-07",
+    "file": "lesson-07-cherry-pick-and-revert.md",
+    "title": "Cherry-pick 与 Revert",
+    "badge": "07",
+    "stage": 2,
+    "group": "阶段 3 · 救火与恢复",
+    "desc": "选择性复制提交，并用 revert 安全撤销公共历史。",
+    "quizId": "lesson-07"
+  },
+  {
+    "id": "lesson-08",
+    "file": "lesson-08-reflog-and-recovery.md",
+    "title": "Reflog 恢复",
+    "badge": "08",
+    "stage": 2,
+    "group": "阶段 3 · 救火与恢复",
+    "desc": "通过 reflog 找回误删、误 reset 后的提交。",
+    "quizId": "lesson-08"
+  },
+  {
+    "id": "lesson-09",
+    "file": "lesson-09-stash-usage.md",
+    "title": "Stash 使用姿势",
+    "badge": "09",
+    "stage": 2,
+    "group": "阶段 3 · 救火与恢复",
+    "desc": "临时保存工作进度，在分支切换中保持现场。",
+    "quizId": "lesson-09"
+  },
+  {
+    "id": "lesson-20",
+    "file": "lesson-20-bisect.md",
+    "title": "Bisect 二分定位",
+    "badge": "20",
+    "stage": 2,
+    "group": "阶段 3 · 救火与恢复",
+    "desc": "使用 git bisect 在历史中快速定位引入问题的提交。",
+    "quizId": "lesson-20"
+  },
+  {
+    "id": "lesson-21",
+    "file": "lesson-21-worktree.md",
+    "title": "Worktree 并行工作区",
+    "badge": "21",
+    "stage": 2,
+    "group": "阶段 3 · 救火与恢复",
+    "desc": "用 git worktree 同时处理多个分支和紧急任务。",
+    "quizId": "lesson-21"
+  },
+  {
+    "id": "lesson-10",
+    "file": "lesson-10-first-ci-workflow.md",
+    "title": "第一个 CI 工作流",
+    "badge": "10",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "创建第一条 CI 工作流，理解 Workflow、Job 和 Step。",
+    "quizId": "lesson-10"
+  },
+  {
+    "id": "lesson-11",
+    "file": "lesson-11-fix-broken-pipeline.md",
+    "title": "修复失败流水线",
+    "badge": "11",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "阅读 CI 日志，定位并修复失败的流水线。",
+    "quizId": "lesson-11"
+  },
+  {
+    "id": "lesson-12",
+    "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+    "title": "多阶段流水线与 Secrets",
+    "badge": "12",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "组合多 Job 依赖，安全使用 CI/CD Secrets。",
+    "quizId": "lesson-12"
+  },
+  {
+    "id": "lesson-13",
+    "file": "lesson-13-tags-and-releases.md",
+    "title": "标签与版本发布",
+    "badge": "13",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "创建标签，理解语义化版本和 Release 流程。",
+    "quizId": "lesson-13"
+  },
+  {
+    "id": "lesson-14",
+    "file": "lesson-14-project-files.md",
+    "title": "项目文件规范",
+    "badge": "14",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "维护 README、CONTRIBUTING、LICENSE 等项目文件。",
+    "quizId": "lesson-14"
+  },
+  {
+    "id": "lesson-15",
+    "file": "lesson-15-git-hooks.md",
+    "title": "Git Hooks 与自动化",
+    "badge": "15",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "用 hook、Husky、commitlint 在提交前自动检查。",
+    "quizId": "lesson-15"
+  },
+  {
+    "id": "lesson-16",
+    "file": "lesson-16-large-repo.md",
+    "title": "大仓库与性能优化",
+    "badge": "16",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "学习浅克隆、Git LFS 与大仓库性能优化。",
+    "quizId": "lesson-16"
+  },
+  {
+    "id": "lesson-17",
+    "file": "lesson-17-release-automation.md",
+    "title": "自动维护版本与 Changelog",
+    "badge": "17",
+    "stage": 3,
+    "group": "阶段 4-5 · 发布与自动化",
+    "desc": "用 Release Please 自动生成版本与更新日志。",
+    "quizId": "lesson-17"
+  },
+  {
+    "id": "lesson-18",
+    "file": "lesson-18-commit-and-tag-signing.md",
+    "title": "提交签名与标签签名",
+    "badge": "18",
+    "stage": 4,
+    "group": "阶段 4 · 安全与规范",
+    "desc": "配置签名密钥，验证 commit 与 tag 的可信来源。",
+    "quizId": "lesson-18"
+  },
+  {
+    "id": "lesson-19",
+    "file": "lesson-19-secrets-and-security.md",
+    "title": "Secrets 与安全实践",
+    "badge": "19",
+    "stage": 4,
+    "group": "阶段 4 · 安全与规范",
+    "desc": "识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险。",
+    "quizId": "lesson-19"
+  }
+]

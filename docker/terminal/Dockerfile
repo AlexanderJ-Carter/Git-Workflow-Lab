@@ -7,6 +7,7 @@ LABEL version="1.7.0"
 
 RUN apk add --no-cache \
     git \
+    python3 \
     vim \
     nano \
     curl \

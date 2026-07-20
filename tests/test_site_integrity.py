@@ -12,6 +12,16 @@ def test_viewer_exists_for_local_site_root() -> None:
     assert (SITE_DIR / "docs" / "viewer.html").is_file()
 
 
+def test_docs_index_redirects_to_viewer() -> None:
+    """/docs/ 与 /docs/index.html 应跳转到文档阅读器，避免 404。"""
+    root = Path(__file__).resolve().parents[1]
+    for path in (root / "docs/index.html", SITE_DIR / "docs/index.html"):
+        assert path.is_file(), path
+        text = path.read_text(encoding="utf-8")
+        assert "viewer.html?file=lessons-overview.md" in text
+        assert "location.replace" in text or "refresh" in text
+
+
 def test_cheatsheet_redirects_to_command_sheet() -> None:
     """旧速查表入口应跳转到完整命令表。"""
     text = (SITE_DIR / "cheatsheet.html").read_text(encoding="utf-8")

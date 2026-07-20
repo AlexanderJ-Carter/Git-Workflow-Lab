@@ -697,13 +697,21 @@ def build_site() -> None:
                     shutil.copy(item, dest_dir / item.name)
         print("  Copied site/assets (js, data)")
 
-    # 复制docs目录到_site/docs/
+    # 复制docs目录到_site/docs/，并用 site/docs/ 下的 HTML 覆盖（viewer、index 等）
     if DOCS_DIR.exists():
         docs_output = SITE_DIR / "docs"
         if docs_output.exists():
             shutil.rmtree(docs_output)
         shutil.copytree(DOCS_DIR, docs_output)
-        print(f"  Copied docs/ directory")
+        site_docs = Path("site/docs")
+        if site_docs.is_dir():
+            for html_file in site_docs.glob("*.html"):
+                text = html_file.read_text(encoding="utf-8")
+                (docs_output / html_file.name).write_text(
+                    patch_html_for_deploy(text, depth=1), encoding="utf-8"
+                )
+            print("  Overlaid site/docs/*.html onto _site/docs/")
+        print("  Copied docs/ directory")
 
     for html_file in Path("site").glob("*.html"):
         text = html_file.read_text(encoding="utf-8")

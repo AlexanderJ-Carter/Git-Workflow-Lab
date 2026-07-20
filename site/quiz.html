@@ -529,6 +529,15 @@
           },
           "lesson-41": {
             "lessonHref": "docs/viewer.html?file=lesson-41-cli-cross-platform.md"
+          },
+          "lesson-42": {
+            "lessonHref": "docs/viewer.html?file=lesson-42-regex-basics.md"
+          },
+          "lesson-43": {
+            "lessonHref": "docs/viewer.html?file=lesson-43-git-config-advanced.md"
+          },
+          "lesson-44": {
+            "lessonHref": "docs/viewer.html?file=lesson-44-gitattributes.md"
           }
         };
 
@@ -2296,6 +2305,87 @@
                             { "text": "无法复现", "correct": false }
                         ],
                         "explanation": "WSL 与 Docker 终端提供 Linux Shell，与文档命令一致。"
+                    }
+                ]
+            },
+            "lesson-42": {
+                "title": "正则表达式基础",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "在 grep 中，`^fix` 表示什么？",
+                        "options": [
+                            { "text": "匹配以 fix 开头的行", "correct": true },
+                            { "text": "匹配包含 fix 的任意位置", "correct": false },
+                            { "text": "匹配以 fix 结尾的行", "correct": false },
+                            { "text": "匹配 fix 单词的复数形式", "correct": false }
+                        ],
+                        "explanation": "^ 锚定行首，因此 ^fix 只匹配行首为 fix 的行。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "为什么本关推荐使用 `grep -E`？",
+                        "options": [
+                            { "text": "启用扩展正则，+、?、|、() 更直观", "correct": true },
+                            { "text": "只能搜索二进制文件", "correct": false },
+                            { "text": "比 git grep 更慢", "correct": false },
+                            { "text": "禁用所有元字符", "correct": false }
+                        ],
+                        "explanation": "-E 使用 ERE 语法，编写常见模式更简单。"
+                    }
+                ]
+            },
+            "lesson-43": {
+                "title": "Git 配置进阶",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "Git 配置优先级最高的是？",
+                        "options": [
+                            { "text": "命令行参数（如 git -c key=value）", "correct": true },
+                            { "text": "系统 /etc/gitconfig", "correct": false },
+                            { "text": "全局 ~/.gitconfig", "correct": false },
+                            { "text": "环境变量永远最低", "correct": false }
+                        ],
+                        "explanation": "命令行 > 环境变量 > 本地 .git/config > 全局 > 系统。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "`git config --global alias.st status` 的作用是？",
+                        "options": [
+                            { "text": "创建 st 别名执行 git status", "correct": true },
+                            { "text": "删除 status 命令", "correct": false },
+                            { "text": "仅对当前仓库生效", "correct": false },
+                            { "text": "修改远程仓库 URL", "correct": false }
+                        ],
+                        "explanation": "alias 让你用更短的命令调用常用 Git 子命令。"
+                    }
+                ]
+            },
+            "lesson-44": {
+                "title": ".gitattributes",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": ".gitattributes 与 .gitignore 的主要区别是？",
+                        "options": [
+                            { "text": ".gitattributes 控制已跟踪文件的行为（如行尾、合并）", "correct": true },
+                            { "text": "两者完全相同", "correct": false },
+                            { "text": ".gitignore 控制行尾", "correct": false },
+                            { "text": ".gitattributes 决定文件是否被跟踪", "correct": false }
+                        ],
+                        "explanation": ".gitignore 决定是否纳入版本库；.gitattributes 规范已纳入文件的处理方式。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "团队统一 LF 行尾，推荐做法是？",
+                        "options": [
+                            { "text": "在仓库 .gitattributes 中设置 *.sh text eol=lf 等", "correct": true },
+                            { "text": "每位开发者各自用记事本保存", "correct": false },
+                            { "text": "只依赖个人 core.autocrlf 不设仓库规则", "correct": false },
+                            { "text": "禁止提交 .sh 文件", "correct": false }
+                        ],
+                        "explanation": "仓库级 .gitattributes 保证所有协作者检出一致行尾。"
                     }
                 ]
             }

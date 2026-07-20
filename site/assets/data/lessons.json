@@ -470,5 +470,38 @@
     "desc": "Bash / PowerShell / cmd 对照，路径、CRLF 与终端选型。",
     "quizId": "lesson-41",
     "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-42",
+    "file": "lesson-42-regex-basics.md",
+    "title": "正则表达式基础",
+    "badge": "42",
+    "stage": 9,
+    "group": "阶段 K · 配置与文本处理",
+    "desc": "grep -E、sed 捕获组、git grep，处理日志与代码搜索。",
+    "quizId": "lesson-42",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-43",
+    "file": "lesson-43-git-config-advanced.md",
+    "title": "Git 别名与配置进阶",
+    "badge": "43",
+    "stage": 9,
+    "group": "阶段 K · 配置与文本处理",
+    "desc": "alias、includeIf、配置优先级与 credential 助手。",
+    "quizId": "lesson-43",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-44",
+    "file": "lesson-44-gitattributes.md",
+    "title": ".gitattributes 与合并策略",
+    "badge": "44",
+    "stage": 9,
+    "group": "阶段 K · 配置与文本处理",
+    "desc": "text/eol/binary、merge=union、Linguist 与行尾策略。",
+    "quizId": "lesson-44",
+    "modes": ["online", "local"]
   }
 ]

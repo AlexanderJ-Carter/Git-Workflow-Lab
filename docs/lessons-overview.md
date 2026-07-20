@@ -9,11 +9,11 @@
 
 照着每个关卡的步骤，一条命令一条命令地敲，一步步完成练习。
 
-> **编号说明：** 关卡文件编号（00–41）保持不变，便于进度记录与外链。**推荐学习顺序**见下方「逻辑阶段 A–J」，与文件名编号不必一致。双模式说明见 [学习模式](./learning-modes.md)（🌐 在线 / 🐳 本地 Docker）。
+> **编号说明：** 关卡文件编号（00–44）保持不变，便于进度记录与外链。**推荐学习顺序**见下方「逻辑阶段 A–K」，与文件名编号不必一致。双模式说明见 [学习模式](./learning-modes.md)（🌐 在线 / 🐳 本地 Docker）。
 
 ---
 
-## 逻辑阶段 A–J（推荐学习顺序）
+## 逻辑阶段 A–K（推荐学习顺序）
 
 | 逻辑阶段 | 主题 | 推荐顺序 | 关卡文件 |
 |----------|------|----------|----------|
@@ -27,18 +27,19 @@
 | **H** 进阶实用 | fork、hotfix、submodule、rebase 进阶、历史考古、sparse checkout | 30 → 35 | [24](./lesson-24-fork-and-upstream.md)、[25](./lesson-25-hotfix-workflow.md)、[26](./lesson-26-submodule.md)、[27](./lesson-27-interactive-rebase-fixup.md)、[28](./lesson-28-blame-and-archaeology.md)、[29](./lesson-29-sparse-checkout.md) |
 | **I** 计算机基础 | Shell、I/O、环境变量、进程、Docker、HTTP、文本处理、网络排查、JSON/YAML | 36 → 44 | [30](./lesson-30-shell-scripting-basics.md)–[38](./lesson-38-json-yaml-devops.md) |
 | **J** 编程与跨平台 | Python 入门、PowerShell、Bash/PowerShell 对照 | 45 → 47 | [39](./lesson-39-programming-basics-python.md)、[40](./lesson-40-powershell-basics.md)、[41](./lesson-41-cli-cross-platform.md) |
+| **K** 配置与文本处理 | 正则表达式、Git 配置进阶、`.gitattributes` | 48 → 50 | [42](./lesson-42-regex-basics.md)、[43](./lesson-43-git-config-advanced.md)、[44](./lesson-44-gitattributes.md) |
 
 **完整推荐路径（按阶段）：**
 
 ```text
-A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,22→23) → F(10→12) → G(18→19) → H(24→29) → I(30→38) → J(39→41)
+A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,22→23) → F(10→12) → G(18→19) → H(24→29) → I(30→38) → J(39→41) → K(42→44)
 ```
 
 阶段 **I** 可与 **A/B** 并行（先 00b 再 30+）；阶段 **J** 适合 Windows 用户或与 I 并行补编程思维，详见 [学习路径](./learning-path.md)。
 
 ---
 
-## 全部关卡索引（00–41）
+## 全部关卡索引（00–44）
 
 ### 阶段 A：环境与配置
 
@@ -135,6 +136,14 @@ A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,
 | 40 | [lesson-40-powershell-basics.md](./lesson-40-powershell-basics.md) | PowerShell 导航、管道、Git on Windows | 🌐+🐳 |
 | 41 | [lesson-41-cli-cross-platform.md](./lesson-41-cli-cross-platform.md) | Bash/PowerShell 对照、CRLF、终端选型 | 🌐 |
 
+### 阶段 K：配置与文本处理
+
+| 关卡 | 文件 | 要点 | 模式 |
+|------|------|------|------|
+| 42 | [lesson-42-regex-basics.md](./lesson-42-regex-basics.md) | 正则、grep -E、sed、git grep | 🌐+🐳 |
+| 43 | [lesson-43-git-config-advanced.md](./lesson-43-git-config-advanced.md) | alias、includeIf、配置优先级 | 🌐+🐳 |
+| 44 | [lesson-44-gitattributes.md](./lesson-44-gitattributes.md) | text/eol/binary、merge=union | 🌐+🐳 |
+
 ---
 
 ## 演示仓库与端口
@@ -148,7 +157,7 @@ A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,
 
 启动环境：`docker compose up -d`（在线仅阅读见 [learning-modes.md](./learning-modes.md)）
 
-**关卡统计：** 共 **39** 个文档关卡（00、00b、01–29、30–38）。
+**关卡统计：** 共 **48** 个文档关卡（00、00b、01–29、30–44）。
 
 ---
 

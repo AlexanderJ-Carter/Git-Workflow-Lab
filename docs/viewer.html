@@ -570,7 +570,7 @@
       // 学习进度管理
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 33,
+        TOTAL_LESSONS: 42,
 
         getProgress() {
           try {
@@ -616,288 +616,356 @@
 
       // 课程数据
       const LESSONS = [
-        {
-          "group": "总览 / 阶段导航",
-          "items": [
-            {
-              "id": "lessons-overview",
-              "file": "lessons-overview.md",
-              "title": "总览：课程和阶段规划",
-              "badge": "OV"
-            }
-          ]
-        },
-        {
-          "group": "阶段 A-B · 环境与基础",
-          "items": [
-            {
-              "id": "lesson-00",
-              "file": "lesson-00-install-and-config.md",
-              "title": "关卡 00：安装与配置",
-              "badge": "00"
-            },
-            {
-              "id": "lesson-00b",
-              "file": "lesson-00-terminal-basics.md",
-              "title": "关卡 00b：命令行与工作目录基础",
-              "badge": "00b"
-            },
-            {
-              "id": "lesson-01",
-              "file": "lesson-01-init-push.md",
-              "title": "关卡 01：创建仓库与推送",
-              "badge": "01"
-            },
-            {
-              "id": "lesson-02",
-              "file": "lesson-02-workspace-staging-history.md",
-              "title": "关卡 02：工作区 / 暂存区 / 历史",
-              "badge": "02"
-            },
-            {
-              "id": "lesson-03",
-              "file": "lesson-03-remote-and-sync.md",
-              "title": "关卡 03：远程仓库与同步",
-              "badge": "03"
-            }
-          ]
-        },
-        {
-          "group": "阶段 C · 分支与协作",
-          "items": [
-            {
-              "id": "lesson-04",
-              "file": "lesson-04-branches-and-pr.md",
-              "title": "关卡 04：分支与 PR",
-              "badge": "04"
-            },
-            {
-              "id": "lesson-05",
-              "file": "lesson-05-merge-conflict.md",
-              "title": "关卡 05：合并冲突",
-              "badge": "05"
-            },
-            {
-              "id": "lesson-06",
-              "file": "lesson-06-rebase-clean-history.md",
-              "title": "关卡 06：Rebase 整理历史",
-              "badge": "06"
-            },
-            {
-              "id": "lesson-06a",
-              "file": "lesson-06a-ssh-setup-and-clone.md",
-              "title": "关卡 06a：SSH 密钥与 clone",
-              "badge": "06a"
-            },
-            {
-              "id": "lesson-06b",
-              "file": "lesson-06b-collaboration-conventions.md",
-              "title": "关卡 06b：协作规则与约定",
-              "badge": "06b"
-            }
-          ]
-        },
-        {
-          "group": "阶段 D · 救火与恢复",
-          "items": [
-            {
-              "id": "lesson-07",
-              "file": "lesson-07-cherry-pick-and-revert.md",
-              "title": "关卡 07：Cherry-pick 与 Revert",
-              "badge": "07"
-            },
-            {
-              "id": "lesson-08",
-              "file": "lesson-08-reflog-and-recovery.md",
-              "title": "关卡 08：Reflog 恢复",
-              "badge": "08"
-            },
-            {
-              "id": "lesson-09",
-              "file": "lesson-09-stash-usage.md",
-              "title": "关卡 09：Stash 使用姿势",
-              "badge": "09"
-            },
-            {
-              "id": "lesson-20",
-              "file": "lesson-20-bisect.md",
-              "title": "关卡 20：Bisect 二分定位",
-              "badge": "20"
-            },
-            {
-              "id": "lesson-21",
-              "file": "lesson-21-worktree.md",
-              "title": "关卡 21：Worktree 并行工作区",
-              "badge": "21"
-            }
-          ]
-        },
-        {
-          "group": "阶段 E · 工程化实践",
-          "items": [
-            {
-              "id": "lesson-13",
-              "file": "lesson-13-tags-and-releases.md",
-              "title": "关卡 13：标签与版本发布",
-              "badge": "13"
-            },
-            {
-              "id": "lesson-14",
-              "file": "lesson-14-project-files.md",
-              "title": "关卡 14：项目文件规范",
-              "badge": "14"
-            },
-            {
-              "id": "lesson-15",
-              "file": "lesson-15-git-hooks.md",
-              "title": "关卡 15：Git Hooks 与自动化",
-              "badge": "15"
-            },
-            {
-              "id": "lesson-16",
-              "file": "lesson-16-large-repo.md",
-              "title": "关卡 16：大仓库与性能优化",
-              "badge": "16"
-            },
-            {
-              "id": "lesson-17",
-              "file": "lesson-17-release-automation.md",
-              "title": "关卡 17：自动维护版本与 Changelog",
-              "badge": "17"
-            },
-            {
-              "id": "lesson-22",
-              "file": "lesson-22-conventional-commits.md",
-              "title": "关卡 22：约定式提交",
-              "badge": "22"
-            },
-            {
-              "id": "lesson-23",
-              "file": "lesson-23-code-review-pr.md",
-              "title": "关卡 23：PR 与代码审查实践",
-              "badge": "23"
-            }
-          ]
-        },
-        {
-          "group": "阶段 F · CI/CD",
-          "items": [
-            {
-              "id": "lesson-10",
-              "file": "lesson-10-first-ci-workflow.md",
-              "title": "关卡 10：第一个 CI 工作流",
-              "badge": "10"
-            },
-            {
-              "id": "lesson-11",
-              "file": "lesson-11-fix-broken-pipeline.md",
-              "title": "关卡 11：修复失败流水线",
-              "badge": "11"
-            },
-            {
-              "id": "lesson-12",
-              "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
-              "title": "关卡 12：多阶段流水线与 Secrets",
-              "badge": "12"
-            }
-          ]
-        },
-        {
-          "group": "阶段 G · 安全",
-          "items": [
-            {
-              "id": "lesson-18",
-              "file": "lesson-18-commit-and-tag-signing.md",
-              "title": "关卡 18：提交签名与标签签名",
-              "badge": "18"
-            },
-            {
-              "id": "lesson-19",
-              "file": "lesson-19-secrets-and-security.md",
-              "title": "关卡 19：Secrets 与安全实践",
-              "badge": "19"
-            }
-          ]
-        },
-        {
-          "group": "阶段 H · 进阶实用",
-          "items": [
-            {
-              "id": "lesson-24",
-              "file": "lesson-24-fork-and-upstream.md",
-              "title": "关卡 24：Fork 与 upstream 同步",
-              "badge": "24"
-            },
-            {
-              "id": "lesson-25",
-              "file": "lesson-25-hotfix-workflow.md",
-              "title": "关卡 25：Hotfix 应急发布流程",
-              "badge": "25"
-            },
-            {
-              "id": "lesson-26",
-              "file": "lesson-26-submodule.md",
-              "title": "关卡 26：Git Submodule 子模块",
-              "badge": "26"
-            },
-            {
-              "id": "lesson-27",
-              "file": "lesson-27-interactive-rebase-fixup.md",
-              "title": "关卡 27：交互式 Rebase 进阶",
-              "badge": "27"
-            },
-            {
-              "id": "lesson-28",
-              "file": "lesson-28-blame-and-archaeology.md",
-              "title": "关卡 28：Blame 与历史考古",
-              "badge": "28"
-            },
-            {
-              "id": "lesson-29",
-              "file": "lesson-29-sparse-checkout.md",
-              "title": "关卡 29：Sparse Checkout 与部分克隆",
-              "badge": "29"
-            }
-          ]
-        }
-      ];
+  {
+    "group": "总览 / 阶段导航",
+    "items": [
+      {
+        "id": "lessons-overview",
+        "file": "lessons-overview.md",
+        "title": "总览：课程和阶段规划",
+        "badge": "OV"
+      }
+    ]
+  },
+  {
+    "group": "阶段 A-B · 环境与基础",
+    "items": [
+      {
+        "id": "lesson-00",
+        "file": "lesson-00-install-and-config.md",
+        "title": "关卡 00：安装与配置",
+        "badge": "00"
+      },
+      {
+        "id": "lesson-00b",
+        "file": "lesson-00-terminal-basics.md",
+        "title": "关卡 00b：命令行与工作目录基础",
+        "badge": "00b"
+      },
+      {
+        "id": "lesson-01",
+        "file": "lesson-01-init-push.md",
+        "title": "关卡 01：创建仓库与推送",
+        "badge": "01"
+      },
+      {
+        "id": "lesson-02",
+        "file": "lesson-02-workspace-staging-history.md",
+        "title": "关卡 02：工作区 / 暂存区 / 历史",
+        "badge": "02"
+      },
+      {
+        "id": "lesson-03",
+        "file": "lesson-03-remote-and-sync.md",
+        "title": "关卡 03：远程仓库与同步",
+        "badge": "03"
+      }
+    ]
+  },
+  {
+    "group": "阶段 C · 分支与协作",
+    "items": [
+      {
+        "id": "lesson-04",
+        "file": "lesson-04-branches-and-pr.md",
+        "title": "关卡 04：分支与 PR",
+        "badge": "04"
+      },
+      {
+        "id": "lesson-05",
+        "file": "lesson-05-merge-conflict.md",
+        "title": "关卡 05：合并冲突",
+        "badge": "05"
+      },
+      {
+        "id": "lesson-06",
+        "file": "lesson-06-rebase-clean-history.md",
+        "title": "关卡 06：Rebase 整理历史",
+        "badge": "06"
+      },
+      {
+        "id": "lesson-06a",
+        "file": "lesson-06a-ssh-setup-and-clone.md",
+        "title": "关卡 06a：SSH 密钥与 clone",
+        "badge": "06a"
+      },
+      {
+        "id": "lesson-06b",
+        "file": "lesson-06b-collaboration-conventions.md",
+        "title": "关卡 06b：协作规则与约定",
+        "badge": "06b"
+      }
+    ]
+  },
+  {
+    "group": "阶段 D · 救火与恢复",
+    "items": [
+      {
+        "id": "lesson-07",
+        "file": "lesson-07-cherry-pick-and-revert.md",
+        "title": "关卡 07：Cherry-pick 与 Revert",
+        "badge": "07"
+      },
+      {
+        "id": "lesson-08",
+        "file": "lesson-08-reflog-and-recovery.md",
+        "title": "关卡 08：Reflog 恢复",
+        "badge": "08"
+      },
+      {
+        "id": "lesson-09",
+        "file": "lesson-09-stash-usage.md",
+        "title": "关卡 09：Stash 使用姿势",
+        "badge": "09"
+      },
+      {
+        "id": "lesson-20",
+        "file": "lesson-20-bisect.md",
+        "title": "关卡 20：Bisect 二分定位",
+        "badge": "20"
+      },
+      {
+        "id": "lesson-21",
+        "file": "lesson-21-worktree.md",
+        "title": "关卡 21：Worktree 并行工作区",
+        "badge": "21"
+      }
+    ]
+  },
+  {
+    "group": "阶段 E · 工程化实践",
+    "items": [
+      {
+        "id": "lesson-13",
+        "file": "lesson-13-tags-and-releases.md",
+        "title": "关卡 13：标签与版本发布",
+        "badge": "13"
+      },
+      {
+        "id": "lesson-14",
+        "file": "lesson-14-project-files.md",
+        "title": "关卡 14：项目文件规范",
+        "badge": "14"
+      },
+      {
+        "id": "lesson-15",
+        "file": "lesson-15-git-hooks.md",
+        "title": "关卡 15：Git Hooks 与自动化",
+        "badge": "15"
+      },
+      {
+        "id": "lesson-16",
+        "file": "lesson-16-large-repo.md",
+        "title": "关卡 16：大仓库与性能优化",
+        "badge": "16"
+      },
+      {
+        "id": "lesson-17",
+        "file": "lesson-17-release-automation.md",
+        "title": "关卡 17：自动维护版本与 Changelog",
+        "badge": "17"
+      },
+      {
+        "id": "lesson-22",
+        "file": "lesson-22-conventional-commits.md",
+        "title": "关卡 22：约定式提交",
+        "badge": "22"
+      },
+      {
+        "id": "lesson-23",
+        "file": "lesson-23-code-review-pr.md",
+        "title": "关卡 23：PR 与代码审查实践",
+        "badge": "23"
+      }
+    ]
+  },
+  {
+    "group": "阶段 F · CI/CD",
+    "items": [
+      {
+        "id": "lesson-10",
+        "file": "lesson-10-first-ci-workflow.md",
+        "title": "关卡 10：第一个 CI 工作流",
+        "badge": "10"
+      },
+      {
+        "id": "lesson-11",
+        "file": "lesson-11-fix-broken-pipeline.md",
+        "title": "关卡 11：修复失败流水线",
+        "badge": "11"
+      },
+      {
+        "id": "lesson-12",
+        "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+        "title": "关卡 12：多阶段流水线与 Secrets",
+        "badge": "12"
+      }
+    ]
+  },
+  {
+    "group": "阶段 G · 安全",
+    "items": [
+      {
+        "id": "lesson-18",
+        "file": "lesson-18-commit-and-tag-signing.md",
+        "title": "关卡 18：提交签名与标签签名",
+        "badge": "18"
+      },
+      {
+        "id": "lesson-19",
+        "file": "lesson-19-secrets-and-security.md",
+        "title": "关卡 19：Secrets 与安全实践",
+        "badge": "19"
+      }
+    ]
+  },
+  {
+    "group": "阶段 H · 进阶实用",
+    "items": [
+      {
+        "id": "lesson-24",
+        "file": "lesson-24-fork-and-upstream.md",
+        "title": "关卡 24：Fork 与 upstream 同步",
+        "badge": "24"
+      },
+      {
+        "id": "lesson-25",
+        "file": "lesson-25-hotfix-workflow.md",
+        "title": "关卡 25：Hotfix 应急发布流程",
+        "badge": "25"
+      },
+      {
+        "id": "lesson-26",
+        "file": "lesson-26-submodule.md",
+        "title": "关卡 26：Git Submodule 子模块",
+        "badge": "26"
+      },
+      {
+        "id": "lesson-27",
+        "file": "lesson-27-interactive-rebase-fixup.md",
+        "title": "关卡 27：交互式 Rebase 进阶",
+        "badge": "27"
+      },
+      {
+        "id": "lesson-28",
+        "file": "lesson-28-blame-and-archaeology.md",
+        "title": "关卡 28：Blame 与历史考古",
+        "badge": "28"
+      },
+      {
+        "id": "lesson-29",
+        "file": "lesson-29-sparse-checkout.md",
+        "title": "关卡 29：Sparse Checkout 与部分克隆",
+        "badge": "29"
+      }
+    ]
+  },
+  {
+    "group": "阶段 I · 计算机基础",
+    "items": [
+      {
+        "id": "lesson-30",
+        "file": "lesson-30-shell-scripting-basics.md",
+        "title": "关卡 30：Shell 脚本基础",
+        "badge": "30"
+      },
+      {
+        "id": "lesson-31",
+        "file": "lesson-31-pipes-redirection.md",
+        "title": "关卡 31：管道与重定向",
+        "badge": "31"
+      },
+      {
+        "id": "lesson-32",
+        "file": "lesson-32-env-and-path.md",
+        "title": "关卡 32：环境变量与 PATH",
+        "badge": "32"
+      },
+      {
+        "id": "lesson-33",
+        "file": "lesson-33-processes-and-jobs.md",
+        "title": "关卡 33：进程与作业控制",
+        "badge": "33"
+      },
+      {
+        "id": "lesson-34",
+        "file": "lesson-34-docker-basics.md",
+        "title": "关卡 34：Docker 基础与实验环境",
+        "badge": "34"
+      },
+      {
+        "id": "lesson-35",
+        "file": "lesson-35-http-rest-curl.md",
+        "title": "关卡 35：HTTP、REST 与 curl",
+        "badge": "35"
+      },
+      {
+        "id": "lesson-36",
+        "file": "lesson-36-text-processing-sed-awk.md",
+        "title": "关卡 36：文本处理 sed/awk",
+        "badge": "36"
+      },
+      {
+        "id": "lesson-37",
+        "file": "lesson-37-network-troubleshooting.md",
+        "title": "关卡 37：网络排查基础",
+        "badge": "37"
+      },
+      {
+        "id": "lesson-38",
+        "file": "lesson-38-json-yaml-devops.md",
+        "title": "关卡 38：JSON、YAML 与 DevOps 配置",
+        "badge": "38"
+      }
+    ]
+  }
+];
       
       const LESSON_DETAILS = {
-        "lessons-overview.md": "课程总览 · 建议先通读一遍",
-        "lesson-00-install-and-config.md": "阶段 A-B · 环境与基础 · 20分钟 · 安装 Git，配置用户名、邮箱和默认编辑器",
-        "lesson-00-terminal-basics.md": "阶段 A-B · 环境与基础 · 15分钟 · 熟悉终端，掌握 pwd、ls、cd、clear 等基础命令",
-        "lesson-01-init-push.md": "阶段 A-B · 环境与基础 · 20分钟 · 完成 clone、add、commit、push 的第一条闭环",
-        "lesson-02-workspace-staging-history.md": "阶段 A-B · 环境与基础 · 30分钟 · 理解 status、diff、restore、add -p 与提交历史",
-        "lesson-03-remote-and-sync.md": "阶段 A-B · 环境与基础 · 35分钟 · 掌握 remote、fetch、pull、push 与同步策略",
-        "lesson-04-branches-and-pr.md": "阶段 C · 分支与协作 · 30分钟 · 创建分支，提交 Pull Request，理解协作入口",
-        "lesson-05-merge-conflict.md": "阶段 C · 分支与协作 · 30分钟 · 制造并解决一次合并冲突，掌握冲突标记",
-        "lesson-06-rebase-clean-history.md": "阶段 C · 分支与协作 · 35分钟 · 使用 rebase 和交互式 rebase 保持历史清晰",
-        "lesson-06a-ssh-setup-and-clone.md": "阶段 C · 分支与协作 · 30分钟 · 生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库",
-        "lesson-06b-collaboration-conventions.md": "阶段 C · 分支与协作 · 20分钟 · 建立分支命名、PR 流程和团队协作规则",
-        "lesson-07-cherry-pick-and-revert.md": "阶段 D · 救火与恢复 · 30分钟 · 选择性复制提交，并用 revert 安全撤销公共历史",
-        "lesson-08-reflog-and-recovery.md": "阶段 D · 救火与恢复 · 35分钟 · 通过 reflog 找回误删、误 reset 后的提交",
-        "lesson-09-stash-usage.md": "阶段 D · 救火与恢复 · 25分钟 · 临时保存工作进度，在分支切换中保持现场",
-        "lesson-20-bisect.md": "阶段 D · 救火与恢复 · 30分钟 · 使用 git bisect 在历史中快速定位引入问题的提交",
-        "lesson-21-worktree.md": "阶段 D · 救火与恢复 · 25分钟 · 用 git worktree 同时处理多个分支和紧急任务",
-        "lesson-13-tags-and-releases.md": "阶段 E · 工程化实践 · 25分钟 · 创建标签，理解语义化版本和 Release 流程",
-        "lesson-14-project-files.md": "阶段 E · 工程化实践 · 25分钟 · 维护 README、CONTRIBUTING、LICENSE 等项目文件",
-        "lesson-15-git-hooks.md": "阶段 E · 工程化实践 · 30分钟 · 用 hook、Husky、commitlint 在提交前自动检查",
-        "lesson-16-large-repo.md": "阶段 E · 工程化实践 · 30分钟 · 学习浅克隆、Git LFS 与大仓库性能优化",
-        "lesson-17-release-automation.md": "阶段 E · 工程化实践 · 35分钟 · 用 Release Please 自动生成版本与更新日志",
-        "lesson-22-conventional-commits.md": "阶段 E · 工程化实践 · 30分钟 · 用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布",
-        "lesson-23-code-review-pr.md": "阶段 E · 工程化实践 · 35分钟 · 从 diff、CI、scope 和评论四个角度完成代码审查",
-        "lesson-10-first-ci-workflow.md": "阶段 F · CI/CD · 30分钟 · 创建第一条 CI 工作流，理解 Workflow、Job 和 Step",
-        "lesson-11-fix-broken-pipeline.md": "阶段 F · CI/CD · 30分钟 · 阅读 CI 日志，定位并修复失败的流水线",
-        "lesson-12-multi-stage-pipeline-and-secrets.md": "阶段 F · CI/CD · 35分钟 · 组合多 Job 依赖，安全使用 CI/CD Secrets",
-        "lesson-18-commit-and-tag-signing.md": "阶段 G · 安全 · 30分钟 · 配置签名密钥，验证 commit 与 tag 的可信来源",
-        "lesson-19-secrets-and-security.md": "阶段 G · 安全 · 35分钟 · 识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险",
-        "lesson-24-fork-and-upstream.md": "阶段 H · 进阶实用 · 40分钟 · 用 origin 与 upstream 模拟开源 Fork 工作流和上游同步",
-        "lesson-25-hotfix-workflow.md": "阶段 H · 进阶实用 · 35分钟 · 从稳定线切出修复分支，打补丁版本并回灌开发线",
-        "lesson-26-submodule.md": "阶段 H · 进阶实用 · 40分钟 · 理解子模块固定到 commit 的模型和初始化、更新常见坑",
-        "lesson-27-interactive-rebase-fixup.md": "阶段 H · 进阶实用 · 40分钟 · 使用 fixup、squash、reword 与 autosquash 整理提交",
-        "lesson-28-blame-and-archaeology.md": "阶段 H · 进阶实用 · 30分钟 · 用 blame、log -S/-G、--follow 和 show 追踪代码来源",
-        "lesson-29-sparse-checkout.md": "阶段 H · 进阶实用 · 35分钟 · 用 sparse checkout 与 partial clone 降低大仓库检出成本"
-      };
+  "lessons-overview.md": "课程总览 · 建议先通读一遍",
+  "lesson-00-install-and-config.md": "环境与基础 · 30分钟 · 安装 Git，配置用户名、邮箱和默认编辑器。",
+  "lesson-00-terminal-basics.md": "环境与基础 · 30分钟 · 熟悉终端，掌握 pwd、ls、cd、clear 等基础命令。",
+  "lesson-01-init-push.md": "环境与基础 · 30分钟 · 完成 clone、add、commit、push 的第一条闭环。",
+  "lesson-02-workspace-staging-history.md": "环境与基础 · 30分钟 · 理解 status、diff、restore、add -p 与提交历史。",
+  "lesson-03-remote-and-sync.md": "环境与基础 · 30分钟 · 掌握 remote、fetch、pull、push 与同步策略。",
+  "lesson-04-branches-and-pr.md": "分支与协作 · 30分钟 · 创建分支，提交 Pull Request，理解协作入口。",
+  "lesson-05-merge-conflict.md": "分支与协作 · 30分钟 · 制造并解决一次合并冲突，掌握冲突标记。",
+  "lesson-06-rebase-clean-history.md": "分支与协作 · 30分钟 · 使用 rebase 和交互式 rebase 保持历史清晰。",
+  "lesson-06a-ssh-setup-and-clone.md": "分支与协作 · 30分钟 · 生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库。",
+  "lesson-06b-collaboration-conventions.md": "分支与协作 · 30分钟 · 建立分支命名、PR 流程和团队协作规则。",
+  "lesson-07-cherry-pick-and-revert.md": "救火与恢复 · 30分钟 · 选择性复制提交，并用 revert 安全撤销公共历史。",
+  "lesson-08-reflog-and-recovery.md": "救火与恢复 · 30分钟 · 通过 reflog 找回误删、误 reset 后的提交。",
+  "lesson-09-stash-usage.md": "救火与恢复 · 30分钟 · 临时保存工作进度，在分支切换中保持现场。",
+  "lesson-20-bisect.md": "救火与恢复 · 30分钟 · 使用 git bisect 在历史中快速定位引入问题的提交。",
+  "lesson-21-worktree.md": "救火与恢复 · 30分钟 · 用 git worktree 同时处理多个分支和紧急任务。",
+  "lesson-13-tags-and-releases.md": "工程化实践 · 30分钟 · 创建标签，理解语义化版本和 Release 流程。",
+  "lesson-14-project-files.md": "工程化实践 · 30分钟 · 维护 README、CONTRIBUTING、LICENSE 等项目文件。",
+  "lesson-15-git-hooks.md": "工程化实践 · 30分钟 · 用 hook、Husky、commitlint 在提交前自动检查。",
+  "lesson-16-large-repo.md": "工程化实践 · 30分钟 · 学习浅克隆、Git LFS 与大仓库性能优化。",
+  "lesson-17-release-automation.md": "工程化实践 · 30分钟 · 用 Release Please 自动生成版本与更新日志。",
+  "lesson-22-conventional-commits.md": "工程化实践 · 30分钟 · 用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布。",
+  "lesson-23-code-review-pr.md": "工程化实践 · 30分钟 · 从 diff、CI、scope 和评论四个角度完成代码审查。",
+  "lesson-10-first-ci-workflow.md": "CI/CD · 30分钟 · 创建第一条 CI 工作流，理解 Workflow、Job 和 Step。",
+  "lesson-11-fix-broken-pipeline.md": "CI/CD · 30分钟 · 阅读 CI 日志，定位并修复失败的流水线。",
+  "lesson-12-multi-stage-pipeline-and-secrets.md": "CI/CD · 30分钟 · 组合多 Job 依赖，安全使用 CI/CD Secrets。",
+  "lesson-18-commit-and-tag-signing.md": "安全 · 30分钟 · 配置签名密钥，验证 commit 与 tag 的可信来源。",
+  "lesson-19-secrets-and-security.md": "安全 · 30分钟 · 识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险。",
+  "lesson-24-fork-and-upstream.md": "进阶实用 · 30分钟 · 用 origin 与 upstream 模拟开源 Fork 工作流和上游同步。",
+  "lesson-25-hotfix-workflow.md": "进阶实用 · 30分钟 · 从稳定线切出修复分支，打补丁版本并回灌开发线。",
+  "lesson-26-submodule.md": "进阶实用 · 30分钟 · 理解子模块固定到 commit 的模型和初始化、更新常见坑。",
+  "lesson-27-interactive-rebase-fixup.md": "进阶实用 · 30分钟 · 使用 fixup、squash、reword 与 autosquash 整理提交。",
+  "lesson-28-blame-and-archaeology.md": "进阶实用 · 30分钟 · 用 blame、log -S/-G、--follow 和 show 追踪代码来源。",
+  "lesson-29-sparse-checkout.md": "进阶实用 · 30分钟 · 用 sparse checkout 与 partial clone 降低大仓库检出成本。",
+  "lesson-30-shell-scripting-basics.md": "计算机基础 · 35分钟 · Bash shebang、变量、if/for、chmod +x，读懂 CI 脚本。",
+  "lesson-31-pipes-redirection.md": "计算机基础 · 30分钟 · 管道、重定向、tee，掌握 stdin/stdout/stderr。",
+  "lesson-32-env-and-path.md": "计算机基础 · 30分钟 · env、export、PATH、which，配置运行环境。",
+  "lesson-33-processes-and-jobs.md": "计算机基础 · 35分钟 · ps、jobs、bg/fg、kill、nohup，管理后台任务。",
+  "lesson-34-docker-basics.md": "计算机基础 · 40分钟 · 镜像与容器、docker compose，读懂本仓库架构。",
+  "lesson-35-http-rest-curl.md": "计算机基础 · 35分钟 · HTTP 方法、状态码、curl 调用 Gitea API。",
+  "lesson-36-text-processing-sed-awk.md": "计算机基础 · 35分钟 · grep、sed、awk、cut/sort/uniq，处理日志与配置。",
+  "lesson-37-network-troubleshooting.md": "计算机基础 · 30分钟 · ping、curl、ss、DNS、ssh -v 定位连接问题。",
+  "lesson-38-json-yaml-devops.md": "计算机基础 · 35分钟 · JSON/YAML 语法、jq、读懂 Actions 与 compose。"
+};
 
       function getQueryParam(name) {
         const params = new URLSearchParams(window.location.search);

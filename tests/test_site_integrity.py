@@ -367,17 +367,19 @@ def test_lessons_index_has_stage_seven() -> None:
 
 
 def test_build_site_includes_v3_assets() -> None:
-    """GitHub Pages 构建应包含 pages.css 与 lessons.json。"""
+    """GitHub Pages 构建应包含 pages.css、lessons.json，且 style.css 已合并布局样式。"""
     import subprocess
     import sys
 
     root = Path(__file__).resolve().parents[1]
     subprocess.run([sys.executable, str(root / "scripts" / "build-site.py")], cwd=root, check=True)
     assert (root / "_site" / "assets" / "css" / "pages.css").is_file()
-    assert (root / "_site" / "assets" / "css" / "style.css").is_file()
+    style_css = (root / "_site" / "assets" / "css" / "style.css").read_text(encoding="utf-8")
     assert (root / "_site" / "assets" / "data" / "lessons.json").is_file()
+    assert ".hero-v3" in style_css
+    assert "bundled pages.css" in style_css
     index = (root / "_site" / "index.html").read_text(encoding="utf-8")
-    assert "assets/css/pages.css" in index
+    assert "assets/css/style.css" in index
 
 
 def test_lessons_index_asset_paths_are_parent_relative() -> None:

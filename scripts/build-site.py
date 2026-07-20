@@ -596,6 +596,19 @@ def get_lesson_info(md_path: Path) -> Dict[str, str]:
     }
 
 
+def bundle_stylesheets(src_css: Path, dest_css: Path) -> None:
+    """将 pages.css 合并进 style.css，避免线上只加载主样式表时首页布局丢失。"""
+    style_text = (src_css / "style.css").read_text(encoding="utf-8")
+    pages_path = src_css / "pages.css"
+    pages_text = pages_path.read_text(encoding="utf-8") if pages_path.exists() else ""
+    style_text = re.sub(r"@import\s+url\(['\"]pages\.css['\"]\)\s*;?", "", style_text)
+    bundled = f"{style_text.rstrip()}\n\n/* bundled pages.css */\n{pages_text}"
+    dest_css.mkdir(parents=True, exist_ok=True)
+    dest_css.joinpath("style.css").write_text(bundled, encoding="utf-8")
+    if pages_path.exists():
+        shutil.copy(pages_path, dest_css / "pages.css")
+
+
 def build_site() -> None:
     """构建静态网站.
 
@@ -629,7 +642,11 @@ def build_site() -> None:
 
     assets_src = Path("site/assets")
     if assets_src.exists():
-        for sub in ("css", "js", "data"):
+        css_src = assets_src / "css"
+        if css_src.exists():
+            bundle_stylesheets(css_src, ASSETS_DIR / "css")
+            print("  Bundled site/assets/css (style.css + pages.css)")
+        for sub in ("js", "data"):
             src_dir = assets_src / sub
             if not src_dir.exists():
                 continue
@@ -638,7 +655,7 @@ def build_site() -> None:
             for item in src_dir.iterdir():
                 if item.is_file():
                     shutil.copy(item, dest_dir / item.name)
-        print("  Copied site/assets (css, js, data)")
+        print("  Copied site/assets (js, data)")
 
     # 复制docs目录到_site/docs/
     if DOCS_DIR.exists():

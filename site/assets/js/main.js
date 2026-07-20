@@ -331,6 +331,74 @@
         }
     };
 
+    /**
+     * 共享课程目录。
+     * @namespace LessonCatalog
+     */
+    const LessonCatalog = {
+        /** @type {Promise<Array>|null} */
+        cache: null,
+
+        async load() {
+            if (this.cache) {
+                return this.cache;
+            }
+
+            const candidates = [
+                'assets/data/lessons.json',
+                '../assets/data/lessons.json'
+            ];
+
+            this.cache = (async () => {
+                const errors = [];
+                for (const path of candidates) {
+                    const response = await fetch(new URL(path, window.location.href).toString());
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    errors.push(`${path}: HTTP ${response.status}`);
+                }
+                throw new Error(`课程目录加载失败：${errors.join('；')}`);
+            })();
+
+            return this.cache;
+        },
+
+        viewerHref(file) {
+            return `docs/viewer.html?file=${encodeURIComponent(file)}`;
+        },
+
+        quizHref(quizId) {
+            return `quiz.html?lesson=${encodeURIComponent(quizId)}`;
+        },
+
+        normalizeId(fileOrId) {
+            const stem = String(fileOrId || '')
+                .split('/')
+                .pop()
+                .replace(/\.md$/i, '');
+            if (stem === 'lesson-00-terminal-basics') {
+                return 'lesson-00b';
+            }
+            const match = stem.match(/^(lesson-\d+[a-z]?)/);
+            return match ? match[1] : stem;
+        }
+    };
+
+    /**
+     * 页面软进入动效。
+     * @namespace PageFadeIn
+     */
+    const PageFadeIn = {
+        init() {
+            const target = document.querySelector('main') || document.querySelector('.container');
+            if (!target || target.classList.contains('fade-in')) {
+                return;
+            }
+            target.classList.add('fade-in');
+        }
+    };
+
     // ============================================
     // 主题管理模块
     // ============================================
@@ -1643,6 +1711,7 @@
         StyleManager.init();
 
         // 初始化各个模块
+        PageFadeIn.init();
         GlobalNavbar.init();
         SiteChrome.init();
         ThemeManager.init();
@@ -1675,6 +1744,8 @@
         LearningProgress,
         QuizProgress,
         ActivityProgress,
+        LessonCatalog,
+        PageFadeIn,
         SiteChrome,
         ThemeManager,
         SmoothScroll,

@@ -177,8 +177,8 @@ Thanks to all developers who have contributed to this project!
 
 ## 💬 Community & Feedback
 
-- 💡 [Feature Suggestions](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=feature_request.md)
-- 🐛 [Bug Reports](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=bug_report.md)
+- 💡 [Feature Suggestions](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=feature-request.yml)
+- 🐛 [Bug Reports](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=bug-report.yml)
 - 📧 Contact Maintainers: Check [CODEOWNERS](.github/CODEOWNERS)
 
 ---

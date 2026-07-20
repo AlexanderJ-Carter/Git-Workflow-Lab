@@ -115,7 +115,53 @@ git push origin main
 
 ---
 
-## 六、练习题
+## 六、如何确认自己做对了
+
+```bash
+cd ~/playground-hello   # 或 playground-ci
+git status
+ls -la .gitea/workflows/
+git log --oneline -3
+```
+
+- [ ] ✓ 仓库中存在 `.gitea/workflows/hello-ci.yml`（或你命名的 workflow 文件）
+- [ ] ✓ 最近一次 commit message 含 `ci:` 前缀
+- [ ] ✓ 在 Gitea Actions 页面能看到由 push 触发的运行记录（Runner 就绪时）
+- [ ] ✓ 运行日志中有 `Hello from CI!` 或你自定义的 echo 输出
+
+若 Runner 未就绪：至少确认 YAML 语法正确、`on.push.branches` 包含你 push 的分支名。
+
+---
+
+## 七、常见错误与排查
+
+### ❌ push 后 Actions 页面没有任何记录
+
+**可能原因：** 仓库未启用 Actions，或 push 的分支不在 `on.push.branches` 列表中。
+
+**解决方法：** 检查 Gitea 仓库 Settings → Actions；确认 workflow 里 `branches` 包含 `main`（或你实际 push 的分支）。
+
+### ❌ Workflow 一直 Queued / Waiting for runner
+
+**可能原因：** 未注册 Runner 或 Runner 离线。
+
+**解决方法：** 先完成 YAML 编写与提交；联系环境管理员配置 Runner，或参考 Gitea 文档注册 `docker` 标签 Runner。
+
+### ❌ `actions/checkout@v4` 步骤失败
+
+**可能原因：** 网络无法拉取 Action 镜像，或版本号不可用。
+
+**解决方法：** 检查 Runner 网络；在练习环境中可改用 Gitea 内置 checkout 或简化 step，仅运行 `run:` 脚本验证触发逻辑。
+
+### ❌ YAML 语法错误导致 workflow 无法解析
+
+**可能原因：** 缩进使用了 Tab，或 `jobs` / `steps` 层级不对。
+
+**解决方法：** 用在线 YAML 校验器检查；Git 侧可运行 `python3 -c "import yaml; yaml.safe_load(open('.gitea/workflows/hello-ci.yml'))"`（若已安装 PyYAML）。
+
+---
+
+## 八、练习题
 
 > 即使暂时没有 Runner，你也可以先把 YAML 写好，模拟思考与本地脚本对应。
 
@@ -140,7 +186,7 @@ git push origin main
 
 ---
 
-## 七、参考答案（仅供对照）
+## 九、参考答案（仅供对照）
 
 ### 练习 1 参考写法
 

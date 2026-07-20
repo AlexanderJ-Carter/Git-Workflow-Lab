@@ -105,11 +105,15 @@ Sphinx 文档提供：
 
 ## 📚 课程内容
 
-- 阶段 0-1：安装配置、终端基础、仓库初始化、远程同步
-- 阶段 2：分支协作、Pull Request、冲突处理、rebase、SSH 与协作规范
-- 阶段 3：cherry-pick、revert、reflog、stash 等救火与恢复场景
-- 阶段 4：标签与版本、项目规范、Git hooks、大仓库实践
-- 阶段 5：CI 基础、流水线修复、多阶段流程与发布实践
+共 **33** 课时，按逻辑阶段 **A–H** 推荐学习（文件编号 00–29 不变）：
+
+- **A–B** 环境与基础：安装配置、终端、init/push、工作区、远程同步
+- **C** 分支协作：分支/PR、冲突、rebase、SSH、协作规范
+- **D** 救火恢复：cherry-pick、reflog、stash、bisect、worktree
+- **E** 工程化：标签发布、项目规范、hooks、大仓库、Conventional Commits、代码审查
+- **F** CI/CD：首条流水线、修复失败、多阶段与 Secrets
+- **G** 安全：提交签名、Secrets 实践
+- **H** 进阶实用：fork/upstream、hotfix、submodule、fixup rebase、blame 考古、sparse-checkout
 
 ## 📋 推荐阅读顺序
 
@@ -178,8 +182,8 @@ make fix-quotes     # 修复中文引号
 
 ## 💬 社区与反馈
 
-- 💡 [功能建议](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=feature_request.md)
-- 🐛 [问题反馈](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=bug_report.md)
+- 💡 [功能建议](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=feature-request.yml)
+- 🐛 [问题反馈](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=bug-report.yml)
 - 📧 联系维护者: 查看 [CODEOWNERS](.github/CODEOWNERS)
 
 ---

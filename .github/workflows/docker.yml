@@ -5,13 +5,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "Dockerfile"
+      - "docker/**"
+      - "docker-compose.yml"
+      - "scripts/init*.sh"
   release:
     types: [published]
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  GHCR_IMAGE_PREFIX: ghcr.io/alexanderj-carter/git-workflow-lab
   DOCKERHUB_IMAGE_PREFIX: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/git-workflow-lab
 
 jobs:
@@ -36,6 +40,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set GHCR image prefix
+        id: ghcr_prefix
+        run: |
+          owner_lc=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "prefix=ghcr.io/${owner_lc}/git-workflow-lab" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -73,7 +83,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.GHCR_IMAGE_PREFIX }}-${{ matrix.component }}
+            ${{ steps.ghcr_prefix.outputs.prefix }}-${{ matrix.component }}
             ${{ steps.check_dockerhub.outputs.has_dockerhub == 'true' &&
                 format('{0}-{1}', env.DOCKERHUB_IMAGE_PREFIX, matrix.component) || '' }}
           tags: |
@@ -99,6 +109,6 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: ${{ env.GHCR_IMAGE_PREFIX }}-${{ matrix.component }}
+          subject-name: ${{ steps.ghcr_prefix.outputs.prefix }}-${{ matrix.component }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true

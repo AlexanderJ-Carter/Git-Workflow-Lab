@@ -1,3 +1,4 @@
+<!-- Canonical source: docs/viewer.html (Docker overlay); keep in sync for GitHub Pages. -->
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -331,6 +332,35 @@
         color: #065f46 !important;
       }
 
+      .lesson-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--viewer-border);
+      }
+
+      .lesson-actions a,
+      .lesson-actions button {
+        border: 1px solid var(--viewer-border);
+        background: var(--viewer-bg-card);
+        color: var(--viewer-text);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s, transform 0.15s;
+      }
+
+      .lesson-actions a:hover,
+      .lesson-actions button:hover {
+        border-color: var(--viewer-primary);
+        color: var(--viewer-primary);
+      }
+
       [data-theme="dark"] .mark-complete-btn.completed {
         background: rgba(16, 185, 129, 0.2) !important;
         border-color: #10b981 !important;
@@ -484,7 +514,7 @@
           <div class="progress-section">
             <div class="progress-header">
               <span class="progress-label">学习进度</span>
-              <span class="progress-count" id="progress-count">0/17</span>
+              <span class="progress-count" id="progress-count">0/33</span>
             </div>
             <div class="progress-bar-container">
               <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
@@ -519,6 +549,12 @@
         <div class="doc-shell">
           <div id="doc-error" style="display: none"></div>
           <article id="doc-content">加载中...</article>
+          <div class="lesson-actions" id="lesson-actions">
+            <button id="mark-complete-footer" class="mark-complete-btn" type="button">标记完成</button>
+            <a id="lesson-quiz-link" href="../../quiz.html">本课测验</a>
+            <a id="lesson-flashcards-link" href="../../flashcards.html">复习闪卡</a>
+            <a id="lesson-workspace-link" href="../../workspace.html">打开工作台</a>
+          </div>
         </div>
       </main>
     </div>
@@ -534,7 +570,7 @@
       // 学习进度管理
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 23,
+        TOTAL_LESSONS: 33,
 
         getProgress() {
           try {
@@ -581,206 +617,286 @@
       // 课程数据
       const LESSONS = [
         {
-          group: "总览 / 阶段导航",
-          items: [
+          "group": "总览 / 阶段导航",
+          "items": [
             {
-              id: "lessons-overview",
-              file: "lessons-overview.md",
-              title: "总览：课程和阶段规划",
-              badge: "OV",
-            },
-          ],
+              "id": "lessons-overview",
+              "file": "lessons-overview.md",
+              "title": "总览：课程和阶段规划",
+              "badge": "OV"
+            }
+          ]
         },
         {
-          group: "阶段 0-1 · 基础入门",
-          items: [
+          "group": "阶段 A-B · 环境与基础",
+          "items": [
             {
-              id: "lesson-00",
-              file: "lesson-00-install-and-config.md",
-              title: "关卡 00：安装与配置",
-              badge: "00",
+              "id": "lesson-00",
+              "file": "lesson-00-install-and-config.md",
+              "title": "关卡 00：安装与配置",
+              "badge": "00"
             },
             {
-              id: "lesson-00-terminal",
-              file: "lesson-00-terminal-basics.md",
-              title: "关卡 00b：命令行基础（可选）",
-              badge: "00b",
+              "id": "lesson-00b",
+              "file": "lesson-00-terminal-basics.md",
+              "title": "关卡 00b：命令行与工作目录基础",
+              "badge": "00b"
             },
             {
-              id: "lesson-01",
-              file: "lesson-01-init-push.md",
-              title: "关卡 01：init + push",
-              badge: "01",
+              "id": "lesson-01",
+              "file": "lesson-01-init-push.md",
+              "title": "关卡 01：创建仓库与推送",
+              "badge": "01"
             },
             {
-              id: "lesson-02",
-              file: "lesson-02-workspace-staging-history.md",
-              title: "关卡 02：工作区 / 暂存区 / 历史",
-              badge: "02",
+              "id": "lesson-02",
+              "file": "lesson-02-workspace-staging-history.md",
+              "title": "关卡 02：工作区 / 暂存区 / 历史",
+              "badge": "02"
             },
             {
-              id: "lesson-03",
-              file: "lesson-03-remote-and-sync.md",
-              title: "关卡 03：远程与同步",
-              badge: "03",
-            },
-          ],
+              "id": "lesson-03",
+              "file": "lesson-03-remote-and-sync.md",
+              "title": "关卡 03：远程仓库与同步",
+              "badge": "03"
+            }
+          ]
         },
         {
-          group: "阶段 2 · 分支与协作",
-          items: [
+          "group": "阶段 C · 分支与协作",
+          "items": [
             {
-              id: "lesson-04",
-              file: "lesson-04-branches-and-pr.md",
-              title: "关卡 04：分支与 PR",
-              badge: "04",
+              "id": "lesson-04",
+              "file": "lesson-04-branches-and-pr.md",
+              "title": "关卡 04：分支与 PR",
+              "badge": "04"
             },
             {
-              id: "lesson-05",
-              file: "lesson-05-merge-conflict.md",
-              title: "关卡 05：合并冲突",
-              badge: "05",
+              "id": "lesson-05",
+              "file": "lesson-05-merge-conflict.md",
+              "title": "关卡 05：合并冲突",
+              "badge": "05"
             },
             {
-              id: "lesson-06",
-              file: "lesson-06-rebase-clean-history.md",
-              title: "关卡 06：rebase 整理历史",
-              badge: "06",
+              "id": "lesson-06",
+              "file": "lesson-06-rebase-clean-history.md",
+              "title": "关卡 06：Rebase 整理历史",
+              "badge": "06"
             },
             {
-              id: "lesson-06a",
-              file: "lesson-06a-ssh-setup-and-clone.md",
-              title: "关卡 06a：SSH 密钥与 clone",
-              badge: "06a",
+              "id": "lesson-06a",
+              "file": "lesson-06a-ssh-setup-and-clone.md",
+              "title": "关卡 06a：SSH 密钥与 clone",
+              "badge": "06a"
             },
             {
-              id: "lesson-06b",
-              file: "lesson-06b-collaboration-conventions.md",
-              title: "关卡 06b：协作规则与约定",
-              badge: "06b",
-            },
-          ],
+              "id": "lesson-06b",
+              "file": "lesson-06b-collaboration-conventions.md",
+              "title": "关卡 06b：协作规则与约定",
+              "badge": "06b"
+            }
+          ]
         },
         {
-          group: "阶段 3 · 救火与历史修复",
-          items: [
+          "group": "阶段 D · 救火与恢复",
+          "items": [
             {
-              id: "lesson-07",
-              file: "lesson-07-cherry-pick-and-revert.md",
-              title: "关卡 07：cherry-pick / revert",
-              badge: "07",
+              "id": "lesson-07",
+              "file": "lesson-07-cherry-pick-and-revert.md",
+              "title": "关卡 07：Cherry-pick 与 Revert",
+              "badge": "07"
             },
             {
-              id: "lesson-08",
-              file: "lesson-08-reflog-and-recovery.md",
-              title: "关卡 08：reflog 恢复历史",
-              badge: "08",
+              "id": "lesson-08",
+              "file": "lesson-08-reflog-and-recovery.md",
+              "title": "关卡 08：Reflog 恢复",
+              "badge": "08"
             },
             {
-              id: "lesson-09",
-              file: "lesson-09-stash-usage.md",
-              title: "关卡 09：stash 使用姿势",
-              badge: "09",
+              "id": "lesson-09",
+              "file": "lesson-09-stash-usage.md",
+              "title": "关卡 09：Stash 使用姿势",
+              "badge": "09"
             },
-          ],
+            {
+              "id": "lesson-20",
+              "file": "lesson-20-bisect.md",
+              "title": "关卡 20：Bisect 二分定位",
+              "badge": "20"
+            },
+            {
+              "id": "lesson-21",
+              "file": "lesson-21-worktree.md",
+              "title": "关卡 21：Worktree 并行工作区",
+              "badge": "21"
+            }
+          ]
         },
         {
-          group: "阶段 4-5 · CI/CD 与进阶",
-          items: [
+          "group": "阶段 E · 工程化实践",
+          "items": [
             {
-              id: "lesson-10",
-              file: "lesson-10-first-ci-workflow.md",
-              title: "关卡 10：第一个 CI 工作流",
-              badge: "10",
+              "id": "lesson-13",
+              "file": "lesson-13-tags-and-releases.md",
+              "title": "关卡 13：标签与版本发布",
+              "badge": "13"
             },
             {
-              id: "lesson-11",
-              file: "lesson-11-fix-broken-pipeline.md",
-              title: "关卡 11：修复失败流水线",
-              badge: "11",
+              "id": "lesson-14",
+              "file": "lesson-14-project-files.md",
+              "title": "关卡 14：项目文件规范",
+              "badge": "14"
             },
             {
-              id: "lesson-12",
-              file: "lesson-12-multi-stage-pipeline-and-secrets.md",
-              title: "关卡 12：多阶段流水线与 Secrets",
-              badge: "12",
+              "id": "lesson-15",
+              "file": "lesson-15-git-hooks.md",
+              "title": "关卡 15：Git Hooks 与自动化",
+              "badge": "15"
             },
             {
-              id: "lesson-13",
-              file: "lesson-13-tags-and-releases.md",
-              title: "关卡 13：标签与版本发布",
-              badge: "13",
+              "id": "lesson-16",
+              "file": "lesson-16-large-repo.md",
+              "title": "关卡 16：大仓库与性能优化",
+              "badge": "16"
             },
             {
-              id: "lesson-14",
-              file: "lesson-14-project-files.md",
-              title: "关卡 14：项目文件规范",
-              badge: "14",
+              "id": "lesson-17",
+              "file": "lesson-17-release-automation.md",
+              "title": "关卡 17：自动维护版本与 Changelog",
+              "badge": "17"
             },
             {
-              id: "lesson-15",
-              file: "lesson-15-git-hooks.md",
-              title: "关卡 15：Git Hooks 与自动化",
-              badge: "15",
+              "id": "lesson-22",
+              "file": "lesson-22-conventional-commits.md",
+              "title": "关卡 22：约定式提交",
+              "badge": "22"
             },
             {
-              id: "lesson-16",
-              file: "lesson-16-large-repo.md",
-              title: "关卡 16：大仓库与性能优化",
-              badge: "16",
-            },
-            {
-              id: "lesson-17",
-              file: "lesson-17-release-automation.md",
-              title: "关卡 17：自动维护版本与 Changelog",
-              badge: "17",
-            },
-          ],
+              "id": "lesson-23",
+              "file": "lesson-23-code-review-pr.md",
+              "title": "关卡 23：PR 与代码审查实践",
+              "badge": "23"
+            }
+          ]
         },
         {
-          group: "阶段 6 · 安全与规范",
-          items: [
+          "group": "阶段 F · CI/CD",
+          "items": [
             {
-              id: "lesson-18",
-              file: "lesson-18-commit-and-tag-signing.md",
-              title: "关卡 18：提交签名与标签签名",
-              badge: "18",
+              "id": "lesson-10",
+              "file": "lesson-10-first-ci-workflow.md",
+              "title": "关卡 10：第一个 CI 工作流",
+              "badge": "10"
             },
             {
-              id: "lesson-19",
-              file: "lesson-19-secrets-and-security.md",
-              title: "关卡 19：Secrets 与安全实践",
-              badge: "19",
+              "id": "lesson-11",
+              "file": "lesson-11-fix-broken-pipeline.md",
+              "title": "关卡 11：修复失败流水线",
+              "badge": "11"
             },
-          ],
+            {
+              "id": "lesson-12",
+              "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+              "title": "关卡 12：多阶段流水线与 Secrets",
+              "badge": "12"
+            }
+          ]
         },
+        {
+          "group": "阶段 G · 安全",
+          "items": [
+            {
+              "id": "lesson-18",
+              "file": "lesson-18-commit-and-tag-signing.md",
+              "title": "关卡 18：提交签名与标签签名",
+              "badge": "18"
+            },
+            {
+              "id": "lesson-19",
+              "file": "lesson-19-secrets-and-security.md",
+              "title": "关卡 19：Secrets 与安全实践",
+              "badge": "19"
+            }
+          ]
+        },
+        {
+          "group": "阶段 H · 进阶实用",
+          "items": [
+            {
+              "id": "lesson-24",
+              "file": "lesson-24-fork-and-upstream.md",
+              "title": "关卡 24：Fork 与 upstream 同步",
+              "badge": "24"
+            },
+            {
+              "id": "lesson-25",
+              "file": "lesson-25-hotfix-workflow.md",
+              "title": "关卡 25：Hotfix 应急发布流程",
+              "badge": "25"
+            },
+            {
+              "id": "lesson-26",
+              "file": "lesson-26-submodule.md",
+              "title": "关卡 26：Git Submodule 子模块",
+              "badge": "26"
+            },
+            {
+              "id": "lesson-27",
+              "file": "lesson-27-interactive-rebase-fixup.md",
+              "title": "关卡 27：交互式 Rebase 进阶",
+              "badge": "27"
+            },
+            {
+              "id": "lesson-28",
+              "file": "lesson-28-blame-and-archaeology.md",
+              "title": "关卡 28：Blame 与历史考古",
+              "badge": "28"
+            },
+            {
+              "id": "lesson-29",
+              "file": "lesson-29-sparse-checkout.md",
+              "title": "关卡 29：Sparse Checkout 与部分克隆",
+              "badge": "29"
+            }
+          ]
+        }
       ];
       
       const LESSON_DETAILS = {
         "lessons-overview.md": "课程总览 · 建议先通读一遍",
-        "lesson-00-install-and-config.md": "阶段 0 · 20 分钟 · 安装与全局配置",
-        "lesson-00-terminal-basics.md": "阶段 0 · 15 分钟 · 终端基础操作",
-        "lesson-01-init-push.md": "阶段 1 · 20 分钟 · 第一次 clone / commit / push",
-        "lesson-02-workspace-staging-history.md": "阶段 1 · 30 分钟 · 工作区与暂存区",
-        "lesson-03-remote-and-sync.md": "阶段 1 · 35 分钟 · 远程同步与协作前提",
-        "lesson-04-branches-and-pr.md": "阶段 2 · 30 分钟 · 分支与 PR 基础",
-        "lesson-05-merge-conflict.md": "阶段 2 · 30 分钟 · 合并冲突实战",
-        "lesson-06-rebase-clean-history.md": "阶段 2 · 35 分钟 · rebase 整理历史",
-        "lesson-06a-ssh-setup-and-clone.md": "阶段 2 · 30 分钟 · SSH 认证与 clone",
-        "lesson-06b-collaboration-conventions.md": "阶段 2 · 20 分钟 · 协作规范与团队约定",
-        "lesson-07-cherry-pick-and-revert.md": "阶段 3 · 30 分钟 · 错误提交补救",
-        "lesson-08-reflog-and-recovery.md": "阶段 3 · 35 分钟 · 历史恢复与救火",
-        "lesson-09-stash-usage.md": "阶段 3 · 25 分钟 · stash 正确姿势",
-        "lesson-10-first-ci-workflow.md": "阶段 5 · 30 分钟 · 第一个 CI 工作流",
-        "lesson-11-fix-broken-pipeline.md": "阶段 5 · 30 分钟 · 读日志与修流水线",
-        "lesson-12-multi-stage-pipeline-and-secrets.md": "阶段 5 · 35 分钟 · 多阶段流水线",
-        "lesson-13-tags-and-releases.md": "阶段 4 · 25 分钟 · Tag 与 Release",
-        "lesson-14-project-files.md": "阶段 4 · 25 分钟 · 项目规范文件",
-        "lesson-15-git-hooks.md": "阶段 4 · 30 分钟 · Hooks 与自动化",
-        "lesson-16-large-repo.md": "阶段 4 · 30 分钟 · 大仓库与性能",
-        "lesson-17-release-automation.md": "阶段 5 · 35 分钟 · 自动版本与 Changelog",
-        "lesson-18-commit-and-tag-signing.md": "阶段 6 · 30 分钟 · 提交与标签签名",
-        "lesson-19-secrets-and-security.md": "阶段 6 · 35 分钟 · Secrets 与安全实践",
+        "lesson-00-install-and-config.md": "阶段 A-B · 环境与基础 · 20分钟 · 安装 Git，配置用户名、邮箱和默认编辑器",
+        "lesson-00-terminal-basics.md": "阶段 A-B · 环境与基础 · 15分钟 · 熟悉终端，掌握 pwd、ls、cd、clear 等基础命令",
+        "lesson-01-init-push.md": "阶段 A-B · 环境与基础 · 20分钟 · 完成 clone、add、commit、push 的第一条闭环",
+        "lesson-02-workspace-staging-history.md": "阶段 A-B · 环境与基础 · 30分钟 · 理解 status、diff、restore、add -p 与提交历史",
+        "lesson-03-remote-and-sync.md": "阶段 A-B · 环境与基础 · 35分钟 · 掌握 remote、fetch、pull、push 与同步策略",
+        "lesson-04-branches-and-pr.md": "阶段 C · 分支与协作 · 30分钟 · 创建分支，提交 Pull Request，理解协作入口",
+        "lesson-05-merge-conflict.md": "阶段 C · 分支与协作 · 30分钟 · 制造并解决一次合并冲突，掌握冲突标记",
+        "lesson-06-rebase-clean-history.md": "阶段 C · 分支与协作 · 35分钟 · 使用 rebase 和交互式 rebase 保持历史清晰",
+        "lesson-06a-ssh-setup-and-clone.md": "阶段 C · 分支与协作 · 30分钟 · 生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库",
+        "lesson-06b-collaboration-conventions.md": "阶段 C · 分支与协作 · 20分钟 · 建立分支命名、PR 流程和团队协作规则",
+        "lesson-07-cherry-pick-and-revert.md": "阶段 D · 救火与恢复 · 30分钟 · 选择性复制提交，并用 revert 安全撤销公共历史",
+        "lesson-08-reflog-and-recovery.md": "阶段 D · 救火与恢复 · 35分钟 · 通过 reflog 找回误删、误 reset 后的提交",
+        "lesson-09-stash-usage.md": "阶段 D · 救火与恢复 · 25分钟 · 临时保存工作进度，在分支切换中保持现场",
+        "lesson-20-bisect.md": "阶段 D · 救火与恢复 · 30分钟 · 使用 git bisect 在历史中快速定位引入问题的提交",
+        "lesson-21-worktree.md": "阶段 D · 救火与恢复 · 25分钟 · 用 git worktree 同时处理多个分支和紧急任务",
+        "lesson-13-tags-and-releases.md": "阶段 E · 工程化实践 · 25分钟 · 创建标签，理解语义化版本和 Release 流程",
+        "lesson-14-project-files.md": "阶段 E · 工程化实践 · 25分钟 · 维护 README、CONTRIBUTING、LICENSE 等项目文件",
+        "lesson-15-git-hooks.md": "阶段 E · 工程化实践 · 30分钟 · 用 hook、Husky、commitlint 在提交前自动检查",
+        "lesson-16-large-repo.md": "阶段 E · 工程化实践 · 30分钟 · 学习浅克隆、Git LFS 与大仓库性能优化",
+        "lesson-17-release-automation.md": "阶段 E · 工程化实践 · 35分钟 · 用 Release Please 自动生成版本与更新日志",
+        "lesson-22-conventional-commits.md": "阶段 E · 工程化实践 · 30分钟 · 用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布",
+        "lesson-23-code-review-pr.md": "阶段 E · 工程化实践 · 35分钟 · 从 diff、CI、scope 和评论四个角度完成代码审查",
+        "lesson-10-first-ci-workflow.md": "阶段 F · CI/CD · 30分钟 · 创建第一条 CI 工作流，理解 Workflow、Job 和 Step",
+        "lesson-11-fix-broken-pipeline.md": "阶段 F · CI/CD · 30分钟 · 阅读 CI 日志，定位并修复失败的流水线",
+        "lesson-12-multi-stage-pipeline-and-secrets.md": "阶段 F · CI/CD · 35分钟 · 组合多 Job 依赖，安全使用 CI/CD Secrets",
+        "lesson-18-commit-and-tag-signing.md": "阶段 G · 安全 · 30分钟 · 配置签名密钥，验证 commit 与 tag 的可信来源",
+        "lesson-19-secrets-and-security.md": "阶段 G · 安全 · 35分钟 · 识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险",
+        "lesson-24-fork-and-upstream.md": "阶段 H · 进阶实用 · 40分钟 · 用 origin 与 upstream 模拟开源 Fork 工作流和上游同步",
+        "lesson-25-hotfix-workflow.md": "阶段 H · 进阶实用 · 35分钟 · 从稳定线切出修复分支，打补丁版本并回灌开发线",
+        "lesson-26-submodule.md": "阶段 H · 进阶实用 · 40分钟 · 理解子模块固定到 commit 的模型和初始化、更新常见坑",
+        "lesson-27-interactive-rebase-fixup.md": "阶段 H · 进阶实用 · 40分钟 · 使用 fixup、squash、reword 与 autosquash 整理提交",
+        "lesson-28-blame-and-archaeology.md": "阶段 H · 进阶实用 · 30分钟 · 用 blame、log -S/-G、--follow 和 show 追踪代码来源",
+        "lesson-29-sparse-checkout.md": "阶段 H · 进阶实用 · 35分钟 · 用 sparse checkout 与 partial clone 降低大仓库检出成本"
       };
 
       function getQueryParam(name) {
@@ -806,6 +922,11 @@
       const searchEl = document.getElementById("lesson-search");
       const prevLessonEl = document.getElementById("prev-lesson");
       const nextLessonEl = document.getElementById("next-lesson");
+      const markCompleteHeaderEl = document.getElementById("mark-complete");
+      const markCompleteFooterEl = document.getElementById("mark-complete-footer");
+      const quizLinkEl = document.getElementById("lesson-quiz-link");
+      const flashcardsLinkEl = document.getElementById("lesson-flashcards-link");
+      const workspaceLinkEl = document.getElementById("lesson-workspace-link");
 
       function getFlatLessons() {
         return LESSONS.flatMap((group) => group.items);
@@ -905,14 +1026,20 @@
         // 更新完成状态按钮
         const lessonId = normalizeLessonId(file);
         const isCompleted = LearningProgress.isCompleted(lessonId);
-        const markCompleteBtn = document.getElementById('mark-complete');
-        if (isCompleted) {
-          markCompleteBtn.classList.add('completed');
-          markCompleteBtn.textContent = '✓ 已完成';
-        } else {
-          markCompleteBtn.classList.remove('completed');
-          markCompleteBtn.textContent = '标记完成';
-        }
+        [markCompleteHeaderEl, markCompleteFooterEl].forEach((markCompleteBtn) => {
+          if (!markCompleteBtn) return;
+          if (isCompleted) {
+            markCompleteBtn.classList.add('completed');
+            markCompleteBtn.textContent = '✓ 已完成';
+          } else {
+            markCompleteBtn.classList.remove('completed', 'is-done');
+            markCompleteBtn.textContent = '标记完成';
+          }
+        });
+
+        quizLinkEl.href = `../../quiz.html?lesson=${encodeURIComponent(lessonId)}`;
+        flashcardsLinkEl.href = `../../flashcards.html?lesson=${encodeURIComponent(lessonId)}`;
+        workspaceLinkEl.href = `../../workspace.html?lesson=${encodeURIComponent(file)}`;
       }
 
       function loadDoc(file, displayTitle, extraMeta) {
@@ -965,18 +1092,29 @@
       });
 
       // 标记完成按钮
-      document.getElementById('mark-complete').addEventListener('click', () => {
+      function toggleCurrentLessonComplete() {
         const file = getQueryParam("file") || "lessons-overview.md";
         const lessonId = normalizeLessonId(file);
-        LearningProgress.toggleComplete(lessonId);
+        const completed = LearningProgress.toggleComplete(lessonId);
         updateLessonButtons(file);
         LearningProgress.updateUI();
+        if (completed) {
+          [markCompleteHeaderEl, markCompleteFooterEl].forEach((btn) => {
+            if (!btn) return;
+            btn.classList.remove('is-done');
+            void btn.offsetWidth;
+            btn.classList.add('is-done');
+          });
+        }
 
         // 通知父窗口更新进度（如果在 iframe 中）
         if (window.parent !== window) {
           window.parent.postMessage({ type: 'progress-update' }, '*');
         }
-      });
+      }
+
+      markCompleteHeaderEl.addEventListener('click', toggleCurrentLessonComplete);
+      markCompleteFooterEl.addEventListener('click', toggleCurrentLessonComplete);
 
       // 键盘导航
       document.addEventListener('keydown', (e) => {
@@ -997,9 +1135,12 @@
           // 空格键标记完成
           e.preventDefault();
           const lessonId = normalizeLessonId(file);
-          LearningProgress.toggleComplete(lessonId);
+          const completed = LearningProgress.toggleComplete(lessonId);
           updateLessonButtons(file);
           LearningProgress.updateUI();
+          if (completed) {
+            [markCompleteHeaderEl, markCompleteFooterEl].forEach((btn) => btn?.classList.add('is-done'));
+          }
 
           if (window.parent !== window) {
             window.parent.postMessage({ type: 'progress-update' }, '*');
@@ -1037,7 +1178,7 @@
         });
       });
 
-      observer.observe(document.getElementById('content'), {
+      observer.observe(document.getElementById('doc-content'), {
         childList: true,
         subtree: true
       });

@@ -482,27 +482,204 @@
         const searchData = {
             // 课程数据
             courses: [
-                { id: 'lesson-00', title: '安装 Git 并完成基础配置', desc: '配置好后，可以通过一次测试提交来验证编辑器是否按预期打开。', url: 'docs/viewer.html?file=lesson-00-install-and-config.md' },
-                { id: 'lesson-00b', title: '命令行与工作目录基础', desc: '熟悉 Web 终端，掌握 pwd / ls / cd / clear 等基础命令。', url: 'docs/viewer.html?file=lesson-00-terminal-basics.md' },
-                { id: 'lesson-01', title: '从 0 开始，新建仓库并 push 代码', desc: '学会在 Web 上创建仓库、本地 clone、commit 与 push。', url: 'docs/viewer.html?file=lesson-01-init-push.md' },
-                { id: 'lesson-02', title: '搞懂工作区 / 暂存区 / 提交历史', desc: '掌握 status、diff、restore、add -p 等命令。', url: 'docs/viewer.html?file=lesson-02-workspace-staging-history.md' },
-                { id: 'lesson-03', title: '远程仓库与同步', desc: '学习 remote、pull、fetch、push 等远程操作。', url: 'docs/viewer.html?file=lesson-03-remote-and-sync.md' },
-                { id: 'lesson-04', title: '创建分支 & 提交 Pull Request', desc: '掌握 branch、switch、merge 命令，理解分支本质。', url: 'docs/viewer.html?file=lesson-04-branches-and-pr.md' },
-                { id: 'lesson-05', title: '制造并解决一次合并冲突', desc: '学习手动解决冲突，掌握 merge 操作。', url: 'docs/viewer.html?file=lesson-05-merge-conflict.md' },
-                { id: 'lesson-06', title: '用 rebase 保持整洁历史', desc: '学习 rebase 和交互式 rebase 整理提交历史。', url: 'docs/viewer.html?file=lesson-06-rebase-clean-history.md' },
-                { id: 'lesson-06a', title: '配置 SSH 密钥并通过 SSH 访问', desc: '掌握 ssh-keygen、ssh -T、git remote set-url。', url: 'docs/viewer.html?file=lesson-06a-ssh-setup-and-clone.md' },
-                { id: 'lesson-06b', title: '远程协作规则与常见约定', desc: '学习分支命名规范、PR 流程、Git Flow 等。', url: 'docs/viewer.html?file=lesson-06b-collaboration-conventions.md' },
-                { id: 'lesson-07', title: '误提交到错误分支的补救', desc: '掌握 cherry-pick 和 revert 的正确用法。', url: 'docs/viewer.html?file=lesson-07-cherry-pick-and-revert.md' },
-                { id: 'lesson-08', title: '用 reflog 从历史中恢复', desc: '学习 reflog、reset --soft/--mixed/--hard 恢复操作。', url: 'docs/viewer.html?file=lesson-08-reflog-and-recovery.md' },
-                { id: 'lesson-09', title: 'stash 的正确使用姿势', desc: '掌握 stash push/pop/list/drop/apply。', url: 'docs/viewer.html?file=lesson-09-stash-usage.md' },
-                { id: 'lesson-10', title: '第一个 CI 工作流', desc: 'Gitea Actions 基础，理解 Workflow / Job / Step。', url: 'docs/viewer.html?file=lesson-10-first-ci-workflow.md' },
-                { id: 'lesson-11', title: '修复一个失败的 CI 流水线', desc: '学习阅读日志、定位问题、修复流水线。', url: 'docs/viewer.html?file=lesson-11-fix-broken-pipeline.md' },
-                { id: 'lesson-12', title: '多阶段流水线与 Secrets', desc: '学习多 Job 依赖、Secrets 使用。', url: 'docs/viewer.html?file=lesson-12-multi-stage-pipeline-and-secrets.md' },
-                { id: 'lesson-13', title: 'Git 标签与版本发布', desc: '掌握 tag 命令、语义化版本、GitHub Release。', url: 'docs/viewer.html?file=lesson-13-tags-and-releases.md' },
-                { id: 'lesson-14', title: '项目文件规范', desc: '学习 README、CONTRIBUTING、LICENSE 规范。', url: 'docs/viewer.html?file=lesson-14-project-files.md' },
-                { id: 'lesson-15', title: 'Git 钩子与自动化', desc: '掌握 pre-commit、Husky、commitlint。', url: 'docs/viewer.html?file=lesson-15-git-hooks.md' },
-                { id: 'lesson-16', title: 'Git 性能优化与大仓库', desc: '学习浅克隆、Git LFS、性能调优。', url: 'docs/viewer.html?file=lesson-16-large-repo.md' },
-                { id: 'lesson-17', title: '自动维护版本与 Changelog', desc: '掌握 Release Please 自动发布。', url: 'docs/viewer.html?file=lesson-17-release-automation.md' }
+                            {
+                                            "id": "lesson-00",
+                                            "title": "安装与配置",
+                                            "desc": "安装 Git，配置用户名、邮箱和默认编辑器。",
+                                            "url": "docs/viewer.html?file=lesson-00-install-and-config.md"
+                            },
+                            {
+                                            "id": "lesson-00b",
+                                            "title": "命令行与工作目录基础",
+                                            "desc": "熟悉终端，掌握 pwd、ls、cd、clear 等基础命令。",
+                                            "url": "docs/viewer.html?file=lesson-00-terminal-basics.md"
+                            },
+                            {
+                                            "id": "lesson-01",
+                                            "title": "创建仓库与推送",
+                                            "desc": "完成 clone、add、commit、push 的第一条闭环。",
+                                            "url": "docs/viewer.html?file=lesson-01-init-push.md"
+                            },
+                            {
+                                            "id": "lesson-02",
+                                            "title": "工作区 / 暂存区 / 历史",
+                                            "desc": "理解 status、diff、restore、add -p 与提交历史。",
+                                            "url": "docs/viewer.html?file=lesson-02-workspace-staging-history.md"
+                            },
+                            {
+                                            "id": "lesson-03",
+                                            "title": "远程仓库与同步",
+                                            "desc": "掌握 remote、fetch、pull、push 与同步策略。",
+                                            "url": "docs/viewer.html?file=lesson-03-remote-and-sync.md"
+                            },
+                            {
+                                            "id": "lesson-04",
+                                            "title": "分支与 PR",
+                                            "desc": "创建分支，提交 Pull Request，理解协作入口。",
+                                            "url": "docs/viewer.html?file=lesson-04-branches-and-pr.md"
+                            },
+                            {
+                                            "id": "lesson-05",
+                                            "title": "合并冲突",
+                                            "desc": "制造并解决一次合并冲突，掌握冲突标记。",
+                                            "url": "docs/viewer.html?file=lesson-05-merge-conflict.md"
+                            },
+                            {
+                                            "id": "lesson-06",
+                                            "title": "Rebase 整理历史",
+                                            "desc": "使用 rebase 和交互式 rebase 保持历史清晰。",
+                                            "url": "docs/viewer.html?file=lesson-06-rebase-clean-history.md"
+                            },
+                            {
+                                            "id": "lesson-06a",
+                                            "title": "SSH 密钥与 clone",
+                                            "desc": "生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库。",
+                                            "url": "docs/viewer.html?file=lesson-06a-ssh-setup-and-clone.md"
+                            },
+                            {
+                                            "id": "lesson-06b",
+                                            "title": "协作规则与约定",
+                                            "desc": "建立分支命名、PR 流程和团队协作规则。",
+                                            "url": "docs/viewer.html?file=lesson-06b-collaboration-conventions.md"
+                            },
+                            {
+                                            "id": "lesson-07",
+                                            "title": "Cherry-pick 与 Revert",
+                                            "desc": "选择性复制提交，并用 revert 安全撤销公共历史。",
+                                            "url": "docs/viewer.html?file=lesson-07-cherry-pick-and-revert.md"
+                            },
+                            {
+                                            "id": "lesson-08",
+                                            "title": "Reflog 恢复",
+                                            "desc": "通过 reflog 找回误删、误 reset 后的提交。",
+                                            "url": "docs/viewer.html?file=lesson-08-reflog-and-recovery.md"
+                            },
+                            {
+                                            "id": "lesson-09",
+                                            "title": "Stash 使用姿势",
+                                            "desc": "临时保存工作进度，在分支切换中保持现场。",
+                                            "url": "docs/viewer.html?file=lesson-09-stash-usage.md"
+                            },
+                            {
+                                            "id": "lesson-20",
+                                            "title": "Bisect 二分定位",
+                                            "desc": "使用 git bisect 在历史中快速定位引入问题的提交。",
+                                            "url": "docs/viewer.html?file=lesson-20-bisect.md"
+                            },
+                            {
+                                            "id": "lesson-21",
+                                            "title": "Worktree 并行工作区",
+                                            "desc": "用 git worktree 同时处理多个分支和紧急任务。",
+                                            "url": "docs/viewer.html?file=lesson-21-worktree.md"
+                            },
+                            {
+                                            "id": "lesson-13",
+                                            "title": "标签与版本发布",
+                                            "desc": "创建标签，理解语义化版本和 Release 流程。",
+                                            "url": "docs/viewer.html?file=lesson-13-tags-and-releases.md"
+                            },
+                            {
+                                            "id": "lesson-14",
+                                            "title": "项目文件规范",
+                                            "desc": "维护 README、CONTRIBUTING、LICENSE 等项目文件。",
+                                            "url": "docs/viewer.html?file=lesson-14-project-files.md"
+                            },
+                            {
+                                            "id": "lesson-15",
+                                            "title": "Git Hooks 与自动化",
+                                            "desc": "用 hook、Husky、commitlint 在提交前自动检查。",
+                                            "url": "docs/viewer.html?file=lesson-15-git-hooks.md"
+                            },
+                            {
+                                            "id": "lesson-16",
+                                            "title": "大仓库与性能优化",
+                                            "desc": "学习浅克隆、Git LFS 与大仓库性能优化。",
+                                            "url": "docs/viewer.html?file=lesson-16-large-repo.md"
+                            },
+                            {
+                                            "id": "lesson-17",
+                                            "title": "自动维护版本与 Changelog",
+                                            "desc": "用 Release Please 自动生成版本与更新日志。",
+                                            "url": "docs/viewer.html?file=lesson-17-release-automation.md"
+                            },
+                            {
+                                            "id": "lesson-22",
+                                            "title": "约定式提交",
+                                            "desc": "用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布。",
+                                            "url": "docs/viewer.html?file=lesson-22-conventional-commits.md"
+                            },
+                            {
+                                            "id": "lesson-23",
+                                            "title": "PR 与代码审查实践",
+                                            "desc": "从 diff、CI、scope 和评论四个角度完成代码审查。",
+                                            "url": "docs/viewer.html?file=lesson-23-code-review-pr.md"
+                            },
+                            {
+                                            "id": "lesson-10",
+                                            "title": "第一个 CI 工作流",
+                                            "desc": "创建第一条 CI 工作流，理解 Workflow、Job 和 Step。",
+                                            "url": "docs/viewer.html?file=lesson-10-first-ci-workflow.md"
+                            },
+                            {
+                                            "id": "lesson-11",
+                                            "title": "修复失败流水线",
+                                            "desc": "阅读 CI 日志，定位并修复失败的流水线。",
+                                            "url": "docs/viewer.html?file=lesson-11-fix-broken-pipeline.md"
+                            },
+                            {
+                                            "id": "lesson-12",
+                                            "title": "多阶段流水线与 Secrets",
+                                            "desc": "组合多 Job 依赖，安全使用 CI/CD Secrets。",
+                                            "url": "docs/viewer.html?file=lesson-12-multi-stage-pipeline-and-secrets.md"
+                            },
+                            {
+                                            "id": "lesson-18",
+                                            "title": "提交签名与标签签名",
+                                            "desc": "配置签名密钥，验证 commit 与 tag 的可信来源。",
+                                            "url": "docs/viewer.html?file=lesson-18-commit-and-tag-signing.md"
+                            },
+                            {
+                                            "id": "lesson-19",
+                                            "title": "Secrets 与安全实践",
+                                            "desc": "识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险。",
+                                            "url": "docs/viewer.html?file=lesson-19-secrets-and-security.md"
+                            },
+                            {
+                                            "id": "lesson-24",
+                                            "title": "Fork 与 upstream 同步",
+                                            "desc": "用 origin 与 upstream 模拟开源 Fork 工作流和上游同步。",
+                                            "url": "docs/viewer.html?file=lesson-24-fork-and-upstream.md"
+                            },
+                            {
+                                            "id": "lesson-25",
+                                            "title": "Hotfix 应急发布流程",
+                                            "desc": "从稳定线切出修复分支，打补丁版本并回灌开发线。",
+                                            "url": "docs/viewer.html?file=lesson-25-hotfix-workflow.md"
+                            },
+                            {
+                                            "id": "lesson-26",
+                                            "title": "Git Submodule 子模块",
+                                            "desc": "理解子模块固定到 commit 的模型和初始化、更新常见坑。",
+                                            "url": "docs/viewer.html?file=lesson-26-submodule.md"
+                            },
+                            {
+                                            "id": "lesson-27",
+                                            "title": "交互式 Rebase 进阶",
+                                            "desc": "使用 fixup、squash、reword 与 autosquash 整理提交。",
+                                            "url": "docs/viewer.html?file=lesson-27-interactive-rebase-fixup.md"
+                            },
+                            {
+                                            "id": "lesson-28",
+                                            "title": "Blame 与历史考古",
+                                            "desc": "用 blame、log -S/-G、--follow 和 show 追踪代码来源。",
+                                            "url": "docs/viewer.html?file=lesson-28-blame-and-archaeology.md"
+                            },
+                            {
+                                            "id": "lesson-29",
+                                            "title": "Sparse Checkout 与部分克隆",
+                                            "desc": "用 sparse checkout 与 partial clone 降低大仓库检出成本。",
+                                            "url": "docs/viewer.html?file=lesson-29-sparse-checkout.md"
+                            }
             ],
             // Git 命令
             commands: [
@@ -544,6 +721,13 @@
                 { cmd: 'git stash list', desc: '查看所有stash记录', category: '进阶' },
                 { cmd: 'git stash drop', desc: '删除指定的stash记录', category: '进阶' },
                 { cmd: 'git stash apply', desc: '应用stash但不删除记录', category: '进阶' },
+                { cmd: 'git bisect', desc: '二分查找引入问题的提交', category: '恢复' },
+                { cmd: 'git bisect start', desc: '开始一次二分定位流程', category: '恢复' },
+                { cmd: 'git worktree', desc: '管理同一仓库的多个工作区', category: '进阶' },
+                { cmd: 'git worktree add', desc: '添加一个新的并行工作区', category: '进阶' },
+                { cmd: 'git submodule', desc: '管理嵌套在主仓库中的子模块', category: '进阶' },
+                { cmd: 'git sparse-checkout', desc: '只检出大仓库中的部分路径', category: '进阶' },
+                { cmd: 'git log -S', desc: '按字符串变化搜索历史提交', category: '查看' },
                 { cmd: 'git tag', desc: '创建、列出或删除标签', category: '标签' },
                 { cmd: 'git tag -a', desc: '创建带注释的标签', category: '标签' },
                 { cmd: 'git tag -d', desc: '删除本地标签', category: '标签' },
@@ -596,7 +780,13 @@
                 { name: '交互式变基', desc: '可编辑、压缩、删除提交历史的变基方式' },
                 { name: 'Cherry-pick', desc: '选择单个提交应用到当前分支' },
                 { name: 'Revert', desc: '创建新提交来撤销某个提交' },
-                { name: 'Reset', desc: '移动 HEAD 和分支指针，可选择保留修改' }
+                { name: 'Reset', desc: '移动 HEAD 和分支指针，可选择保留修改' },
+                { name: 'bisect', desc: '二分定位工具，用好/坏提交快速找到问题来源' },
+                { name: 'worktree', desc: '同一仓库的多个工作目录，可并行检出不同分支' },
+                { name: 'Conventional Commits', desc: '约定式提交格式，用 type(scope): subject 描述变更' },
+                { name: 'upstream', desc: 'Fork 工作流中的上游源仓库 remote' },
+                { name: 'submodule', desc: '主仓库记录另一个仓库路径和 commit 指针的机制' },
+                { name: 'sparse checkout', desc: '只检出部分目录，减少大仓库工作区体积' }
             ]
         };
 
@@ -631,8 +821,10 @@
             themeToggle.textContent = theme === 'dark' ? '\u2600' : '\u263E';
         }
 
-        themeToggle.addEventListener('click', toggleTheme);
-        initTheme();
+        if (themeToggle) {
+            themeToggle.addEventListener('click', toggleTheme);
+            initTheme();
+        }
 
         // 搜索功能
         function search(query) {

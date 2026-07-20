@@ -5,183 +5,122 @@
 推荐的打开方式：
 
 - 一边打开 `docs/*.md`（在编辑器 / 浏览器中）
-- 一边打开 `http://localhost:3000` + 本地终端
+- 一边打开 `http://localhost:8081`（教程站点）、`http://localhost:3000`（Gitea）+ `http://localhost:8080`（Web 终端）
 
 照着每个关卡的步骤，一条命令一条命令地敲，一步步完成练习。
 
----
-
-## 阶段规划（确保尽量全面）
-
-- **阶段 0：环境与配置**
-  - 覆盖：Git 安装、`git config` 基础配置、全局 `.gitignore`、帮助文档
-- **阶段 1：Git 基础操作实验**
-  - 覆盖：`git init`、`clone`、`status`、`add`、`commit`、`log`、`diff`、`remote`、`push`、`pull`
-- **阶段 2：分支与协作**
-  - 覆盖：`branch`、`switch/checkout`、`merge`、`rebase`、`cherry-pick`、`tag`，以及在 Web 上发起 PR/MR
-- **阶段 3：救火与历史修复**
-  - 覆盖：`reflog`、`reset`、`revert`、`stash`，以及误删分支/误强推等场景的恢复
-- **阶段 4：CI/CD 基础**
-  - 覆盖：在 Gitea 中配置 Actions 或外部 CI，编写最简单的流水线，理解「触发条件 → Job → Step」
-- **阶段 5：CI/CD 进阶（可选）**
-  - 覆盖：多阶段流水线（测试 → 构建 → 发布）、环境变量/密钥、缓存、部署模拟等
-- **阶段 6：安全与规范（进阶）**
-  - 覆盖：SSH、提交与 Tag 签名、Secrets 使用原则、常见安全坑、LICENSE 与合规
-
-在编写关卡时，尽量让**每条命令都配上一个实际小任务**，而不是只给出干巴巴的命令说明。
+> **编号说明：** 关卡文件编号（00–29）保持不变，便于进度记录与外链。**推荐学习顺序**见下方「逻辑阶段 A–H」，与文件名编号不必一致。
 
 ---
 
-## 已实现
+## 逻辑阶段 A–H（推荐学习顺序）
 
-### 阶段 0：环境与配置 + 终端基础
+| 逻辑阶段 | 主题 | 推荐顺序 | 关卡文件 |
+|----------|------|----------|----------|
+| **A** 环境与终端 | 安装、配置、命令行基础 | 1 → 2 | [00](./lesson-00-install-and-config.md)、[00b](./lesson-00-terminal-basics.md) |
+| **B** Git 基础 | init、工作区、远程同步 | 3 → 5 | [01](./lesson-01-init-push.md)、[02](./lesson-02-workspace-staging-history.md)、[03](./lesson-03-remote-and-sync.md) |
+| **C** 分支与协作 | 分支、冲突、rebase、SSH、规范 | 6 → 11 | [04](./lesson-04-branches-and-pr.md)、[05](./lesson-05-merge-conflict.md)、[06](./lesson-06-rebase-clean-history.md)、[06a](./lesson-06a-ssh-setup-and-clone.md)、[06b](./lesson-06b-collaboration-conventions.md) |
+| **D** 救火与恢复 | cherry-pick、reflog、stash、bisect、worktree | 12 → 16 | [07](./lesson-07-cherry-pick-and-revert.md)、[08](./lesson-08-reflog-and-recovery.md)、[09](./lesson-09-stash-usage.md)、[20](./lesson-20-bisect.md)、[21](./lesson-21-worktree.md) |
+| **E** 工程化与发布 | 标签、项目文件、钩子、大仓库、Release、提交规范、PR 审查 | 17 → 24 | [13](./lesson-13-tags-and-releases.md)、[14](./lesson-14-project-files.md)、[15](./lesson-15-git-hooks.md)、[16](./lesson-16-large-repo.md)、[17](./lesson-17-release-automation.md)、[22](./lesson-22-conventional-commits.md)、[23](./lesson-23-code-review-pr.md) |
+| **F** CI/CD | 首个流水线、修复失败、多阶段与 Secrets | 25 → 27 | [10](./lesson-10-first-ci-workflow.md)、[11](./lesson-11-fix-broken-pipeline.md)、[12](./lesson-12-multi-stage-pipeline-and-secrets.md) |
+| **G** 安全与合规 | 签名、Secrets 实践 | 28 → 29 | [18](./lesson-18-commit-and-tag-signing.md)、[19](./lesson-19-secrets-and-security.md) |
+| **H** 进阶实用 | fork、hotfix、submodule、rebase 进阶、历史考古、sparse checkout | 30 → 35 | [24](./lesson-24-fork-and-upstream.md)、[25](./lesson-25-hotfix-workflow.md)、[26](./lesson-26-submodule.md)、[27](./lesson-27-interactive-rebase-fixup.md)、[28](./lesson-28-blame-and-archaeology.md)、[29](./lesson-29-sparse-checkout.md) |
 
-1. **关卡 00：安装 Git 并完成基础配置**
-   - 位置：`docs/lesson-00-install-and-config.md`
-   - 目标：安装 Git、配置用户信息、全局 .gitignore、换行符设置
-2. **关卡 00b：命令行与工作目录基础（可选）**
-   - 位置：`docs/lesson-00-terminal-basics.md`
-   - 目标：熟悉 Web 终端，掌握 `pwd` / `ls` / `cd` / `clear` 等基础命令
+**完整推荐路径（按阶段）：**
 
-### 阶段 1：Git 基础操作
-
-1. **关卡 01：从 0 开始，新建仓库并 push 代码**
-   - 位置：`docs/lesson-01-init-push.md`
-   - 目标：学会在 Web 上创建仓库、本地 clone、commit 与 push
-2. **关卡 02：搞懂工作区 / 暂存区 / 本地历史**
-   - 位置：`docs/lesson-02-workspace-staging-history.md`
-   - 命令：`status`、`diff`、`restore`、`add -p`
-3. **关卡 03：远程仓库与同步**
-   - 位置：`docs/lesson-03-remote-and-sync.md`
-   - 命令：`remote`、`pull`、`fetch`、`push`
-
-### 阶段 2：分支与协作
-
-1. **关卡 04：创建分支 & 提交 PR 合并代码**
-   - 位置：`docs/lesson-04-branches-and-pr.md`
-   - 命令：`branch`、`switch`、`merge`
-2. **关卡 05：制造并解决一次合并冲突**
-   - 位置：`docs/lesson-05-merge-conflict.md`
-   - 命令：`merge`、手动解决冲突
-3. **关卡 06：用 rebase 保持整洁历史**
-   - 位置：`docs/lesson-06-rebase-clean-history.md`
-   - 命令：`rebase`、交互式 rebase
-4. **关卡 06a：配置 SSH 密钥并通过 SSH 访问仓库**
-   - 位置：`docs/lesson-06a-ssh-setup-and-clone.md`
-   - 命令：`ssh-keygen`、`ssh -T`、`git remote set-url`
-5. **关卡 06b：远程协作规则与常见约定**
-   - 位置：`docs/lesson-06b-collaboration-conventions.md`
-   - 内容：分支命名规范、PR 流程、Code Review、Git Flow / GitHub Flow
-
-### 阶段 3：救火与历史修复
-
-1. **关卡 07：误提交到错误分支的补救**
-   - 位置：`docs/lesson-07-cherry-pick-and-revert.md`
-   - 命令：`cherry-pick`、`revert`
-2. **关卡 08：用 reflog 从「看似没救」的历史中恢复**
-   - 位置：`docs/lesson-08-reflog-and-recovery.md`
-   - 命令：`reflog`、`reset --soft/--mixed/--hard`
-3. **关卡 09：stash 的正确使用姿势**
-   - 位置：`docs/lesson-09-stash-usage.md`
-   - 命令：`stash push/pop/list/drop/apply`
-
-### 阶段 4：进阶操作
-
-1. **关卡 13：Git 标签与版本发布**
-    - 位置：`docs/lesson-13-tags-and-releases.md`
-    - 命令：`tag`、语义化版本、GitHub Release
-2. **关卡 14：GitHub/Gitea 项目文件规范**
-    - 位置：`docs/lesson-14-project-files.md`
-    - 内容：README、CONTRIBUTING、LICENSE、SECURITY
-3. **关卡 15：Git 钩子与自动化**
-    - 位置：`docs/lesson-15-git-hooks.md`
-    - 内容：pre-commit、Husky、commitlint
-4. **关卡 16：Git 性能优化与大仓库**
-    - 位置：`docs/lesson-16-large-repo.md`
-    - 内容：浅克隆、Git LFS、性能调优
-5. **关卡 17：自动维护版本与 Changelog**
-   - 位置：`docs/lesson-17-release-automation.md`
-   - 内容：Release Please、自动版本号、GitHub Release、Changelog 自动化
-
-### 阶段 5：CI/CD
-
-1. **关卡 10：为仓库添加第一个 CI 工作流**
-    - 位置：`docs/lesson-10-first-ci-workflow.md`
-    - 内容：Gitea Actions 基础、Workflow / Job / Step
-2. **关卡 11：修复一个失败的 CI 流水线**
-    - 位置：`docs/lesson-11-fix-broken-pipeline.md`
-    - 内容：阅读日志、定位问题、修复流水线
-3. **关卡 12：多阶段流水线与敏感信息基础**
-    - 位置：`docs/lesson-12-multi-stage-pipeline-and-secrets.md`
-    - 内容：多 Job 依赖、Secrets 使用
-
-### 阶段 6：安全与规范
-
-1. **关卡 18：提交签名与标签签名**
-    - 位置：`docs/lesson-18-commit-and-tag-signing.md`
-    - 内容：GPG 密钥生成、提交签名、标签签名、签名验证
-2. **关卡 19：Secrets 与安全实践**
-    - 位置：`docs/lesson-19-secrets-and-security.md`
-    - 内容：敏感信息管理、.gitignore、历史清除、CI/CD Secrets
+```text
+A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,22→23) → F(10→12) → G(18→19) → H(24→29)
+```
 
 ---
 
-## 规划中的关卡清单（示例）
+## 全部关卡索引（00–29）
 
-> 下面是一个建议清单，你可以按优先级逐步补全对应的 `lesson-XX-*.md`。
+### 阶段 A：环境与配置
 
-### 阶段 0：环境与配置
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 00 | [lesson-00-install-and-config.md](./lesson-00-install-and-config.md) | 安装 Git、`git config`、`.gitignore` |
+| 00b | [lesson-00-terminal-basics.md](./lesson-00-terminal-basics.md) | Web 终端、`pwd`/`ls`/`cd`（可选） |
 
-1. **关卡 00：安装 Git 并完成基础配置**
-   - 内容：安装 Git、`git config --global`（user.name / user.email 等）、全局 `.gitignore`、换行符设置、查看帮助文档
+### 阶段 B：Git 基础操作
 
-### 阶段 1：Git 基础操作
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 01 | [lesson-01-init-push.md](./lesson-01-init-push.md) | 新建仓库、clone、commit、push |
+| 02 | [lesson-02-workspace-staging-history.md](./lesson-02-workspace-staging-history.md) | 工作区/暂存区、`diff`、`restore` |
+| 03 | [lesson-03-remote-and-sync.md](./lesson-03-remote-and-sync.md) | `remote`、`fetch`、`pull`、`push` |
 
-1.（已实现）**关卡 01：从 0 开始，新建仓库并 push 代码**
-   - 位置：`docs/lesson-01-init-push.md`
+### 阶段 C：分支与协作
 
-2. **关卡 02：搞懂工作区 / 暂存区 / 本地历史**
-   - 命令：`status`、`diff`、`restore`、`add -p`
-3. **关卡 03：远程仓库与同步**
-   - 命令：`remote`、`pull`、`fetch`、`push`，模拟别人先 push 的场景
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 04 | [lesson-04-branches-and-pr.md](./lesson-04-branches-and-pr.md) | 分支、Gitea Pull Request |
+| 05 | [lesson-05-merge-conflict.md](./lesson-05-merge-conflict.md) | 合并冲突解决 |
+| 06 | [lesson-06-rebase-clean-history.md](./lesson-06-rebase-clean-history.md) | rebase、交互式 rebase 入门 |
+| 06a | [lesson-06a-ssh-setup-and-clone.md](./lesson-06a-ssh-setup-and-clone.md) | SSH 密钥、`:2222` clone |
+| 06b | [lesson-06b-collaboration-conventions.md](./lesson-06b-collaboration-conventions.md) | 分支命名、Review、Git Flow |
 
-### 阶段 2：分支与协作
+### 阶段 D：救火与历史修复
 
-1. **关卡 04：创建分支 & 提交 PR 合并代码**
-   - 命令：`branch`、`switch`、`merge`
-   - Web：在 Gitea 上发起 PR，体验 Review/合并
-2. **关卡 05：解决简单合并冲突**
-   - 命令：`merge`、手动解决冲突、`add`、`commit`
-3. **关卡 06：用 rebase 保持整洁历史**
-   - 命令：`rebase`（含交互式 rebase 可选）
-4. **关卡 06b：远程协作规则与常见约定**
-    - 内容：push/pull/fetch 行为规范、禁止对共享分支强推、分支命名与 PR 规则、常见团队工作流（Git Flow / GitHub Flow 等）概览
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 07 | [lesson-07-cherry-pick-and-revert.md](./lesson-07-cherry-pick-and-revert.md) | cherry-pick、revert |
+| 08 | [lesson-08-reflog-and-recovery.md](./lesson-08-reflog-and-recovery.md) | reflog、reset |
+| 09 | [lesson-09-stash-usage.md](./lesson-09-stash-usage.md) | stash |
+| 20 | [lesson-20-bisect.md](./lesson-20-bisect.md) | 二分定位 Bug |
+| 21 | [lesson-21-worktree.md](./lesson-21-worktree.md) | 多工作目录并行 |
 
-### 阶段 2 扩展：SSH 与安全访问
+### 阶段 E：工程化与发布
 
-1. **关卡 06a：配置 SSH 密钥并通过 SSH 访问仓库**
-    - 命令：`ssh-keygen`、`ssh -T`、`git remote set-url`
-    - Web：在 Gitea 上添加 SSH 公钥，使用 `git@...` 地址 clone / push
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 13 | [lesson-13-tags-and-releases.md](./lesson-13-tags-and-releases.md) | tag、Release |
+| 14 | [lesson-14-project-files.md](./lesson-14-project-files.md) | README、LICENSE、CONTRIBUTING |
+| 15 | [lesson-15-git-hooks.md](./lesson-15-git-hooks.md) | pre-commit、commitlint |
+| 16 | [lesson-16-large-repo.md](./lesson-16-large-repo.md) | 浅克隆、LFS |
+| 17 | [lesson-17-release-automation.md](./lesson-17-release-automation.md) | Release Please、Changelog |
+| 22 | [lesson-22-conventional-commits.md](./lesson-22-conventional-commits.md) | Conventional Commits、`feat`/`fix`/`docs` |
+| 23 | [lesson-23-code-review-pr.md](./lesson-23-code-review-pr.md) | PR 审查、diff、评论与合并 |
 
-### 阶段 3：救火与历史修复
+### 阶段 F：CI/CD
 
-1. **关卡 07：误提交到错误分支的补救**
-   - 命令：`cherry-pick`、`revert`
-2. **关卡 08：用 reflog 从「看似没救」的历史中恢复**
-   - 命令：`reflog`、`reset --hard`
-3. **关卡 09：stash 的正确使用姿势**
-   - 命令：`stash push/pop/list/drop`
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 10 | [lesson-10-first-ci-workflow.md](./lesson-10-first-ci-workflow.md) | 首个 Gitea Actions 工作流 |
+| 11 | [lesson-11-fix-broken-pipeline.md](./lesson-11-fix-broken-pipeline.md) | 读日志、修流水线 |
+| 12 | [lesson-12-multi-stage-pipeline-and-secrets.md](./lesson-12-multi-stage-pipeline-and-secrets.md) | 多 Job、Secrets |
 
-### 阶段 4–5：CI/CD
+### 阶段 G：安全与规范
 
-1. **关卡 10：为仓库添加第一个 CI 工作流**
-    - 内容：在仓库中新建 CI 配置文件，push 后看到流水线运行
-2. **关卡 11：修复一个失败的 CI 流水线**
-    - 内容：阅读日志 → 找到报错 → 修改代码或配置 → 让它变绿
-3. **关卡 12：多阶段流水线与简单部署模拟**
-    - 内容：把测试、构建、部署拆成多个 Job/Stage，了解依赖关系
-4. **关卡 17：自动维护版本与 Changelog**
-   - 内容：用 Release Please 自动生成 Release PR、Tag、Release 和 Changelog
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 18 | [lesson-18-commit-and-tag-signing.md](./lesson-18-commit-and-tag-signing.md) | GPG 提交/标签签名 |
+| 19 | [lesson-19-secrets-and-security.md](./lesson-19-secrets-and-security.md) | Secrets、历史清除 |
+
+### 阶段 H：进阶实用
+
+| 关卡 | 文件 | 要点 |
+|------|------|------|
+| 24 | [lesson-24-fork-and-upstream.md](./lesson-24-fork-and-upstream.md) | fork、`upstream` remote、同步 |
+| 25 | [lesson-25-hotfix-workflow.md](./lesson-25-hotfix-workflow.md) | 生产 hotfix、tag、回灌 develop |
+| 26 | [lesson-26-submodule.md](./lesson-26-submodule.md) | submodule add/update、常见坑 |
+| 27 | [lesson-27-interactive-rebase-fixup.md](./lesson-27-interactive-rebase-fixup.md) | fixup、squash、autosquash |
+| 28 | [lesson-28-blame-and-archaeology.md](./lesson-28-blame-and-archaeology.md) | blame、log -S/-G、--follow |
+| 29 | [lesson-29-sparse-checkout.md](./lesson-29-sparse-checkout.md) | sparse-checkout cone、partial clone |
+
+---
+
+## 演示仓库与端口
+
+| 资源 | 地址 | 用途 |
+|------|------|------|
+| 教程站点 | http://localhost:8081 | 课程导航、工作台 |
+| Web 终端 | http://localhost:8080 | 执行 Git 命令 |
+| Gitea | http://localhost:3000 | `playground-hello`、`playground-ci` |
+| Gitea SSH | localhost:2222 | SSH clone |
+
+启动环境：`docker compose up -d`
 
 ---
 
@@ -189,11 +128,9 @@
 
 - 场景与目标（为什么要学这一关）
 - 本关要掌握的 Git / CI 命令清单
-- 具体的「边看边做」步骤（带命令、截图提示）
-- 如何确认自己做对了（在 Web / 终端看什么信息）
+- 具体的「边看边做」步骤（带命令、预期输出）
+- 如何确认自己做对了（验证清单）
 - 常见错误 & 排查提示
-- 思考题 / 扩展练习（可选）
+- 扩展练习
 
 欢迎根据你的需要，在 `docs/` 目录中补充或调整关卡。
-
-

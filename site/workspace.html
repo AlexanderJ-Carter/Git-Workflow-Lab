@@ -161,6 +161,114 @@
         height: 16px;
       }
 
+      .workspace-guide-bar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 24px;
+        background: var(--bg-primary, #fff);
+        border-bottom: 1px solid var(--ws-border);
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      }
+
+      .workspace-guide-current {
+        font-size: 13px;
+        color: var(--ws-text-muted);
+      }
+
+      .workspace-guide-current strong {
+        color: var(--ws-text);
+      }
+
+      .workspace-guide-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .workspace-guide-actions a,
+      .workspace-guide-actions button,
+      .pending-command-banner button {
+        border: 1px solid var(--ws-border);
+        background: var(--bg-primary, #fff);
+        color: var(--ws-text);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .workspace-guide-actions a:hover,
+      .workspace-guide-actions button:hover,
+      .pending-command-banner button:hover {
+        border-color: var(--ws-primary);
+        color: var(--ws-primary);
+      }
+
+      .pending-command-banner {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 24px;
+        background: rgba(245, 158, 11, 0.12);
+        border-bottom: 1px solid rgba(245, 158, 11, 0.22);
+        color: var(--ws-text);
+        font-size: 13px;
+      }
+
+      .pending-command-banner.visible {
+        display: flex;
+      }
+
+      .pending-command-banner code,
+      .ssh-help-panel code {
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(15, 23, 42, 0.08);
+        border-radius: 6px;
+        padding: 2px 6px;
+      }
+
+      .lesson-picker {
+        max-width: 260px;
+        width: 100%;
+        border: 1px solid var(--ws-border);
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: var(--bg-primary, #fff);
+        color: var(--ws-text);
+        font-size: 13px;
+      }
+
+      .ssh-help-panel {
+        border-bottom: 1px solid var(--ws-border);
+        background: var(--ws-bg);
+        padding: 12px 16px;
+        font-size: 12px;
+        color: var(--ws-text-muted);
+        display: none;
+      }
+
+      .ssh-help-panel.visible {
+        display: block;
+      }
+
+      .ssh-help-panel h2 {
+        font-size: 13px;
+        color: var(--ws-text);
+        margin-bottom: 8px;
+      }
+
+      .ssh-help-panel p {
+        margin: 4px 0;
+      }
+
       .workspace-layout {
         display: grid;
         grid-template-columns: 42% 58%;
@@ -296,8 +404,20 @@
 
         .workspace-layout {
           grid-template-columns: 100%;
-          grid-template-rows: 50vh 50vh;
+          grid-template-rows: auto auto;
           height: auto;
+        }
+
+        .pane {
+          min-height: 60vh;
+          border-right: none;
+          border-bottom: 1px solid var(--ws-border);
+        }
+
+        .workspace-guide-bar,
+        .pending-command-banner {
+          flex-direction: column;
+          align-items: flex-start;
         }
 
         .workspace-progress {
@@ -320,18 +440,18 @@
       </div>
 
       <div class="workspace-progress">
-        <span class="progress-text" id="progress-text">0/17 完成</span>
+        <span class="progress-text" id="progress-text">0/33 完成</span>
         <div class="progress-bar">
           <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
         </div>
       </div>
 
       <div class="workspace-actions">
-        <a href="/docs/viewer.html?file=lessons-overview.md" target="_blank" rel="noreferrer">
+        <a href="docs/viewer.html?file=lessons-overview.md" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           课程总览
         </a>
-        <a href="/docs/viewer.html?file=learning-path.md" target="_blank" rel="noreferrer">
+        <a href="docs/viewer.html?file=learning-path.md" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           学习路径
         </a>
@@ -346,6 +466,19 @@
       </div>
     </header>
 
+    <div class="workspace-guide-bar">
+      <div class="workspace-guide-current">当前课程：<strong id="current-lesson-title">课程总览</strong></div>
+      <div class="workspace-guide-actions">
+        <a id="guide-quiz-link" href="quiz.html">打开测验</a>
+        <button id="guide-ssh-toggle" type="button">SSH 说明</button>
+      </div>
+    </div>
+
+    <div class="pending-command-banner" id="pending-command-banner">
+      <span>待运行命令：<code id="pending-command-text"></code></span>
+      <button id="copy-pending-command" type="button">复制命令</button>
+    </div>
+
     <main class="workspace-layout">
       <section class="pane">
         <div class="pane-header">
@@ -353,7 +486,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             课程文档
           </span>
-          <span class="pane-hint">建议从关卡总览开始</span>
+          <select class="lesson-picker" id="lesson-picker" aria-label="选择课程"></select>
         </div>
         <div class="pane-body">
           <div class="pane-loading" id="docs-loading">
@@ -362,7 +495,7 @@
           </div>
           <iframe
             id="docs-frame"
-            src="/docs/viewer.html?file=lessons-overview.md"
+            src="docs/viewer.html?file=lessons-overview.md"
             title="Docs Viewer"
             onload="document.getElementById('docs-loading').style.display='none'"
           ></iframe>
@@ -382,6 +515,13 @@
           <a href="http://localhost:8080" target="_blank" style="margin-left: auto; font-size: 13px; color: var(--ws-primary); text-decoration: none;">
             在新窗口打开 →
           </a>
+        </div>
+        <div class="ssh-help-panel" id="ssh-help-panel">
+          <h2>SSH 连接提示</h2>
+          <p>本地站点：<code>http://localhost:8081</code></p>
+          <p>测试连接：<code>ssh -T git@localhost -p 2222</code></p>
+          <p>克隆示例：<code>git clone ssh://git@localhost:2222/git/playground-hello.git</code></p>
+          <p>CI 示例仓库：<code>http://localhost:3000/git/playground-ci</code></p>
         </div>
         <div class="pane-body">
           <div class="pane-loading" id="terminal-loading">
@@ -406,7 +546,7 @@
       // 学习进度追踪
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 23,
+        TOTAL_LESSONS: 33,
 
         getProgress() {
           const data = localStorage.getItem(this.STORAGE_KEY);
@@ -437,6 +577,324 @@
           });
         }
       };
+
+      const FALLBACK_LESSONS = [
+              {
+                      "id": "lessons-overview",
+                      "file": "lessons-overview.md",
+                      "title": "课程总览",
+                      "badge": "OV",
+                      "quizId": ""
+              },
+              {
+                      "id": "lesson-00",
+                      "file": "lesson-00-install-and-config.md",
+                      "title": "安装与配置",
+                      "badge": "00",
+                      "quizId": "lesson-00"
+              },
+              {
+                      "id": "lesson-00b",
+                      "file": "lesson-00-terminal-basics.md",
+                      "title": "命令行与工作目录基础",
+                      "badge": "00b",
+                      "quizId": "lesson-00b"
+              },
+              {
+                      "id": "lesson-01",
+                      "file": "lesson-01-init-push.md",
+                      "title": "创建仓库与推送",
+                      "badge": "01",
+                      "quizId": "lesson-01"
+              },
+              {
+                      "id": "lesson-02",
+                      "file": "lesson-02-workspace-staging-history.md",
+                      "title": "工作区 / 暂存区 / 历史",
+                      "badge": "02",
+                      "quizId": "lesson-02"
+              },
+              {
+                      "id": "lesson-03",
+                      "file": "lesson-03-remote-and-sync.md",
+                      "title": "远程仓库与同步",
+                      "badge": "03",
+                      "quizId": "lesson-03"
+              },
+              {
+                      "id": "lesson-04",
+                      "file": "lesson-04-branches-and-pr.md",
+                      "title": "分支与 PR",
+                      "badge": "04",
+                      "quizId": "lesson-04"
+              },
+              {
+                      "id": "lesson-05",
+                      "file": "lesson-05-merge-conflict.md",
+                      "title": "合并冲突",
+                      "badge": "05",
+                      "quizId": "lesson-05"
+              },
+              {
+                      "id": "lesson-06",
+                      "file": "lesson-06-rebase-clean-history.md",
+                      "title": "Rebase 整理历史",
+                      "badge": "06",
+                      "quizId": "lesson-06"
+              },
+              {
+                      "id": "lesson-06a",
+                      "file": "lesson-06a-ssh-setup-and-clone.md",
+                      "title": "SSH 密钥与 clone",
+                      "badge": "06a",
+                      "quizId": "lesson-06a"
+              },
+              {
+                      "id": "lesson-06b",
+                      "file": "lesson-06b-collaboration-conventions.md",
+                      "title": "协作规则与约定",
+                      "badge": "06b",
+                      "quizId": "lesson-06b"
+              },
+              {
+                      "id": "lesson-07",
+                      "file": "lesson-07-cherry-pick-and-revert.md",
+                      "title": "Cherry-pick 与 Revert",
+                      "badge": "07",
+                      "quizId": "lesson-07"
+              },
+              {
+                      "id": "lesson-08",
+                      "file": "lesson-08-reflog-and-recovery.md",
+                      "title": "Reflog 恢复",
+                      "badge": "08",
+                      "quizId": "lesson-08"
+              },
+              {
+                      "id": "lesson-09",
+                      "file": "lesson-09-stash-usage.md",
+                      "title": "Stash 使用姿势",
+                      "badge": "09",
+                      "quizId": "lesson-09"
+              },
+              {
+                      "id": "lesson-20",
+                      "file": "lesson-20-bisect.md",
+                      "title": "Bisect 二分定位",
+                      "badge": "20",
+                      "quizId": "lesson-20"
+              },
+              {
+                      "id": "lesson-21",
+                      "file": "lesson-21-worktree.md",
+                      "title": "Worktree 并行工作区",
+                      "badge": "21",
+                      "quizId": "lesson-21"
+              },
+              {
+                      "id": "lesson-13",
+                      "file": "lesson-13-tags-and-releases.md",
+                      "title": "标签与版本发布",
+                      "badge": "13",
+                      "quizId": "lesson-13"
+              },
+              {
+                      "id": "lesson-14",
+                      "file": "lesson-14-project-files.md",
+                      "title": "项目文件规范",
+                      "badge": "14",
+                      "quizId": "lesson-14"
+              },
+              {
+                      "id": "lesson-15",
+                      "file": "lesson-15-git-hooks.md",
+                      "title": "Git Hooks 与自动化",
+                      "badge": "15",
+                      "quizId": "lesson-15"
+              },
+              {
+                      "id": "lesson-16",
+                      "file": "lesson-16-large-repo.md",
+                      "title": "大仓库与性能优化",
+                      "badge": "16",
+                      "quizId": "lesson-16"
+              },
+              {
+                      "id": "lesson-17",
+                      "file": "lesson-17-release-automation.md",
+                      "title": "自动维护版本与 Changelog",
+                      "badge": "17",
+                      "quizId": "lesson-17"
+              },
+              {
+                      "id": "lesson-22",
+                      "file": "lesson-22-conventional-commits.md",
+                      "title": "约定式提交",
+                      "badge": "22",
+                      "quizId": "lesson-22"
+              },
+              {
+                      "id": "lesson-23",
+                      "file": "lesson-23-code-review-pr.md",
+                      "title": "PR 与代码审查实践",
+                      "badge": "23",
+                      "quizId": "lesson-23"
+              },
+              {
+                      "id": "lesson-10",
+                      "file": "lesson-10-first-ci-workflow.md",
+                      "title": "第一个 CI 工作流",
+                      "badge": "10",
+                      "quizId": "lesson-10"
+              },
+              {
+                      "id": "lesson-11",
+                      "file": "lesson-11-fix-broken-pipeline.md",
+                      "title": "修复失败流水线",
+                      "badge": "11",
+                      "quizId": "lesson-11"
+              },
+              {
+                      "id": "lesson-12",
+                      "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+                      "title": "多阶段流水线与 Secrets",
+                      "badge": "12",
+                      "quizId": "lesson-12"
+              },
+              {
+                      "id": "lesson-18",
+                      "file": "lesson-18-commit-and-tag-signing.md",
+                      "title": "提交签名与标签签名",
+                      "badge": "18",
+                      "quizId": "lesson-18"
+              },
+              {
+                      "id": "lesson-19",
+                      "file": "lesson-19-secrets-and-security.md",
+                      "title": "Secrets 与安全实践",
+                      "badge": "19",
+                      "quizId": "lesson-19"
+              },
+              {
+                      "id": "lesson-24",
+                      "file": "lesson-24-fork-and-upstream.md",
+                      "title": "Fork 与 upstream 同步",
+                      "badge": "24",
+                      "quizId": "lesson-24"
+              },
+              {
+                      "id": "lesson-25",
+                      "file": "lesson-25-hotfix-workflow.md",
+                      "title": "Hotfix 应急发布流程",
+                      "badge": "25",
+                      "quizId": "lesson-25"
+              },
+              {
+                      "id": "lesson-26",
+                      "file": "lesson-26-submodule.md",
+                      "title": "Git Submodule 子模块",
+                      "badge": "26",
+                      "quizId": "lesson-26"
+              },
+              {
+                      "id": "lesson-27",
+                      "file": "lesson-27-interactive-rebase-fixup.md",
+                      "title": "交互式 Rebase 进阶",
+                      "badge": "27",
+                      "quizId": "lesson-27"
+              },
+              {
+                      "id": "lesson-28",
+                      "file": "lesson-28-blame-and-archaeology.md",
+                      "title": "Blame 与历史考古",
+                      "badge": "28",
+                      "quizId": "lesson-28"
+              },
+              {
+                      "id": "lesson-29",
+                      "file": "lesson-29-sparse-checkout.md",
+                      "title": "Sparse Checkout 与部分克隆",
+                      "badge": "29",
+                      "quizId": "lesson-29"
+              }
+      ];
+
+      let lessonCatalog = FALLBACK_LESSONS;
+
+      function normalizeLessonId(fileOrId) {
+        if (window.GitWorkflowLab?.LessonCatalog) {
+          return window.GitWorkflowLab.LessonCatalog.normalizeId(fileOrId);
+        }
+        const stem = String(fileOrId || '').replace(/\.md$/i, '');
+        if (stem === 'lesson-00-terminal-basics') return 'lesson-00b';
+        const match = stem.match(/^(lesson-\d+[a-z]?)/);
+        return match ? match[1] : stem;
+      }
+
+      function getQueryParam(name) {
+        return new URLSearchParams(window.location.search).get(name);
+      }
+
+      function findLesson(value) {
+        const normalized = normalizeLessonId(value);
+        return lessonCatalog.find(lesson => lesson.file === value || lesson.id === normalized) || lessonCatalog[0];
+      }
+
+      function updateGuideLinks(lesson) {
+        document.getElementById('current-lesson-title').textContent = lesson.title;
+        const quizLink = document.getElementById('guide-quiz-link');
+        if (lesson.quizId) {
+          quizLink.href = `quiz.html?lesson=${encodeURIComponent(lesson.quizId)}`;
+          quizLink.removeAttribute('aria-disabled');
+        } else {
+          quizLink.href = 'quiz.html';
+          quizLink.setAttribute('aria-disabled', 'true');
+        }
+      }
+
+      function loadLesson(lesson) {
+        const docsFrame = document.getElementById('docs-frame');
+        const loading = document.getElementById('docs-loading');
+        loading.style.display = 'block';
+        docsFrame.src = `docs/viewer.html?file=${encodeURIComponent(lesson.file)}`;
+        document.getElementById('lesson-picker').value = lesson.file;
+        updateGuideLinks(lesson);
+        history.replaceState(null, '', `?lesson=${encodeURIComponent(lesson.file)}`);
+      }
+
+      function renderLessonPicker() {
+        const picker = document.getElementById('lesson-picker');
+        picker.innerHTML = lessonCatalog.map(lesson => `
+          <option value="${lesson.file}">${lesson.badge ? lesson.badge + ' · ' : ''}${lesson.title}</option>
+        `).join('');
+        picker.addEventListener('change', () => {
+          loadLesson(findLesson(picker.value));
+        });
+      }
+
+      async function loadLessons() {
+        if (window.GitWorkflowLab?.LessonCatalog) {
+          lessonCatalog = await window.GitWorkflowLab.LessonCatalog.load();
+        }
+      }
+
+      function showPendingCommandBanner() {
+        const command = localStorage.getItem('pendingCommand');
+        if (!command) return;
+        const banner = document.getElementById('pending-command-banner');
+        const commandText = document.getElementById('pending-command-text');
+        const copyBtn = document.getElementById('copy-pending-command');
+        commandText.textContent = command;
+        banner.classList.add('visible');
+        localStorage.removeItem('pendingCommand');
+        copyBtn.addEventListener('click', async () => {
+          await navigator.clipboard.writeText(command);
+          copyBtn.textContent = '已复制';
+          setTimeout(() => {
+            copyBtn.textContent = '复制命令';
+          }, 1500);
+        }, { once: true });
+      }
 
       // 终端状态更新
       function updateTerminalStatus(connected) {
@@ -497,6 +955,16 @@
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         LearningProgress.init();
+        loadLessons().then(() => {
+          renderLessonPicker();
+          const initialValue = getQueryParam('lesson') || 'lessons-overview.md';
+          loadLesson(findLesson(initialValue));
+        });
+        showPendingCommandBanner();
+
+        document.getElementById('guide-ssh-toggle').addEventListener('click', () => {
+          document.getElementById('ssh-help-panel').classList.toggle('visible');
+        });
 
         // 设置加载超时（15秒）
         setTimeout(handleLoadingTimeout, 15000);

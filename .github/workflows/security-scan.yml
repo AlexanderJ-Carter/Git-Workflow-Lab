@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -40,6 +40,13 @@ jobs:
   dockerfile-scan:
     name: Dockerfile Security Scan
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Dockerfile
+            sarif_name: root
+          - dockerfile: docker/terminal/Dockerfile
+            sarif_name: terminal
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,15 +54,15 @@ jobs:
       - name: Scan Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: Dockerfile
+          dockerfile: ${{ matrix.dockerfile }}
           format: 'sarif'
-          output-file: 'hadolint-results.sarif'
+          output-file: hadolint-${{ matrix.sarif_name }}.sarif
           no-fail: true
 
       - name: Upload hadolint scan results
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: 'hadolint-results.sarif'
+          sarif_file: hadolint-${{ matrix.sarif_name }}.sarif
 
   code-security:
     name: Code Security Analysis

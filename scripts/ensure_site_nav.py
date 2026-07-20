@@ -40,24 +40,6 @@ def ensure_main_js() -> None:
         print(f"ensured main.js: {name}")
 
 
-def mark_test_iframe() -> None:
-    path = SITE / "test-iframe.html"
-    text = path.read_text(encoding="utf-8")
-    if "data-no-global-nav" in text:
-        return
-    if re.search(r"<body[^>]*>", text):
-        text = re.sub(
-            r"<body([^>]*)>",
-            r'<body\1 data-no-global-nav="true">',
-            text,
-            count=1,
-        )
-    else:
-        text = text.replace("<body>", '<body data-no-global-nav="true">', 1)
-    path.write_text(text, encoding="utf-8")
-    print("marked test-iframe no-nav")
-
-
 def rewrite_cheatsheet_links() -> None:
     updated = 0
     for path in SITE.rglob("*.html"):

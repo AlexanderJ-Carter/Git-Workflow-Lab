@@ -69,23 +69,36 @@ docs-serve:
 
 docker-up:
 	@if [ ! -f .env ]; then \
-		echo "❌ 错误: .env 文件不存在"; \
+		echo "错误: .env 文件不存在"; \
 		echo "请复制 .env.example 为 .env 并配置必要的环境变量"; \
 		exit 1; \
 	fi
-	docker-compose up -d
+	@missing=0; \
+	for key in GITEA_DB_PASSWORD GITEA_ADMIN_PASSWORD GITEA_SECRET_KEY; do \
+		val=$$(grep -E "^$${key}=" .env | cut -d= -f2-); \
+		if [ -z "$$val" ] || echo "$$val" | grep -q 'CHANGE_ME'; then \
+			echo "错误: $${key} 未配置（不能为空或 CHANGE_ME 占位）"; \
+			missing=1; \
+		fi; \
+	done; \
+	if [ "$$missing" -ne 0 ]; then exit 1; fi
+	docker compose up -d --build
 	@echo ""
-	@echo "✅ 服务已启动:"
+	@echo "服务已启动:"
 	@echo "  - 教程网站: http://localhost:8081"
 	@echo "  - Web 终端: http://localhost:8080"
 	@echo "  - Gitea:    http://localhost:3000"
+	@echo "  - Gitea SSH: localhost:2222"
 
 docker-down:
-	docker-compose down
-	@echo "✅ 服务已停止"
+	docker compose down
+	@echo "服务已停止"
 
 docker-logs:
-	docker-compose logs -f
+	docker compose logs -f
+
+docker-build:
+	docker compose build
 
 docker-restart: docker-down docker-up
 

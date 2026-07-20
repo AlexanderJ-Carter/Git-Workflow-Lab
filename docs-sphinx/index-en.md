@@ -10,7 +10,7 @@
 
 ### Key Features
 
-- 📚 **Systematic Curriculum** - 17+ lessons, from basics to advanced
+- 📚 **Systematic Curriculum** - 33 lessons, from basics to advanced
 - 🐳 **Docker Lab Environment** - Gitea + Web Terminal one-click setup
 - 🚀 **CI/CD Examples** - Complete GitHub Actions workflows
 - 🎯 **Interactive Learning** - Command playground, skill quizzes, AI assistant

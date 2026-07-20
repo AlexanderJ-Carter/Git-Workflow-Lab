@@ -10,6 +10,12 @@
       "pattern": "^https://alexanderj-carter\\.github\\.io/Git-Workflow-Lab/.*$"
     },
     {
+      "pattern": "^https://linux-command\\.alexander\\.xin/.*$"
+    },
+    {
+      "pattern": "^https://github\\.com/[^/]+/[^/]+/stargazers$"
+    },
+    {
       "pattern": "^https://github\\.com/[^/]+/[^/]+/discussions.*$"
     },
     {

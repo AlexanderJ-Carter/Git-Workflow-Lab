@@ -102,25 +102,31 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?
 如果一切正常，你会看到类似：
 
 ```text
-Hi <your-username>! You've successfully authenticated, but Gitea does not provide shell access.
+Hi playground! You've successfully authenticated, but Gitea does not provide shell access.
 ```
 
 说明 SSH 认证已经打通。
 
 ### 步骤 5：使用 SSH 地址 clone 仓库
 
-在 Gitea 的仓库页面（例如 `playground-hello`），找到 Clone 按钮，切换到 SSH 模式，复制类似这样的地址：
+本实验环境预置了 Gitea 用户 `playground` 与演示仓库 `playground-hello`、`playground-ci`。在仓库页面找到 Clone 按钮，切换到 SSH 模式，地址形如：
 
 ```text
-ssh://git@localhost:2222/<your-username>/playground-hello.git
+ssh://git@localhost:2222/playground/playground-hello.git
 ```
 
 现在在一个新的目录中使用 SSH 方式 clone：
 
 ```bash
-git clone ssh://git@localhost:2222/<your-username>/playground-hello.git playground-hello-ssh
+git clone ssh://git@localhost:2222/playground/playground-hello.git playground-hello-ssh
 cd playground-hello-ssh
 git remote -v
+```
+
+如需练习 CI 仓库，可同样 clone：
+
+```bash
+git clone ssh://git@localhost:2222/playground/playground-ci.git
 ```
 
 确认 `origin` 的地址是 `git@...` 开头。
@@ -143,7 +149,7 @@ git push origin main
 ```bash
 git remote -v
 
-git remote set-url origin ssh://git@localhost:2222/<your-username>/playground-hello.git
+git remote set-url origin ssh://git@localhost:2222/playground/playground-hello.git
 
 git remote -v
 ```
@@ -176,7 +182,7 @@ git remote -v
 
    ```bash
    git remote -v
-   git remote set-url origin ssh://git@localhost:2222/<your-username>/<repo-name>.git
+   git remote set-url origin ssh://git@localhost:2222/playground/<repo-name>.git
    git remote -v
    ```
 
@@ -209,7 +215,7 @@ Host gitea-local
 
 ```bash
 ssh -T gitea-local
-git clone gitea-local:<your-username>/playground-hello.git
+git clone gitea-local:playground/playground-hello.git
 ```
 
 这种写法在管理多个平台时会更方便清晰。

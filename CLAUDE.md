@@ -71,7 +71,9 @@ docker-compose logs -f
 | 教程网站 | 8081 | Nginx 静态网站 |
 | Web 终端 | 8080 | ttyd 终端 |
 | Gitea | 3000 | Git 托管平台 |
-| Gitea SSH | 2222 | SSH 访问 |
+| Gitea SSH | 2222 | 内置 SSH（`START_SSH_SERVER=true`） |
+
+演示仓库：`playground/playground-hello`、`playground/playground-ci`。
 
 ## 工作流
 

@@ -1,34 +1,27 @@
 services:
-  # ============================================
-  # 教程网站 - Nginx 静态网站
-  # ============================================
   web:
     image: nginx:alpine
     container_name: git-playground-web
-    restart: always
+    restart: unless-stopped
     ports:
       - "8081:80"
     volumes:
-      # site/ 为站点根；docs/ 覆盖 /docs，提供课程 Markdown 与 viewer.html（单一真相源）
+      # site/ 为站点根；docs/ 覆盖 /docs，提供课程 Markdown 与 viewer.html
       - ./site:/usr/share/nginx/html
       - ./docs:/usr/share/nginx/html/docs:ro
-    depends_on:
-      - gitea
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # ============================================
-  # Gitea - Git 托管平台（预配置镜像）
-  # ============================================
   gitea:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ${GITEA_IMAGE:-git-workflow-lab-gitea:local}
     container_name: git-playground-gitea
-    restart: always
+    restart: unless-stopped
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -41,7 +34,7 @@ services:
       - GITEA__server__DOMAIN=${GITEA_DOMAIN:-localhost}
       - GITEA__server__SSH_DOMAIN=${GITEA_SSH_DOMAIN:-localhost}
       - GITEA__server__SSH_PORT=${GITEA_SSH_PORT:-2222}
-      - GITEA__server__START_SSH_SERVER=false
+      - GITEA__server__START_SSH_SERVER=true
       - GITEA__server__DISABLE_SSH=false
       - GITEA__security__FRAME_ANCESTORS=${PUBLIC_DOCS_ORIGIN:-http://localhost:8081}
       - GITEA__security__INSTALL_LOCK=true
@@ -51,27 +44,26 @@ services:
       - GITEA_ADMIN_EMAIL=${GITEA_ADMIN_EMAIL:-playground@example.com}
     volumes:
       - gitea-data:/data
-      - ./scripts/init-gitea.sh:/docker-entrypoint-init.d/init-gitea.sh:ro
     ports:
       - "3000:3000"
+      - "2222:22"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:3000/healthcheck"]
       interval: 30s
       timeout: 10s
       start_period: 60s
       retries: 5
 
-  # ============================================
-  # Web 终端 - ttyd (轻量版)
-  # ============================================
   terminal:
     build:
       context: ./docker/terminal
       dockerfile: Dockerfile
+    image: ${TERMINAL_IMAGE:-git-workflow-lab-terminal:local}
     container_name: git-playground-terminal
-    restart: always
+    restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
@@ -79,18 +71,15 @@ services:
     environment:
       - TERM=xterm-256color
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # ============================================
-  # PostgreSQL - Gitea 数据库
-  # ============================================
   db:
     image: postgres:16-alpine
     container_name: git-playground-db
-    restart: always
+    restart: unless-stopped
     environment:
       - POSTGRES_DB=gitea
       - POSTGRES_USER=gitea
@@ -103,9 +92,6 @@ services:
       timeout: 5s
       retries: 5
 
-# ============================================
-# 数据卷
-# ============================================
 volumes:
   terminal-home:
     name: git-playground-terminal-home
@@ -114,9 +100,6 @@ volumes:
   postgres-data:
     name: git-workflow-lab-postgres-data
 
-# ============================================
-# 网络
-# ============================================
 networks:
   default:
     name: git-playground-net

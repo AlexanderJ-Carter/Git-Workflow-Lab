@@ -61,18 +61,30 @@ jobs:
         run: |
           echo "Checking lesson numbering..."
 
-          # 提取所有课程编号（支持 lesson-XX.md 和 lesson-XX-name.md 格式）
-          numbers=$(ls docs/lesson-*.md 2>/dev/null | sed -n 's/.*lesson-\([0-9]\+\).*/\1/p' | sort -n)
+          # 提取课程 ID：数字 + 可选字母后缀（如 06、06a、06b）
+          ids=$(ls docs/lesson-*.md 2>/dev/null | sed -n 's|.*/lesson-\([0-9]\+[a-z]\?\).*|\1|p' | sort)
 
-          if [ -z "$numbers" ]; then
+          if [ -z "$ids" ]; then
             echo "No lesson files found"
             exit 1
           fi
 
-          # 检查是否有重复
-          duplicates=$(echo "$numbers" | uniq -d)
-          if [ -n "$duplicates" ]; then
-            echo "Error: Duplicate lesson numbers found: $duplicates"
+          has_error=0
+          for id in $(echo "$ids" | sort -u); do
+            count=$(echo "$ids" | grep -cx "$id" || true)
+            if [ "$count" -le 1 ]; then
+              continue
+            fi
+            # 允许多个纯数字前缀（如两个 00-* 课程）；仅字母后缀 ID 重复时报错
+            if echo "$id" | grep -qE '^[0-9]+$'; then
+              echo "Note: multiple lessons share numeric prefix $id (allowed)"
+              continue
+            fi
+            echo "Error: Duplicate letter-suffixed lesson ID: $id"
+            has_error=1
+          done
+
+          if [ "$has_error" -ne 0 ]; then
             exit 1
           fi
 

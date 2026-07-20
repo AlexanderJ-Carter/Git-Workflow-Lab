@@ -23,7 +23,7 @@ htmlcov
 .venv
 venv
 node_modules
-cspell.json
+# Spell check config (canonical: .cspell.json)
 .pyproject.toml
 pyproject.toml
 Makefile

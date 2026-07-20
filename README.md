@@ -178,8 +178,8 @@ make fix-quotes     # 修复中文引号
 
 ## 💬 社区与反馈
 
-- 💡 [功能建议](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=feature_request.md)
-- 🐛 [问题反馈](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=bug_report.md)
+- 💡 [功能建议](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=feature-request.yml)
+- 🐛 [问题反馈](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/new?template=bug-report.yml)
 - 📧 联系维护者: 查看 [CODEOWNERS](.github/CODEOWNERS)
 
 ---

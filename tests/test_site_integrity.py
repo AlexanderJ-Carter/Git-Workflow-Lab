@@ -179,7 +179,7 @@ def test_index_has_personal_learning_dashboard() -> None:
     assert "personal-dashboard" in text
     assert "dash-lessons" in text
     assert "ActivityProgress" in text
-    assert ">33<" in text
+    assert ">33<" in text or "<strong>33</strong>" in text
     assert "仅浏览 (Pages)" in text
     assert "本地 Docker 实验" in text
 
@@ -217,14 +217,15 @@ def test_viewer_normalizes_lesson_ids() -> None:
 
 def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
     """课程中心、学习路径、搜索、测验与工作台应接入新增课程。"""
-    for name in ("learning-path.html", "search.html", "lessons/index.html", "quiz.html", "workspace.html"):
+    for name in ("learning-path.html", "search.html", "quiz.html", "workspace.html"):
         text = (SITE_DIR / name).read_text(encoding="utf-8")
         for lesson_id in ("lesson-20", "lesson-21", "lesson-22", "lesson-23", "lesson-24", "lesson-25", "lesson-26", "lesson-27", "lesson-28", "lesson-29"):
             assert lesson_id in text, f"{name} missing {lesson_id}"
 
     lessons_index = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
+    assert "assets/data/lessons.json" in lessons_index
     assert 'target="_blank"' not in lessons_index
-    assert "ActivityProgress.notify" in lessons_index
+    assert "GitWorkflowLab" in lessons_index or "LearningProgress" in lessons_index
 
     quiz = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
     assert "docs/viewer.html?file=lesson-20-bisect.md" in quiz

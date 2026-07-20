@@ -4,1171 +4,232 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Git Workflow Lab - Git 与 CI/CD 教学仓库</title>
-    <meta name="description" content="一个围绕 Git、Gitea、协作流程和 CI/CD 的教学型仓库，包含课程体系、浏览器实验室和完整的发布自动化示例。">
-    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="系统化 Git 课程、浏览器实验室与 CI/CD 实践，33 课时按阶段 A–H 循序渐进。">
+    <meta name="theme-color" content="#4f46e5">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        .landing-page {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Hero 区域 - 玻璃态渐变 */
-        .hero {
-            padding: 100px 0 70px;
-            text-align: center;
-            background:
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.2), transparent),
-                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.12), transparent 40%),
-                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15), transparent 40%),
-                var(--bg-secondary);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        /* 动态光效背景 */
-        .hero::after {
-            content: '';
-            position: absolute;
-            top: -100px;
-            right: -100px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: floatLight 15s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes floatLight {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(-50px, 30px) scale(1.1); }
-            66% { transform: translate(30px, -20px) scale(0.95); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-full);
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--accent-primary);
-            margin-bottom: 24px;
-            animation: fadeInDown 0.6s ease-out;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1);
-        }
-
-        .hero-badge-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.1); }
-        }
-
-        .hero h1 {
-            font-size: 56px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: fadeInUp 0.6s ease-out 0.1s backwards;
-        }
-
-        .hero p {
-            font-size: 20px;
-            color: var(--text-secondary);
-            max-width: 720px;
-            margin: 0 auto 36px;
-            line-height: 1.7;
-            animation: fadeInUp 0.6s ease-out 0.2s backwards;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeInUp 0.6s ease-out 0.3s backwards;
-        }
-
-        .onboarding-wizard {
-            max-width: 780px;
-            margin: 28px auto 0;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-            animation: fadeInUp 0.6s ease-out 0.4s backwards;
-        }
-
-        .onboarding-track {
-            text-align: left;
-            padding: 18px;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.08);
-        }
-
-        .onboarding-track h2 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-
-        .onboarding-track ol {
-            margin-left: 18px;
-            color: var(--text-secondary);
-            font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .onboarding-track a {
-            color: var(--accent-primary);
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .hero-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
-            border-radius: var(--radius-full);
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 15px;
-            text-decoration: none;
-            transition: all var(--transition-base);
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-link::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%);
-            pointer-events: none;
-        }
-
-        .hero-link:hover {
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
-            background: var(--glass-bg-hover);
-        }
-
-        .hero-link.primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .hero-link.primary::before {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 50%);
-        }
-
-        .hero-link.primary:hover {
-            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-tertiary));
-            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
-            color: white;
-            transform: translateY(-3px);
-        }
-
-        .hero-link svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* 章节通用 */
-        .section {
-            padding: 80px 0;
-        }
-
-        .section-header {
-            text-align: center;
-            max-width: 640px;
-            margin: 0 auto 48px;
-        }
-
-        .section h2 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            letter-spacing: -0.01em;
-        }
-
-        .section-intro {
-            color: var(--text-secondary);
-            font-size: 17px;
-            line-height: 1.7;
-        }
-
-        /* 卡片网格 */
-        .highlights-grid,
-        .course-grid,
-        .repo-grid,
-        .lab-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-        }
-
-        /* 信息卡片 - 玻璃态 */
-        .info-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 28px;
-            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
-            transition: all var(--transition-slow);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .info-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(99, 102, 241, 0.2) 100%);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        /* 卡片顶部光泽 */
-        .info-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
-            border-radius: inherit;
-            pointer-events: none;
-            opacity: 0.5;
-        }
-
-        .info-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 16px 48px rgba(99, 102, 241, 0.18);
-            border-color: var(--accent-primary);
-            background: var(--glass-bg-hover);
-        }
-
-        /* 卡片内部元素需要相对定位以显示在伪元素上方 */
-        .info-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .info-card-icon {
-            width: 52px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.15) 100%);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(99, 102, 241, 0.1);
-            border-radius: var(--radius-md);
-            margin-bottom: 20px;
-            font-size: 24px;
-            transition: all var(--transition-base);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-        }
-
-        .info-card:hover .info-card-icon {
-            transform: scale(1.1) rotate(-5deg);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.25) 100%);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
-        }
-
-        .info-card h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-
-        .info-card p {
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
-        .info-card ul {
-            padding-left: 20px;
-            margin-top: 12px;
-        }
-
-        .info-card li {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        /* 阶段标签 - 玻璃态 */
-        .stage-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 14px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid transparent;
-        }
-
-        .stage-pill.stage-0 {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.3);
-            color: #059669;
-        }
-
-        .stage-pill.stage-2 {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.3);
-            color: #2563eb;
-        }
-
-        .stage-pill.stage-3 {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: rgba(245, 158, 11, 0.3);
-            color: #d97706;
-        }
-
-        .stage-pill.stage-4 {
-            background: rgba(236, 72, 153, 0.15);
-            border-color: rgba(236, 72, 153, 0.3);
-            color: #db2777;
-        }
-
-        [data-theme="dark"] .stage-pill.stage-0 {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(52, 211, 153, 0.3);
-            color: #34d399;
-        }
-
-        [data-theme="dark"] .stage-pill.stage-2 {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: rgba(96, 165, 250, 0.3);
-            color: #60a5fa;
-        }
-
-        [data-theme="dark"] .stage-pill.stage-3 {
-            background: rgba(245, 158, 11, 0.2);
-            border-color: rgba(251, 191, 36, 0.3);
-            color: #fbbf24;
-        }
-
-        [data-theme="dark"] .stage-pill.stage-4 {
-            background: rgba(236, 72, 153, 0.2);
-            border-color: rgba(244, 114, 182, 0.3);
-            color: #f472b6;
-        }
-
-        /* 实验入口 */
-        .lab-section {
-            display: none;
-        }
-
-        .lab-card {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .lab-card:hover {
-            transform: translateY(-4px);
-            transition: transform var(--transition-base);
-        }
-
-        .lab-meta {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 16px;
-            padding: 6px 14px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 500;
-            background: rgba(245, 158, 11, 0.12);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            color: #b45309;
-            transition: all var(--transition-fast);
-        }
-
-        .lab-meta::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: currentColor;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .lab-card:hover .lab-meta {
-            background: rgba(245, 158, 11, 0.18);
-            border-color: rgba(245, 158, 11, 0.3);
-        }
-
-        /* 统计区域 - 玻璃态 */
-        .stats-section {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 48px 0;
-            position: relative;
-        }
-
-        .stats-section::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 32px;
-            text-align: center;
-        }
-
-        .stat-item {
-            padding: 16px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .stat-item::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: var(--radius-full);
-            opacity: 0;
-            transition: opacity var(--transition-base);
-        }
-
-        .stat-item:hover::after {
-            opacity: 1;
-        }
-
-        .stat-number {
-            font-size: 42px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-family: 'JetBrains Mono', monospace;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .dashboard-panel {
-            position: relative;
-            z-index: 1;
-            max-width: 920px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .dashboard-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .dashboard-subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 28px;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .dashboard-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .dashboard-actions a {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 16px;
-            border-radius: 999px;
-            border: 1px solid var(--glass-border);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: border-color 0.2s ease, transform 0.2s ease;
-        }
-
-        .dashboard-actions a:hover {
-            border-color: var(--accent-primary);
-            transform: translateY(-1px);
-        }
-
-        .dashboard-actions a.primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: #fff;
-            border-color: transparent;
-        }
-
-        /* 项目说明 - 玻璃态 */
-        .project-note {
-            text-align: center;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 32px auto 0;
-            padding: 24px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            font-size: 14px;
-            line-height: 1.7;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.06);
-        }
-
-        footer {
-            margin-top: auto;
-            padding: 32px 24px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid var(--glass-border);
-        }
-
-        footer p {
-            margin-top: 12px;
-        }
-
-        /* 暗色主题玻璃效果增强 */
-        [data-theme="dark"] .hero::after {
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, transparent 70%);
-        }
-
-        [data-theme="dark"] .stats-section::before {
-            background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 70%);
-        }
-
-        /* 玻璃态容器 - 用于内容区域 */
-        .glass-container {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--glass-border);
-            padding: 40px;
-            margin: 20px 0;
-        }
-
-        /* 动画 */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .hero {
-                padding: 88px 0 48px;
-            }
-
-            .hero h1 {
-                font-size: 36px;
-            }
-
-            .hero p {
-                font-size: 16px;
-            }
-
-            .hero-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .onboarding-wizard {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-link {
-                width: 100%;
-                max-width: 280px;
-                justify-content: center;
-            }
-
-            .section {
-                padding: 56px 0;
-            }
-
-            .section h2 {
-                font-size: 28px;
-            }
-
-            .highlights-grid,
-            .course-grid,
-            .repo-grid,
-            .lab-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
-<body class="landing-page">
+<body class="landing-page page">
     <a class="skip-link" href="#main">跳到主要内容</a>
-    <!-- 全局导航栏 -->
+
     <nav class="global-navbar">
         <div class="global-navbar-content">
             <div class="global-navbar-left">
                 <a href="index.html" class="global-navbar-brand">
-                    <div class="global-navbar-logo">📖</div>
+                    <div class="global-navbar-logo" aria-hidden="true">G</div>
                     <span>Git Workflow Lab</span>
                 </a>
                 <div class="global-navbar-links">
-                    <a href="lessons/index.html" class="nav-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        课程
-                    </a>
-                    <a href="learning-path.html" class="nav-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        学习路径
-                    </a>
-                    <a href="playground.html" class="nav-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-                        练习
-                    </a>
-                    <a href="quiz.html" class="nav-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        测验
-                    </a>
+                    <a href="lessons/index.html" class="nav-link">课程</a>
+                    <a href="learning-path.html" class="nav-link">学习路径</a>
+                    <a href="workspace.html" class="nav-link nav-link--local">工作台</a>
+                    <a href="quiz.html" class="nav-link">测验</a>
                 </div>
             </div>
             <div class="global-navbar-right">
                 <div class="nav-search">
                     <svg class="nav-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="nav-search-input" placeholder="搜索..." aria-label="搜索">
+                    <input type="text" class="nav-search-input" placeholder="搜索课程…" aria-label="搜索">
                 </div>
                 <button class="nav-theme-toggle theme-toggle" aria-label="切换主题">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 </button>
                 <button class="nav-menu-toggle" aria-label="菜单">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
             </div>
         </div>
-        <!-- 移动端菜单 -->
         <div class="global-navbar-menu">
-            <a href="lessons/index.html" class="nav-link">📚 课程</a>
-            <a href="learning-path.html" class="nav-link">🎯 学习路径</a>
-            <a href="playground.html" class="nav-link">⚡ 练习</a>
-            <a href="quiz.html" class="nav-link">✅ 测验</a>
-            <a href="command-sheet.html" class="nav-link">📋 速查表</a>
-            <a href="ai-assistant.html" class="nav-link">🤖 AI助手</a>
+            <a href="lessons/index.html" class="nav-link">课程</a>
+            <a href="learning-path.html" class="nav-link">学习路径</a>
+            <a href="workspace.html" class="nav-link nav-link--local">工作台</a>
+            <a href="quiz.html" class="nav-link">测验</a>
+            <a href="command-sheet.html" class="nav-link">速查表</a>
+            <a href="quick-start.html" class="nav-link">快速开始</a>
         </div>
     </nav>
 
-    <div class="container">
-        <section class="hero" id="main">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="hero-badge-dot"></span>
-                    免费开源 · 中文教学
-                </div>
-                <h1>Git Workflow Lab</h1>
-                <p>一个把 Git 课程、浏览器实验室、仓库工程化和自动发布串在一起的教学型项目。公开站点聚焦课程与仓库本身，本地环境则提供完整的 Gitea + 终端练习体验。</p>
-                <div class="hero-actions">
-                    <a class="hero-link primary" id="primary-link" href="./lessons/index.html">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        开始学习
-                    </a>
-                    <a class="hero-link" id="path-link" href="./learning-path.html">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        学习路径
-                    </a>
-                    <a class="hero-link" href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        GitHub
-                    </a>
-                </div>
-                <div class="onboarding-wizard" aria-label="学习入口引导">
-                    <section class="onboarding-track">
-                        <h2>仅浏览 (Pages)</h2>
-                        <ol>
-                            <li><a href="./lessons/index.html">课程中心</a> 选择关卡</li>
-                            <li>在 viewer 中阅读课程正文</li>
-                            <li>完成 <a href="./quiz.html">随堂测验</a> 巩固知识</li>
-                        </ol>
-                    </section>
-                    <section class="onboarding-track">
-                        <h2>本地 Docker 实验</h2>
-                        <ol>
-                            <li><a href="./quick-start.html">快速开始</a> 启动环境</li>
-                            <li>进入 <a href="./workspace.html">学习工作台</a> 边看边练</li>
-                            <li>SSH 提示：<code>ssh -T git@localhost -p 2222</code></li>
-                        </ol>
-                    </section>
-                </div>
+    <main class="page-main" id="main">
+        <header class="hero-v3">
+            <div class="hero-v3__badge">
+                <span class="hero-v3__badge-dot"></span>
+                33 课时 · 开源免费
             </div>
-        </section>
+            <h1>边看边做，掌握 Git 与协作流程</h1>
+            <p class="hero-v3__lead">课程、测验、练习与本地 Docker 实验台组成完整闭环。公开站点阅读与自测，本地环境可连接 Gitea 与 Web 终端实战。</p>
+            <div class="hero-v3__actions">
+                <a class="btn btn--primary" id="primary-link" href="lessons/index.html">开始学习</a>
+                <a class="btn" id="path-link" href="learning-path.html">查看学习路径</a>
+                <a class="btn" href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub</a>
+            </div>
+            <div class="tracks" aria-label="学习入口">
+                <section class="track-card">
+                    <h2>仅浏览 (Pages)</h2>
+                    <ol>
+                        <li><a href="lessons/index.html">课程中心</a> 选关</li>
+                        <li>阅读文档 viewer</li>
+                        <li><a href="quiz.html">随堂测验</a> 巩固</li>
+                    </ol>
+                </section>
+                <section class="track-card">
+                    <h2>本地 Docker 实验</h2>
+                    <ol>
+                        <li><a href="quick-start.html">快速开始</a> 启动</li>
+                        <li><a href="workspace.html">学习工作台</a> 边读边练</li>
+                        <li>SSH：<code>git@localhost:2222</code></li>
+                    </ol>
+                </section>
+            </div>
+        </header>
 
-        <!-- 站点概况 / 个人学习仪表盘 -->
-        <section class="stats-section" id="learning-dashboard">
-            <div class="container">
-                <div class="stats-grid" id="site-stats">
-                    <div class="stat-item">
-                        <div class="stat-number">33</div>
-                        <div class="stat-label">课程关卡</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">6</div>
-                        <div class="stat-label">学习阶段</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">6</div>
-                        <div class="stat-label">CI/CD 工作流</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">免费开源</div>
-                    </div>
-                </div>
-
-                <div class="dashboard-panel" id="personal-dashboard" hidden>
-                    <div class="dashboard-title">你的学习进度</div>
-                    <div class="dashboard-subtitle">根据本机学习记录生成，换浏览器或清空站点数据后会重置</div>
-                    <div class="dashboard-grid">
-                        <div class="stat-item">
-                            <div class="stat-number" id="dash-lessons">0</div>
-                            <div class="stat-label">已完成课程</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number" id="dash-quizzes">0</div>
-                            <div class="stat-label">通过测验</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number" id="dash-challenges">0</div>
-                            <div class="stat-label">完成挑战</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number" id="dash-flashcards">0</div>
-                            <div class="stat-label">掌握闪卡</div>
-                        </div>
-                    </div>
-                    <div class="dashboard-actions">
-                        <a class="primary" href="./lessons/index.html">继续学习</a>
-                        <a href="./achievements.html">成就徽章</a>
-                        <a href="./gamification.html">游戏化</a>
-                        <a href="./learning-path.html">学习路径</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="highlights">
-            <div class="section-header">
-                <h2>项目亮点</h2>
-                <p class="section-intro">这个仓库不是单纯的文档集合，而是一个把课程内容、练习环境和自动化流程放在同一个项目里的完整样例。</p>
-            </div>
-            <div class="highlights-grid">
-                <article class="info-card">
-                    <div class="info-card-icon">📚</div>
-                    <h3>系统课程</h3>
-                    <p>当前课程覆盖 Git 基础、分支协作、历史修复、标签发布、CI/CD、自动发布等内容，并且按阶段组织学习路径。</p>
-                </article>
-                <article class="info-card">
-                    <div class="info-card-icon">🖥️</div>
-                    <h3>浏览器实验室</h3>
-                    <p>本地模式下可组合教程、Gitea 和 Web 终端，适合教学、培训和自学演示。</p>
-                </article>
-                <article class="info-card">
-                    <div class="info-card-icon">⚡</div>
-                    <h3>真实自动化</h3>
-                    <p>仓库内置课程检查、GitHub Pages、Release Please 和 GHCR 发布流程，适合拿来直接参考和改造。</p>
-                </article>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="section-header">
-                <h2>课程展开方式</h2>
-                <p class="section-intro">课程不是按命令列表堆起来的，而是围绕真实协作与发布场景来设计。</p>
-            </div>
-            <div class="course-grid">
-                <article class="info-card">
-                    <span class="stage-pill stage-0">阶段 0-1</span>
-                    <h3>基础与同步</h3>
-                    <p>从安装、配置、终端基础，到 clone、commit、push、pull，把 Git 日常闭环打通。</p>
-                </article>
-                <article class="info-card">
-                    <span class="stage-pill stage-2">阶段 2</span>
-                    <h3>分支与协作</h3>
-                    <p>覆盖分支命名、PR、冲突处理、rebase、SSH 与团队协作约定。</p>
-                </article>
-                <article class="info-card">
-                    <span class="stage-pill stage-3">阶段 3</span>
-                    <h3>救火与恢复</h3>
-                    <p>围绕 cherry-pick、revert、reflog、stash 等"出问题后怎么办"的场景设计。</p>
-                </article>
-                <article class="info-card">
-                    <span class="stage-pill stage-4">阶段 4-5</span>
-                    <h3>发布与自动化</h3>
-                    <p>从 Tag、Release 到多阶段流水线、Secrets、Release Please 自动发布，逐步形成完整工程化链路。</p>
-                </article>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="section-header">
-                <h2>仓库里有什么</h2>
-            </div>
-            <div class="repo-grid">
-                <article class="info-card">
-                    <div class="info-card-icon">📄</div>
-                    <h3>docs/</h3>
-                    <p>课程正文、总览、学习路径和本地文档查看器。</p>
-                </article>
-                <article class="info-card">
-                    <div class="info-card-icon">🌐</div>
-                    <h3>site/</h3>
-                    <p>对外展示首页和本地工作台入口。公开模式与本地模式会显示不同重点。</p>
-                </article>
-                <article class="info-card">
-                    <div class="info-card-icon">⚙️</div>
-                    <h3>.github/workflows/</h3>
-                    <p>课程检查、Pages、Release Please、容器构建与发布都在这里。</p>
-                </article>
-                <article class="info-card">
-                    <div class="info-card-icon">🐳</div>
-                    <h3>docker-compose.yml</h3>
-                    <p>定义本地浏览器实验环境，是把课程变成可操作平台的关键入口。</p>
-                </article>
-            </div>
-            <p class="project-note">如果你是在 GitHub Pages 上查看此页面，重点入口是课程目录、课程总览和学习路径；如果你在本地打开，则会额外看到实验环境入口。</p>
-        </section>
-
-        <section class="section" id="start-learning">
-            <div class="section-header">
-                <h2>立即开始学习</h2>
-                <p class="section-intro">选择适合你的学习方式，开启 Git 掌握之旅</p>
-            </div>
-            <div class="lab-grid">
-                <a class="info-card lab-card" href="./lessons/index.html">
-                    <div class="info-card-icon">📚</div>
-                    <h3>课程中心</h3>
-                    <p>33 个进阶课程，按阶段系统学习，含进度追踪</p>
-                    <span class="lab-meta lab-meta--learn">在线学习</span>
-                </a>
-                <a class="info-card lab-card" href="./learning-path.html">
-                    <div class="info-card-icon">🗺️</div>
-                    <h3>学习路径</h3>
-                    <p>可视化学习路线，推荐学习顺序，阶段进度展示</p>
-                    <span class="lab-meta lab-meta--new">推荐</span>
-                </a>
-                <a class="info-card lab-card" href="./playground.html">
-                    <div class="info-card-icon">🎮</div>
-                    <h3>命令练习场</h3>
-                    <p>交互式 Git 命令模拟器，浏览器中直接练习</p>
-                    <span class="lab-meta lab-meta--practice">免费试用</span>
-                </a>
-                <a class="info-card lab-card" href="./ai-assistant.html">
-                    <div class="info-card-icon">🤖</div>
-                    <h3>AI 问答助手</h3>
-                    <p>连接你的 API Key，以课程内容为上下文智能问答</p>
-                    <span class="lab-meta lab-meta--new">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./flashcards.html">
-                    <div class="info-card-icon">🧠</div>
-                    <h3>记忆闪卡</h3>
-                    <p>间隔重复学习系统，高效记忆 Git 命令和概念</p>
-                    <span class="lab-meta lab-meta--local">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./command-sheet.html">
-                    <div class="info-card-icon">📋</div>
-                    <h3>命令速查表</h3>
-                    <p>结构化 Git 命令参考，支持搜索、参数说明与一键复制</p>
-                    <span class="lab-meta lab-meta--learn">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./quiz.html">
-                    <div class="info-card-icon">📝</div>
-                    <h3>技能测验</h3>
-                    <p>每课后的随堂测验，检验学习效果，巩固知识</p>
-                    <span class="lab-meta lab-meta--local">测验</span>
-                </a>
-                <a class="info-card lab-card" href="./search.html">
-                    <div class="info-card-icon">🔍</div>
-                    <h3>全局搜索</h3>
-                    <p>快速搜索课程、命令、概念，一键直达目标内容</p>
-                    <span class="lab-meta lab-meta--new">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./achievements.html">
-                    <div class="info-card-icon">🏆</div>
-                    <h3>成就徽章</h3>
-                    <p>完成课程解锁成就，记录学习里程碑</p>
-                    <span class="lab-meta lab-meta--quiz">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./git-debugger.html">
-                    <div class="info-card-icon">🔧</div>
-                    <h3>Git 错误排查</h3>
-                    <p>智能诊断常见 Git 错误，提供解决方案和修复步骤</p>
-                    <span class="lab-meta lab-meta--local">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./sandbox.html">
-                    <div class="info-card-icon">🏖️</div>
-                    <h3>代码沙盒</h3>
-                    <p>安全的在线代码实验环境，练习 Git 操作无需本地配置</p>
-                    <span class="lab-meta lab-meta--practice">沙盒</span>
-                </a>
-                <a class="info-card lab-card" href="./command-builder.html">
-                    <div class="info-card-icon">🛠️</div>
-                    <h3>命令生成器</h3>
-                    <p>可视化构建 Git 命令，选择参数自动生成完整命令</p>
-                    <span class="lab-meta lab-meta--tool">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./gitflow-simulator.html">
-                    <div class="info-card-icon">🌊</div>
-                    <h3>Git Flow 模拟器</h3>
-                    <p>交互式学习 Git Flow 工作流，可视化分支操作</p>
-                    <span class="lab-meta lab-meta--challenge">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./notes.html">
-                    <div class="info-card-icon">📓</div>
-                    <h3>学习笔记</h3>
-                    <p>记录学习心得、整理知识点，构建个人知识库</p>
-                    <span class="lab-meta lab-meta--learn">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./daily-plan.html">
-                    <div class="info-card-icon">📅</div>
-                    <h3>每日学习计划</h3>
-                    <p>制定每日学习目标，跟踪学习进度，养成学习习惯</p>
-                    <span class="lab-meta lab-meta--new">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./workspace.html">
-                    <div class="info-card-icon">🧪</div>
-                    <h3>学习工作台</h3>
-                    <p>左侧课程、右侧终端，本地 Docker 环境实战</p>
-                    <span class="lab-meta lab-meta--local">本地入口</span>
-                </a>
-                <a class="info-card lab-card" href="./quick-start.html">
-                    <div class="info-card-icon">🚀</div>
-                    <h3>快速开始</h3>
-                    <p>5 分钟快速上手 Git Workflow Lab，开启学习之旅</p>
-                    <span class="lab-meta lab-meta--practice">入门</span>
-                </a>
-                <a class="info-card lab-card" href="./reference.html">
-                    <div class="info-card-icon">📚</div>
-                    <h3>参考文档</h3>
-                    <p>官方文档链接、配置模板、最佳实践和术语表</p>
-                    <span class="lab-meta lab-meta--new">参考</span>
-                </a>
-                <a class="info-card lab-card" href="./status.html">
-                    <div class="info-card-icon">📡</div>
-                    <h3>环境状态</h3>
-                    <p>查看本地实验服务是否就绪，快速定位端口与连接问题</p>
-                    <span class="lab-meta lab-meta--local">本地</span>
-                </a>
-                <a class="info-card lab-card" href="./diagnostics.html">
-                    <div class="info-card-icon">🩺</div>
-                    <h3>诊断工具</h3>
-                    <p>排查站点资源、路径与本地环境常见配置问题</p>
-                    <span class="lab-meta lab-meta--challenge">诊断</span>
-                </a>
-            </div>
-        </section>
-
-        <section class="section" id="advanced-learning">
-            <div class="section-header">
-                <h2>进阶学习</h2>
-                <p class="section-intro">深入探索高级主题，提升实战能力</p>
-            </div>
-            <div class="lab-grid">
-                <a class="info-card lab-card" href="./gamification.html">
-                    <div class="info-card-icon">🎯</div>
-                    <h3>游戏化系统</h3>
-                    <p>积分、等级、排行榜，用游戏机制让学习更有动力</p>
-                    <span class="lab-meta lab-meta--challenge">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./challenges.html">
-                    <div class="info-card-icon">⚔️</div>
-                    <h3>场景挑战</h3>
-                    <p>真实场景模拟，解决合并冲突、恢复误删代码等挑战</p>
-                    <span class="lab-meta lab-meta--challenge">挑战</span>
-                </a>
-                <a class="info-card lab-card" href="./git-visualizer.html">
-                    <div class="info-card-icon">🔀</div>
-                    <h3>Git 可视化</h3>
-                    <p>可视化展示分支、提交历史和操作过程，直观理解 Git 工作流</p>
-                    <span class="lab-meta lab-meta--learn">可视化</span>
-                </a>
-                <a class="info-card lab-card" href="./skill-tree.html">
-                    <div class="info-card-icon">🌳</div>
-                    <h3>技能树</h3>
-                    <p>技能树形式展示能力成长路径，解锁新技能成为 Git 大师</p>
-                    <span class="lab-meta lab-meta--practice">成长</span>
-                </a>
-                <a class="info-card lab-card" href="./best-practices.html">
-                    <div class="info-card-icon">📖</div>
-                    <h3>最佳实践</h3>
-                    <p>Git 使用规范、分支策略、安全守则等实用指南</p>
-                    <span class="lab-meta lab-meta--practice">精选</span>
-                </a>
-                <a class="info-card lab-card" href="./projects.html">
-                    <div class="info-card-icon">🚀</div>
-                    <h3>实战项目</h3>
-                    <p>完整项目实践，从需求分析到发布上线，全流程掌握</p>
-                    <span class="lab-meta lab-meta--new">实战</span>
-                </a>
-                <a class="info-card lab-card" href="./interview.html">
-                    <div class="info-card-icon">💼</div>
-                    <h3>面试题库</h3>
-                    <p>精选高频面试题，含答案解析和模拟面试，提升职场竞争力</p>
-                    <span class="lab-meta lab-meta--local">求职</span>
-                </a>
-            </div>
-        </section>
-    </div>
-
-    <footer>
-        <div class="container">
-            <button class="theme-toggle" aria-label="切换主题">🌙</button>
-            <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub</a></p>
+        <div class="stats-bar" id="site-stats">
+            <div class="stat-cell"><strong>33</strong><span>课程关卡</span></div>
+            <div class="stat-cell"><strong>8</strong><span>逻辑阶段 A–H</span></div>
+            <div class="stat-cell"><strong>6</strong><span>CI 工作流示例</span></div>
+            <div class="stat-cell"><strong>100%</strong><span>免费开源</span></div>
         </div>
+
+        <section class="dashboard-panel" id="personal-dashboard" hidden>
+            <h2>你的学习进度</h2>
+            <p>数据保存在本机浏览器，清空站点数据后会重置。</p>
+            <div class="stats-bar" style="margin-bottom:0">
+                <div class="stat-cell"><strong id="dash-lessons">0</strong><span>已完成课程</span></div>
+                <div class="stat-cell"><strong id="dash-quizzes">0</strong><span>通过测验</span></div>
+                <div class="stat-cell"><strong id="dash-challenges">0</strong><span>完成挑战</span></div>
+                <div class="stat-cell"><strong id="dash-flashcards">0</strong><span>掌握闪卡</span></div>
+            </div>
+            <div class="dashboard-actions">
+                <a class="btn btn--primary" href="lessons/index.html">继续学习</a>
+                <a class="btn" href="learning-path.html">学习路径</a>
+                <a class="btn" href="achievements.html">成就</a>
+            </div>
+        </section>
+
+        <section class="hub-section">
+            <div class="hub-section__head">
+                <h2>学习主线</h2>
+                <p>按推荐顺序推进：读课 → 动手 → 测验。</p>
+            </div>
+            <div class="hub-grid">
+                <a class="hub-card" href="lessons/index.html">
+                    <span class="hub-card__icon">📚</span>
+                    <h3>课程中心</h3>
+                    <p>33 关按阶段 A–H 编排，含进度标记与测验入口。</p>
+                    <span class="hub-card__tag hub-card__tag--core">核心</span>
+                </a>
+                <a class="hub-card" href="learning-path.html">
+                    <span class="hub-card__icon">🗺️</span>
+                    <h3>学习路径</h3>
+                    <p>按角色（新手 / 协作者 / CI）查看推荐顺序与依赖。</p>
+                    <span class="hub-card__tag hub-card__tag--core">推荐</span>
+                </a>
+                <a class="hub-card nav-link--local" href="workspace.html">
+                    <span class="hub-card__icon">🧪</span>
+                    <h3>学习工作台</h3>
+                    <p>左侧文档、右侧终端，本地 Docker 环境边看边练。</p>
+                    <span class="hub-card__tag hub-card__tag--local">本地</span>
+                </a>
+                <a class="hub-card nav-link--local" href="quick-start.html">
+                    <span class="hub-card__icon">🚀</span>
+                    <h3>快速开始</h3>
+                    <p>5 分钟启动 Gitea、终端与教程站点。</p>
+                    <span class="hub-card__tag hub-card__tag--local">本地</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="hub-section">
+            <div class="hub-section__head">
+                <h2>练习与巩固</h2>
+                <p>每课后用测验和闪卡检验，用模拟器熟悉命令。</p>
+            </div>
+            <div class="hub-grid">
+                <a class="hub-card" href="quiz.html">
+                    <span class="hub-card__icon">✅</span>
+                    <h3>技能测验</h3>
+                    <p>每课配套题库，60 分通过并联动进度。</p>
+                </a>
+                <a class="hub-card" href="flashcards.html">
+                    <span class="hub-card__icon">🧠</span>
+                    <h3>记忆闪卡</h3>
+                    <p>按课程过滤，轻量间隔复习。</p>
+                </a>
+                <a class="hub-card" href="playground.html">
+                    <span class="hub-card__icon">⚡</span>
+                    <h3>命令练习场</h3>
+                    <p>浏览器内模拟 Git 命令与状态变化。</p>
+                </a>
+                <a class="hub-card" href="command-sheet.html">
+                    <span class="hub-card__icon">📋</span>
+                    <h3>命令速查表</h3>
+                    <p>Git 与 Linux 终端常用命令，支持搜索复制。</p>
+                </a>
+                <a class="hub-card" href="challenges.html">
+                    <span class="hub-card__icon">⚔️</span>
+                    <h3>场景挑战</h3>
+                    <p>合并冲突、误删恢复等真实场景模拟。</p>
+                </a>
+                <a class="hub-card" href="search.html">
+                    <span class="hub-card__icon">🔍</span>
+                    <h3>全局搜索</h3>
+                    <p>快速定位课程、命令与概念。</p>
+                </a>
+            </div>
+        </section>
+
+        <section class="hub-section">
+            <details class="hub-more">
+                <summary>更多工具与进阶（点击展开）</summary>
+                <div class="hub-grid">
+                    <a class="hub-card" href="ai-assistant.html"><span class="hub-card__icon">🤖</span><h3>AI 助手</h3><p>自备 API Key 的问答辅助。</p></a>
+                    <a class="hub-card" href="git-debugger.html"><span class="hub-card__icon">🔧</span><h3>错误排查</h3><p>常见 Git 报错诊断。</p></a>
+                    <a class="hub-card" href="git-visualizer.html"><span class="hub-card__icon">🔀</span><h3>Git 可视化</h3><p>分支与提交图演示。</p></a>
+                    <a class="hub-card" href="gitflow-simulator.html"><span class="hub-card__icon">🌊</span><h3>Git Flow</h3><p>工作流分支模拟。</p></a>
+                    <a class="hub-card" href="command-builder.html"><span class="hub-card__icon">🛠️</span><h3>命令生成器</h3><p>可视化拼装 Git 命令。</p></a>
+                    <a class="hub-card" href="sandbox.html"><span class="hub-card__icon">🏖️</span><h3>代码沙盒</h3><p>轻量实验环境。</p></a>
+                    <a class="hub-card" href="best-practices.html"><span class="hub-card__icon">📖</span><h3>最佳实践</h3><p>协作规范与安全守则。</p></a>
+                    <a class="hub-card" href="skill-tree.html"><span class="hub-card__icon">🌳</span><h3>技能树</h3><p>能力成长路径。</p></a>
+                    <a class="hub-card" href="gamification.html"><span class="hub-card__icon">🎯</span><h3>游戏化</h3><p>积分与任务。</p></a>
+                    <a class="hub-card" href="achievements.html"><span class="hub-card__icon">🏆</span><h3>成就徽章</h3><p>学习里程碑。</p></a>
+                    <a class="hub-card" href="notes.html"><span class="hub-card__icon">📓</span><h3>学习笔记</h3><p>本地笔记。</p></a>
+                    <a class="hub-card" href="interview.html"><span class="hub-card__icon">💼</span><h3>面试题库</h3><p>高频问答。</p></a>
+                    <a class="hub-card" href="projects.html"><span class="hub-card__icon">🚀</span><h3>实战项目</h3><p>综合练习指引。</p></a>
+                    <a class="hub-card" href="reference.html"><span class="hub-card__icon">📚</span><h3>参考文档</h3><p>外部资源链接。</p></a>
+                    <a class="hub-card nav-link--local" href="status.html"><span class="hub-card__icon">📡</span><h3>环境状态</h3><p>检查本地服务端口。</p></a>
+                    <a class="hub-card nav-link--local" href="diagnostics.html"><span class="hub-card__icon">🩺</span><h3>诊断工具</h3><p>路径与资源排查。</p></a>
+                </div>
+            </details>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <p>Git Workflow Lab · MIT · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab" target="_blank" rel="noreferrer">GitHub</a></p>
     </footer>
 
     <script src="assets/js/main.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-            const primaryLink = document.getElementById('primary-link');
-            const pathLink = document.getElementById('path-link');
-
-            if (isLocal) {
-                primaryLink.href = './workspace.html';
-                primaryLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> 打开学习工作台';
-                if (pathLink) {
-                    pathLink.href = './docs/viewer.html?file=learning-path.md';
-                }
+            const primary = document.getElementById('primary-link');
+            if (isLocal && primary) {
+                primary.href = 'workspace.html';
+                primary.textContent = '打开学习工作台';
             }
+
+            document.querySelectorAll('.nav-link--local').forEach((el) => {
+                if (!isLocal) {
+                    el.style.display = 'none';
+                }
+            });
 
             const snap = window.GitWorkflowLab?.ActivityProgress?.getSnapshot?.();
             if (!snap) return;
-
-            const hasProgress = snap.completedLessons > 0
-                || snap.passedQuizzes > 0
-                || snap.completedChallenges > 0
-                || snap.flashcardsMastered > 0;
-
-            if (!hasProgress) return;
+            const has = snap.completedLessons > 0 || snap.passedQuizzes > 0
+                || snap.completedChallenges > 0 || snap.flashcardsMastered > 0;
+            if (!has) return;
 
             document.getElementById('site-stats').hidden = true;
             document.getElementById('personal-dashboard').hidden = false;

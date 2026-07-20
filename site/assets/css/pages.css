@@ -1,0 +1,564 @@
+/* Git Workflow Lab — 页面布局与组件（v3） */
+
+.page {
+    padding-top: var(--nav-offset);
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(99, 102, 241, 0.07), transparent 55%),
+        var(--bg-primary);
+}
+
+.page-main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+}
+
+.page-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    background: var(--bg-secondary);
+}
+
+.page-footer a {
+    color: var(--accent-primary);
+    font-weight: 500;
+}
+
+/* —— Hero —— */
+.hero-v3 {
+    padding: 56px 0 40px;
+    text-align: center;
+}
+
+.hero-v3__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.hero-v3__badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+}
+
+.hero-v3 h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.hero-v3__lead {
+    max-width: 640px;
+    margin: 0 auto 28px;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.hero-v3__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+    cursor: pointer;
+}
+
+.btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.btn--primary {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+.btn--primary:hover {
+    background: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    color: #fff;
+}
+
+.btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.tracks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.track-card {
+    padding: 18px 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.track-card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.track-card ol {
+    margin-left: 18px;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text-secondary);
+}
+
+.track-card a {
+    font-weight: 600;
+}
+
+/* —— Stats / Dashboard —— */
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 48px;
+}
+
+.stat-cell {
+    background: var(--bg-primary);
+    padding: 20px 16px;
+    text-align: center;
+}
+
+.stat-cell strong {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    line-height: 1.2;
+}
+
+.stat-cell span {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.dashboard-panel {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 48px;
+    background: var(--bg-secondary);
+}
+
+.dashboard-panel h2 {
+    font-size: 1.125rem;
+    margin-bottom: 4px;
+}
+
+.dashboard-panel p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.dashboard-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+/* —— Hub sections —— */
+.hub-section {
+    margin-bottom: 56px;
+}
+
+.hub-section__head {
+    margin-bottom: 20px;
+}
+
+.hub-section__head h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+}
+
+.hub-section__head p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 560px;
+}
+
+.hub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.hub-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    min-height: 100%;
+}
+
+.hub-card:hover {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.hub-card__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--accent-light);
+    font-size: 1.25rem;
+}
+
+.hub-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.hub-card p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.hub-card__tag {
+    align-self: flex-start;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+}
+
+.hub-card__tag--core {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--accent-primary);
+}
+
+.hub-card__tag--local {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--success);
+}
+
+.hub-more {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.hub-more summary {
+    padding: 16px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.hub-more summary::-webkit-details-marker {
+    display: none;
+}
+
+.hub-more[open] summary {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hub-more .hub-grid {
+    padding: 16px;
+}
+
+/* —— 课程中心 —— */
+.lessons-page .page-hero {
+    padding: 32px 0 28px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 32px;
+}
+
+.lessons-page .page-hero h1 {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+}
+
+.lessons-page .page-hero p {
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin-bottom: 20px;
+}
+
+.lessons-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.lessons-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    font-size: 14px;
+}
+
+.lessons-progress strong {
+    color: var(--accent-primary);
+    font-size: 1.125rem;
+}
+
+.lessons-progress-bar {
+    width: 100px;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.lessons-progress-fill {
+    height: 100%;
+    background: var(--accent-primary);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.stage-block {
+    margin-bottom: 40px;
+}
+
+.stage-block__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stage-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--accent-light);
+    color: var(--accent-primary);
+}
+
+.stage-block__head h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.stage-block__meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.lesson-card {
+    display: block;
+    padding: 16px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.lesson-card:hover {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.lesson-card.completed {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.04);
+}
+
+.lesson-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.lesson-card__id {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    font-family: var(--font-mono);
+}
+
+.lesson-card__time {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.lesson-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.35;
+}
+
+.lesson-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.lesson-card__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.lesson-card__actions button,
+.lesson-card__actions span {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.lesson-card__actions button:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.lessons-quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.lessons-quick a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.lessons-quick a:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+@media (max-width: 768px) {
+    .tracks {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hub-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lesson-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hub-card:hover,
+    .btn:active {
+        transform: none;
+    }
+}

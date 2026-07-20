@@ -7,968 +7,198 @@
     <meta name="description" content="系统化 Git 与 CI/CD 课程目录，含进度追踪。">
     <title>课程中心 - Git Workflow Lab</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/pages.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --ls-primary: #6366f1;
-            --ls-primary-dark: #4f46e5;
-            --ls-secondary: #8b5cf6;
-            --ls-tertiary: #a78bfa;
-            --ls-success: #10b981;
-            --ls-warning: #f59e0b;
-            --ls-danger: #ef4444;
-            --ls-bg: #f8fafc;
-            --ls-bg-card: #ffffff;
-            --ls-border: #e2e8f0;
-            --ls-text: #1e293b;
-            --ls-text-muted: #64748b;
-            --ls-text-light: #94a3b8;
-            --ls-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --ls-radius: 16px;
-        }
-
-        [data-theme="dark"] {
-            --ls-bg: #0f172a;
-            --ls-bg-card: #1e293b;
-            --ls-border: #334155;
-            --ls-text: #f1f5f9;
-            --ls-text-muted: #94a3b8;
-            --ls-text-light: #64748b;
-            --ls-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Noto Sans SC', system-ui, sans-serif;
-            background: var(--ls-bg);
-            color: var(--ls-text);
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .ls-header {
-            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
-            border-bottom: 1px solid var(--ls-border);
-            padding: 24px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        [data-theme="dark"] .ls-header {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        }
-
-        .ls-header-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .ls-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--ls-text);
-        }
-
-        .ls-logo-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--ls-primary), var(--ls-secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .ls-logo-text {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .ls-logo-sub {
-            font-size: 12px;
-            color: var(--ls-text-muted);
-        }
-
-        .ls-progress-card {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: var(--ls-bg-card);
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--ls-border);
-            box-shadow: var(--ls-shadow);
-        }
-
-        .ls-progress-info {
-            text-align: right;
-        }
-
-        .ls-progress-label {
-            font-size: 12px;
-            color: var(--ls-text-muted);
-        }
-
-        .ls-progress-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--ls-primary);
-        }
-
-        .ls-progress-bar {
-            width: 120px;
-            height: 10px;
-            background: var(--ls-border);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .ls-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--ls-primary), var(--ls-secondary));
-            border-radius: 5px;
-            transition: width 0.5s ease;
-        }
-
-        /* Hero */
-        .ls-hero {
-            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
-            padding: 60px 0 40px;
-            text-align: center;
-        }
-
-        [data-theme="dark"] .ls-hero {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        }
-
-        .ls-hero h1 {
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--ls-primary), var(--ls-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .ls-hero p {
-            font-size: 18px;
-            color: var(--ls-text-muted);
-            max-width: 600px;
-            margin: 0 auto 32px;
-        }
-
-        .ls-stats {
-            display: flex;
-            justify-content: center;
-            gap: 48px;
-            flex-wrap: wrap;
-        }
-
-        .ls-stat {
-            text-align: center;
-        }
-
-        .ls-stat-value {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--ls-primary);
-        }
-
-        .ls-stat-label {
-            font-size: 14px;
-            color: var(--ls-text-muted);
-        }
-
-        /* Main content */
-        .ls-main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 48px 24px;
-        }
-
-        /* Stage section */
-        .ls-stage {
-            margin-bottom: 48px;
-        }
-
-        .ls-stage-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .ls-stage-badge {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .ls-stage-badge.stage-0 {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .ls-stage-badge.stage-1 {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .ls-stage-badge.stage-2 {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .ls-stage-badge.stage-3 {
-            background: #fce7f3;
-            color: #9d174d;
-        }
-
-        .ls-stage-badge.stage-4 {
-            background: #ede9fe;
-            color: #6d28d9;
-        }
-
-        .ls-stage-badge.stage-5 {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .ls-stage-badge.stage-6 {
-            background: #cffafe;
-            color: #0e7490;
-        }
-
-        [data-theme="dark"] .ls-stage-badge.stage-0 { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        [data-theme="dark"] .ls-stage-badge.stage-1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        [data-theme="dark"] .ls-stage-badge.stage-2 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        [data-theme="dark"] .ls-stage-badge.stage-3 { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
-        [data-theme="dark"] .ls-stage-badge.stage-4 { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
-        [data-theme="dark"] .ls-stage-badge.stage-5 { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-        [data-theme="dark"] .ls-stage-badge.stage-6 { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
-
-        .ls-stage-title {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .ls-stage-desc {
-            color: var(--ls-text-muted);
-            font-size: 14px;
-            margin-left: auto;
-        }
-
-        /* Lesson cards */
-        .ls-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .ls-card {
-            background: var(--ls-bg-card);
-            border: 1px solid var(--ls-border);
-            border-radius: var(--ls-radius);
-            padding: 24px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ls-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--ls-primary), var(--ls-secondary));
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
-
-        .ls-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--ls-shadow);
-            border-color: var(--ls-primary);
-        }
-
-        .ls-card:hover::before {
-            opacity: 1;
-        }
-
-        .ls-card.completed::after {
-            content: '✓';
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 28px;
-            height: 28px;
-            background: var(--ls-success);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .ls-card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 12px;
-        }
-
-        .ls-card-number {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--ls-primary), var(--ls-secondary));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .ls-card-title {
-            font-size: 17px;
-            font-weight: 600;
-            line-height: 1.4;
-        }
-
-        .ls-card-desc {
-            font-size: 14px;
-            color: var(--ls-text-muted);
-            line-height: 1.6;
-            margin-bottom: 16px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .ls-card-meta {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .ls-card-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            background: var(--ls-bg);
-            color: var(--ls-text-muted);
-        }
-
-        .ls-card-tag svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        /* Quick nav */
-        .ls-quick-nav {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 48px;
-            flex-wrap: wrap;
-        }
-
-        .ls-quick-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            background: var(--ls-bg-card);
-            border: 1px solid var(--ls-border);
-            border-radius: 10px;
-            text-decoration: none;
-            color: var(--ls-text);
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .ls-quick-link:hover {
-            border-color: var(--ls-primary);
-            color: var(--ls-primary);
-        }
-
-        /* Footer */
-        .ls-footer {
-            text-align: center;
-            padding: 32px;
-            color: var(--ls-text-muted);
-            font-size: 14px;
-            border-top: 1px solid var(--ls-border);
-        }
-
-        @media (max-width: 768px) {
-            .ls-header-inner {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .ls-progress-card {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .ls-hero h1 {
-                font-size: 28px;
-            }
-
-            .ls-stats {
-                gap: 24px;
-            }
-
-            .ls-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
-<body>
-    <nav class="global-navbar">
-        <div class="global-navbar-content">
-            <div class="global-navbar-left">
-                <a href="../index.html" class="global-navbar-brand">
-                    <div class="global-navbar-logo">📖</div>
-                    <span>Git Workflow Lab</span>
-                </a>
-                <div class="global-navbar-links">
-                    <a href="index.html" class="nav-link active">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        课程
-                    </a>
-                    <a href="../learning-path.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        学习路径
-                    </a>
-                    <a href="../playground.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-                        练习
-                    </a>
-                    <a href="../quiz.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        测验
-                    </a>
+<body class="page lessons-page">
+    <main class="page-main">
+        <header class="page-hero">
+            <h1>课程中心</h1>
+            <p>从零开始，循序渐进掌握 Git 和 CI/CD 技能。每个关卡都配有动手实验，让你在实践中学习。</p>
+            <div class="stats-bar" style="margin-bottom: 0;">
+                <div class="stat-cell"><strong>33</strong><span>课程关卡</span></div>
+                <div class="stat-cell"><strong>8</strong><span>学习阶段</span></div>
+            </div>
+        </header>
+
+        <div class="lessons-toolbar">
+            <div class="lessons-progress">
+                <span>学习进度</span>
+                <strong id="progress-value">0%</strong>
+                <div class="lessons-progress-bar" aria-hidden="true">
+                    <div class="lessons-progress-fill" id="progress-fill" style="width: 0%;"></div>
                 </div>
             </div>
-            <div class="global-navbar-right">
-                <div class="nav-search">
-                    <svg class="nav-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="nav-search-input" placeholder="搜索..." aria-label="搜索">
-                </div>
-                <button class="nav-theme-toggle theme-toggle" aria-label="切换主题">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </button>
-                <button class="nav-menu-toggle" aria-label="菜单">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                </button>
-            </div>
         </div>
-        <div class="global-navbar-menu">
-            <a href="index.html" class="nav-link">📚 课程</a>
-            <a href="../learning-path.html" class="nav-link">🎯 学习路径</a>
-            <a href="../playground.html" class="nav-link">⚡ 练习</a>
-            <a href="../quiz.html" class="nav-link">✅ 测验</a>
-            <a href="../command-sheet.html" class="nav-link">📋 速查表</a>
-            <a href="../ai-assistant.html" class="nav-link">🤖 AI助手</a>
-        </div>
-    </nav>
 
-    <section class="ls-hero" style="padding-top: 100px;">
-        <h1>课程中心</h1>
-        <p>从零开始，循序渐进掌握 Git 和 CI/CD 技能。每个关卡都配有动手实验，让你在实践中学习。</p>
-        <div class="ls-stats">
-            <div class="ls-stat">
-                <div class="ls-stat-value">33</div>
-                <div class="ls-stat-label">课程关卡</div>
+        <section class="stage-block" id="stage-0">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 A-B</span>
+                <h2>基础</h2>
+                <span class="stage-block__meta" data-stage-meta="0"></span>
             </div>
-            <div class="ls-stat">
-                <div class="ls-stat-value">7</div>
-                <div class="ls-stat-label">学习阶段</div>
-            </div>
-            <div class="ls-stat">
-                <div class="ls-stat-value">100%</div>
-                <div class="ls-stat-label">免费开源</div>
-            </div>
-        </div>
-    </section>
-
-    <main class="ls-main">
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-0">阶段 A-B</span>
-                <h2 class="ls-stage-title">基础</h2>
-                <span class="ls-stage-desc">5 个关卡 · 约 2 小时</span>
-            </div>
-            <div class="ls-cards" id="stage-0"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-1">阶段 C</span>
-                <h2 class="ls-stage-title">协作</h2>
-                <span class="ls-stage-desc">5 个关卡 · 约 2.5 小时</span>
+        <section class="stage-block" id="stage-1">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 C</span>
+                <h2>协作</h2>
+                <span class="stage-block__meta" data-stage-meta="1"></span>
             </div>
-            <div class="ls-cards" id="stage-1"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-2">阶段 D</span>
-                <h2 class="ls-stage-title">恢复</h2>
-                <span class="ls-stage-desc">5 个关卡 · 约 2.5 小时</span>
+        <section class="stage-block" id="stage-2">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 D</span>
+                <h2>恢复</h2>
+                <span class="stage-block__meta" data-stage-meta="2"></span>
             </div>
-            <div class="ls-cards" id="stage-2"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-3">阶段 E</span>
-                <h2 class="ls-stage-title">工程</h2>
-                <span class="ls-stage-desc">7 个关卡 · 约 3.5 小时</span>
+        <section class="stage-block" id="stage-3">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 E</span>
+                <h2>工程</h2>
+                <span class="stage-block__meta" data-stage-meta="3"></span>
             </div>
-            <div class="ls-cards" id="stage-3"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-4">阶段 F</span>
-                <h2 class="ls-stage-title">CI/CD</h2>
-                <span class="ls-stage-desc">3 个关卡 · 约 1.5 小时</span>
+        <section class="stage-block" id="stage-4">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 F</span>
+                <h2>CI/CD</h2>
+                <span class="stage-block__meta" data-stage-meta="4"></span>
             </div>
-            <div class="ls-cards" id="stage-4"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-5">阶段 G</span>
-                <h2 class="ls-stage-title">安全</h2>
-                <span class="ls-stage-desc">2 个关卡 · 约 1 小时</span>
+        <section class="stage-block" id="stage-5">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 G</span>
+                <h2>安全</h2>
+                <span class="stage-block__meta" data-stage-meta="5"></span>
             </div>
-            <div class="ls-cards" id="stage-5"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <section class="ls-stage">
-            <div class="ls-stage-header">
-                <span class="ls-stage-badge stage-6">阶段 H</span>
-                <h2 class="ls-stage-title">进阶</h2>
-                <span class="ls-stage-desc">6 个关卡 · 约 3.5 小时</span>
+        <section class="stage-block" id="stage-6">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 H</span>
+                <h2>进阶</h2>
+                <span class="stage-block__meta" data-stage-meta="6"></span>
             </div>
-            <div class="ls-cards" id="stage-6"></div>
+            <div class="lesson-grid"></div>
         </section>
 
-        <div class="ls-quick-nav">
-            <a href="../docs/viewer.html?file=lessons-overview.md" class="ls-quick-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                课程总览
-            </a>
-            <a href="../docs/viewer.html?file=learning-path.md" class="ls-quick-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                学习路径
-            </a>
-            <a href="../workspace.html" class="ls-quick-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                进入工作台
-            </a>
+        <div class="lessons-quick">
+            <a href="../docs/viewer.html?file=lessons-overview.md">课程总览</a>
+            <a href="../docs/viewer.html?file=learning-path.md">学习路径</a>
+            <a href="../workspace.html">进入工作台</a>
         </div>
     </main>
 
-    <footer class="ls-footer">
+    <footer class="page-footer">
         <p>Git Workflow Lab · MIT License · <a href="https://github.com/AlexanderJ-Carter/Git-Workflow-Lab">GitHub</a></p>
     </footer>
 
     <script src="../assets/js/main.js" defer></script>
     <script>
-        // 课程数据
-        const LESSONS = [
-                    {
-                                "stage": 0,
-                                "id": "lesson-00",
-                                "file": "lesson-00-install-and-config.md",
-                                "title": "安装与配置",
-                                "desc": "安装 Git，配置用户名、邮箱和默认编辑器。",
-                                "time": "20分钟"
-                    },
-                    {
-                                "stage": 0,
-                                "id": "lesson-00b",
-                                "file": "lesson-00-terminal-basics.md",
-                                "title": "命令行与工作目录基础",
-                                "desc": "熟悉终端，掌握 pwd、ls、cd、clear 等基础命令。",
-                                "time": "15分钟"
-                    },
-                    {
-                                "stage": 0,
-                                "id": "lesson-01",
-                                "file": "lesson-01-init-push.md",
-                                "title": "创建仓库与推送",
-                                "desc": "完成 clone、add、commit、push 的第一条闭环。",
-                                "time": "20分钟"
-                    },
-                    {
-                                "stage": 0,
-                                "id": "lesson-02",
-                                "file": "lesson-02-workspace-staging-history.md",
-                                "title": "工作区 / 暂存区 / 历史",
-                                "desc": "理解 status、diff、restore、add -p 与提交历史。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 0,
-                                "id": "lesson-03",
-                                "file": "lesson-03-remote-and-sync.md",
-                                "title": "远程仓库与同步",
-                                "desc": "掌握 remote、fetch、pull、push 与同步策略。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 1,
-                                "id": "lesson-04",
-                                "file": "lesson-04-branches-and-pr.md",
-                                "title": "分支与 PR",
-                                "desc": "创建分支，提交 Pull Request，理解协作入口。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 1,
-                                "id": "lesson-05",
-                                "file": "lesson-05-merge-conflict.md",
-                                "title": "合并冲突",
-                                "desc": "制造并解决一次合并冲突，掌握冲突标记。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 1,
-                                "id": "lesson-06",
-                                "file": "lesson-06-rebase-clean-history.md",
-                                "title": "Rebase 整理历史",
-                                "desc": "使用 rebase 和交互式 rebase 保持历史清晰。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 1,
-                                "id": "lesson-06a",
-                                "file": "lesson-06a-ssh-setup-and-clone.md",
-                                "title": "SSH 密钥与 clone",
-                                "desc": "生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 1,
-                                "id": "lesson-06b",
-                                "file": "lesson-06b-collaboration-conventions.md",
-                                "title": "协作规则与约定",
-                                "desc": "建立分支命名、PR 流程和团队协作规则。",
-                                "time": "20分钟"
-                    },
-                    {
-                                "stage": 2,
-                                "id": "lesson-07",
-                                "file": "lesson-07-cherry-pick-and-revert.md",
-                                "title": "Cherry-pick 与 Revert",
-                                "desc": "选择性复制提交，并用 revert 安全撤销公共历史。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 2,
-                                "id": "lesson-08",
-                                "file": "lesson-08-reflog-and-recovery.md",
-                                "title": "Reflog 恢复",
-                                "desc": "通过 reflog 找回误删、误 reset 后的提交。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 2,
-                                "id": "lesson-09",
-                                "file": "lesson-09-stash-usage.md",
-                                "title": "Stash 使用姿势",
-                                "desc": "临时保存工作进度，在分支切换中保持现场。",
-                                "time": "25分钟"
-                    },
-                    {
-                                "stage": 2,
-                                "id": "lesson-20",
-                                "file": "lesson-20-bisect.md",
-                                "title": "Bisect 二分定位",
-                                "desc": "使用 git bisect 在历史中快速定位引入问题的提交。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 2,
-                                "id": "lesson-21",
-                                "file": "lesson-21-worktree.md",
-                                "title": "Worktree 并行工作区",
-                                "desc": "用 git worktree 同时处理多个分支和紧急任务。",
-                                "time": "25分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-13",
-                                "file": "lesson-13-tags-and-releases.md",
-                                "title": "标签与版本发布",
-                                "desc": "创建标签，理解语义化版本和 Release 流程。",
-                                "time": "25分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-14",
-                                "file": "lesson-14-project-files.md",
-                                "title": "项目文件规范",
-                                "desc": "维护 README、CONTRIBUTING、LICENSE 等项目文件。",
-                                "time": "25分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-15",
-                                "file": "lesson-15-git-hooks.md",
-                                "title": "Git Hooks 与自动化",
-                                "desc": "用 hook、Husky、commitlint 在提交前自动检查。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-16",
-                                "file": "lesson-16-large-repo.md",
-                                "title": "大仓库与性能优化",
-                                "desc": "学习浅克隆、Git LFS 与大仓库性能优化。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-17",
-                                "file": "lesson-17-release-automation.md",
-                                "title": "自动维护版本与 Changelog",
-                                "desc": "用 Release Please 自动生成版本与更新日志。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-22",
-                                "file": "lesson-22-conventional-commits.md",
-                                "title": "约定式提交",
-                                "desc": "用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 3,
-                                "id": "lesson-23",
-                                "file": "lesson-23-code-review-pr.md",
-                                "title": "PR 与代码审查实践",
-                                "desc": "从 diff、CI、scope 和评论四个角度完成代码审查。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 4,
-                                "id": "lesson-10",
-                                "file": "lesson-10-first-ci-workflow.md",
-                                "title": "第一个 CI 工作流",
-                                "desc": "创建第一条 CI 工作流，理解 Workflow、Job 和 Step。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 4,
-                                "id": "lesson-11",
-                                "file": "lesson-11-fix-broken-pipeline.md",
-                                "title": "修复失败流水线",
-                                "desc": "阅读 CI 日志，定位并修复失败的流水线。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 4,
-                                "id": "lesson-12",
-                                "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
-                                "title": "多阶段流水线与 Secrets",
-                                "desc": "组合多 Job 依赖，安全使用 CI/CD Secrets。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 5,
-                                "id": "lesson-18",
-                                "file": "lesson-18-commit-and-tag-signing.md",
-                                "title": "提交签名与标签签名",
-                                "desc": "配置签名密钥，验证 commit 与 tag 的可信来源。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 5,
-                                "id": "lesson-19",
-                                "file": "lesson-19-secrets-and-security.md",
-                                "title": "Secrets 与安全实践",
-                                "desc": "识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 6,
-                                "id": "lesson-24",
-                                "file": "lesson-24-fork-and-upstream.md",
-                                "title": "Fork 与 upstream 同步",
-                                "desc": "用 origin 与 upstream 模拟开源 Fork 工作流和上游同步。",
-                                "time": "40分钟"
-                    },
-                    {
-                                "stage": 6,
-                                "id": "lesson-25",
-                                "file": "lesson-25-hotfix-workflow.md",
-                                "title": "Hotfix 应急发布流程",
-                                "desc": "从稳定线切出修复分支，打补丁版本并回灌开发线。",
-                                "time": "35分钟"
-                    },
-                    {
-                                "stage": 6,
-                                "id": "lesson-26",
-                                "file": "lesson-26-submodule.md",
-                                "title": "Git Submodule 子模块",
-                                "desc": "理解子模块固定到 commit 的模型和初始化、更新常见坑。",
-                                "time": "40分钟"
-                    },
-                    {
-                                "stage": 6,
-                                "id": "lesson-27",
-                                "file": "lesson-27-interactive-rebase-fixup.md",
-                                "title": "交互式 Rebase 进阶",
-                                "desc": "使用 fixup、squash、reword 与 autosquash 整理提交。",
-                                "time": "40分钟"
-                    },
-                    {
-                                "stage": 6,
-                                "id": "lesson-28",
-                                "file": "lesson-28-blame-and-archaeology.md",
-                                "title": "Blame 与历史考古",
-                                "desc": "用 blame、log -S/-G、--follow 和 show 追踪代码来源。",
-                                "time": "30分钟"
-                    },
-                    {
-                                "stage": 6,
-                                "id": "lesson-29",
-                                "file": "lesson-29-sparse-checkout.md",
-                                "title": "Sparse Checkout 与部分克隆",
-                                "desc": "用 sparse checkout 与 partial clone 降低大仓库检出成本。",
-                                "time": "35分钟"
-                    }
-        ];
+        const STAGE_IDS = ['stage-0', 'stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5', 'stage-6'];
 
-        // 学习进度
-        const LearningProgress = {
-            STORAGE_KEY: 'git-workflow-lab-progress',
+        const progressApi = () => window.GitWorkflowLab?.LearningProgress;
 
-            getProgress() {
-                try {
-                    const data = localStorage.getItem(this.STORAGE_KEY);
-                    return data ? JSON.parse(data) : {};
-                } catch { return {}; }
-            },
+        function escapeHtml(text) {
+            const el = document.createElement('span');
+            el.textContent = text ?? '';
+            return el.innerHTML;
+        }
 
-            toggleComplete(lessonId) {
-                const progress = this.getProgress();
-                progress[lessonId] = { completed: !progress[lessonId]?.completed, timestamp: Date.now() };
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
-                window.GitWorkflowLab?.ActivityProgress.notify('lesson', {
-                    lessonId,
-                    completed: progress[lessonId].completed
-                });
-                return progress[lessonId].completed;
-            },
+        function estimateTime(lesson) {
+            const match = lesson.desc?.match(/(\d+)\s*分钟/);
+            if (match) return `${match[1]}分钟`;
+            return '30分钟';
+        }
 
-            isCompleted(lessonId) {
-                return this.getProgress()[lessonId]?.completed || false;
-            },
+        function isCompleted(lessonId) {
+            return progressApi()?.isCompleted?.(lessonId) ?? false;
+        }
 
-            getCompletedCount() {
-                return Object.values(this.getProgress()).filter(p => p.completed).length;
+        function getCompletedCount() {
+            return progressApi()?.getCompletedCount?.() ?? 0;
+        }
+
+        function renderLessonCard(lesson) {
+            const completed = isCompleted(lesson.id);
+            const completedClass = completed ? ' completed' : '';
+            const badge = lesson.badge || lesson.id.replace('lesson-', '');
+            const time = estimateTime(lesson);
+            const href = `../docs/viewer.html?file=${encodeURIComponent(lesson.file)}`;
+            return `
+                <a href="${href}" class="lesson-card${completedClass}" data-lesson-id="${escapeHtml(lesson.id)}">
+                    <div class="lesson-card__top">
+                        <span class="lesson-card__id">${escapeHtml(badge)}</span>
+                        <span class="lesson-card__time">${escapeHtml(time)}</span>
+                    </div>
+                    <h3>${escapeHtml(lesson.title)}</h3>
+                    <p>${escapeHtml(lesson.desc)}</p>
+                </a>
+            `;
+        }
+
+        function renderLessons(lessons) {
+            STAGE_IDS.forEach((stageId, stageIndex) => {
+                const section = document.getElementById(stageId);
+                const container = section?.querySelector('.lesson-grid');
+                if (!container) return;
+
+                const stageLessons = lessons.filter((lesson) => lesson.stage === stageIndex);
+                container.innerHTML = stageLessons.map(renderLessonCard).join('');
+
+                const meta = document.querySelector(`[data-stage-meta="${stageIndex}"]`);
+                if (meta) {
+                    meta.textContent = `${stageLessons.length} 个关卡`;
+                }
+            });
+        }
+
+        function updateProgress(total) {
+            const completed = getCompletedCount();
+            const percentage = total ? Math.round((completed / total) * 100) : 0;
+
+            const valueEl = document.getElementById('progress-value');
+            const fillEl = document.getElementById('progress-fill');
+            if (valueEl) valueEl.textContent = `${percentage}%`;
+            if (fillEl) fillEl.style.width = `${percentage}%`;
+        }
+
+        let cachedLessons = [];
+
+        function refresh() {
+            renderLessons(cachedLessons);
+            updateProgress(cachedLessons.length);
+        }
+
+        async function initLessonsPage() {
+            try {
+                const response = await fetch('../assets/data/lessons.json');
+                if (!response.ok) throw new Error('Failed to load lessons.json');
+                const data = await response.json();
+                cachedLessons = data.filter((item) => item.id.startsWith('lesson-'));
+                refresh();
+            } catch (error) {
+                console.error('[lessons]', error);
             }
-        };
 
-        // 渲染课程卡片
-        function renderLessons() {
-            const stages = ['stage-0', 'stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5', 'stage-6'];
-
-            stages.forEach((stageId, index) => {
-                const container = document.getElementById(stageId);
-                const stageLessons = LESSONS.filter(l => l.stage === index);
-
-                container.innerHTML = stageLessons.map(lesson => {
-                    const isCompleted = LearningProgress.isCompleted(lesson.id);
-                    return `
-                        <a href="../docs/viewer.html?file=${lesson.file}" class="ls-card ${isCompleted ? 'completed' : ''}" data-id="${lesson.id}">
-                            <div class="ls-card-header">
-                                <div class="ls-card-number">${lesson.id.replace('lesson-', '')}</div>
-                                <div class="ls-card-title">${lesson.title}</div>
-                            </div>
-                            <p class="ls-card-desc">${lesson.desc}</p>
-                            <div class="ls-card-meta">
-                                <span class="ls-card-tag">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    ${lesson.time}
-                                </span>
-                                <span class="ls-card-tag">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                    ${isCompleted ? '已完成' : '未开始'}
-                                </span>
-                            </div>
-                        </a>
-                    `;
-                }).join('');
-            });
+            window.addEventListener('storage', refresh);
         }
 
-        // 更新进度
-        function updateProgress() {
-            const completed = LearningProgress.getCompletedCount();
-            const total = LESSONS.length;
-            const percentage = Math.round((completed / total) * 100);
-
-            document.getElementById('progress-value').textContent = `${percentage}%`;
-            document.getElementById('progress-fill').style.width = `${percentage}%`;
-        }
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            renderLessons();
-            updateProgress();
-
-            // 监听进度更新
-            window.addEventListener('storage', () => {
-                renderLessons();
-                updateProgress();
-            });
-        });
+        document.addEventListener('DOMContentLoaded', initLessonsPage);
     </script>
 </body>
 </html>

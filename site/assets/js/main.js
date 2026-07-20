@@ -1314,26 +1314,14 @@
         <div class="global-navbar-content">
             <div class="global-navbar-left">
                 <a href="${base}index.html" class="global-navbar-brand">
-                    <div class="global-navbar-logo">📖</div>
+                    <div class="global-navbar-logo" aria-hidden="true">G</div>
                     <span>Git Workflow Lab</span>
                 </a>
                 <div class="global-navbar-links">
-                    <a href="${base}lessons/index.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        课程
-                    </a>
-                    <a href="${base}learning-path.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        学习路径
-                    </a>
-                    <a href="${base}playground.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-                        练习
-                    </a>
-                    <a href="${base}quiz.html" class="nav-link">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        测验
-                    </a>
+                    <a href="${base}lessons/index.html" class="nav-link">课程</a>
+                    <a href="${base}learning-path.html" class="nav-link">学习路径</a>
+                    <a href="${base}workspace.html" class="nav-link nav-link--local">工作台</a>
+                    <a href="${base}quiz.html" class="nav-link">测验</a>
                 </div>
             </div>
             <div class="global-navbar-right">
@@ -1350,13 +1338,12 @@
             </div>
         </div>
         <div class="global-navbar-menu">
-            <a href="${base}lessons/index.html" class="nav-link">📚 课程</a>
-            <a href="${base}learning-path.html" class="nav-link">🎯 学习路径</a>
-            <a href="${base}playground.html" class="nav-link">⚡ 练习</a>
-            <a href="${base}quiz.html" class="nav-link">✅ 测验</a>
-            <a href="${base}command-sheet.html" class="nav-link">📋 速查表</a>
-            <a href="${base}ai-assistant.html" class="nav-link">🤖 AI助手</a>
-            <a href="${base}reference.html" class="nav-link">📚 参考</a>
+            <a href="${base}lessons/index.html" class="nav-link">课程</a>
+            <a href="${base}learning-path.html" class="nav-link">学习路径</a>
+            <a href="${base}workspace.html" class="nav-link nav-link--local">工作台</a>
+            <a href="${base}quiz.html" class="nav-link">测验</a>
+            <a href="${base}command-sheet.html" class="nav-link">速查表</a>
+            <a href="${base}quick-start.html" class="nav-link nav-link--local">快速开始</a>
         </div>
     </nav>`;
             document.body.insertAdjacentHTML('afterbegin', html);
@@ -1404,6 +1391,13 @@
 
             // 高亮当前页面链接
             this.highlightCurrentPage();
+
+            const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+            document.querySelectorAll('.nav-link--local').forEach((el) => {
+                if (!isLocal) {
+                    el.style.display = 'none';
+                }
+            });
 
             // 初始化搜索功能
             this.initSearch();

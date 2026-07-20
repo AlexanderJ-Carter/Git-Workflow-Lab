@@ -379,13 +379,15 @@ def test_build_site_includes_v3_assets() -> None:
     assert ".hero-v3" in style_css
     assert "bundled pages.css" in style_css
     index = (root / "_site" / "index.html").read_text(encoding="utf-8")
-    assert "assets/css/style.css" in index
+    assert "assets/css/style.css?v=4" in index
+    assert "assets/css/pages.css" not in index
+    assert "asset-base.js" in index
 
 
 def test_lessons_index_asset_paths_are_parent_relative() -> None:
     """课程中心位于 lessons/ 下，静态资源必须用 ../assets。"""
     text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
     assert 'href="../assets/css/style.css"' in text
-    assert 'href="../assets/css/pages.css"' in text
+    assert 'src="../assets/js/asset-base.js"' in text
     assert 'src="../assets/js/main.js"' in text
     assert 'href="assets/css/style.css"' not in text

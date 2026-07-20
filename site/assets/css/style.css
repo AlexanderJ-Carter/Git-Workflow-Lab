@@ -1,5 +1,6 @@
 /* Git Workflow Lab - 样式表 */
 /* 字体由各 HTML 页面统一引入，避免 @import 阻塞渲染 */
+@import url('pages.css');
 
 :root {
     --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -3697,5 +3698,3 @@ textarea.form-input {
         animation: none !important;
     }
 }
-
-@import url('pages.css');

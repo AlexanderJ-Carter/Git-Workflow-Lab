@@ -609,6 +609,46 @@ def bundle_stylesheets(src_css: Path, dest_css: Path) -> None:
         shutil.copy(pages_path, dest_css / "pages.css")
 
 
+def bundle_stylesheets(src_css: Path, dest_css: Path) -> None:
+    """将 pages.css 合并进 style.css，避免线上只加载主样式表时首页布局丢失。"""
+    style_text = (src_css / "style.css").read_text(encoding="utf-8")
+    pages_path = src_css / "pages.css"
+    pages_text = pages_path.read_text(encoding="utf-8") if pages_path.exists() else ""
+    style_text = re.sub(r"@import\s+url\(['\"]pages\.css['\"]\)\s*;?", "", style_text)
+    bundled = f"{style_text.rstrip()}\n\n/* bundled pages.css */\n{pages_text}"
+    dest_css.mkdir(parents=True, exist_ok=True)
+    dest_css.joinpath("style.css").write_text(bundled, encoding="utf-8")
+    if pages_path.exists():
+        shutil.copy(pages_path, dest_css / "pages.css")
+
+
+ASSET_BASE_SNIPPET = '<script src="{prefix}assets/js/asset-base.js"></script>'
+STYLE_CACHE_BUST = "?v=4"
+
+
+def patch_html_for_deploy(html: str, *, depth: int = 0) -> str:
+    """修正 Pages 部署 HTML：注入 base 脚本、合并样式表单链接、缓存破除。"""
+    prefix = "../" * depth
+    snippet = ASSET_BASE_SNIPPET.format(prefix=prefix)
+    if "asset-base.js" not in html and "<head>" in html:
+        html = html.replace("<head>", f"<head>\n    {snippet}", 1)
+
+    html = re.sub(
+        r'<link rel="stylesheet" href="(\.\./)*assets/css/pages\.css">\s*',
+        "",
+        html,
+    )
+    html = html.replace(
+        f'href="{prefix}assets/css/style.css"',
+        f'href="{prefix}assets/css/style.css{STYLE_CACHE_BUST}"',
+    )
+    html = html.replace(
+        f'href="{prefix}assets/js/main.js"',
+        f'href="{prefix}assets/js/main.js{STYLE_CACHE_BUST}"',
+    )
+    return html
+
+
 def build_site() -> None:
     """构建静态网站.
 
@@ -666,7 +706,8 @@ def build_site() -> None:
         print(f"  Copied docs/ directory")
 
     for html_file in Path("site").glob("*.html"):
-        shutil.copy(html_file, SITE_DIR / html_file.name)
+        text = html_file.read_text(encoding="utf-8")
+        (SITE_DIR / html_file.name).write_text(patch_html_for_deploy(text), encoding="utf-8")
         print(f"  Copied {html_file.name}")
 
     # 保留 site/lessons 下的精美索引页；无则再回退到模板生成
@@ -692,7 +733,8 @@ def build_site() -> None:
         lessons.append(get_lesson_info(md_file))
 
     if prefer_site_lessons_index:
-        shutil.copy(site_lessons_index, LESSONS_DIR / "index.html")
+        lessons_index_html = site_lessons_index.read_text(encoding="utf-8")
+        (LESSONS_DIR / "index.html").write_text(patch_html_for_deploy(lessons_index_html, depth=1), encoding="utf-8")
         print("  Copied site/lessons/index.html")
     else:
         lessons_html = ""

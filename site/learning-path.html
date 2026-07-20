@@ -194,12 +194,16 @@
         .path-stage-icon.stage-2 { background: #fef3c7; color: #92400e; }
         .path-stage-icon.stage-3 { background: #fce7f3; color: #9d174d; }
         .path-stage-icon.stage-4 { background: #ede9fe; color: #6d28d9; }
+        .path-stage-icon.stage-5 { background: #dcfce7; color: #166534; }
+        .path-stage-icon.stage-6 { background: #cffafe; color: #0e7490; }
 
         [data-theme="dark"] .path-stage-icon.stage-0 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
         [data-theme="dark"] .path-stage-icon.stage-1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
         [data-theme="dark"] .path-stage-icon.stage-2 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
         [data-theme="dark"] .path-stage-icon.stage-3 { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
         [data-theme="dark"] .path-stage-icon.stage-4 { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        [data-theme="dark"] .path-stage-icon.stage-5 { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        [data-theme="dark"] .path-stage-icon.stage-6 { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
 
         .path-stage-icon.completed {
             background: var(--path-success) !important;
@@ -442,10 +446,12 @@
             </div>
             <div class="path-progress-stages">
                 <div class="path-stage-item"><strong>0%</strong><span>基础</span></div>
-                <div class="path-stage-item"><strong>25%</strong><span>进阶</span></div>
-                <div class="path-stage-item"><strong>50%</strong><span>协作</span></div>
-                <div class="path-stage-item"><strong>75%</strong><span>恢复</span></div>
-                <div class="path-stage-item"><strong>100%</strong><span>安全</span></div>
+                <div class="path-stage-item"><strong>17%</strong><span>协作</span></div>
+                <div class="path-stage-item"><strong>33%</strong><span>恢复</span></div>
+                <div class="path-stage-item"><strong>50%</strong><span>工程</span></div>
+                <div class="path-stage-item"><strong>67%</strong><span>CI/CD</span></div>
+                <div class="path-stage-item"><strong>83%</strong><span>安全</span></div>
+                <div class="path-stage-item"><strong>100%</strong><span>进阶</span></div>
             </div>
         </div>
         <div class="path-activity-strip" id="path-activity-strip" hidden>
@@ -462,64 +468,79 @@
             <h3>推荐学习顺序</h3>
             <p>如果你是 Git 新手，建议按照以下顺序学习：</p>
             <ol>
-                <li>阶段 0-1 基础入门：理解 Git 的基本概念和最常用的命令</li>
-                <li>阶段 2 分支与协作：学会使用分支，理解团队协作流程</li>
-                <li>阶段 3 救火与恢复：掌握误操作后的恢复技能</li>
-                <li>阶段 4-5 发布与自动化：了解标签、CI/CD 和工程化实践</li>
-                <li>阶段 4 安全与规范：补齐签名、Secrets 与安全习惯</li>
+                <li>阶段 A-B 环境与基础：安装配置、终端和 Git 基础闭环</li>
+                <li>阶段 C 分支与协作：分支、冲突、rebase、SSH 与协作约定</li>
+                <li>阶段 D 救火与恢复：cherry-pick、reflog、stash、bisect 与 worktree</li>
+                <li>阶段 E 工程化实践：标签、项目文件、Hooks、大仓库、发布规范与 PR 审查</li>
+                <li>阶段 F CI/CD：首个流水线、失败修复和多阶段 Secrets</li>
+                <li>阶段 G 安全：提交签名、标签签名与 Secrets 安全</li>
+                <li>阶段 H 进阶实用：Fork、hotfix、submodule、历史整理、考古与 sparse checkout</li>
             </ol>
         </div>
     </div>
 
     <div class="path-timeline">
-        <!-- 阶段 0-1 -->
         <div class="path-stage">
             <div class="path-stage-header">
-                <div class="path-stage-icon stage-0" id="stage-icon-0">0-1</div>
-                <div class="path-stage-title">阶段 0-1：Git 基础入门</div>
+                <div class="path-stage-icon stage-0" id="stage-icon-0">A-B</div>
+                <div class="path-stage-title">阶段 A-B：环境与基础</div>
                 <div class="path-stage-meta">5 个关卡 · 约 2 小时</div>
             </div>
             <div class="path-cards" id="stage-0"></div>
         </div>
 
-        <!-- 阶段 2 -->
         <div class="path-stage">
             <div class="path-stage-header">
-                <div class="path-stage-icon stage-1" id="stage-icon-1">2</div>
-                <div class="path-stage-title">阶段 2：分支与协作</div>
+                <div class="path-stage-icon stage-1" id="stage-icon-1">C</div>
+                <div class="path-stage-title">阶段 C：分支与协作</div>
                 <div class="path-stage-meta">5 个关卡 · 约 2.5 小时</div>
             </div>
             <div class="path-cards" id="stage-1"></div>
         </div>
 
-        <!-- 阶段 3 -->
         <div class="path-stage">
             <div class="path-stage-header">
-                <div class="path-stage-icon stage-2" id="stage-icon-2">3</div>
-                <div class="path-stage-title">阶段 3：救火与恢复</div>
+                <div class="path-stage-icon stage-2" id="stage-icon-2">D</div>
+                <div class="path-stage-title">阶段 D：救火与恢复</div>
                 <div class="path-stage-meta">5 个关卡 · 约 2.5 小时</div>
             </div>
             <div class="path-cards" id="stage-2"></div>
         </div>
 
-        <!-- 阶段 4-5 -->
         <div class="path-stage">
             <div class="path-stage-header">
-                <div class="path-stage-icon stage-3" id="stage-icon-3">4-5</div>
-                <div class="path-stage-title">阶段 4-5：CI/CD 与进阶</div>
-                <div class="path-stage-meta">8 个关卡 · 约 4 小时</div>
+                <div class="path-stage-icon stage-3" id="stage-icon-3">E</div>
+                <div class="path-stage-title">阶段 E：工程化实践</div>
+                <div class="path-stage-meta">7 个关卡 · 约 3.5 小时</div>
             </div>
             <div class="path-cards" id="stage-3"></div>
         </div>
 
-        <!-- 阶段 4：安全与规范 -->
         <div class="path-stage">
             <div class="path-stage-header">
-                <div class="path-stage-icon stage-4" id="stage-icon-4">4</div>
-                <div class="path-stage-title">阶段 4：安全与规范</div>
-                <div class="path-stage-meta">2 个关卡 · 约 1 小时</div>
+                <div class="path-stage-icon stage-4" id="stage-icon-4">F</div>
+                <div class="path-stage-title">阶段 F：CI/CD</div>
+                <div class="path-stage-meta">3 个关卡 · 约 1.5 小时</div>
             </div>
             <div class="path-cards" id="stage-4"></div>
+        </div>
+
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-5" id="stage-icon-5">G</div>
+                <div class="path-stage-title">阶段 G：安全</div>
+                <div class="path-stage-meta">2 个关卡 · 约 1 小时</div>
+            </div>
+            <div class="path-cards" id="stage-5"></div>
+        </div>
+
+        <div class="path-stage">
+            <div class="path-stage-header">
+                <div class="path-stage-icon stage-6" id="stage-icon-6">H</div>
+                <div class="path-stage-title">阶段 H：进阶实用</div>
+                <div class="path-stage-meta">6 个关卡 · 约 3.5 小时</div>
+            </div>
+            <div class="path-cards" id="stage-6"></div>
         </div>
     </div>
 
@@ -527,36 +548,237 @@
     <script>
         // 课程数据
         let LESSONS = [
-            // 阶段 0-1
-            { stage: 0, id: 'lesson-00', file: 'lesson-00-install-and-config.md', title: '安装与配置', desc: 'Git 安装、配置用户信息、全局 .gitignore' },
-            { stage: 0, id: 'lesson-00b', file: 'lesson-00-terminal-basics.md', title: '命令行基础', desc: '熟悉终端，掌握 pwd / ls / cd 等命令' },
-            { stage: 0, id: 'lesson-01', file: 'lesson-01-init-push.md', title: '创建仓库与推送', desc: 'clone、add、commit、push 完整流程' },
-            { stage: 0, id: 'lesson-02', file: 'lesson-02-workspace-staging-history.md', title: '工作区与暂存区', desc: '理解 status、diff、restore 等概念' },
-            { stage: 0, id: 'lesson-03', file: 'lesson-03-remote-and-sync.md', title: '远程同步', desc: 'remote、fetch、pull、push 操作' },
-            // 阶段 2
-            { stage: 1, id: 'lesson-04', file: 'lesson-04-branches-and-pr.md', title: '分支与 PR', desc: 'branch、checkout、merge、PR 操作' },
-            { stage: 1, id: 'lesson-05', file: 'lesson-05-merge-conflict.md', title: '合并冲突', desc: '理解冲突、手动解决合并冲突' },
-            { stage: 1, id: 'lesson-06', file: 'lesson-06-rebase-clean-history.md', title: 'Rebase 整理', desc: 'rebase、交互式 rebase 整理历史' },
-            { stage: 1, id: 'lesson-06a', file: 'lesson-06a-ssh-setup-and-clone.md', title: 'SSH 密钥', desc: '配置 SSH 公钥、实现无密码访问' },
-            { stage: 1, id: 'lesson-06b', file: 'lesson-06b-collaboration-conventions.md', title: '协作规范', desc: '分支命名规范、PR 流程、Git Flow' },
-            // 阶段 3
-            { stage: 2, id: 'lesson-07', file: 'lesson-07-cherry-pick-and-revert.md', title: 'Cherry-pick 与 Revert', desc: '选择性应用提交、撤销变更' },
-            { stage: 2, id: 'lesson-08', file: 'lesson-08-reflog-and-recovery.md', title: 'Reflog 恢复', desc: 'reflog、reset、恢复误删提交' },
-            { stage: 2, id: 'lesson-09', file: 'lesson-09-stash-usage.md', title: 'Stash 暂存', desc: 'stash 保存工作进度、切换分支' },
-            { stage: 2, id: 'lesson-20', file: 'lesson-20-bisect.md', title: 'Bisect 二分定位', desc: '用二分法定位引入问题的提交' },
-            { stage: 2, id: 'lesson-21', file: 'lesson-21-worktree.md', title: 'Worktree 并行工作区', desc: '同时处理多个分支和紧急任务' },
-            // 阶段 4-5
-            { stage: 3, id: 'lesson-10', file: 'lesson-10-first-ci-workflow.md', title: '第一个 CI', desc: 'Gitea Actions、Workflow 入门' },
-            { stage: 3, id: 'lesson-11', file: 'lesson-11-fix-broken-pipeline.md', title: '修复流水线', desc: '阅读日志、定位问题、修复 CI' },
-            { stage: 3, id: 'lesson-12', file: 'lesson-12-multi-stage-pipeline-and-secrets.md', title: '多阶段流水线', desc: '多 Job 依赖、Secrets 管理' },
-            { stage: 3, id: 'lesson-13', file: 'lesson-13-tags-and-releases.md', title: '标签与发布', desc: 'tag 命令、语义化版本、Release' },
-            { stage: 3, id: 'lesson-14', file: 'lesson-14-project-files.md', title: '项目规范', desc: 'README、CONTRIBUTING、LICENSE' },
-            { stage: 3, id: 'lesson-15', file: 'lesson-15-git-hooks.md', title: 'Git Hooks', desc: 'pre-commit、Husky、commitlint' },
-            { stage: 3, id: 'lesson-16', file: 'lesson-16-large-repo.md', title: '大仓库优化', desc: '浅克隆、Git LFS、性能调优' },
-            { stage: 3, id: 'lesson-17', file: 'lesson-17-release-automation.md', title: '自动发布', desc: 'Release Please、自动版本与 Changelog' },
-            // 阶段 4
-            { stage: 4, id: 'lesson-18', file: 'lesson-18-commit-and-tag-signing.md', title: '提交签名', desc: 'Commit / Tag 签名与验证' },
-            { stage: 4, id: 'lesson-19', file: 'lesson-19-secrets-and-security.md', title: '密钥安全', desc: 'Secrets 管理与安全实践' },
+            {
+                "stage": 0,
+                "id": "lesson-00",
+                "file": "lesson-00-install-and-config.md",
+                "title": "安装与配置",
+                "desc": "安装 Git，配置用户名、邮箱和默认编辑器。"
+            },
+            {
+                "stage": 0,
+                "id": "lesson-00b",
+                "file": "lesson-00-terminal-basics.md",
+                "title": "命令行与工作目录基础",
+                "desc": "熟悉终端，掌握 pwd、ls、cd、clear 等基础命令。"
+            },
+            {
+                "stage": 0,
+                "id": "lesson-01",
+                "file": "lesson-01-init-push.md",
+                "title": "创建仓库与推送",
+                "desc": "完成 clone、add、commit、push 的第一条闭环。"
+            },
+            {
+                "stage": 0,
+                "id": "lesson-02",
+                "file": "lesson-02-workspace-staging-history.md",
+                "title": "工作区 / 暂存区 / 历史",
+                "desc": "理解 status、diff、restore、add -p 与提交历史。"
+            },
+            {
+                "stage": 0,
+                "id": "lesson-03",
+                "file": "lesson-03-remote-and-sync.md",
+                "title": "远程仓库与同步",
+                "desc": "掌握 remote、fetch、pull、push 与同步策略。"
+            },
+            {
+                "stage": 1,
+                "id": "lesson-04",
+                "file": "lesson-04-branches-and-pr.md",
+                "title": "分支与 PR",
+                "desc": "创建分支，提交 Pull Request，理解协作入口。"
+            },
+            {
+                "stage": 1,
+                "id": "lesson-05",
+                "file": "lesson-05-merge-conflict.md",
+                "title": "合并冲突",
+                "desc": "制造并解决一次合并冲突，掌握冲突标记。"
+            },
+            {
+                "stage": 1,
+                "id": "lesson-06",
+                "file": "lesson-06-rebase-clean-history.md",
+                "title": "Rebase 整理历史",
+                "desc": "使用 rebase 和交互式 rebase 保持历史清晰。"
+            },
+            {
+                "stage": 1,
+                "id": "lesson-06a",
+                "file": "lesson-06a-ssh-setup-and-clone.md",
+                "title": "SSH 密钥与 clone",
+                "desc": "生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库。"
+            },
+            {
+                "stage": 1,
+                "id": "lesson-06b",
+                "file": "lesson-06b-collaboration-conventions.md",
+                "title": "协作规则与约定",
+                "desc": "建立分支命名、PR 流程和团队协作规则。"
+            },
+            {
+                "stage": 2,
+                "id": "lesson-07",
+                "file": "lesson-07-cherry-pick-and-revert.md",
+                "title": "Cherry-pick 与 Revert",
+                "desc": "选择性复制提交，并用 revert 安全撤销公共历史。"
+            },
+            {
+                "stage": 2,
+                "id": "lesson-08",
+                "file": "lesson-08-reflog-and-recovery.md",
+                "title": "Reflog 恢复",
+                "desc": "通过 reflog 找回误删、误 reset 后的提交。"
+            },
+            {
+                "stage": 2,
+                "id": "lesson-09",
+                "file": "lesson-09-stash-usage.md",
+                "title": "Stash 使用姿势",
+                "desc": "临时保存工作进度，在分支切换中保持现场。"
+            },
+            {
+                "stage": 2,
+                "id": "lesson-20",
+                "file": "lesson-20-bisect.md",
+                "title": "Bisect 二分定位",
+                "desc": "使用 git bisect 在历史中快速定位引入问题的提交。"
+            },
+            {
+                "stage": 2,
+                "id": "lesson-21",
+                "file": "lesson-21-worktree.md",
+                "title": "Worktree 并行工作区",
+                "desc": "用 git worktree 同时处理多个分支和紧急任务。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-13",
+                "file": "lesson-13-tags-and-releases.md",
+                "title": "标签与版本发布",
+                "desc": "创建标签，理解语义化版本和 Release 流程。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-14",
+                "file": "lesson-14-project-files.md",
+                "title": "项目文件规范",
+                "desc": "维护 README、CONTRIBUTING、LICENSE 等项目文件。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-15",
+                "file": "lesson-15-git-hooks.md",
+                "title": "Git Hooks 与自动化",
+                "desc": "用 hook、Husky、commitlint 在提交前自动检查。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-16",
+                "file": "lesson-16-large-repo.md",
+                "title": "大仓库与性能优化",
+                "desc": "学习浅克隆、Git LFS 与大仓库性能优化。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-17",
+                "file": "lesson-17-release-automation.md",
+                "title": "自动维护版本与 Changelog",
+                "desc": "用 Release Please 自动生成版本与更新日志。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-22",
+                "file": "lesson-22-conventional-commits.md",
+                "title": "约定式提交",
+                "desc": "用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布。"
+            },
+            {
+                "stage": 3,
+                "id": "lesson-23",
+                "file": "lesson-23-code-review-pr.md",
+                "title": "PR 与代码审查实践",
+                "desc": "从 diff、CI、scope 和评论四个角度完成代码审查。"
+            },
+            {
+                "stage": 4,
+                "id": "lesson-10",
+                "file": "lesson-10-first-ci-workflow.md",
+                "title": "第一个 CI 工作流",
+                "desc": "创建第一条 CI 工作流，理解 Workflow、Job 和 Step。"
+            },
+            {
+                "stage": 4,
+                "id": "lesson-11",
+                "file": "lesson-11-fix-broken-pipeline.md",
+                "title": "修复失败流水线",
+                "desc": "阅读 CI 日志，定位并修复失败的流水线。"
+            },
+            {
+                "stage": 4,
+                "id": "lesson-12",
+                "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+                "title": "多阶段流水线与 Secrets",
+                "desc": "组合多 Job 依赖，安全使用 CI/CD Secrets。"
+            },
+            {
+                "stage": 5,
+                "id": "lesson-18",
+                "file": "lesson-18-commit-and-tag-signing.md",
+                "title": "提交签名与标签签名",
+                "desc": "配置签名密钥，验证 commit 与 tag 的可信来源。"
+            },
+            {
+                "stage": 5,
+                "id": "lesson-19",
+                "file": "lesson-19-secrets-and-security.md",
+                "title": "Secrets 与安全实践",
+                "desc": "识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险。"
+            },
+            {
+                "stage": 6,
+                "id": "lesson-24",
+                "file": "lesson-24-fork-and-upstream.md",
+                "title": "Fork 与 upstream 同步",
+                "desc": "用 origin 与 upstream 模拟开源 Fork 工作流和上游同步。"
+            },
+            {
+                "stage": 6,
+                "id": "lesson-25",
+                "file": "lesson-25-hotfix-workflow.md",
+                "title": "Hotfix 应急发布流程",
+                "desc": "从稳定线切出修复分支，打补丁版本并回灌开发线。"
+            },
+            {
+                "stage": 6,
+                "id": "lesson-26",
+                "file": "lesson-26-submodule.md",
+                "title": "Git Submodule 子模块",
+                "desc": "理解子模块固定到 commit 的模型和初始化、更新常见坑。"
+            },
+            {
+                "stage": 6,
+                "id": "lesson-27",
+                "file": "lesson-27-interactive-rebase-fixup.md",
+                "title": "交互式 Rebase 进阶",
+                "desc": "使用 fixup、squash、reword 与 autosquash 整理提交。"
+            },
+            {
+                "stage": 6,
+                "id": "lesson-28",
+                "file": "lesson-28-blame-and-archaeology.md",
+                "title": "Blame 与历史考古",
+                "desc": "用 blame、log -S/-G、--follow 和 show 追踪代码来源。"
+            },
+            {
+                "stage": 6,
+                "id": "lesson-29",
+                "file": "lesson-29-sparse-checkout.md",
+                "title": "Sparse Checkout 与部分克隆",
+                "desc": "用 sparse checkout 与 partial clone 降低大仓库检出成本。"
+            }
         ];
 
         // 学习进度
@@ -592,7 +814,7 @@
 
         // 渲染课程卡片
         function renderCards() {
-            [0, 1, 2, 3, 4].forEach(stageIndex => {
+            [0, 1, 2, 3, 4, 5, 6].forEach(stageIndex => {
                 const container = document.getElementById(`stage-${stageIndex}`);
                 if (!container) return;
                 const stageLessons = LESSONS.filter(l => l.stage === stageIndex);
@@ -624,8 +846,8 @@
             document.getElementById('progress-fill').style.width = `${percentage}%`;
 
             // 更新阶段图标状态
-            const stageThresholds = [0.2, 0.4, 0.6, 0.8, 1];
-            [0, 1, 2, 3, 4].forEach(i => {
+            const stageThresholds = [0.14, 0.28, 0.42, 0.56, 0.70, 0.84, 1];
+            [0, 1, 2, 3, 4, 5, 6].forEach(i => {
                 const icon = document.getElementById(`stage-icon-${i}`);
                 if (!icon) return;
                 if (percentage >= stageThresholds[i] * 100) {

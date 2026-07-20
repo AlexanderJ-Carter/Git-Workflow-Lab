@@ -15,7 +15,7 @@
     "title": "安装与配置",
     "badge": "00",
     "stage": 0,
-    "group": "阶段 0-1 · 基础入门",
+    "group": "阶段 A-B · 环境与基础",
     "desc": "安装 Git，配置用户名、邮箱和默认编辑器。",
     "quizId": "lesson-00"
   },
@@ -25,7 +25,7 @@
     "title": "命令行与工作目录基础",
     "badge": "00b",
     "stage": 0,
-    "group": "阶段 0-1 · 基础入门",
+    "group": "阶段 A-B · 环境与基础",
     "desc": "熟悉终端，掌握 pwd、ls、cd、clear 等基础命令。",
     "quizId": "lesson-00b"
   },
@@ -35,7 +35,7 @@
     "title": "创建仓库与推送",
     "badge": "01",
     "stage": 0,
-    "group": "阶段 0-1 · 基础入门",
+    "group": "阶段 A-B · 环境与基础",
     "desc": "完成 clone、add、commit、push 的第一条闭环。",
     "quizId": "lesson-01"
   },
@@ -45,7 +45,7 @@
     "title": "工作区 / 暂存区 / 历史",
     "badge": "02",
     "stage": 0,
-    "group": "阶段 0-1 · 基础入门",
+    "group": "阶段 A-B · 环境与基础",
     "desc": "理解 status、diff、restore、add -p 与提交历史。",
     "quizId": "lesson-02"
   },
@@ -55,7 +55,7 @@
     "title": "远程仓库与同步",
     "badge": "03",
     "stage": 0,
-    "group": "阶段 0-1 · 基础入门",
+    "group": "阶段 A-B · 环境与基础",
     "desc": "掌握 remote、fetch、pull、push 与同步策略。",
     "quizId": "lesson-03"
   },
@@ -65,7 +65,7 @@
     "title": "分支与 PR",
     "badge": "04",
     "stage": 1,
-    "group": "阶段 2 · 分支与协作",
+    "group": "阶段 C · 分支与协作",
     "desc": "创建分支，提交 Pull Request，理解协作入口。",
     "quizId": "lesson-04"
   },
@@ -75,7 +75,7 @@
     "title": "合并冲突",
     "badge": "05",
     "stage": 1,
-    "group": "阶段 2 · 分支与协作",
+    "group": "阶段 C · 分支与协作",
     "desc": "制造并解决一次合并冲突，掌握冲突标记。",
     "quizId": "lesson-05"
   },
@@ -85,7 +85,7 @@
     "title": "Rebase 整理历史",
     "badge": "06",
     "stage": 1,
-    "group": "阶段 2 · 分支与协作",
+    "group": "阶段 C · 分支与协作",
     "desc": "使用 rebase 和交互式 rebase 保持历史清晰。",
     "quizId": "lesson-06"
   },
@@ -95,7 +95,7 @@
     "title": "SSH 密钥与 clone",
     "badge": "06a",
     "stage": 1,
-    "group": "阶段 2 · 分支与协作",
+    "group": "阶段 C · 分支与协作",
     "desc": "生成 SSH 密钥，配置公钥并使用 SSH 克隆仓库。",
     "quizId": "lesson-06a"
   },
@@ -105,7 +105,7 @@
     "title": "协作规则与约定",
     "badge": "06b",
     "stage": 1,
-    "group": "阶段 2 · 分支与协作",
+    "group": "阶段 C · 分支与协作",
     "desc": "建立分支命名、PR 流程和团队协作规则。",
     "quizId": "lesson-06b"
   },
@@ -115,7 +115,7 @@
     "title": "Cherry-pick 与 Revert",
     "badge": "07",
     "stage": 2,
-    "group": "阶段 3 · 救火与恢复",
+    "group": "阶段 D · 救火与恢复",
     "desc": "选择性复制提交，并用 revert 安全撤销公共历史。",
     "quizId": "lesson-07"
   },
@@ -125,7 +125,7 @@
     "title": "Reflog 恢复",
     "badge": "08",
     "stage": 2,
-    "group": "阶段 3 · 救火与恢复",
+    "group": "阶段 D · 救火与恢复",
     "desc": "通过 reflog 找回误删、误 reset 后的提交。",
     "quizId": "lesson-08"
   },
@@ -135,7 +135,7 @@
     "title": "Stash 使用姿势",
     "badge": "09",
     "stage": 2,
-    "group": "阶段 3 · 救火与恢复",
+    "group": "阶段 D · 救火与恢复",
     "desc": "临时保存工作进度，在分支切换中保持现场。",
     "quizId": "lesson-09"
   },
@@ -145,7 +145,7 @@
     "title": "Bisect 二分定位",
     "badge": "20",
     "stage": 2,
-    "group": "阶段 3 · 救火与恢复",
+    "group": "阶段 D · 救火与恢复",
     "desc": "使用 git bisect 在历史中快速定位引入问题的提交。",
     "quizId": "lesson-20"
   },
@@ -155,39 +155,9 @@
     "title": "Worktree 并行工作区",
     "badge": "21",
     "stage": 2,
-    "group": "阶段 3 · 救火与恢复",
+    "group": "阶段 D · 救火与恢复",
     "desc": "用 git worktree 同时处理多个分支和紧急任务。",
     "quizId": "lesson-21"
-  },
-  {
-    "id": "lesson-10",
-    "file": "lesson-10-first-ci-workflow.md",
-    "title": "第一个 CI 工作流",
-    "badge": "10",
-    "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
-    "desc": "创建第一条 CI 工作流，理解 Workflow、Job 和 Step。",
-    "quizId": "lesson-10"
-  },
-  {
-    "id": "lesson-11",
-    "file": "lesson-11-fix-broken-pipeline.md",
-    "title": "修复失败流水线",
-    "badge": "11",
-    "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
-    "desc": "阅读 CI 日志，定位并修复失败的流水线。",
-    "quizId": "lesson-11"
-  },
-  {
-    "id": "lesson-12",
-    "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
-    "title": "多阶段流水线与 Secrets",
-    "badge": "12",
-    "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
-    "desc": "组合多 Job 依赖，安全使用 CI/CD Secrets。",
-    "quizId": "lesson-12"
   },
   {
     "id": "lesson-13",
@@ -195,7 +165,7 @@
     "title": "标签与版本发布",
     "badge": "13",
     "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
+    "group": "阶段 E · 工程化实践",
     "desc": "创建标签，理解语义化版本和 Release 流程。",
     "quizId": "lesson-13"
   },
@@ -205,7 +175,7 @@
     "title": "项目文件规范",
     "badge": "14",
     "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
+    "group": "阶段 E · 工程化实践",
     "desc": "维护 README、CONTRIBUTING、LICENSE 等项目文件。",
     "quizId": "lesson-14"
   },
@@ -215,7 +185,7 @@
     "title": "Git Hooks 与自动化",
     "badge": "15",
     "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
+    "group": "阶段 E · 工程化实践",
     "desc": "用 hook、Husky、commitlint 在提交前自动检查。",
     "quizId": "lesson-15"
   },
@@ -225,7 +195,7 @@
     "title": "大仓库与性能优化",
     "badge": "16",
     "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
+    "group": "阶段 E · 工程化实践",
     "desc": "学习浅克隆、Git LFS 与大仓库性能优化。",
     "quizId": "lesson-16"
   },
@@ -235,17 +205,67 @@
     "title": "自动维护版本与 Changelog",
     "badge": "17",
     "stage": 3,
-    "group": "阶段 4-5 · 发布与自动化",
+    "group": "阶段 E · 工程化实践",
     "desc": "用 Release Please 自动生成版本与更新日志。",
     "quizId": "lesson-17"
+  },
+  {
+    "id": "lesson-22",
+    "file": "lesson-22-conventional-commits.md",
+    "title": "约定式提交",
+    "badge": "22",
+    "stage": 3,
+    "group": "阶段 E · 工程化实践",
+    "desc": "用 type(scope): subject 规范提交信息，支撑 Changelog 与自动发布。",
+    "quizId": "lesson-22"
+  },
+  {
+    "id": "lesson-23",
+    "file": "lesson-23-code-review-pr.md",
+    "title": "PR 与代码审查实践",
+    "badge": "23",
+    "stage": 3,
+    "group": "阶段 E · 工程化实践",
+    "desc": "从 diff、CI、scope 和评论四个角度完成代码审查。",
+    "quizId": "lesson-23"
+  },
+  {
+    "id": "lesson-10",
+    "file": "lesson-10-first-ci-workflow.md",
+    "title": "第一个 CI 工作流",
+    "badge": "10",
+    "stage": 4,
+    "group": "阶段 F · CI/CD",
+    "desc": "创建第一条 CI 工作流，理解 Workflow、Job 和 Step。",
+    "quizId": "lesson-10"
+  },
+  {
+    "id": "lesson-11",
+    "file": "lesson-11-fix-broken-pipeline.md",
+    "title": "修复失败流水线",
+    "badge": "11",
+    "stage": 4,
+    "group": "阶段 F · CI/CD",
+    "desc": "阅读 CI 日志，定位并修复失败的流水线。",
+    "quizId": "lesson-11"
+  },
+  {
+    "id": "lesson-12",
+    "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+    "title": "多阶段流水线与 Secrets",
+    "badge": "12",
+    "stage": 4,
+    "group": "阶段 F · CI/CD",
+    "desc": "组合多 Job 依赖，安全使用 CI/CD Secrets。",
+    "quizId": "lesson-12"
   },
   {
     "id": "lesson-18",
     "file": "lesson-18-commit-and-tag-signing.md",
     "title": "提交签名与标签签名",
     "badge": "18",
-    "stage": 4,
-    "group": "阶段 4 · 安全与规范",
+    "stage": 5,
+    "group": "阶段 G · 安全",
     "desc": "配置签名密钥，验证 commit 与 tag 的可信来源。",
     "quizId": "lesson-18"
   },
@@ -254,9 +274,69 @@
     "file": "lesson-19-secrets-and-security.md",
     "title": "Secrets 与安全实践",
     "badge": "19",
-    "stage": 4,
-    "group": "阶段 4 · 安全与规范",
+    "stage": 5,
+    "group": "阶段 G · 安全",
     "desc": "识别敏感信息，使用 .gitignore 和 CI Secrets 降低风险。",
     "quizId": "lesson-19"
+  },
+  {
+    "id": "lesson-24",
+    "file": "lesson-24-fork-and-upstream.md",
+    "title": "Fork 与 upstream 同步",
+    "badge": "24",
+    "stage": 6,
+    "group": "阶段 H · 进阶实用",
+    "desc": "用 origin 与 upstream 模拟开源 Fork 工作流和上游同步。",
+    "quizId": "lesson-24"
+  },
+  {
+    "id": "lesson-25",
+    "file": "lesson-25-hotfix-workflow.md",
+    "title": "Hotfix 应急发布流程",
+    "badge": "25",
+    "stage": 6,
+    "group": "阶段 H · 进阶实用",
+    "desc": "从稳定线切出修复分支，打补丁版本并回灌开发线。",
+    "quizId": "lesson-25"
+  },
+  {
+    "id": "lesson-26",
+    "file": "lesson-26-submodule.md",
+    "title": "Git Submodule 子模块",
+    "badge": "26",
+    "stage": 6,
+    "group": "阶段 H · 进阶实用",
+    "desc": "理解子模块固定到 commit 的模型和初始化、更新常见坑。",
+    "quizId": "lesson-26"
+  },
+  {
+    "id": "lesson-27",
+    "file": "lesson-27-interactive-rebase-fixup.md",
+    "title": "交互式 Rebase 进阶",
+    "badge": "27",
+    "stage": 6,
+    "group": "阶段 H · 进阶实用",
+    "desc": "使用 fixup、squash、reword 与 autosquash 整理提交。",
+    "quizId": "lesson-27"
+  },
+  {
+    "id": "lesson-28",
+    "file": "lesson-28-blame-and-archaeology.md",
+    "title": "Blame 与历史考古",
+    "badge": "28",
+    "stage": 6,
+    "group": "阶段 H · 进阶实用",
+    "desc": "用 blame、log -S/-G、--follow 和 show 追踪代码来源。",
+    "quizId": "lesson-28"
+  },
+  {
+    "id": "lesson-29",
+    "file": "lesson-29-sparse-checkout.md",
+    "title": "Sparse Checkout 与部分克隆",
+    "badge": "29",
+    "stage": 6,
+    "group": "阶段 H · 进阶实用",
+    "desc": "用 sparse checkout 与 partial clone 降低大仓库检出成本。",
+    "quizId": "lesson-29"
   }
 ]

@@ -46,16 +46,54 @@ def test_quiz_bank_covers_lesson_00b() -> None:
 
 
 def test_lesson_catalog_covers_all_lessons() -> None:
-    """共享课程目录应覆盖 25 个课程关卡并保留 stage 映射。"""
+    """共享课程目录应覆盖 33 个课程关卡并保留 stage 映射。"""
     catalog_path = SITE_DIR / "assets" / "data" / "lessons.json"
     assert catalog_path.is_file()
     lessons = json.loads(catalog_path.read_text(encoding="utf-8"))
     lesson_entries = [lesson for lesson in lessons if str(lesson["id"]).startswith("lesson-")]
     ids = {lesson["id"] for lesson in lesson_entries}
-    assert len(lesson_entries) == 25
-    assert {"lesson-00b", "lesson-06a", "lesson-06b", "lesson-20", "lesson-21"}.issubset(ids)
-    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 4} == {"lesson-18", "lesson-19"}
-    assert {lesson["id"] for lesson in lesson_entries if lesson["id"] in {"lesson-20", "lesson-21"} and lesson["stage"] == 2} == {"lesson-20", "lesson-21"}
+    assert len(lesson_entries) == 33
+    assert {
+        "lesson-00b",
+        "lesson-06a",
+        "lesson-06b",
+        "lesson-20",
+        "lesson-21",
+        "lesson-22",
+        "lesson-23",
+        "lesson-24",
+        "lesson-25",
+        "lesson-26",
+        "lesson-27",
+        "lesson-28",
+        "lesson-29",
+    }.issubset(ids)
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 2} == {
+        "lesson-07",
+        "lesson-08",
+        "lesson-09",
+        "lesson-20",
+        "lesson-21",
+    }
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 3} == {
+        "lesson-13",
+        "lesson-14",
+        "lesson-15",
+        "lesson-16",
+        "lesson-17",
+        "lesson-22",
+        "lesson-23",
+    }
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 4} == {"lesson-10", "lesson-11", "lesson-12"}
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 5} == {"lesson-18", "lesson-19"}
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 6} == {
+        "lesson-24",
+        "lesson-25",
+        "lesson-26",
+        "lesson-27",
+        "lesson-28",
+        "lesson-29",
+    }
 
 
 def test_command_builder_has_no_replacement_chars() -> None:
@@ -141,7 +179,7 @@ def test_index_has_personal_learning_dashboard() -> None:
     assert "personal-dashboard" in text
     assert "dash-lessons" in text
     assert "ActivityProgress" in text
-    assert ">25<" in text
+    assert ">33<" in text
     assert "仅浏览 (Pages)" in text
     assert "本地 Docker 实验" in text
 
@@ -167,20 +205,22 @@ def test_viewer_normalizes_lesson_ids() -> None:
     text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
     assert "normalizeLessonId" in text
     assert "lesson-00-terminal-basics" in text
-    assert "TOTAL_LESSONS: 25" in text
+    assert "TOTAL_LESSONS: 33" in text
     assert "lesson-20-bisect.md" in text
     assert "lesson-21-worktree.md" in text
+    assert "lesson-22-conventional-commits.md" in text
+    assert "lesson-29-sparse-checkout.md" in text
     assert "本课测验" in text
     assert "复习闪卡" in text
     assert "打开工作台" in text
 
 
 def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
-    """课程中心、学习路径、搜索、测验与工作台应接入 20/21。"""
+    """课程中心、学习路径、搜索、测验与工作台应接入新增课程。"""
     for name in ("learning-path.html", "search.html", "lessons/index.html", "quiz.html", "workspace.html"):
         text = (SITE_DIR / name).read_text(encoding="utf-8")
-        assert "lesson-20" in text, f"{name} missing lesson-20"
-        assert "lesson-21" in text, f"{name} missing lesson-21"
+        for lesson_id in ("lesson-20", "lesson-21", "lesson-22", "lesson-23", "lesson-24", "lesson-25", "lesson-26", "lesson-27", "lesson-28", "lesson-29"):
+            assert lesson_id in text, f"{name} missing {lesson_id}"
 
     lessons_index = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
     assert 'target="_blank"' not in lessons_index
@@ -189,9 +229,12 @@ def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
     quiz = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
     assert "docs/viewer.html?file=lesson-20-bisect.md" in quiz
     assert "docs/viewer.html?file=lesson-21-worktree.md" in quiz
+    assert "docs/viewer.html?file=lesson-22-conventional-commits.md" in quiz
+    assert "docs/viewer.html?file=lesson-29-sparse-checkout.md" in quiz
     assert "lessons/lesson-20" not in quiz
 
     workspace = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
+    assert "TOTAL_LESSONS: 33" in workspace
     assert "pendingCommand" in workspace
     assert "ssh -T git@localhost -p 2222" in workspace
     assert "playground-hello.git" in workspace

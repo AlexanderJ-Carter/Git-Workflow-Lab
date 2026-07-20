@@ -640,6 +640,8 @@
             { type: 'command', category: 'command', lessonId: 'lesson-20', front: 'git bisect bad / good', back: '标记当前提交是否存在问题，帮助 Git 继续二分查找' },
             { type: 'command', category: 'command', lessonId: 'lesson-21', front: 'git worktree add ../hotfix hotfix', back: '在 ../hotfix 创建并检出 hotfix 分支的并行工作区' },
             { type: 'command', category: 'command', lessonId: 'lesson-21', front: 'git worktree list', back: '列出当前仓库的所有工作区' },
+            { type: 'command', category: 'command', lessonId: 'lesson-22', front: 'git commit -m \"feat(scope): subject\"', back: '用约定式提交格式描述新增功能，便于生成 Changelog' },
+            { type: 'command', category: 'command', lessonId: 'lesson-26', front: 'git submodule update --init --recursive', back: '初始化并检出仓库中的所有子模块' },
             { type: 'command', category: 'command', front: 'git tag v1.0.0', back: '在当前提交创建轻量标签' },
             { type: 'command', category: 'command', front: 'git tag -a v1.0.0 -m "message"', back: '创建附注标签（推荐），包含标注信息' },
 
@@ -670,6 +672,8 @@
             { type: 'scenario', category: 'scenario', lessonId: 'lesson-07', front: '想把某个 commit 应用到其他分支？', back: 'git cherry-pick commit-hash' },
             { type: 'scenario', category: 'scenario', lessonId: 'lesson-20', front: '不知道哪次提交引入了失败测试？', back: '用 git bisect start，标记 bad/good，再让 Git 二分定位' },
             { type: 'scenario', category: 'scenario', lessonId: 'lesson-21', front: '正在开发功能，突然要修线上问题？', back: '用 git worktree add 创建独立 hotfix 工作区，不打断当前工作区' },
+            { type: 'scenario', category: 'scenario', lessonId: 'lesson-23', front: '审查 PR 时不知道先看什么？', back: '先看 diff 范围、CI 状态、改动 scope 和提交信息是否清晰' },
+            { type: 'scenario', category: 'scenario', lessonId: 'lesson-26', front: '克隆后子模块目录是空的？', back: '运行 git submodule update --init --recursive 初始化子模块' },
             { type: 'scenario', category: 'scenario', front: 'Git 操作错了想撤销？', back: 'git reflog 查看操作历史，然后 git reset 到正确位置' },
             { type: 'scenario', category: 'scenario', front: '合并冲突了怎么解决？', back: '1. 手动编辑冲突文件 2. git add 标记已解决 3. git commit 完成合并' },
             { type: 'scenario', category: 'scenario', front: '想查看某次 commit 的修改？', back: 'git show commit-hash 或 git diff commit-hash^..commit-hash' }

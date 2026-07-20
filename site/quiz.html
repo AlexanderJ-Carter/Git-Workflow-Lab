@@ -395,31 +395,105 @@
     <script src="assets/js/main.js" defer></script>
     <script>
         const LESSON_CONFIG = {
-            'lesson-00': { lessonHref: 'docs/viewer.html?file=lesson-00-install-and-config.md' },
-            'lesson-00b': { lessonHref: 'docs/viewer.html?file=lesson-00-terminal-basics.md' },
-            'lesson-01': { lessonHref: 'docs/viewer.html?file=lesson-01-init-push.md' },
-            'lesson-02': { lessonHref: 'docs/viewer.html?file=lesson-02-workspace-staging-history.md' },
-            'lesson-03': { lessonHref: 'docs/viewer.html?file=lesson-03-remote-and-sync.md' },
-            'lesson-04': { lessonHref: 'docs/viewer.html?file=lesson-04-branches-and-pr.md' },
-            'lesson-05': { lessonHref: 'docs/viewer.html?file=lesson-05-merge-conflict.md' },
-            'lesson-06': { lessonHref: 'docs/viewer.html?file=lesson-06-rebase-clean-history.md' },
-            'lesson-06a': { lessonHref: 'docs/viewer.html?file=lesson-06a-ssh-setup-and-clone.md' },
-            'lesson-06b': { lessonHref: 'docs/viewer.html?file=lesson-06b-collaboration-conventions.md' },
-            'lesson-07': { lessonHref: 'docs/viewer.html?file=lesson-07-cherry-pick-and-revert.md' },
-            'lesson-08': { lessonHref: 'docs/viewer.html?file=lesson-08-reflog-and-recovery.md' },
-            'lesson-09': { lessonHref: 'docs/viewer.html?file=lesson-09-stash-usage.md' },
-            'lesson-10': { lessonHref: 'docs/viewer.html?file=lesson-10-first-ci-workflow.md' },
-            'lesson-11': { lessonHref: 'docs/viewer.html?file=lesson-11-fix-broken-pipeline.md' },
-            'lesson-12': { lessonHref: 'docs/viewer.html?file=lesson-12-multi-stage-pipeline-and-secrets.md' },
-            'lesson-13': { lessonHref: 'docs/viewer.html?file=lesson-13-tags-and-releases.md' },
-            'lesson-14': { lessonHref: 'docs/viewer.html?file=lesson-14-project-files.md' },
-            'lesson-15': { lessonHref: 'docs/viewer.html?file=lesson-15-git-hooks.md' },
-            'lesson-16': { lessonHref: 'docs/viewer.html?file=lesson-16-large-repo.md' },
-            'lesson-17': { lessonHref: 'docs/viewer.html?file=lesson-17-release-automation.md' },
-            'lesson-18': { lessonHref: 'docs/viewer.html?file=lesson-18-commit-and-tag-signing.md' },
-            'lesson-19': { lessonHref: 'docs/viewer.html?file=lesson-19-secrets-and-security.md' },
-            'lesson-20': { lessonHref: 'docs/viewer.html?file=lesson-20-bisect.md' },
-            'lesson-21': { lessonHref: 'docs/viewer.html?file=lesson-21-worktree.md' }
+          "lesson-00": {
+            "lessonHref": "docs/viewer.html?file=lesson-00-install-and-config.md"
+          },
+          "lesson-00b": {
+            "lessonHref": "docs/viewer.html?file=lesson-00-terminal-basics.md"
+          },
+          "lesson-01": {
+            "lessonHref": "docs/viewer.html?file=lesson-01-init-push.md"
+          },
+          "lesson-02": {
+            "lessonHref": "docs/viewer.html?file=lesson-02-workspace-staging-history.md"
+          },
+          "lesson-03": {
+            "lessonHref": "docs/viewer.html?file=lesson-03-remote-and-sync.md"
+          },
+          "lesson-04": {
+            "lessonHref": "docs/viewer.html?file=lesson-04-branches-and-pr.md"
+          },
+          "lesson-05": {
+            "lessonHref": "docs/viewer.html?file=lesson-05-merge-conflict.md"
+          },
+          "lesson-06": {
+            "lessonHref": "docs/viewer.html?file=lesson-06-rebase-clean-history.md"
+          },
+          "lesson-06a": {
+            "lessonHref": "docs/viewer.html?file=lesson-06a-ssh-setup-and-clone.md"
+          },
+          "lesson-06b": {
+            "lessonHref": "docs/viewer.html?file=lesson-06b-collaboration-conventions.md"
+          },
+          "lesson-07": {
+            "lessonHref": "docs/viewer.html?file=lesson-07-cherry-pick-and-revert.md"
+          },
+          "lesson-08": {
+            "lessonHref": "docs/viewer.html?file=lesson-08-reflog-and-recovery.md"
+          },
+          "lesson-09": {
+            "lessonHref": "docs/viewer.html?file=lesson-09-stash-usage.md"
+          },
+          "lesson-20": {
+            "lessonHref": "docs/viewer.html?file=lesson-20-bisect.md"
+          },
+          "lesson-21": {
+            "lessonHref": "docs/viewer.html?file=lesson-21-worktree.md"
+          },
+          "lesson-13": {
+            "lessonHref": "docs/viewer.html?file=lesson-13-tags-and-releases.md"
+          },
+          "lesson-14": {
+            "lessonHref": "docs/viewer.html?file=lesson-14-project-files.md"
+          },
+          "lesson-15": {
+            "lessonHref": "docs/viewer.html?file=lesson-15-git-hooks.md"
+          },
+          "lesson-16": {
+            "lessonHref": "docs/viewer.html?file=lesson-16-large-repo.md"
+          },
+          "lesson-17": {
+            "lessonHref": "docs/viewer.html?file=lesson-17-release-automation.md"
+          },
+          "lesson-22": {
+            "lessonHref": "docs/viewer.html?file=lesson-22-conventional-commits.md"
+          },
+          "lesson-23": {
+            "lessonHref": "docs/viewer.html?file=lesson-23-code-review-pr.md"
+          },
+          "lesson-10": {
+            "lessonHref": "docs/viewer.html?file=lesson-10-first-ci-workflow.md"
+          },
+          "lesson-11": {
+            "lessonHref": "docs/viewer.html?file=lesson-11-fix-broken-pipeline.md"
+          },
+          "lesson-12": {
+            "lessonHref": "docs/viewer.html?file=lesson-12-multi-stage-pipeline-and-secrets.md"
+          },
+          "lesson-18": {
+            "lessonHref": "docs/viewer.html?file=lesson-18-commit-and-tag-signing.md"
+          },
+          "lesson-19": {
+            "lessonHref": "docs/viewer.html?file=lesson-19-secrets-and-security.md"
+          },
+          "lesson-24": {
+            "lessonHref": "docs/viewer.html?file=lesson-24-fork-and-upstream.md"
+          },
+          "lesson-25": {
+            "lessonHref": "docs/viewer.html?file=lesson-25-hotfix-workflow.md"
+          },
+          "lesson-26": {
+            "lessonHref": "docs/viewer.html?file=lesson-26-submodule.md"
+          },
+          "lesson-27": {
+            "lessonHref": "docs/viewer.html?file=lesson-27-interactive-rebase-fixup.md"
+          },
+          "lesson-28": {
+            "lessonHref": "docs/viewer.html?file=lesson-28-blame-and-archaeology.md"
+          },
+          "lesson-29": {
+            "lessonHref": "docs/viewer.html?file=lesson-29-sparse-checkout.md"
+          }
         };
 
         // 测验题库
@@ -1272,6 +1346,598 @@
                         explanation: 'git worktree list 可查看主工作区和附加工作区。'
                     }
                 ]
+            },
+            "lesson-22": {
+                        "title": "约定式提交",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "Conventional Commits 的推荐格式是什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "type(scope): subject",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "subject: type(scope)",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "#scope type subject",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "随意描述即可",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "约定式提交使用 type(scope): subject，让自动化工具识别变更类型。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "下面哪个提交更适合触发功能类 Changelog？",
+                                                "options": [
+                                                            {
+                                                                        "text": "feat(auth): add login retry",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "update stuff",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "fix typo in docs",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "wip",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "feat 表示新增功能，Release Please 等工具可据此归类。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "发现最后一次提交信息写错时，常用哪个命令修改？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git commit --amend",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git message edit",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git reset --remote",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git push --rename",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "git commit --amend 可修改最近一次提交内容或提交信息。"
+                                    }
+                        ]
+            },
+            "lesson-23": {
+                        "title": "PR 与代码审查实践",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "审查 PR 时首先应确认什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "diff 范围是否符合 PR 目标",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "作者头像是否好看",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "直接点击合并",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "删除功能分支",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "先确认改动 scope，避免无关修改混入审查。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "小而清晰的 PR 带来的主要收益是什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "更容易审查、测试和回滚",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "可以跳过 CI",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "一定不会有冲突",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "不需要描述",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "小 PR 降低审查成本，也降低合并风险。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "看到 PR 的 CI 失败时，审查者通常应该怎么做？",
+                                                "options": [
+                                                            {
+                                                                        "text": "要求先查看并修复失败原因",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "忽略失败直接合并",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "关闭仓库",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "强制删除提交历史",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "CI 是合并前的重要质量信号，失败需要解释或修复。"
+                                    }
+                        ]
+            },
+            "lesson-24": {
+                        "title": "Fork 与 upstream 同步",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "Fork 工作流中 upstream 通常指什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "原始上游仓库",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "自己的 fork",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "本地暂存区",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "CI runner",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "upstream 指源仓库，origin 通常是自己的 fork。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "从上游拉取最新引用的命令通常是？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git fetch upstream",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git upload upstream",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git init upstream",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git stash upstream",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "git fetch upstream 获取上游引用但不会自动合并。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "同步 upstream/main 后通常还需要做什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "推送到自己的 origin",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "删除 .git 目录",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "重装 Git",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "关闭 upstream",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "本地同步后 push 到 origin，自己的 fork 才会更新。"
+                                    }
+                        ]
+            },
+            "lesson-25": {
+                        "title": "Hotfix 应急发布流程",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "Hotfix 分支通常从哪里切出？",
+                                                "options": [
+                                                            {
+                                                                        "text": "稳定发布线或生产 tag",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "任意未提交工作区",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "失败的 stash",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "已删除分支",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "Hotfix 要基于稳定版本快速修复线上问题。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "Hotfix 修复合入 main 后，为什么要回灌 develop？",
+                                                "options": [
+                                                            {
+                                                                        "text": "避免后续版本丢失同一修复",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "让提交哈希变短",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "删除发布 tag",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "跳过代码审查",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "回灌可确保长期开发线也包含线上修复。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "把同一修复带到另一个分支可用哪个命令？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git cherry-pick",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git secret",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git clean --all",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git blame",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "cherry-pick 适合选择性复制修复提交。"
+                                    }
+                        ]
+            },
+            "lesson-26": {
+                        "title": "Git Submodule 子模块",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "Submodule 在主仓库中主要记录什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "子仓库路径和固定的 commit SHA",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "子仓库所有对象副本",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "远程密码",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "CI 日志",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "主仓库记录 gitlink，指向子仓库的某个提交。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "克隆含子模块仓库后常用哪个命令初始化？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git submodule update --init --recursive",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git submodule clone --all",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git module start",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git fetch --secrets",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "update --init --recursive 会初始化并检出子模块。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "更新子模块内容后容易遗漏什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "推送子模块仓库的提交",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "删除主仓库 README",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "关闭所有 remote",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "执行 git init",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "主仓库只记录指针，子模块实际提交也必须推送。"
+                                    }
+                        ]
+            },
+            "lesson-27": {
+                        "title": "交互式 Rebase 进阶",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "交互式整理最近 5 个提交的命令是？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git rebase -i HEAD~5",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git merge -i HEAD~5",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git squash now",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git log --fixup",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "git rebase -i HEAD~N 会打开交互式 todo 列表。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "fixup 与 squash 的主要区别是什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "fixup 丢弃被合并提交的信息，squash 会合并编辑信息",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "fixup 只能远程执行",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "squash 会删除文件",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "二者完全相同",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "fixup 用于直接并入目标提交且不保留提交信息。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "对已推送共享分支做 rebase 的风险是什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "改写公共历史，影响团队成员",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "自动加密仓库",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "生成 tag",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "不会产生任何影响",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "rebase 会重写提交哈希，共享历史需要谨慎。"
+                                    }
+                        ]
+            },
+            "lesson-28": {
+                        "title": "Blame 与历史考古",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "查看某文件每行最后修改提交的命令是？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git blame file",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git praise file",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git status file",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git grep file",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "git blame 显示每行对应的提交、作者和时间。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "查找某个字符串何时被引入或删除常用哪个选项？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git log -S\"text\"",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git log --secret",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git diff --stage-name",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git blame --remote",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "git log -S 基于字符串出现次数变化搜索历史。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "文件重命名后继续追踪历史应使用什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git log --follow file",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git rename-history file",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git show --only-new",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git clean --follow",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "--follow 可跨重命名追踪单个文件历史。"
+                                    }
+                        ]
+            },
+            "lesson-29": {
+                        "title": "Sparse Checkout 与部分克隆",
+                        "questions": [
+                                    {
+                                                "type": "choice",
+                                                "question": "Sparse checkout 的核心作用是什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "只检出需要的路径到工作区",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "删除远程历史",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "自动合并 PR",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "签名所有提交",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "Sparse checkout 适合大仓库中只关注部分目录的场景。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "启用并设置 sparse 路径常用哪个命令？",
+                                                "options": [
+                                                            {
+                                                                        "text": "git sparse-checkout set docs site",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "git sparse set-all",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git checkout --thin docs",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "git clone --only-index",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "git sparse-checkout set 会配置要检出的路径集合。"
+                                    },
+                                    {
+                                                "type": "choice",
+                                                "question": "partial clone 中 --filter=blob:none 的目的是什么？",
+                                                "options": [
+                                                            {
+                                                                        "text": "延迟下载不需要的 blob，减少初始传输",
+                                                                        "correct": true
+                                                            },
+                                                            {
+                                                                        "text": "删除所有提交对象",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "禁用远程仓库",
+                                                                        "correct": false
+                                                            },
+                                                            {
+                                                                        "text": "强制创建 tag",
+                                                                        "correct": false
+                                                            }
+                                                ],
+                                                "explanation": "blob:none 会按需获取文件内容，降低大仓库 clone 成本。"
+                                    }
+                        ]
             }
         };
 

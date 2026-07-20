@@ -440,7 +440,7 @@
       </div>
 
       <div class="workspace-progress">
-        <span class="progress-text" id="progress-text">0/25 完成</span>
+        <span class="progress-text" id="progress-text">0/33 完成</span>
         <div class="progress-bar">
           <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
         </div>
@@ -546,7 +546,7 @@
       // 学习进度追踪
       const LearningProgress = {
         STORAGE_KEY: 'git-workflow-lab-progress',
-        TOTAL_LESSONS: 25,
+        TOTAL_LESSONS: 33,
 
         getProgress() {
           const data = localStorage.getItem(this.STORAGE_KEY);
@@ -579,32 +579,244 @@
       };
 
       const FALLBACK_LESSONS = [
-        { id: 'lessons-overview', file: 'lessons-overview.md', title: '课程总览', quizId: '' },
-        { id: 'lesson-00', file: 'lesson-00-install-and-config.md', title: '安装与配置', quizId: 'lesson-00' },
-        { id: 'lesson-00b', file: 'lesson-00-terminal-basics.md', title: '命令行与工作目录基础', quizId: 'lesson-00b' },
-        { id: 'lesson-01', file: 'lesson-01-init-push.md', title: '创建仓库与推送', quizId: 'lesson-01' },
-        { id: 'lesson-02', file: 'lesson-02-workspace-staging-history.md', title: '工作区 / 暂存区 / 历史', quizId: 'lesson-02' },
-        { id: 'lesson-03', file: 'lesson-03-remote-and-sync.md', title: '远程仓库与同步', quizId: 'lesson-03' },
-        { id: 'lesson-04', file: 'lesson-04-branches-and-pr.md', title: '分支与 PR', quizId: 'lesson-04' },
-        { id: 'lesson-05', file: 'lesson-05-merge-conflict.md', title: '合并冲突', quizId: 'lesson-05' },
-        { id: 'lesson-06', file: 'lesson-06-rebase-clean-history.md', title: 'Rebase 整理历史', quizId: 'lesson-06' },
-        { id: 'lesson-06a', file: 'lesson-06a-ssh-setup-and-clone.md', title: 'SSH 密钥与 clone', quizId: 'lesson-06a' },
-        { id: 'lesson-06b', file: 'lesson-06b-collaboration-conventions.md', title: '协作规则与约定', quizId: 'lesson-06b' },
-        { id: 'lesson-07', file: 'lesson-07-cherry-pick-and-revert.md', title: 'Cherry-pick 与 Revert', quizId: 'lesson-07' },
-        { id: 'lesson-08', file: 'lesson-08-reflog-and-recovery.md', title: 'Reflog 恢复', quizId: 'lesson-08' },
-        { id: 'lesson-09', file: 'lesson-09-stash-usage.md', title: 'Stash 使用姿势', quizId: 'lesson-09' },
-        { id: 'lesson-20', file: 'lesson-20-bisect.md', title: 'Bisect 二分定位', quizId: 'lesson-20' },
-        { id: 'lesson-21', file: 'lesson-21-worktree.md', title: 'Worktree 并行工作区', quizId: 'lesson-21' },
-        { id: 'lesson-10', file: 'lesson-10-first-ci-workflow.md', title: '第一个 CI 工作流', quizId: 'lesson-10' },
-        { id: 'lesson-11', file: 'lesson-11-fix-broken-pipeline.md', title: '修复失败流水线', quizId: 'lesson-11' },
-        { id: 'lesson-12', file: 'lesson-12-multi-stage-pipeline-and-secrets.md', title: '多阶段流水线与 Secrets', quizId: 'lesson-12' },
-        { id: 'lesson-13', file: 'lesson-13-tags-and-releases.md', title: '标签与版本发布', quizId: 'lesson-13' },
-        { id: 'lesson-14', file: 'lesson-14-project-files.md', title: '项目文件规范', quizId: 'lesson-14' },
-        { id: 'lesson-15', file: 'lesson-15-git-hooks.md', title: 'Git Hooks 与自动化', quizId: 'lesson-15' },
-        { id: 'lesson-16', file: 'lesson-16-large-repo.md', title: '大仓库与性能优化', quizId: 'lesson-16' },
-        { id: 'lesson-17', file: 'lesson-17-release-automation.md', title: '自动维护版本与 Changelog', quizId: 'lesson-17' },
-        { id: 'lesson-18', file: 'lesson-18-commit-and-tag-signing.md', title: '提交签名与标签签名', quizId: 'lesson-18' },
-        { id: 'lesson-19', file: 'lesson-19-secrets-and-security.md', title: 'Secrets 与安全实践', quizId: 'lesson-19' }
+              {
+                      "id": "lessons-overview",
+                      "file": "lessons-overview.md",
+                      "title": "课程总览",
+                      "badge": "OV",
+                      "quizId": ""
+              },
+              {
+                      "id": "lesson-00",
+                      "file": "lesson-00-install-and-config.md",
+                      "title": "安装与配置",
+                      "badge": "00",
+                      "quizId": "lesson-00"
+              },
+              {
+                      "id": "lesson-00b",
+                      "file": "lesson-00-terminal-basics.md",
+                      "title": "命令行与工作目录基础",
+                      "badge": "00b",
+                      "quizId": "lesson-00b"
+              },
+              {
+                      "id": "lesson-01",
+                      "file": "lesson-01-init-push.md",
+                      "title": "创建仓库与推送",
+                      "badge": "01",
+                      "quizId": "lesson-01"
+              },
+              {
+                      "id": "lesson-02",
+                      "file": "lesson-02-workspace-staging-history.md",
+                      "title": "工作区 / 暂存区 / 历史",
+                      "badge": "02",
+                      "quizId": "lesson-02"
+              },
+              {
+                      "id": "lesson-03",
+                      "file": "lesson-03-remote-and-sync.md",
+                      "title": "远程仓库与同步",
+                      "badge": "03",
+                      "quizId": "lesson-03"
+              },
+              {
+                      "id": "lesson-04",
+                      "file": "lesson-04-branches-and-pr.md",
+                      "title": "分支与 PR",
+                      "badge": "04",
+                      "quizId": "lesson-04"
+              },
+              {
+                      "id": "lesson-05",
+                      "file": "lesson-05-merge-conflict.md",
+                      "title": "合并冲突",
+                      "badge": "05",
+                      "quizId": "lesson-05"
+              },
+              {
+                      "id": "lesson-06",
+                      "file": "lesson-06-rebase-clean-history.md",
+                      "title": "Rebase 整理历史",
+                      "badge": "06",
+                      "quizId": "lesson-06"
+              },
+              {
+                      "id": "lesson-06a",
+                      "file": "lesson-06a-ssh-setup-and-clone.md",
+                      "title": "SSH 密钥与 clone",
+                      "badge": "06a",
+                      "quizId": "lesson-06a"
+              },
+              {
+                      "id": "lesson-06b",
+                      "file": "lesson-06b-collaboration-conventions.md",
+                      "title": "协作规则与约定",
+                      "badge": "06b",
+                      "quizId": "lesson-06b"
+              },
+              {
+                      "id": "lesson-07",
+                      "file": "lesson-07-cherry-pick-and-revert.md",
+                      "title": "Cherry-pick 与 Revert",
+                      "badge": "07",
+                      "quizId": "lesson-07"
+              },
+              {
+                      "id": "lesson-08",
+                      "file": "lesson-08-reflog-and-recovery.md",
+                      "title": "Reflog 恢复",
+                      "badge": "08",
+                      "quizId": "lesson-08"
+              },
+              {
+                      "id": "lesson-09",
+                      "file": "lesson-09-stash-usage.md",
+                      "title": "Stash 使用姿势",
+                      "badge": "09",
+                      "quizId": "lesson-09"
+              },
+              {
+                      "id": "lesson-20",
+                      "file": "lesson-20-bisect.md",
+                      "title": "Bisect 二分定位",
+                      "badge": "20",
+                      "quizId": "lesson-20"
+              },
+              {
+                      "id": "lesson-21",
+                      "file": "lesson-21-worktree.md",
+                      "title": "Worktree 并行工作区",
+                      "badge": "21",
+                      "quizId": "lesson-21"
+              },
+              {
+                      "id": "lesson-13",
+                      "file": "lesson-13-tags-and-releases.md",
+                      "title": "标签与版本发布",
+                      "badge": "13",
+                      "quizId": "lesson-13"
+              },
+              {
+                      "id": "lesson-14",
+                      "file": "lesson-14-project-files.md",
+                      "title": "项目文件规范",
+                      "badge": "14",
+                      "quizId": "lesson-14"
+              },
+              {
+                      "id": "lesson-15",
+                      "file": "lesson-15-git-hooks.md",
+                      "title": "Git Hooks 与自动化",
+                      "badge": "15",
+                      "quizId": "lesson-15"
+              },
+              {
+                      "id": "lesson-16",
+                      "file": "lesson-16-large-repo.md",
+                      "title": "大仓库与性能优化",
+                      "badge": "16",
+                      "quizId": "lesson-16"
+              },
+              {
+                      "id": "lesson-17",
+                      "file": "lesson-17-release-automation.md",
+                      "title": "自动维护版本与 Changelog",
+                      "badge": "17",
+                      "quizId": "lesson-17"
+              },
+              {
+                      "id": "lesson-22",
+                      "file": "lesson-22-conventional-commits.md",
+                      "title": "约定式提交",
+                      "badge": "22",
+                      "quizId": "lesson-22"
+              },
+              {
+                      "id": "lesson-23",
+                      "file": "lesson-23-code-review-pr.md",
+                      "title": "PR 与代码审查实践",
+                      "badge": "23",
+                      "quizId": "lesson-23"
+              },
+              {
+                      "id": "lesson-10",
+                      "file": "lesson-10-first-ci-workflow.md",
+                      "title": "第一个 CI 工作流",
+                      "badge": "10",
+                      "quizId": "lesson-10"
+              },
+              {
+                      "id": "lesson-11",
+                      "file": "lesson-11-fix-broken-pipeline.md",
+                      "title": "修复失败流水线",
+                      "badge": "11",
+                      "quizId": "lesson-11"
+              },
+              {
+                      "id": "lesson-12",
+                      "file": "lesson-12-multi-stage-pipeline-and-secrets.md",
+                      "title": "多阶段流水线与 Secrets",
+                      "badge": "12",
+                      "quizId": "lesson-12"
+              },
+              {
+                      "id": "lesson-18",
+                      "file": "lesson-18-commit-and-tag-signing.md",
+                      "title": "提交签名与标签签名",
+                      "badge": "18",
+                      "quizId": "lesson-18"
+              },
+              {
+                      "id": "lesson-19",
+                      "file": "lesson-19-secrets-and-security.md",
+                      "title": "Secrets 与安全实践",
+                      "badge": "19",
+                      "quizId": "lesson-19"
+              },
+              {
+                      "id": "lesson-24",
+                      "file": "lesson-24-fork-and-upstream.md",
+                      "title": "Fork 与 upstream 同步",
+                      "badge": "24",
+                      "quizId": "lesson-24"
+              },
+              {
+                      "id": "lesson-25",
+                      "file": "lesson-25-hotfix-workflow.md",
+                      "title": "Hotfix 应急发布流程",
+                      "badge": "25",
+                      "quizId": "lesson-25"
+              },
+              {
+                      "id": "lesson-26",
+                      "file": "lesson-26-submodule.md",
+                      "title": "Git Submodule 子模块",
+                      "badge": "26",
+                      "quizId": "lesson-26"
+              },
+              {
+                      "id": "lesson-27",
+                      "file": "lesson-27-interactive-rebase-fixup.md",
+                      "title": "交互式 Rebase 进阶",
+                      "badge": "27",
+                      "quizId": "lesson-27"
+              },
+              {
+                      "id": "lesson-28",
+                      "file": "lesson-28-blame-and-archaeology.md",
+                      "title": "Blame 与历史考古",
+                      "badge": "28",
+                      "quizId": "lesson-28"
+              },
+              {
+                      "id": "lesson-29",
+                      "file": "lesson-29-sparse-checkout.md",
+                      "title": "Sparse Checkout 与部分克隆",
+                      "badge": "29",
+                      "quizId": "lesson-29"
+              }
       ];
 
       let lessonCatalog = FALLBACK_LESSONS;

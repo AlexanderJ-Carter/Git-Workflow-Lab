@@ -161,6 +161,8 @@ git config --global core.autocrlf input # macOS/Linux：提交 LF
 3. 制作一张你自己的「常用命令小抄」（5 行 Bash + 5 行 PowerShell）。
 4. **思考题**：为什么 CI 服务器（GitHub Actions、Gitea Runner）几乎总是 Linux 环境？
 
+**下一关：** [关卡 42：正则表达式基础](./lesson-42-regex-basics.md)
+
 **延伸阅读：**
 
 - [关卡 39：编程入门（Python）](./lesson-39-programming-basics-python.md)

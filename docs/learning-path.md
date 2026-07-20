@@ -2,15 +2,15 @@
 
 本文档帮助你规划 Git Workflow Lab 的学习路线，根据你的水平和目标选择合适的课程。
 
-> **编号 vs 顺序：** 关卡文件名编号（00–38）不变；**推荐学习顺序**以 [关卡总览](./lessons-overview.md) 中的逻辑阶段 **A–I** 为准。在线 / Docker 双模式见 [学习模式说明](./learning-modes.md)。
+> **编号 vs 顺序：** 关卡文件名编号（00–44）不变；**推荐学习顺序**以 [关卡总览](./lessons-overview.md) 中的逻辑阶段 **A–K** 为准。在线 / Docker 双模式见 [学习模式说明](./learning-modes.md)。
 
 ---
 
 ## 逻辑阶段总览
 
 ```text
-A 环境 ──→ B Git基础 ──→ C 分支协作 ──→ D 救火恢复 ──→ E 工程化 ──→ F CI/CD ──→ G 安全 ──→ H 进阶实用 ──→ I 计算机基础
-00,00b      01–03         04–06b         07–09,20–21      13–17,22–23    10–12        18–19       24–29              30–38
+A 环境 ──→ B Git基础 ──→ C 分支协作 ──→ D 救火恢复 ──→ E 工程化 ──→ F CI/CD ──→ G 安全 ──→ H 进阶实用 ──→ I 计算机基础 ──→ J 编程CLI ──→ K 配置文本
+00,00b      01–03         04–06b         07–09,20–21      13–17,22–23    10–12        18–19       24–29              30–38           39–41          42–44
 ```
 
 阶段 **I** 建议在 **00b** 之后即可并行学习，为 Git / CI 命令行与配置打基础。
@@ -279,7 +279,7 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 
 ---
 
-## 按逻辑阶段 A–I 的推荐顺序表
+## 按逻辑阶段 A–K 的推荐顺序表
 
 | 顺序 | 逻辑阶段 | 关卡 | 标题摘要 |
 |------|----------|------|----------|
@@ -292,6 +292,8 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 | 28–29 | G | 18–19 | 签名、Secrets |
 | 30–35 | H | 24–29 | fork、hotfix、submodule、rebase 进阶、考古、sparse |
 | 36–44 | I | 30–38 | Shell、管道、环境、进程、Docker、HTTP、文本、网络、JSON/YAML |
+| 45–47 | J | 39–41 | Python、PowerShell、跨平台 CLI |
+| 48–50 | K | 42–44 | 正则、Git 配置进阶、.gitattributes |
 
 ---
 
@@ -308,8 +310,10 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 | G 安全 | 2 | 1.5 小时 |
 | H 进阶实用 | 6 | 3.5–4 小时 |
 | I 计算机基础 | 9 | 5–6 小时 |
+| J 编程与跨平台 | 3 | 2–2.5 小时 |
+| K 配置与文本处理 | 3 | 1.5–2 小时 |
 
-**完整学习（A→I）：** 约 24–28 小时
+**完整学习（A→K）：** 约 28–32 小时
 
 ---
 
@@ -337,7 +341,7 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 
 ## 补充资源
 
-- [关卡总览（逻辑阶段 A–I）](./lessons-overview.md)
+- [关卡总览（逻辑阶段 A–K）](./lessons-overview.md)
 - [学习模式：在线 vs 本地 Docker](./learning-modes.md)
 - [快速开始（站点）](../site/quick-start.html)
 - [Git 官方文档](https://git-scm.com/doc)

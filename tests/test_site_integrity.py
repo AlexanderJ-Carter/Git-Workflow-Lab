@@ -46,13 +46,13 @@ def test_quiz_bank_covers_lesson_00b() -> None:
 
 
 def test_lesson_catalog_covers_all_lessons() -> None:
-    """共享课程目录应覆盖 45 个课程关卡并保留 stage 映射。"""
+    """共享课程目录应覆盖 48 个课程关卡并保留 stage 映射。"""
     catalog_path = SITE_DIR / "assets" / "data" / "lessons.json"
     assert catalog_path.is_file()
     lessons = json.loads(catalog_path.read_text(encoding="utf-8"))
     lesson_entries = [lesson for lesson in lessons if str(lesson["id"]).startswith("lesson-")]
     ids = {lesson["id"] for lesson in lesson_entries}
-    assert len(lesson_entries) == 45
+    assert len(lesson_entries) == 48
     assert {
         "lesson-00b",
         "lesson-06a",
@@ -79,6 +79,9 @@ def test_lesson_catalog_covers_all_lessons() -> None:
         "lesson-39",
         "lesson-40",
         "lesson-41",
+        "lesson-42",
+        "lesson-43",
+        "lesson-44",
     }.issubset(ids)
     assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 2} == {
         "lesson-07",
@@ -121,6 +124,11 @@ def test_lesson_catalog_covers_all_lessons() -> None:
         "lesson-39",
         "lesson-40",
         "lesson-41",
+    }
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 9} == {
+        "lesson-42",
+        "lesson-43",
+        "lesson-44",
     }
 
 
@@ -207,7 +215,7 @@ def test_index_has_personal_learning_dashboard() -> None:
     assert "personal-dashboard" in text
     assert "dash-lessons" in text
     assert "ActivityProgress" in text
-    assert ">45<" in text or "<strong>45</strong>" in text
+    assert ">48<" in text or "<strong>48</strong>" in text
     assert "仅浏览 (Pages)" in text
     assert "本地 Docker 实验" in text
     assert "learning-modes.md" in text
@@ -237,13 +245,14 @@ def test_viewer_normalizes_lesson_ids() -> None:
     text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
     assert "normalizeLessonId" in text
     assert "lesson-00-terminal-basics" in text
-    assert "TOTAL_LESSONS: 45" in text
+    assert "TOTAL_LESSONS: 48" in text
     assert "lesson-20-bisect.md" in text
     assert "lesson-21-worktree.md" in text
     assert "lesson-22-conventional-commits.md" in text
     assert "lesson-29-sparse-checkout.md" in text
     assert "lesson-38-json-yaml-devops.md" in text
     assert "lesson-41-cli-cross-platform.md" in text
+    assert "lesson-44-gitattributes.md" in text
     assert "本课测验" in text
     assert "复习闪卡" in text
     assert "打开工作台" in text
@@ -260,9 +269,10 @@ def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
         "lesson-35", "lesson-36", "lesson-37", "lesson-38",
     )
     programming_cli = ("lesson-39", "lesson-40", "lesson-41")
+    config_text = ("lesson-42", "lesson-43", "lesson-44")
     for name in ("search.html", "quiz.html", "workspace.html"):
         text = (SITE_DIR / name).read_text(encoding="utf-8")
-        for lesson_id in (*advanced_git, *computer_basics, *programming_cli):
+        for lesson_id in (*advanced_git, *computer_basics, *programming_cli, *config_text):
             assert lesson_id in text, f"{name} missing {lesson_id}"
 
     learning_path = (SITE_DIR / "learning-path.html").read_text(encoding="utf-8")
@@ -275,6 +285,7 @@ def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
     assert 'target="_blank"' not in lessons_index
     assert "stage-7" in lessons_index
     assert "stage-8" in lessons_index
+    assert "stage-9" in lessons_index
     assert "GitWorkflowLab" in lessons_index or "LearningProgress" in lessons_index
 
     quiz = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
@@ -283,10 +294,11 @@ def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
     assert "docs/viewer.html?file=lesson-22-conventional-commits.md" in quiz
     assert "docs/viewer.html?file=lesson-29-sparse-checkout.md" in quiz
     assert "docs/viewer.html?file=lesson-41-cli-cross-platform.md" in quiz
+    assert "docs/viewer.html?file=lesson-44-gitattributes.md" in quiz
     assert "lessons/lesson-20" not in quiz
 
     workspace = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
-    assert "TOTAL_LESSONS: 45" in workspace
+    assert "TOTAL_LESSONS: 48" in workspace
     assert "pendingCommand" in workspace
     assert "ssh -T git@localhost -p 2222" in workspace
     assert "playground-hello.git" in workspace
@@ -330,6 +342,13 @@ def test_diagnostics_uses_design_system() -> None:
     assert "assets/css/style.css" in text
     assert "8081" in text
     assert "8082" not in text
+
+
+def test_lessons_index_has_stage_nine() -> None:
+    """课程中心应包含阶段 K 配置与文本处理区块。"""
+    text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
+    assert 'id="stage-9"' in text
+    assert "配置与文本处理" in text
 
 
 def test_lessons_index_has_stage_eight() -> None:

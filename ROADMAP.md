@@ -66,18 +66,23 @@
 
 #### 新课程内容
 
-- [ ] **Git 进阶主题**
-  - Git 子模块
-  - Git 工作树
-  - Git bisect
-  - Git 替换和过滤
-  - 大规模重构技巧
+- [x] **Git 进阶主题**
+  - Git 子模块（lesson-26）
+  - Git 工作树（lesson-21）
+  - Git bisect（lesson-20）
+  - sparse-checkout / 部分克隆（lesson-29）
+  - interactive rebase / fixup（lesson-27）
+  - blame / 历史考古（lesson-28）
 
-- [ ] **团队协作进阶**
-  - 代码审查最佳实践
-  - 持续集成深入
+- [x] **团队协作进阶（首批）**
+  - Conventional Commits（lesson-22）
+  - 代码审查 / PR 实践（lesson-23）
+  - fork 与 upstream 同步（lesson-24）
+  - hotfix 应急发布（lesson-25）
+
+- [ ] **团队协作进阶（后续）**
   - GitOps 工作流
-  - Monorepo vs Polyrepo
+  - Monorepo vs Polyrepo 专题课
 
 - [ ] **平台集成**
   - GitHub Actions 深入

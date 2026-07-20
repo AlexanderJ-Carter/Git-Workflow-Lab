@@ -38,6 +38,11 @@
     --radius-xl: 28px;
     --radius-full: 9999px;
     /* 动画 */
+    --motion-duration-fast: 0.15s;
+    --motion-duration-base: 0.25s;
+    --motion-duration-slow: 0.35s;
+    --motion-ease-standard: ease;
+    --motion-ease-emphasis: cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: 0.15s ease;
     --transition-base: 0.25s ease;
     --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -104,6 +109,62 @@ body {
     color: var(--text-primary);
     background-color: var(--bg-primary);
     transition: background-color 0.3s, color 0.3s;
+}
+
+.fade-in {
+    animation: pageSoftEnter var(--motion-duration-slow) var(--motion-ease-standard) both;
+}
+
+@keyframes pageSoftEnter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+button:active,
+.btn:active,
+.hero-link:active,
+.glass-btn:active,
+.quiz-btn:active,
+.ls-card:active,
+.path-card:active,
+.flash-rating-btn:active,
+.flash-start-btn:active,
+.workspace-actions a:active {
+    transform: scale(0.98);
+}
+
+.progress-fill,
+.progress-bar-fill,
+.path-progress-fill,
+.ls-progress-fill,
+.flash-progress-fill,
+.scroll-progress-indicator {
+    transition: width var(--motion-duration-slow) var(--motion-ease-standard);
+}
+
+.mark-complete-btn.is-done {
+    animation: markCompletePulse var(--motion-duration-slow) var(--motion-ease-emphasis) 1;
+}
+
+@keyframes markCompletePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.28);
+    }
+    60% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
 }
 
 a:focus-visible,
@@ -3633,5 +3694,20 @@ textarea.form-input {
 
     .code-block-actions {
         opacity: 1; /* 移动端始终显示 */
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+    }
+
+    .fade-in {
+        animation: none !important;
     }
 }

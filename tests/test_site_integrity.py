@@ -347,9 +347,24 @@ def test_lessons_index_has_stage_seven() -> None:
     assert "learning-modes.md" in text
 
 
+def test_build_site_includes_v3_assets() -> None:
+    """GitHub Pages 构建应包含 pages.css 与 lessons.json。"""
+    import subprocess
+    import sys
+
+    root = Path(__file__).resolve().parents[1]
+    subprocess.run([sys.executable, str(root / "scripts" / "build-site.py")], cwd=root, check=True)
+    assert (root / "_site" / "assets" / "css" / "pages.css").is_file()
+    assert (root / "_site" / "assets" / "css" / "style.css").is_file()
+    assert (root / "_site" / "assets" / "data" / "lessons.json").is_file()
+    index = (root / "_site" / "index.html").read_text(encoding="utf-8")
+    assert "assets/css/pages.css" in index
+
+
 def test_lessons_index_asset_paths_are_parent_relative() -> None:
     """课程中心位于 lessons/ 下，静态资源必须用 ../assets。"""
     text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
     assert 'href="../assets/css/style.css"' in text
+    assert 'href="../assets/css/pages.css"' in text
     assert 'src="../assets/js/main.js"' in text
     assert 'href="assets/css/style.css"' not in text

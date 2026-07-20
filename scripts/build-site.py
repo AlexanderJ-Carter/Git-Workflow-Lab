@@ -625,11 +625,20 @@ def build_site() -> None:
     PAGES_DIR.mkdir(exist_ok=True)
     (ASSETS_DIR / "css").mkdir(parents=True, exist_ok=True)
     (ASSETS_DIR / "js").mkdir(parents=True, exist_ok=True)
+    (ASSETS_DIR / "data").mkdir(parents=True, exist_ok=True)
 
-    if Path("site/assets/css/style.css").exists():
-        shutil.copy("site/assets/css/style.css", ASSETS_DIR / "css" / "style.css")
-    if Path("site/assets/js/main.js").exists():
-        shutil.copy("site/assets/js/main.js", ASSETS_DIR / "js" / "main.js")
+    assets_src = Path("site/assets")
+    if assets_src.exists():
+        for sub in ("css", "js", "data"):
+            src_dir = assets_src / sub
+            if not src_dir.exists():
+                continue
+            dest_dir = ASSETS_DIR / sub
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            for item in src_dir.iterdir():
+                if item.is_file():
+                    shutil.copy(item, dest_dir / item.name)
+        print("  Copied site/assets (css, js, data)")
 
     # 复制docs目录到_site/docs/
     if DOCS_DIR.exists():

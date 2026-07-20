@@ -338,5 +338,104 @@
     "group": "阶段 H · 进阶实用",
     "desc": "用 sparse checkout 与 partial clone 降低大仓库检出成本。",
     "quizId": "lesson-29"
+  },
+  {
+    "id": "lesson-30",
+    "file": "lesson-30-shell-scripting-basics.md",
+    "title": "Shell 脚本基础",
+    "badge": "30",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "Bash shebang、变量、if/for、chmod +x，读懂 CI 脚本。",
+    "quizId": "lesson-30",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-31",
+    "file": "lesson-31-pipes-redirection.md",
+    "title": "管道与重定向",
+    "badge": "31",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "管道、重定向、tee，掌握 stdin/stdout/stderr。",
+    "quizId": "lesson-31",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-32",
+    "file": "lesson-32-env-and-path.md",
+    "title": "环境变量与 PATH",
+    "badge": "32",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "env、export、PATH、which，配置运行环境。",
+    "quizId": "lesson-32",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-33",
+    "file": "lesson-33-processes-and-jobs.md",
+    "title": "进程与作业控制",
+    "badge": "33",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "ps、jobs、bg/fg、kill、nohup，管理后台任务。",
+    "quizId": "lesson-33",
+    "modes": ["local"]
+  },
+  {
+    "id": "lesson-34",
+    "file": "lesson-34-docker-basics.md",
+    "title": "Docker 基础与实验环境",
+    "badge": "34",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "镜像与容器、docker compose，读懂本仓库架构。",
+    "quizId": "lesson-34",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-35",
+    "file": "lesson-35-http-rest-curl.md",
+    "title": "HTTP、REST 与 curl",
+    "badge": "35",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "HTTP 方法、状态码、curl 调用 Gitea API。",
+    "quizId": "lesson-35",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-36",
+    "file": "lesson-36-text-processing-sed-awk.md",
+    "title": "文本处理 sed/awk",
+    "badge": "36",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "grep、sed、awk、cut/sort/uniq，处理日志与配置。",
+    "quizId": "lesson-36",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-37",
+    "file": "lesson-37-network-troubleshooting.md",
+    "title": "网络排查基础",
+    "badge": "37",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "ping、curl、ss、DNS、ssh -v 定位连接问题。",
+    "quizId": "lesson-37",
+    "modes": ["local"]
+  },
+  {
+    "id": "lesson-38",
+    "file": "lesson-38-json-yaml-devops.md",
+    "title": "JSON、YAML 与 DevOps 配置",
+    "badge": "38",
+    "stage": 7,
+    "group": "阶段 I · 计算机基础",
+    "desc": "JSON/YAML 语法、jq、读懂 Actions 与 compose。",
+    "quizId": "lesson-38",
+    "modes": ["online", "local"]
   }
 ]

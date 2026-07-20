@@ -493,6 +493,33 @@
           },
           "lesson-29": {
             "lessonHref": "docs/viewer.html?file=lesson-29-sparse-checkout.md"
+          },
+          "lesson-30": {
+            "lessonHref": "docs/viewer.html?file=lesson-30-shell-scripting-basics.md"
+          },
+          "lesson-31": {
+            "lessonHref": "docs/viewer.html?file=lesson-31-pipes-redirection.md"
+          },
+          "lesson-32": {
+            "lessonHref": "docs/viewer.html?file=lesson-32-env-and-path.md"
+          },
+          "lesson-33": {
+            "lessonHref": "docs/viewer.html?file=lesson-33-processes-and-jobs.md"
+          },
+          "lesson-34": {
+            "lessonHref": "docs/viewer.html?file=lesson-34-docker-basics.md"
+          },
+          "lesson-35": {
+            "lessonHref": "docs/viewer.html?file=lesson-35-http-rest-curl.md"
+          },
+          "lesson-36": {
+            "lessonHref": "docs/viewer.html?file=lesson-36-text-processing-sed-awk.md"
+          },
+          "lesson-37": {
+            "lessonHref": "docs/viewer.html?file=lesson-37-network-troubleshooting.md"
+          },
+          "lesson-38": {
+            "lessonHref": "docs/viewer.html?file=lesson-38-json-yaml-devops.md"
           }
         };
 
@@ -1938,8 +1965,250 @@
                                                 "explanation": "blob:none 会按需获取文件内容，降低大仓库 clone 成本。"
                                     }
                         ]
+            },
+            "lesson-30": {
+                "title": "Shell 脚本基础",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "Bash 脚本第一行 `#!/bin/bash` 的作用是什么？",
+                        "options": [
+                            { "text": "指定用哪个解释器执行脚本", "correct": true },
+                            { "text": "注释掉第一行", "correct": false },
+                            { "text": "设置脚本为只读", "correct": false },
+                            { "text": "自动 git add", "correct": false }
+                        ],
+                        "explanation": "shebang 告诉系统用 /bin/bash 解释执行该文件。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "让脚本可直接 `./hello.sh` 运行，通常需要先执行？",
+                        "options": [
+                            { "text": "chmod +x hello.sh", "correct": true },
+                            { "text": "git push hello.sh", "correct": false },
+                            { "text": "export hello.sh", "correct": false },
+                            { "text": "docker run hello.sh", "correct": false }
+                        ],
+                        "explanation": "需要可执行权限，常用 chmod +x。"
+                    }
+                ]
+            },
+            "lesson-31": {
+                "title": "管道与重定向",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "管道符 `|` 的作用是什么？",
+                        "options": [
+                            { "text": "把前一个命令的 stdout 作为后一个命令的 stdin", "correct": true },
+                            { "text": "把输出写入文件", "correct": false },
+                            { "text": "在后台运行命令", "correct": false },
+                            { "text": "合并两个分支", "correct": false }
+                        ],
+                        "explanation": "管道连接命令的标准输出与标准输入。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "`command > file 2>&1` 表示什么？",
+                        "options": [
+                            { "text": "stdout 和 stderr 都写入 file", "correct": true },
+                            { "text": "只重定向 stderr", "correct": false },
+                            { "text": "从 file 读取输入", "correct": false },
+                            { "text": "删除 file", "correct": false }
+                        ],
+                        "explanation": "2>&1 把 stderr 合并到 stdout，再一起重定向到文件。"
+                    }
+                ]
+            },
+            "lesson-32": {
+                "title": "环境变量与 PATH",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "`export MY_VAR=hello` 的主要目的是？",
+                        "options": [
+                            { "text": "让子进程和脚本也能读取 MY_VAR", "correct": true },
+                            { "text": "把变量写入 Git 配置", "correct": false },
+                            { "text": "永久修改系统内核", "correct": false },
+                            { "text": "删除已有环境变量", "correct": false }
+                        ],
+                        "explanation": "export 将变量导出到子进程环境。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "系统按什么顺序查找可执行命令？",
+                        "options": [
+                            { "text": "PATH 中列出的目录顺序", "correct": true },
+                            { "text": "按文件名字母序", "correct": false },
+                            { "text": "只查 /usr/bin", "correct": false },
+                            { "text": "按 Git 仓库路径", "correct": false }
+                        ],
+                        "explanation": "PATH 是冒号分隔的目录列表，从左到右查找。"
+                    }
+                ]
+            },
+            "lesson-33": {
+                "title": "进程与作业控制",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "在命令末尾加 `&` 通常表示？",
+                        "options": [
+                            { "text": "在后台运行该命令", "correct": true },
+                            { "text": "强制终止进程", "correct": false },
+                            { "text": "以 root 运行", "correct": false },
+                            { "text": "管道到下一命令", "correct": false }
+                        ],
+                        "explanation": "& 让进程在后台执行，终端可继续输入。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "`jobs` 命令显示什么？",
+                        "options": [
+                            { "text": "当前 Shell 会话中的作业列表", "correct": true },
+                            { "text": "Git 提交历史", "correct": false },
+                            { "text": "Docker 镜像列表", "correct": false },
+                            { "text": "网络连接表", "correct": false }
+                        ],
+                        "explanation": "jobs 列出当前 shell 的前台/后台作业。"
+                    }
+                ]
+            },
+            "lesson-34": {
+                "title": "Docker 基础",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "Docker 中「镜像」与「容器」的关系是？",
+                        "options": [
+                            { "text": "镜像是模板，容器是运行实例", "correct": true },
+                            { "text": "容器是模板，镜像是实例", "correct": false },
+                            { "text": "两者完全相同", "correct": false },
+                            { "text": "镜像只能运行一次", "correct": false }
+                        ],
+                        "explanation": "镜像是只读模板；docker run 会创建容器实例。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "本实验环境中 Gitea 默认映射到宿主机的端口是？",
+                        "options": [
+                            { "text": "3000", "correct": true },
+                            { "text": "8080", "correct": false },
+                            { "text": "8081", "correct": false },
+                            { "text": "443", "correct": false }
+                        ],
+                        "explanation": "docker-compose 将 Gitea 的 3000 映射到宿主机 3000。"
+                    }
+                ]
+            },
+            "lesson-35": {
+                "title": "HTTP 与 curl",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "HTTP 状态码 404 通常表示？",
+                        "options": [
+                            { "text": "请求的资源不存在", "correct": true },
+                            { "text": "服务器内部错误", "correct": false },
+                            { "text": "认证成功", "correct": false },
+                            { "text": "请求已创建", "correct": false }
+                        ],
+                        "explanation": "404 Not Found 表示路径或资源未找到。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "用 curl 查看响应头应加哪个参数？",
+                        "options": [
+                            { "text": "-i", "correct": true },
+                            { "text": "-X DELETE", "correct": false },
+                            { "text": "-d", "correct": false },
+                            { "text": "-k only", "correct": false }
+                        ],
+                        "explanation": "curl -i 会在 body 前输出响应头。"
+                    }
+                ]
+            },
+            "lesson-36": {
+                "title": "文本处理",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "`awk '{print $1}'` 通常用于？",
+                        "options": [
+                            { "text": "打印每行第一个字段", "correct": true },
+                            { "text": "删除第一行", "correct": false },
+                            { "text": "压缩 Git 对象", "correct": false },
+                            { "text": "监听端口", "correct": false }
+                        ],
+                        "explanation": "awk 按列处理文本，$1 是第一列。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "`sort file | uniq` 组合常用于？",
+                        "options": [
+                            { "text": "排序后统计唯一行", "correct": true },
+                            { "text": "加密文件", "correct": false },
+                            { "text": "提交到远程", "correct": false },
+                            { "text": "启动容器", "correct": false }
+                        ],
+                        "explanation": "uniq 只合并相邻重复行，故常先 sort。"
+                    }
+                ]
+            },
+            "lesson-37": {
+                "title": "网络排查",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "检查本机哪些端口在监听，优先用？",
+                        "options": [
+                            { "text": "ss -lntp 或 ss -ln", "correct": true },
+                            { "text": "git status", "correct": false },
+                            { "text": "docker commit", "correct": false },
+                            { "text": "chmod +x", "correct": false }
+                        ],
+                        "explanation": "ss 可列出监听套接字与进程信息。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "本实验 Gitea SSH 服务映射到宿主机的端口是？",
+                        "options": [
+                            { "text": "2222", "correct": true },
+                            { "text": "22", "correct": false },
+                            { "text": "3000", "correct": false },
+                            { "text": "8081", "correct": false }
+                        ],
+                        "explanation": "compose 将容器 22 映射到宿主机 2222。"
+                    }
+                ]
+            },
+            "lesson-38": {
+                "title": "JSON、YAML 与 DevOps",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "GitHub Actions 工作流文件通常使用哪种格式？",
+                        "options": [
+                            { "text": "YAML", "correct": true },
+                            { "text": "纯二进制", "correct": false },
+                            { "text": "仅 CSV", "correct": false },
+                            { "text": "Markdown 表格", "correct": false }
+                        ],
+                        "explanation": ".github/workflows/*.yml 使用 YAML 描述流水线。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "JSON 对象使用什么符号包裹键值对集合？",
+                        "options": [
+                            { "text": "花括号 {}", "correct": true },
+                            { "text": "方括号 []", "correct": false },
+                            { "text": "尖括号 <>", "correct": false },
+                            { "text": "圆括号 ()", "correct": false }
+                        ],
+                        "explanation": "JSON 对象形如 {\"key\": \"value\"}。"
+                    }
+                ]
             }
-        };
 
         // 测验应用
         class QuizApp {

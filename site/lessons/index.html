@@ -18,8 +18,8 @@
             <h1>课程中心</h1>
             <p>从零开始，循序渐进掌握 Git 和 CI/CD 技能。每个关卡都配有动手实验，让你在实践中学习。</p>
             <div class="stats-bar" style="margin-bottom: 0;">
-                <div class="stat-cell"><strong>33</strong><span>课程关卡</span></div>
-                <div class="stat-cell"><strong>8</strong><span>学习阶段</span></div>
+                <div class="stat-cell"><strong>42</strong><span>课程关卡</span></div>
+                <div class="stat-cell"><strong>9</strong><span>学习阶段</span></div>
             </div>
         </header>
 
@@ -96,7 +96,17 @@
             <div class="lesson-grid"></div>
         </section>
 
+        <section class="stage-block" id="stage-7">
+            <div class="stage-block__head">
+                <span class="stage-badge">阶段 I</span>
+                <h2>计算机基础</h2>
+                <span class="stage-block__meta" data-stage-meta="7"></span>
+            </div>
+            <div class="lesson-grid"></div>
+        </section>
+
         <div class="lessons-quick">
+            <a href="../docs/viewer.html?file=learning-modes.md">双模式指南</a>
             <a href="../docs/viewer.html?file=lessons-overview.md">课程总览</a>
             <a href="../docs/viewer.html?file=learning-path.md">学习路径</a>
             <a href="../workspace.html">进入工作台</a>
@@ -109,7 +119,7 @@
 
     <script src="../assets/js/main.js" defer></script>
     <script>
-        const STAGE_IDS = ['stage-0', 'stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5', 'stage-6'];
+        const STAGE_IDS = ['stage-0', 'stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5', 'stage-6', 'stage-7'];
 
         const progressApi = () => window.GitWorkflowLab?.LearningProgress;
 
@@ -117,6 +127,21 @@
             const el = document.createElement('span');
             el.textContent = text ?? '';
             return el.innerHTML;
+        }
+
+        function formatModes(modes) {
+            if (!Array.isArray(modes) || modes.length === 0) {
+                return '<span class="lesson-mode lesson-mode--both" title="在线可读，本地可练">🌐+🐳</span>';
+            }
+            const online = modes.includes('online');
+            const local = modes.includes('local');
+            if (online && local) {
+                return '<span class="lesson-mode lesson-mode--both" title="在线可读，本地可练">🌐+🐳</span>';
+            }
+            if (local) {
+                return '<span class="lesson-mode lesson-mode--local" title="建议本地 Docker 实验">🐳</span>';
+            }
+            return '<span class="lesson-mode lesson-mode--online" title="在线可学">🌐</span>';
         }
 
         function estimateTime(lesson) {
@@ -142,7 +167,7 @@
             return `
                 <a href="${href}" class="lesson-card${completedClass}" data-lesson-id="${escapeHtml(lesson.id)}">
                     <div class="lesson-card__top">
-                        <span class="lesson-card__id">${escapeHtml(badge)}</span>
+                        <span class="lesson-card__id">${escapeHtml(badge)} ${formatModes(lesson.modes)}</span>
                         <span class="lesson-card__time">${escapeHtml(time)}</span>
                     </div>
                     <h3>${escapeHtml(lesson.title)}</h3>

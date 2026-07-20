@@ -475,6 +475,25 @@
     color: var(--text-muted);
 }
 
+.lesson-mode {
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.lesson-mode--local {
+    color: #0e7490;
+}
+
+.lesson-mode--online {
+    color: #4f46e5;
+}
+
+.lesson-mode--both {
+    color: #b45309;
+}
+
 .lesson-card h3 {
     font-size: 15px;
     font-weight: 600;

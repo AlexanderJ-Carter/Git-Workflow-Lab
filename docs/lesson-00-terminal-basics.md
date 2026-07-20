@@ -253,6 +253,8 @@ cd projects
 
 > 致谢：上述参考站内容整理自开源项目 [jaywcjlove/linux-command](https://github.com/jaywcjlove/linux-command)（MIT），本课程按实验场景做了裁剪与改写，**不会**把全部 600+ 条命令塞进文档。
 
+**Windows 用户：** 若更习惯 PowerShell，可先阅读 [关卡 40：PowerShell 基础](./lesson-40-powershell-basics.md) 与 [关卡 41：跨平台命令行对照](./lesson-41-cli-cross-platform.md)；也可安装 Git Bash / WSL 后直接跟本关 Bash 命令练习。
+
 ---
 
 ## 七、练习题（可选）

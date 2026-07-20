@@ -75,6 +75,9 @@ QUIZ_SUPPORTED_LESSONS = {
     "lesson-36",
     "lesson-37",
     "lesson-38",
+    "lesson-39",
+    "lesson-40",
+    "lesson-41",
 }
 
 # 目录配置

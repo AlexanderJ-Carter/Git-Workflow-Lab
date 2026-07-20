@@ -18,6 +18,14 @@ STAGE_MINUTES = {
     "lesson-36": 35,
     "lesson-37": 30,
     "lesson-38": 35,
+    "lesson-39": 40,
+    "lesson-40": 35,
+    "lesson-41": 30,
+}
+
+STAGE_META = {
+    7: ("I", "阶段 I：计算机基础", "9 个关卡 · 约 5 小时", "#fef3c7", "#b45309"),
+    8: ("J", "阶段 J：编程与跨平台 CLI", "3 个关卡 · 约 2.5 小时", "#ede9fe", "#6d28d9"),
 }
 
 
@@ -179,46 +187,79 @@ def sync_workspace(path: Path, catalog: list[dict], total: int) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def max_stage(catalog: list[dict]) -> int:
+    stages = [lesson.get("stage", 0) for lesson in catalog if lesson["id"].startswith("lesson-")]
+    return max(stages) if stages else 0
+
+
+def stage_thresholds(max_index: int) -> list[float]:
+    if max_index <= 0:
+        return [1.0]
+    step = 1 / (max_index + 1)
+    return [round(step * (index + 1), 3) for index in range(max_index + 1)]
+
+
+def ensure_learning_path_stage(text: str, stage_index: int) -> str:
+    if f'id="stage-{stage_index}"' in text:
+        return text
+    letter, title, meta, bg, fg = STAGE_META.get(
+        stage_index,
+        (chr(ord("A") + stage_index), f"阶段 {stage_index}", "若干关卡", "#e2e8f0", "#334155"),
+    )
+    stage_block = f"""
+            <div class="path-stage" id="path-stage-{stage_index}">
+                <div class="path-stage-header">
+                <div class="path-stage-icon stage-{stage_index}" id="stage-icon-{stage_index}">{letter}</div>
+                <div class="path-stage-title">{title}</div>
+                <div class="path-stage-meta">{meta}</div>
+            </div>
+            <div class="path-cards" id="stage-{stage_index}"></div>
+        </div>
+"""
+    anchor = f'            <div class="path-cards" id="stage-{stage_index - 1}"></div>\n        </div>'
+    if anchor not in text:
+        raise RuntimeError(f"无法在 learning-path 中插入 stage-{stage_index}")
+    return text.replace(anchor, anchor + stage_block, 1)
+
+
 def sync_learning_path(path: Path, catalog: list[dict]) -> None:
     text = path.read_text(encoding="utf-8")
     text = replace_js_const(text, "LESSONS", build_learning_path_lessons(catalog), decl="let")
-  # stage loop
-    text = text.replace(
-        "[0, 1, 2, 3, 4, 5, 6].forEach(stageIndex => {",
-        "[0, 1, 2, 3, 4, 5, 6, 7].forEach(stageIndex => {",
+    last_stage = max_stage(catalog)
+    stage_loop = ", ".join(str(index) for index in range(last_stage + 1))
+    text = re.sub(
+        r"\[[0-9,\s]+\]\.forEach\(stageIndex => \{",
+        f"[{stage_loop}].forEach(stageIndex => {{",
+        text,
+        count=1,
     )
-    text = text.replace(
-        "const stageThresholds = [0.14, 0.28, 0.42, 0.56, 0.70, 0.84, 1];",
-        "const stageThresholds = [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];",
+    thresholds = stage_thresholds(last_stage)
+    text = re.sub(
+        r"const stageThresholds = \[[^\]]+\];",
+        f"const stageThresholds = {json.dumps(thresholds)};",
+        text,
+        count=1,
     )
-    if 'id="stage-7"' not in text:
-        stage_block = """
-            <div class="path-stage" id="path-stage-7">
-                <div class="path-stage-header">
-                <div class="path-stage-icon stage-7" id="stage-icon-7">I</div>
-                <div class="path-stage-title">阶段 I：计算机基础</div>
-                <div class="path-stage-meta">9 个关卡 · 约 5 小时</div>
-            </div>
-            <div class="path-cards" id="stage-7"></div>
-        </div>
-"""
+    for stage_index in range(7, last_stage + 1):
+        text = ensure_learning_path_stage(text, stage_index)
+        if stage_index in STAGE_META:
+            _, _, _, bg, fg = STAGE_META[stage_index]
+            css_rule = f".path-stage-icon.stage-{stage_index} {{ background: {bg}; color: {fg}; }}"
+            if css_rule not in text:
+                text = text.replace(
+                    f".path-stage-icon.stage-{stage_index - 1}",
+                    f".path-stage-icon.stage-{stage_index - 1}",
+                    1,
+                )
+                text = text.replace(
+                    f".path-stage-icon.stage-{stage_index - 1} {{",
+                    f".path-stage-icon.stage-{stage_index - 1} {{\n        {css_rule}",
+                    1,
+                )
+    if "阶段 J：编程与跨平台" not in text.split("function renderCards")[0]:
         text = text.replace(
-            '            <div class="path-cards" id="stage-6"></div>\n        </div>',
-            '            <div class="path-cards" id="stage-6"></div>\n        </div>' + stage_block,
-        )
-    if ".path-stage-icon.stage-7" not in text:
-        text = text.replace(
-            ".path-stage-icon.stage-6 { background: #cffafe; color: #0e7490; }",
-            ".path-stage-icon.stage-6 { background: #cffafe; color: #0e7490; }\n        .path-stage-icon.stage-7 { background: #fef3c7; color: #b45309; }",
-        )
-        text = text.replace(
-            "[data-theme=\"dark\"] .path-stage-icon.stage-6 { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }",
-            "[data-theme=\"dark\"] .path-stage-icon.stage-6 { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }\n        [data-theme=\"dark\"] .path-stage-icon.stage-7 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }",
-        )
-    if "阶段 I：计算机基础" not in text.split("function renderCards")[0]:
-        text = text.replace(
-            "<li>阶段 H 进阶实用：Fork、hotfix、submodule、历史整理、考古与 sparse checkout</li>",
-            "<li>阶段 H 进阶实用：Fork、hotfix、submodule、历史整理、考古与 sparse checkout</li>\n                <li>阶段 I 计算机基础：Shell、管道、环境变量、Docker、HTTP、文本处理、网络排查、YAML/JSON</li>",
+            "<li>阶段 I 计算机基础：Shell、管道、环境变量、Docker、HTTP、文本处理、网络排查、YAML/JSON</li>",
+            "<li>阶段 I 计算机基础：Shell、管道、环境变量、Docker、HTTP、文本处理、网络排查、YAML/JSON</li>\n                <li>阶段 J 编程与跨平台：Python 入门、PowerShell、Bash/PowerShell 对照</li>",
         )
     path.write_text(text, encoding="utf-8")
 
@@ -242,7 +283,6 @@ def main() -> None:
     sync_viewer(ROOT / "docs" / "viewer.html", catalog, total)
     sync_viewer(ROOT / "site" / "docs" / "viewer.html", catalog, total)
     sync_workspace(ROOT / "site" / "workspace.html", catalog, total)
-    sync_learning_path(ROOT / "site" / "learning-path.html", catalog)
     sync_search(ROOT / "site" / "search.html", catalog)
 
     print(f"Synced {total} lessons from {CATALOG}")

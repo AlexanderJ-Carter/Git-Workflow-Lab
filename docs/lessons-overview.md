@@ -84,6 +84,12 @@
 3. **关卡 09：stash 的正确使用姿势**
    - 位置：`docs/lesson-09-stash-usage.md`
    - 命令：`stash push/pop/list/drop/apply`
+4. **关卡 20：用 git bisect 定位引入 Bug 的提交**
+   - 位置：`docs/lesson-20-bisect.md`
+   - 命令：`bisect start/good/bad/reset/run`
+5. **关卡 21：用 git worktree 同时检出多个分支**
+   - 位置：`docs/lesson-21-worktree.md`
+   - 命令：`worktree add/list/remove/prune`
 
 ### 阶段 4：进阶操作
 
@@ -126,62 +132,13 @@
 
 ---
 
-## 规划中的关卡清单（示例）
+## 后续可扩展主题（可选）
 
-> 下面是一个建议清单，你可以按优先级逐步补全对应的 `lesson-XX-*.md`。
+以下方向尚未单独成课，欢迎贡献 PR：
 
-### 阶段 0：环境与配置
-
-1. **关卡 00：安装 Git 并完成基础配置**
-   - 内容：安装 Git、`git config --global`（user.name / user.email 等）、全局 `.gitignore`、换行符设置、查看帮助文档
-
-### 阶段 1：Git 基础操作
-
-1.（已实现）**关卡 01：从 0 开始，新建仓库并 push 代码**
-   - 位置：`docs/lesson-01-init-push.md`
-
-2. **关卡 02：搞懂工作区 / 暂存区 / 本地历史**
-   - 命令：`status`、`diff`、`restore`、`add -p`
-3. **关卡 03：远程仓库与同步**
-   - 命令：`remote`、`pull`、`fetch`、`push`，模拟别人先 push 的场景
-
-### 阶段 2：分支与协作
-
-1. **关卡 04：创建分支 & 提交 PR 合并代码**
-   - 命令：`branch`、`switch`、`merge`
-   - Web：在 Gitea 上发起 PR，体验 Review/合并
-2. **关卡 05：解决简单合并冲突**
-   - 命令：`merge`、手动解决冲突、`add`、`commit`
-3. **关卡 06：用 rebase 保持整洁历史**
-   - 命令：`rebase`（含交互式 rebase 可选）
-4. **关卡 06b：远程协作规则与常见约定**
-    - 内容：push/pull/fetch 行为规范、禁止对共享分支强推、分支命名与 PR 规则、常见团队工作流（Git Flow / GitHub Flow 等）概览
-
-### 阶段 2 扩展：SSH 与安全访问
-
-1. **关卡 06a：配置 SSH 密钥并通过 SSH 访问仓库**
-    - 命令：`ssh-keygen`、`ssh -T`、`git remote set-url`
-    - Web：在 Gitea 上添加 SSH 公钥，使用 `git@...` 地址 clone / push
-
-### 阶段 3：救火与历史修复
-
-1. **关卡 07：误提交到错误分支的补救**
-   - 命令：`cherry-pick`、`revert`
-2. **关卡 08：用 reflog 从「看似没救」的历史中恢复**
-   - 命令：`reflog`、`reset --hard`
-3. **关卡 09：stash 的正确使用姿势**
-   - 命令：`stash push/pop/list/drop`
-
-### 阶段 4–5：CI/CD
-
-1. **关卡 10：为仓库添加第一个 CI 工作流**
-    - 内容：在仓库中新建 CI 配置文件，push 后看到流水线运行
-2. **关卡 11：修复一个失败的 CI 流水线**
-    - 内容：阅读日志 → 找到报错 → 修改代码或配置 → 让它变绿
-3. **关卡 12：多阶段流水线与简单部署模拟**
-    - 内容：把测试、构建、部署拆成多个 Job/Stage，了解依赖关系
-4. **关卡 17：自动维护版本与 Changelog**
-   - 内容：用 Release Please 自动生成 Release PR、Tag、Release 和 Changelog
+- 子模块（submodule）与 subtree
+- `git filter-repo` 历史改写
+-  monorepo 下的多包发布策略
 
 ---
 

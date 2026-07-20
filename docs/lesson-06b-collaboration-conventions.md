@@ -336,7 +336,58 @@ git push --force-with-lease origin feature/my-branch
 
 ---
 
-## 九、练习题
+## 九、如何确认自己做对了
+
+对照以下清单，确认你已掌握协作规范（可在 `playground-hello` 仓库中演练）：
+
+```bash
+cd ~/playground-hello
+git branch --show-current
+git log --oneline -3
+```
+
+- [ ] ✓ 新建的分支名符合 `feature/`、`bugfix/` 等前缀规范
+- [ ] ✓ 最近一次 commit message 使用 `feat:` / `fix:` 等约定式前缀
+- [ ] ✓ 在 Gitea 上创建的 PR 标题与描述完整，且未对 `main` 使用 `git push --force`
+- [ ] ✓ 能向同伴解释：为什么共享分支禁止强推，以及 `--force-with-lease` 比 `--force` 更安全
+
+---
+
+## 十、常见错误与排查
+
+### ❌ 直接 push 到 `main` 被拒绝
+
+**可能原因：** 仓库设置了分支保护，或团队要求必须走 PR。
+
+**解决方法：** 从 `main` 创建功能分支，push 分支后在 Gitea 开 PR 合并。
+
+### ❌ PR 合并后本地 `main` 仍然落后
+
+**可能原因：** 只在 Web 上合并，本地未 `git pull`。
+
+**解决方法：**
+
+```bash
+git switch main
+git pull origin main
+git branch -d feature/xxx   # 删除已合并的本地分支
+```
+
+### ❌ 对共享分支 `git push --force` 导致同事提交「消失」
+
+**可能原因：** 强推改写了远程历史。
+
+**解决方法：** 立即停止强推；若同事本地仍有 commit，用 `cherry-pick` 或 `reflog` 恢复（参见关卡 07、08）。今后仅对自己的功能分支使用 `--force-with-lease`。
+
+### ❌ PR 描述空泛，Review 无法进行
+
+**可能原因：** 未说明变更动机、测试方式、关联 Issue。
+
+**解决方法：** 按本关 PR 模板补全「变更内容 / 测试情况 / 检查清单」，并附上关键截图或命令输出。
+
+---
+
+## 十一、练习题
 
 ### 练习 1：按规范完成一次完整流程
 
@@ -357,7 +408,7 @@ git push --force-with-lease origin feature/my-branch
 
 ---
 
-## 十、参考答案（仅供对照）
+## 十二、参考答案（仅供对照）
 
 ### 练习 1 参考流程
 
@@ -413,7 +464,7 @@ git branch -d feature/sample-feature
 
 ---
 
-## 十一、延伸阅读
+## 十三、延伸阅读
 
 - [GitHub Flow 官方文档](https://docs.github.com/en/get-started/quickstart/github-flow)
 - [Git Flow 原文](https://nvie.com/posts/a-successful-git-branching-model/)

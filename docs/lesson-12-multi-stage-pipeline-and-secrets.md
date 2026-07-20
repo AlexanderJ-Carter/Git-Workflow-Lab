@@ -151,7 +151,51 @@ git push origin main
 
 ---
 
-## 六、练习题
+## 六、如何确认自己做对了
+
+在 Gitea Actions 页面查看最近一次 `Demo Pipeline` 运行：
+
+- [ ] ✓ Job 执行顺序为 `test` → `build` → `deploy`（`needs` 依赖生效）
+- [ ] ✓ `build` 日志中能看到 `build-artifact.txt` 的内容
+- [ ] ✓ `deploy` 日志中有 `Deploying to staging environment...`，且未打印任何真实 Token 明文
+- [ ] ✓ 本地 `.gitea/workflows/pipeline.yml` 已提交并 push 到远程
+
+```bash
+cd ~/playground-ci   # 或你添加 pipeline 的仓库
+grep -E "needs:|secrets\\." .gitea/workflows/pipeline.yml
+```
+
+---
+
+## 七、常见错误与排查
+
+### ❌ `build` 成功但 `deploy` 从未运行
+
+**可能原因：** `deploy.needs` 未指向 `build`，或 `build` 被跳过。
+
+**解决方法：** 检查 YAML 中 `needs: build`；确认三个 Job 都在同一 workflow 文件、同一 `on` 触发条件下。
+
+### ❌ 把 API Key 直接写在 YAML 的 `env:` 里
+
+**可能原因：** 误以为私有仓库就安全。
+
+**解决方法：** 删除明文密钥；在 Gitea 仓库 Settings → Secrets 配置后，用 `${{ secrets.NAME }}` 引用（参见关卡 19）。
+
+### ❌ `${{ secrets.DEPLOY_TOKEN }}` 显示为空
+
+**可能原因：** Secret 名称拼写不一致，或未在该仓库配置。
+
+**解决方法：** 核对 Secret 名大小写；重新保存 Secret 后 re-run workflow。
+
+### ❌ 多个 Job 重复 checkout 导致「构建产物丢失」
+
+**可能原因：** 每个 Job 在独立 Runner 上运行，文件系统不共享。
+
+**解决方法：** 本关用 echo 模拟产物即可；真实项目需用 `actions/upload-artifact` 或镜像 registry 传递产物（进阶主题）。
+
+---
+
+## 八、练习题
 
 ### 练习 1：让部署 Job 只在打 Tag 时运行
 
@@ -168,7 +212,7 @@ git push origin main
 
 ---
 
-## 七、参考答案（仅供对照）
+## 九、参考答案（仅供对照）
 
 ### 练习 1 参考思路
 

@@ -9,11 +9,11 @@
 
 照着每个关卡的步骤，一条命令一条命令地敲，一步步完成练习。
 
-> **编号说明：** 关卡文件编号（00–29）保持不变，便于进度记录与外链。**推荐学习顺序**见下方「逻辑阶段 A–H」，与文件名编号不必一致。
+> **编号说明：** 关卡文件编号（00–38）保持不变，便于进度记录与外链。**推荐学习顺序**见下方「逻辑阶段 A–I」，与文件名编号不必一致。双模式说明见 [学习模式](./learning-modes.md)（🌐 在线 / 🐳 本地 Docker）。
 
 ---
 
-## 逻辑阶段 A–H（推荐学习顺序）
+## 逻辑阶段 A–I（推荐学习顺序）
 
 | 逻辑阶段 | 主题 | 推荐顺序 | 关卡文件 |
 |----------|------|----------|----------|
@@ -25,16 +25,19 @@
 | **F** CI/CD | 首个流水线、修复失败、多阶段与 Secrets | 25 → 27 | [10](./lesson-10-first-ci-workflow.md)、[11](./lesson-11-fix-broken-pipeline.md)、[12](./lesson-12-multi-stage-pipeline-and-secrets.md) |
 | **G** 安全与合规 | 签名、Secrets 实践 | 28 → 29 | [18](./lesson-18-commit-and-tag-signing.md)、[19](./lesson-19-secrets-and-security.md) |
 | **H** 进阶实用 | fork、hotfix、submodule、rebase 进阶、历史考古、sparse checkout | 30 → 35 | [24](./lesson-24-fork-and-upstream.md)、[25](./lesson-25-hotfix-workflow.md)、[26](./lesson-26-submodule.md)、[27](./lesson-27-interactive-rebase-fixup.md)、[28](./lesson-28-blame-and-archaeology.md)、[29](./lesson-29-sparse-checkout.md) |
+| **I** 计算机基础 | Shell、I/O、环境变量、进程、Docker、HTTP、文本处理、网络排查、JSON/YAML | 36 → 44 | [30](./lesson-30-shell-scripting-basics.md)–[38](./lesson-38-json-yaml-devops.md) |
 
 **完整推荐路径（按阶段）：**
 
 ```text
-A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,22→23) → F(10→12) → G(18→19) → H(24→29)
+A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,22→23) → F(10→12) → G(18→19) → H(24→29) → I(30→38)
 ```
+
+阶段 **I** 可与 **A/B** 并行（先 00b 再 30+），详见 [学习路径](./learning-path.md)。
 
 ---
 
-## 全部关卡索引（00–29）
+## 全部关卡索引（00–38）
 
 ### 阶段 A：环境与配置
 
@@ -109,6 +112,20 @@ A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,
 | 28 | [lesson-28-blame-and-archaeology.md](./lesson-28-blame-and-archaeology.md) | blame、log -S/-G、--follow |
 | 29 | [lesson-29-sparse-checkout.md](./lesson-29-sparse-checkout.md) | sparse-checkout cone、partial clone |
 
+### 阶段 I：计算机基础
+
+| 关卡 | 文件 | 要点 | 模式 |
+|------|------|------|------|
+| 30 | [lesson-30-shell-scripting-basics.md](./lesson-30-shell-scripting-basics.md) | Bash、shebang、变量、if/for、chmod +x | 🌐+🐳 |
+| 31 | [lesson-31-pipes-redirection.md](./lesson-31-pipes-redirection.md) | 管道、重定向、tee、stdin/stdout/stderr | 🌐+🐳 |
+| 32 | [lesson-32-env-and-path.md](./lesson-32-env-and-path.md) | env、export、PATH、.bashrc、which | 🌐+🐳 |
+| 33 | [lesson-33-processes-and-jobs.md](./lesson-33-processes-and-jobs.md) | ps、jobs、bg/fg、kill、nohup | 🐳 |
+| 34 | [lesson-34-docker-basics.md](./lesson-34-docker-basics.md) | 镜像/容器、compose、本仓库服务 | 🐳（🌐 只读） |
+| 35 | [lesson-35-http-rest-curl.md](./lesson-35-http-rest-curl.md) | HTTP、curl、Gitea API | 🌐+🐳 |
+| 36 | [lesson-36-text-processing-sed-awk.md](./lesson-36-text-processing-sed-awk.md) | grep、sed、awk、cut/sort/uniq | 🌐+🐳 |
+| 37 | [lesson-37-network-troubleshooting.md](./lesson-37-network-troubleshooting.md) | ping、curl、ss、DNS、ssh -v | 🐳 |
+| 38 | [lesson-38-json-yaml-devops.md](./lesson-38-json-yaml-devops.md) | JSON/YAML、jq、Actions/compose | 🌐+🐳 |
+
 ---
 
 ## 演示仓库与端口
@@ -120,7 +137,9 @@ A(00→00b) → B(01→03) → C(04→06b) → D(07→09,20→21) → E(13→17,
 | Gitea | http://localhost:3000 | `playground-hello`、`playground-ci` |
 | Gitea SSH | localhost:2222 | SSH clone |
 
-启动环境：`docker compose up -d`
+启动环境：`docker compose up -d`（在线仅阅读见 [learning-modes.md](./learning-modes.md)）
+
+**关卡统计：** 共 **39** 个文档关卡（00、00b、01–29、30–38）。
 
 ---
 

@@ -2,16 +2,18 @@
 
 本文档帮助你规划 Git Workflow Lab 的学习路线，根据你的水平和目标选择合适的课程。
 
-> **编号 vs 顺序：** 关卡文件名编号（00–29）不变；**推荐学习顺序**以 [关卡总览](./lessons-overview.md) 中的逻辑阶段 **A–H** 为准。
+> **编号 vs 顺序：** 关卡文件名编号（00–38）不变；**推荐学习顺序**以 [关卡总览](./lessons-overview.md) 中的逻辑阶段 **A–I** 为准。在线 / Docker 双模式见 [学习模式说明](./learning-modes.md)。
 
 ---
 
 ## 逻辑阶段总览
 
 ```text
-A 环境 ──→ B Git基础 ──→ C 分支协作 ──→ D 救火恢复 ──→ E 工程化 ──→ F CI/CD ──→ G 安全 ──→ H 进阶实用
-00,00b      01–03         04–06b         07–09,20–21      13–17,22–23    10–12        18–19       24–29
+A 环境 ──→ B Git基础 ──→ C 分支协作 ──→ D 救火恢复 ──→ E 工程化 ──→ F CI/CD ──→ G 安全 ──→ H 进阶实用 ──→ I 计算机基础
+00,00b      01–03         04–06b         07–09,20–21      13–17,22–23    10–12        18–19       24–29              30–38
 ```
+
+阶段 **I** 建议在 **00b** 之后即可并行学习，为 Git / CI 命令行与配置打基础。
 
 ---
 
@@ -137,6 +139,43 @@ E: 13 → 17 → 22        F: 10 → 11 → 12        G: 19
 
 ---
 
+### 计算机与运维入门
+
+**适合人群：** 命令行不熟、需补 Linux/Shell/网络/Docker 基础后再深入 Git/CI；或运维、后端转 DevOps
+
+**学习目标：** Shell 脚本、管道与环境变量、进程与 Docker、HTTP/curl、文本处理与 YAML/JSON 配置
+
+**推荐路径：**
+
+```text
+前置: A 的 00b（终端基础）
+
+I: 30 → 31 → 32 → 33 → 34 → 35 → 36 → 37 → 38
+   Shell  管道  环境  进程  Docker HTTP  文本  网络  JSON/YAML
+```
+
+| 阶段 | 关卡 | 预计时间 | 模式 |
+|------|------|----------|------|
+| 前置 | 00b | 30 分钟 | 🐳 |
+| I | 30–32, 35–36, 38 | 3–4 小时 | 🌐+🐳 |
+| I | 33–34, 37 | 1.5–2 小时 | 🐳 |
+
+**预计总时间：** 约 5–6 小时
+
+**与 Git 课程衔接：**
+
+```text
+00b ──→ 30–32 ──→ 01（Git init）
+         │
+         ├──→ 34 ──→ 理解本实验 docker compose
+         ├──→ 35 ──→ 10+（CI / API）
+         └──→ 38 ──→ 10–12（workflow YAML）
+```
+
+**依赖关系：** 33、34、37 需本地 Docker / 终端；无 Docker 时可先完成 30–32、35–36、38 的概念部分，见 [learning-modes.md](./learning-modes.md)。
+
+---
+
 ### 进阶实用
 
 **适合人群：** 参与开源、维护 monorepo、整理历史、大仓库优化
@@ -197,11 +236,16 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
                     └──→ 24 ──→ 26                                   │
                               │                                      │
                               └──→ 28 ←── 02                         │
+                                                                     │
+                    00b ──→ 30 ──→ 31 ──→ 32 ──→ 35 ──→ 36 ──→ 38   │
+                              │       │                            │
+                              ├──→ 33  ├──→ 34                       │
+                              └──→ 37 ─────────────────────────────┘
 ```
 
 ---
 
-## 按逻辑阶段 A–H 的推荐顺序表
+## 按逻辑阶段 A–I 的推荐顺序表
 
 | 顺序 | 逻辑阶段 | 关卡 | 标题摘要 |
 |------|----------|------|----------|
@@ -213,6 +257,7 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 | 25–27 | F | 10–12 | CI/CD 流水线 |
 | 28–29 | G | 18–19 | 签名、Secrets |
 | 30–35 | H | 24–29 | fork、hotfix、submodule、rebase 进阶、考古、sparse |
+| 36–44 | I | 30–38 | Shell、管道、环境、进程、Docker、HTTP、文本、网络、JSON/YAML |
 
 ---
 
@@ -228,8 +273,9 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 | F CI/CD | 3 | 3–4 小时 |
 | G 安全 | 2 | 1.5 小时 |
 | H 进阶实用 | 6 | 3.5–4 小时 |
+| I 计算机基础 | 9 | 5–6 小时 |
 
-**完整学习（A→H）：** 约 18–22 小时
+**完整学习（A→I）：** 约 24–28 小时
 
 ---
 
@@ -237,10 +283,10 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 
 ### 学习方法
 
-1. **边看边做：** 打开课程文档，同时在 http://localhost:8080 终端和 http://localhost:3000 Gitea 操作
+1. **边看边做：** 打开课程文档，同时在 http://localhost:8080 终端和 http://localhost:3000 Gitea 操作（🌐 在线模式见 [learning-modes.md](./learning-modes.md)）
 2. **完成验证清单：** 每课「如何确认自己做对了」务必逐项打勾
 3. **用演示仓库：** `playground-hello` 练 Git 流程，`playground-ci` 练 CI/submodule
-4. **按角色跳读：** 不必严格 00→29 数字顺序，按上表角色路径更高效
+4. **按角色跳读：** 不必严格 00→38 数字顺序，按上表角色路径更高效
 
 ### 学习节奏
 
@@ -257,7 +303,9 @@ fork/upstream  hotfix  submodule  rebase-fixup  blame考古  sparse-checkout
 
 ## 补充资源
 
-- [关卡总览（逻辑阶段 A–H）](./lessons-overview.md)
+- [关卡总览（逻辑阶段 A–I）](./lessons-overview.md)
+- [学习模式：在线 vs 本地 Docker](./learning-modes.md)
+- [快速开始（站点）](../site/quick-start.html)
 - [Git 官方文档](https://git-scm.com/doc)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [常见问题解答](faq.md)

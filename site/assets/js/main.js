@@ -1294,7 +1294,13 @@
          */
         resolveBasePath() {
             const path = window.location.pathname.replace(/\\/g, '/');
+            if (path === '/Git-Workflow-Lab' || path.startsWith('/Git-Workflow-Lab/')) {
+                return '/Git-Workflow-Lab/';
+            }
             if (path.includes('/lessons/') || path.endsWith('/lessons')) {
+                return '../';
+            }
+            if (path.includes('/docs/')) {
                 return '../';
             }
             return '';

@@ -5,7 +5,7 @@ Project: Git Workflow Lab - Git 与 CI/CD 教学仓库
 ## 项目概述
 
 这是一个面向 Git 学习与协作实践的教学仓库，聚焦"边看边做"的课程体验。包含：
-- 系统化的 Git 课程（33 课时，逻辑阶段 A–H）
+- 系统化的 Git 课程（45 课时，逻辑阶段 A–J）
 - Docker Compose 一键部署的 Gitea + Web 终端实验环境
 - 完整的 CI/CD 示例（GitHub Actions、Release Please）
 - 双模式运行：GitHub Pages 展示 + 本地实验环境
@@ -108,13 +108,21 @@ docker-compose logs -f
 
 - 标签、Release、CI/CD、Secrets
 
+### 阶段 I: 计算机基础
+
+- Shell、Docker、HTTP、YAML、进程与网络
+
+### 阶段 J: 编程与跨平台 CLI
+
+- Python 入门、PowerShell、Bash/PowerShell 对照
+
 ## 站点功能页面
 
 ### 学习辅助
 
 - `ai-assistant.html` - AI 问答助手（需用户自己提供 API Key）
 - `flashcards.html` - 记忆闪卡系统（间隔重复学习）
-- `quiz.html` - 技能测验（含 33 课程题目）
+- `quiz.html` - 技能测验（含 45 课程题目）
 - `cheatsheet.html` - Git 命令速查表（支持搜索和点击复制）
 - `best-practices.html` - 最佳实践指南
 

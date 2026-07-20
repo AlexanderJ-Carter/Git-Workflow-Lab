@@ -520,6 +520,15 @@
           },
           "lesson-38": {
             "lessonHref": "docs/viewer.html?file=lesson-38-json-yaml-devops.md"
+          },
+          "lesson-39": {
+            "lessonHref": "docs/viewer.html?file=lesson-39-programming-basics-python.md"
+          },
+          "lesson-40": {
+            "lessonHref": "docs/viewer.html?file=lesson-40-powershell-basics.md"
+          },
+          "lesson-41": {
+            "lessonHref": "docs/viewer.html?file=lesson-41-cli-cross-platform.md"
           }
         };
 
@@ -2208,7 +2217,89 @@
                         "explanation": "JSON 对象形如 {\"key\": \"value\"}。"
                     }
                 ]
+            },
+            "lesson-39": {
+                "title": "编程入门（Python）",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "Python 中定义函数使用哪个关键字？",
+                        "options": [
+                            { "text": "def", "correct": true },
+                            { "text": "function", "correct": false },
+                            { "text": "func", "correct": false },
+                            { "text": "fn", "correct": false }
+                        ],
+                        "explanation": "Python 用 def 定义函数，如 def greet(name):。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "Python 用什么东西表示代码块（代替 Bash 的 then/fi）？",
+                        "options": [
+                            { "text": "缩进", "correct": true },
+                            { "text": "花括号 {}", "correct": false },
+                            { "text": "end 关键字", "correct": false },
+                            { "text": "分号", "correct": false }
+                        ],
+                        "explanation": "Python 依靠一致的缩进表示块结构。"
+                    }
+                ]
+            },
+            "lesson-40": {
+                "title": "PowerShell 基础",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "PowerShell 中列出当前目录文件常用哪个 cmdlet？",
+                        "options": [
+                            { "text": "Get-ChildItem", "correct": true },
+                            { "text": "Get-Process", "correct": false },
+                            { "text": "Set-Location", "correct": false },
+                            { "text": "Write-Host", "correct": false }
+                        ],
+                        "explanation": "Get-ChildItem 列出子项，ls 是其别名。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "在 PowerShell 中设置临时环境变量应写成？",
+                        "options": [
+                            { "text": "$env:VAR = \"value\"", "correct": true },
+                            { "text": "export VAR=value", "correct": false },
+                            { "text": "set VAR=value", "correct": false },
+                            { "text": "VAR := value", "correct": false }
+                        ],
+                        "explanation": "PowerShell 通过 $env:NAME 访问环境变量。"
+                    }
+                ]
+            },
+            "lesson-41": {
+                "title": "跨平台命令行",
+                "questions": [
+                    {
+                        "type": "choice",
+                        "question": "Windows 默认文本行尾与 Linux 的主要区别是？",
+                        "options": [
+                            { "text": "Windows 常用 CRLF，Linux 常用 LF", "correct": true },
+                            { "text": "没有区别", "correct": false },
+                            { "text": "Linux 用 CRLF", "correct": false },
+                            { "text": "仅影响图片文件", "correct": false }
+                        ],
+                        "explanation": "CRLF/LF 差异会导致 Shell 脚本报 bad interpreter 等问题。"
+                    },
+                    {
+                        "type": "choice",
+                        "question": "想在 Windows 上尽量复现本课程 Bash 实验，较合适的选择是？",
+                        "options": [
+                            { "text": "WSL 或本课程 Docker Web 终端", "correct": true },
+                            { "text": "只能用 cmd", "correct": false },
+                            { "text": "记事本", "correct": false },
+                            { "text": "无法复现", "correct": false }
+                        ],
+                        "explanation": "WSL 与 Docker 终端提供 Linux Shell，与文档命令一致。"
+                    }
+                ]
             }
+        };
 
         // 测验应用
         class QuizApp {

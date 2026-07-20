@@ -46,6 +46,7 @@ Git Workflow Lab 支持 **两种互补的学习方式**。你可以只读在线�
 | Docker / 进程 / 端口排查（关卡 33–34、37） | 只读概念 | ✓ 动手 |
 | Gitea API + curl（关卡 35） | 公网 demo | ✓ 本地 API |
 | 修改 `docker-compose.yml` 并验证 | 只读 | ✓ |
+| Python / PowerShell 编程入门（关卡 39–41） | ✓ 阅读 + 本机练习 | ✓ 阅读 + 本机练习 |
 
 **图例说明（关卡内标记）：**
 

@@ -46,13 +46,13 @@ def test_quiz_bank_covers_lesson_00b() -> None:
 
 
 def test_lesson_catalog_covers_all_lessons() -> None:
-    """共享课程目录应覆盖 42 个课程关卡并保留 stage 映射。"""
+    """共享课程目录应覆盖 45 个课程关卡并保留 stage 映射。"""
     catalog_path = SITE_DIR / "assets" / "data" / "lessons.json"
     assert catalog_path.is_file()
     lessons = json.loads(catalog_path.read_text(encoding="utf-8"))
     lesson_entries = [lesson for lesson in lessons if str(lesson["id"]).startswith("lesson-")]
     ids = {lesson["id"] for lesson in lesson_entries}
-    assert len(lesson_entries) == 42
+    assert len(lesson_entries) == 45
     assert {
         "lesson-00b",
         "lesson-06a",
@@ -76,6 +76,9 @@ def test_lesson_catalog_covers_all_lessons() -> None:
         "lesson-36",
         "lesson-37",
         "lesson-38",
+        "lesson-39",
+        "lesson-40",
+        "lesson-41",
     }.issubset(ids)
     assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 2} == {
         "lesson-07",
@@ -113,6 +116,11 @@ def test_lesson_catalog_covers_all_lessons() -> None:
         "lesson-36",
         "lesson-37",
         "lesson-38",
+    }
+    assert {lesson["id"] for lesson in lesson_entries if lesson["stage"] == 8} == {
+        "lesson-39",
+        "lesson-40",
+        "lesson-41",
     }
 
 
@@ -199,10 +207,19 @@ def test_index_has_personal_learning_dashboard() -> None:
     assert "personal-dashboard" in text
     assert "dash-lessons" in text
     assert "ActivityProgress" in text
-    assert ">42<" in text or "<strong>42</strong>" in text
+    assert ">45<" in text or "<strong>45</strong>" in text
     assert "仅浏览 (Pages)" in text
     assert "本地 Docker 实验" in text
     assert "learning-modes.md" in text
+
+
+def test_learning_path_loads_lessons_dynamically() -> None:
+    """学习路径应从 lessons.json 动态渲染具体课程卡片。"""
+    text = (SITE_DIR / "learning-path.html").read_text(encoding="utf-8")
+    assert "loadLessonCatalog" in text
+    assert 'id="path-timeline"' in text
+    assert "renderTimeline" in text
+    assert "path-activity-strip" in text
 
 
 def test_progress_events_are_emitted() -> None:
@@ -214,24 +231,19 @@ def test_progress_events_are_emitted() -> None:
     gamification = (SITE_DIR / "gamification.html").read_text(encoding="utf-8")
     assert "git-workflow-lab:progress" in gamification
 
-    learning_path = (SITE_DIR / "learning-path.html").read_text(encoding="utf-8")
-    assert "path-activity-strip" in learning_path
-    assert "lesson-18" in learning_path
-    assert "lesson-19" in learning_path
-    assert "docs/viewer.html?file=" in learning_path
-
 
 def test_viewer_normalizes_lesson_ids() -> None:
     """viewer 标记完成时应使用统一 lesson ID（含 lesson-00b）。"""
     text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
     assert "normalizeLessonId" in text
     assert "lesson-00-terminal-basics" in text
-    assert "TOTAL_LESSONS: 42" in text
+    assert "TOTAL_LESSONS: 45" in text
     assert "lesson-20-bisect.md" in text
     assert "lesson-21-worktree.md" in text
     assert "lesson-22-conventional-commits.md" in text
     assert "lesson-29-sparse-checkout.md" in text
     assert "lesson-38-json-yaml-devops.md" in text
+    assert "lesson-41-cli-cross-platform.md" in text
     assert "本课测验" in text
     assert "复习闪卡" in text
     assert "打开工作台" in text
@@ -247,15 +259,22 @@ def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
         "lesson-30", "lesson-31", "lesson-32", "lesson-33", "lesson-34",
         "lesson-35", "lesson-36", "lesson-37", "lesson-38",
     )
-    for name in ("learning-path.html", "search.html", "quiz.html", "workspace.html"):
+    programming_cli = ("lesson-39", "lesson-40", "lesson-41")
+    for name in ("search.html", "quiz.html", "workspace.html"):
         text = (SITE_DIR / name).read_text(encoding="utf-8")
-        for lesson_id in (*advanced_git, *computer_basics):
+        for lesson_id in (*advanced_git, *computer_basics, *programming_cli):
             assert lesson_id in text, f"{name} missing {lesson_id}"
+
+    learning_path = (SITE_DIR / "learning-path.html").read_text(encoding="utf-8")
+    assert 'id="path-timeline"' in learning_path
+    assert "LessonCatalog" in learning_path
+    assert "renderTimeline" in learning_path
 
     lessons_index = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
     assert "assets/data/lessons.json" in lessons_index
     assert 'target="_blank"' not in lessons_index
     assert "stage-7" in lessons_index
+    assert "stage-8" in lessons_index
     assert "GitWorkflowLab" in lessons_index or "LearningProgress" in lessons_index
 
     quiz = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
@@ -263,11 +282,11 @@ def test_new_lessons_are_linked_from_learning_loop_pages() -> None:
     assert "docs/viewer.html?file=lesson-21-worktree.md" in quiz
     assert "docs/viewer.html?file=lesson-22-conventional-commits.md" in quiz
     assert "docs/viewer.html?file=lesson-29-sparse-checkout.md" in quiz
-    assert "docs/viewer.html?file=lesson-38-json-yaml-devops.md" in quiz
+    assert "docs/viewer.html?file=lesson-41-cli-cross-platform.md" in quiz
     assert "lessons/lesson-20" not in quiz
 
     workspace = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
-    assert "TOTAL_LESSONS: 42" in workspace
+    assert "TOTAL_LESSONS: 45" in workspace
     assert "pendingCommand" in workspace
     assert "ssh -T git@localhost -p 2222" in workspace
     assert "playground-hello.git" in workspace
@@ -313,6 +332,13 @@ def test_diagnostics_uses_design_system() -> None:
     assert "8082" not in text
 
 
+def test_lessons_index_has_stage_eight() -> None:
+    """课程中心应包含阶段 J 编程与跨平台 CLI 区块。"""
+    text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
+    assert 'id="stage-8"' in text
+    assert "编程与跨平台" in text
+
+
 def test_lessons_index_has_stage_seven() -> None:
     """课程中心应包含阶段 I 计算机基础区块。"""
     text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
@@ -321,9 +347,24 @@ def test_lessons_index_has_stage_seven() -> None:
     assert "learning-modes.md" in text
 
 
+def test_build_site_includes_v3_assets() -> None:
+    """GitHub Pages 构建应包含 pages.css 与 lessons.json。"""
+    import subprocess
+    import sys
+
+    root = Path(__file__).resolve().parents[1]
+    subprocess.run([sys.executable, str(root / "scripts" / "build-site.py")], cwd=root, check=True)
+    assert (root / "_site" / "assets" / "css" / "pages.css").is_file()
+    assert (root / "_site" / "assets" / "css" / "style.css").is_file()
+    assert (root / "_site" / "assets" / "data" / "lessons.json").is_file()
+    index = (root / "_site" / "index.html").read_text(encoding="utf-8")
+    assert "assets/css/pages.css" in index
+
+
 def test_lessons_index_asset_paths_are_parent_relative() -> None:
     """课程中心位于 lessons/ 下，静态资源必须用 ../assets。"""
     text = (SITE_DIR / "lessons" / "index.html").read_text(encoding="utf-8")
     assert 'href="../assets/css/style.css"' in text
+    assert 'href="../assets/css/pages.css"' in text
     assert 'src="../assets/js/main.js"' in text
     assert 'href="assets/css/style.css"' not in text

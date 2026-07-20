@@ -437,5 +437,38 @@
     "desc": "JSON/YAML 语法、jq、读懂 Actions 与 compose。",
     "quizId": "lesson-38",
     "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-39",
+    "file": "lesson-39-programming-basics-python.md",
+    "title": "编程入门（Python）",
+    "badge": "39",
+    "stage": 8,
+    "group": "阶段 J · 编程与跨平台 CLI",
+    "desc": "变量、类型、条件、循环、函数，用 Python 理解编程思维。",
+    "quizId": "lesson-39",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-40",
+    "file": "lesson-40-powershell-basics.md",
+    "title": "PowerShell 与 Windows 命令行",
+    "badge": "40",
+    "stage": 8,
+    "group": "阶段 J · 编程与跨平台 CLI",
+    "desc": "Get-Location、管道、foreach，在 Windows 上高效用 Git。",
+    "quizId": "lesson-40",
+    "modes": ["online", "local"]
+  },
+  {
+    "id": "lesson-41",
+    "file": "lesson-41-cli-cross-platform.md",
+    "title": "跨平台命令行对照",
+    "badge": "41",
+    "stage": 8,
+    "group": "阶段 J · 编程与跨平台 CLI",
+    "desc": "Bash / PowerShell / cmd 对照，路径、CRLF 与终端选型。",
+    "quizId": "lesson-41",
+    "modes": ["online", "local"]
   }
 ]

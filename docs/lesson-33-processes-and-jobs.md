@@ -41,7 +41,7 @@
 echo $$
 ps -p $$
 ps aux | head -5
-ps aux | grep -E '[b]ash|[s]leep'
+ps aux | grep -E '[b]ash|[s]leep'  # cspell:ignore leep
 ```
 
 - `$$` 是当前 Shell 的 PID。

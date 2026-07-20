@@ -206,7 +206,7 @@ dig +short example.com | grep -q '.' && echo "dns OK"
 
 1. 模拟故障：执行 `docker compose stop gitea`，用 `curl` 与 `docker compose ps` 记录现象，再 `docker compose start gitea` 恢复。
 2. 在宿主机找占用 8080 的进程（若有冲突），说明与 `docker compose ps` 中 terminal 的关系。
-3. 写一段 5 行以内的「排查清单」，给同学解释「浏览器打不开 http://localhost:8081」时你怎么查。
+3. 写一段 5 行以内的「排查清单」，给同学解释「浏览器打不开 `http://localhost:8081`」时你怎么查。
 4. **思考题**：为什么生产环境禁止随意 `ping`，却允许 `curl` 健康检查？
 
 **安全提示：** 勿对公网 IP 做 aggressive 端口扫描；本关仅针对 localhost 实验环境。

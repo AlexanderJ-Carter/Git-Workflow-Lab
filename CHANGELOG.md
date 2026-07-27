@@ -6,6 +6,60 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.7.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.6.0...v1.7.0) (2026-07-20)
+
+
+### Features
+
+* **curriculum:** add stage J lessons and fix learning-path course cards ([1995e6d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/1995e6da12b2872087e72e483e6d4bd715708f2e))
+* **curriculum:** add stage K lessons 42-44 ([57e87de](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/57e87def82e6928e7bb84b12e1055f829c89839c))
+* **curriculum:** add stage K lessons 42-44 (regex, git config, gitattributes) ([a05d1ea](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a05d1ea123255cfb5553c57f8875035143127132))
+* **docs:** add computer fundamentals lessons 30-38 and learning modes guide ([818b715](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/818b715e9aaf6b202bc4677155b1d462ad100d4d))
+* **docs:** add practical lessons 22-29 and reorganize curriculum logic ([d956e3b](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/d956e3b7289b7abf86ece3a6a45abf3a92314104))
+* **docs:** expand terminal basics, add bisect/worktree lessons, align SSH ([66de05f](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/66de05ff81efef02bdf6e6ee718f0f29e09eba06))
+* **site:** redesign home and lessons hub with v3 layout ([46cec80](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/46cec80e7ce236f1be08cf1e2bf8df20d50fbca5))
+* **site:** register lessons 22-29 across catalog quiz and paths ([ed3fb75](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/ed3fb752c13018e833f3fe72804aefcd8a25de66))
+* **site:** sync stage I lessons 30-38 across platform ([e422320](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/e422320da3fb24a58992616ee00b0467369480ec))
+* **site:** unify lesson catalog and learning loop ([c7573f0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/c7573f07c222dbac07219a08f6f3f63ed57ac0d2))
+* **ux:** micro-interactions and workspace guidance ([7120f80](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/7120f807846bf0f3579b61b3af02aad75b2bb1b7))
+
+
+### Bug Fixes
+
+* **build:** bundle pages.css into style.css for GitHub Pages ([a999998](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a999998a2b82d4ebe4b5b043a44dfb82f2e1ceea))
+* **build:** bundle pages.css into style.css for homepage layout ([afa5546](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/afa554687ad64a99225f43b87432fca4df46bdba))
+* **build:** copy pages.css and lessons.json for GitHub Pages ([e7d334c](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/e7d334ca999bbf1055a137c587e1daa269d02821))
+* **ci:** add cspell words for stage K lesson examples ([e7b1397](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/e7b13970b72b767eed464bcbe84a9657b1b85607))
+* **ci:** add cspell words for stage K lesson examples ([0579bab](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/0579babc25e12661690f08414bc536934d33eb56))
+* **ci:** ignore bot-blocked external links in markdown link check ([568e35a](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/568e35a369d18a7ee232d052858774c2610481e9))
+* **ci:** resolve link check and spell check for stage I lessons ([a90d781](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a90d781b917460d4812adbd9a136cb5e628a17c6))
+* **ci:** resolve markdown lint, spell check, link check, yaml lint ([4971ee9](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/4971ee99926354ed810a6024ceccaa34c2d52e62))
+* **docker:** enable SSH, unify init, harden healthchecks ([ec46013](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/ec46013baaa0b0cb41c410a6110b95aa5071dfb9))
+* **docs:** add /docs/index.html redirect to prevent 404 ([8e06469](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/8e06469f59abd9e3cde67820331179d529829e64))
+* **docs:** lesson-41 section heading for CI lesson check ([41bf268](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/41bf268e584b39b13ec6534ffdf7d4152b60d546))
+* **docs:** 修复 /docs/index.html 偶发 404 ([0da0a5f](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/0da0a5f31f62749a0290b4da940de21d8b11f466))
+* **site:** correct CSS loading paths and bundle for Pages deploy ([96c1e7a](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/96c1e7aee01110a0edc2eb30075e03ef3583daa0))
+* **site:** correct CSS paths and bundle pages.css for deploy ([7a9b6e2](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/7a9b6e284d70131fbb4c95551e6bc2105c232f5b))
+* **ui:** redesign learning-path progress card ([6d21174](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/6d211748660b3f15dff9f8c13f759067e9d8086d))
+* **ui:** redesign learning-path progress card layout ([dcb5ce1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/dcb5ce13a315af7a240d976c4b6403b3706095be))
+* 修复课程中心静态资源路径导致导航 SVG 撑满页面 ([0d10e21](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/0d10e21916cca91bf7b6f58232435526fb54a8ea))
+
+
+### Documentation
+
+* add full lab optimize design and implementation plan ([e4ecafa](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/e4ecafa77a5f0cd64d30d65c6a6193dae4b3eb2e))
+* **readme:** document 33-lesson A–H curriculum stages ([a695cf7](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a695cf75f5664d8ebe1978897dfb487c10a76d0a))
+* reflect 33-lesson A–H curriculum in roadmap and agent docs ([87cffe9](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/87cffe9a9e0499caea07b87d5b96158f5c95c8c7))
+
+
+### Maintenance
+
+* cleanup clutter and fix CI checks ([ed45a4f](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/ed45a4f0d65e31676bcc9772c3d8ee930acf3915))
+* drop obsolete test-iframe maintenance in ensure_site_nav ([d788b59](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/d788b59c703369a199a9f5ce8d0be01c4d86bd9a))
+* finish env validation docs and remove hardcoded lab password ([fa55a60](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/fa55a6062c506259490362383bbeb5970a8c6df3))
+* sync docs to 45 lessons and add python3 to terminal ([58c947b](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/58c947b40d5100d578009cd93fcc9d4f00fecd02))
+* sync docs to 45 lessons and add python3 to terminal ([13ce120](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/13ce1205adf85be39d4976c95263b889794dfb76))
+
 ## [1.6.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.5.0...v1.6.0) (2026-07-19)
 
 

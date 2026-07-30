@@ -569,17 +569,54 @@
         gitea: 'git-workflow-lab-gitea-url'
       };
 
+      function isAllowedServiceHost(hostname) {
+        const host = String(hostname || '').toLowerCase();
+        return host === 'localhost'
+          || host === '127.0.0.1'
+          || host === '[::1]'
+          || host === window.location.hostname.toLowerCase();
+      }
+
+      /**
+       * 仅允许 http(s) 且主机为 localhost / 本机 hostname。
+       * 通过拆解并重建 URL，避免把未校验字符串直接写入 href/src。
+       * @returns {string|null}
+       */
+      function sanitizeServiceUrl(raw) {
+        try {
+          const parsed = new URL(String(raw).trim(), window.location.origin);
+          if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            return null;
+          }
+          if (!isAllowedServiceHost(parsed.hostname)) {
+            return null;
+          }
+          const port = parsed.port ? `:${parsed.port}` : '';
+          const path = parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/$/, '');
+          return `${parsed.protocol}//${parsed.hostname}${port}${path}`;
+        } catch {
+          return null;
+        }
+      }
+
       function resolveServiceUrl(kind, fallback) {
+        const fallbackUrl = sanitizeServiceUrl(fallback) || String(fallback).replace(/\/$/, '');
         const params = new URLSearchParams(window.location.search);
         const queryKey = kind === 'terminal' ? 'terminal' : 'gitea';
         const fromQuery = params.get(queryKey);
         if (fromQuery) {
-          localStorage.setItem(SERVICE_URL_KEYS[kind], fromQuery);
-          return fromQuery.replace(/\/$/, '');
+          const sanitized = sanitizeServiceUrl(fromQuery);
+          if (sanitized) {
+            localStorage.setItem(SERVICE_URL_KEYS[kind], sanitized);
+            return sanitized;
+          }
+          return fallbackUrl;
         }
         const saved = localStorage.getItem(SERVICE_URL_KEYS[kind]);
-        if (saved) return saved.replace(/\/$/, '');
-        return fallback.replace(/\/$/, '');
+        if (saved) {
+          return sanitizeServiceUrl(saved) || fallbackUrl;
+        }
+        return fallbackUrl;
       }
 
       const TERMINAL_URL = resolveServiceUrl('terminal', 'http://localhost:8080');

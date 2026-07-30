@@ -472,6 +472,7 @@ def test_workspace_service_urls_are_configurable() -> None:
     """工作台终端/Gitea 地址应支持 query 与 localStorage 覆盖。"""
     text = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
     assert "resolveServiceUrl" in text
+    assert "sanitizeServiceUrl" in text
     assert "git-workflow-lab-terminal-url" in text
     assert "本地实验模式" in text
 

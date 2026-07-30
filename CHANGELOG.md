@@ -6,6 +6,13 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.7.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.7.0...v1.7.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* **workspace:** sanitize configurable service URLs for CodeQL ([a611121](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/a6111216172ad862a820890c0713544ee55acd79))
+
 ## [1.7.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.6.0...v1.7.0) (2026-07-20)
 
 

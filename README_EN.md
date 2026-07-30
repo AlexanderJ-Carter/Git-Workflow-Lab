@@ -48,9 +48,14 @@ Visit the **[Online Course Website](https://alexanderj-carter.github.io/Git-Work
 
 2. **Configure Environment Variables**
    ```bash
+   # Recommended: generate .env with random secrets
+   make env-init
+
+   # Or copy and edit manually
    cp .env.example .env
-   # Edit .env file and modify all REQUIRED variables (passwords, keys, etc.)
+   # Edit .env and set all REQUIRED variables (passwords, keys, etc.)
    # Generate random password: openssl rand -base64 24
+   make env-check
    ```
 
 3. **Start Lab Environment**
@@ -59,12 +64,12 @@ Visit the **[Online Course Website](https://alexanderj-carter.github.io/Git-Work
    make docker-up
 
    # Or using Docker Compose directly
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. **Access Services**
    - 📚 Tutorial Website: http://localhost:8081
-   - 🎓 Learning Workspace: http://localhost:8081/workspace.html
+   - 🎓 Learning Workspace: http://localhost:8081/workspace.html (requires local Docker; override with `?terminal=` / `?gitea=`)
    - 🐙 Gitea Platform: http://localhost:3000
    - 💻 Web Terminal: http://localhost:8080
 
@@ -72,7 +77,7 @@ Visit the **[Online Course Website](https://alexanderj-carter.github.io/Git-Work
    ```bash
    make docker-down
    # Or
-   docker-compose down
+   docker compose down
    ```
 
 For detailed configuration, refer to [Environment Configuration Documentation](docs/lesson-00-install-and-config.md).

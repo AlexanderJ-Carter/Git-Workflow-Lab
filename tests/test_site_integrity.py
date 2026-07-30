@@ -207,8 +207,8 @@ def test_activity_progress_keys_are_namespaced() -> None:
     achievements = (SITE_DIR / "achievements.html").read_text(encoding="utf-8")
     assert "ActivityProgress" in achievements
     assert "quiz-starter" in achievements
-    assert "lesson-18" in achievements
-    assert "lesson-19" in achievements
+    assert "LessonCatalog.load" in achievements
+    assert "CATALOG_LESSONS" in achievements
 
 
 def test_gamification_syncs_from_activity_progress() -> None:
@@ -401,3 +401,86 @@ def test_lessons_index_asset_paths_are_parent_relative() -> None:
     assert 'src="../assets/js/asset-base.js"' in text
     assert 'src="../assets/js/main.js"' in text
     assert 'href="assets/css/style.css"' not in text
+
+
+def test_all_user_facing_pages_load_main_js() -> None:
+    """除明确重定向页外，站点根目录用户页均应加载 main.js。"""
+    skip = {
+        "cheatsheet.html",  # redirect to command-sheet
+    }
+    missing = []
+    for path in sorted(SITE_DIR.glob("*.html")):
+        if path.name in skip:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "assets/js/main.js" not in text:
+            missing.append(path.name)
+    assert missing == [], f"pages missing main.js: {missing}"
+
+
+def test_quiz_does_not_auto_complete_lessons() -> None:
+    """测验通过只写入 QuizProgress，不再自动标记课程阅读完成。"""
+    text = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
+    assert "LearningProgress.saveProgress" not in text
+    assert "saveLessonProgressFallback" not in text
+    assert "测验已通过" in text or "测验进度" in text
+
+
+def test_achievements_use_lesson_catalog_not_hardcoded_20() -> None:
+    """成就页应从 LessonCatalog / lessons.json 派生课程数，而非硬编码约 20 课。"""
+    text = (SITE_DIR / "achievements.html").read_text(encoding="utf-8")
+    assert "LessonCatalog.load" in text
+    assert "CATALOG_LESSONS" in text
+    assert "{ stage: 0, id: 'lesson-00' }" not in text
+    assert "AchievementStore" in text
+
+
+def test_main_js_exposes_progress_api_and_streak() -> None:
+    """main.js 应暴露统一进度 API 与活跃日 streak 计算。"""
+    text = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "toggleComplete(lessonId)" in text
+    assert "normalizeLessonId" in text
+    assert "calculateStreak()" in text
+    assert "getActiveDateStrings()" in text
+
+
+def test_gamification_disables_manual_task_clicks() -> None:
+    """游戏化每日任务不可点击刷分。"""
+    text = (SITE_DIR / "gamification.html").read_text(encoding="utf-8")
+    assert "handleTaskClick" not in text
+    assert "toggleTask" not in text
+    assert "通过完成课程、测验、挑战或闪卡自动完成" in text
+    assert "ActivityProgress?.calculateStreak" in text or "ActivityProgress.calculateStreak" in text
+
+
+def test_skill_tree_has_no_progress_polling() -> None:
+    """技能树不应每 5 秒轮询并清空派生进度。"""
+    text = (SITE_DIR / "skill-tree.html").read_text(encoding="utf-8")
+    assert "setInterval" not in text
+    assert "removeItem('git-workflow-lab-skill-tree-progress')" not in text
+    assert "assets/js/main.js" in text
+
+
+def test_viewer_uses_vendored_marked() -> None:
+    """文档阅读器应优先使用本地 marked，避免纯 CDN 依赖。"""
+    text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
+    assert "assets/js/vendor/marked.min.js" in text
+    assert (SITE_DIR / "assets" / "js" / "vendor" / "marked.min.js").is_file()
+
+
+def test_workspace_service_urls_are_configurable() -> None:
+    """工作台终端/Gitea 地址应支持 query 与 localStorage 覆盖。"""
+    text = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
+    assert "resolveServiceUrl" in text
+    assert "sanitizeServiceUrl" in text
+    assert "git-workflow-lab-terminal-url" in text
+    assert "本地实验模式" in text
+
+
+def test_check_env_script_exists() -> None:
+    """环境校验脚本应存在且可执行。"""
+    script = Path(__file__).resolve().parents[1] / "scripts" / "check-env.sh"
+    assert script.is_file()
+    text = script.read_text(encoding="utf-8")
+    assert "--generate" in text
+    assert "GITEA_SECRET_KEY" in text

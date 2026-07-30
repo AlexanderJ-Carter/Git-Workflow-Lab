@@ -161,6 +161,23 @@
         height: 16px;
       }
 
+      .workspace-mode-banner {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        align-items: center;
+        padding: 10px 20px;
+        background: #eef2ff;
+        color: #312e81;
+        border-bottom: 1px solid var(--ws-border);
+        font-size: 13px;
+      }
+
+      [data-theme="dark"] .workspace-mode-banner {
+        background: rgba(99, 102, 241, 0.15);
+        color: #c7d2fe;
+      }
+
       .workspace-guide-bar {
         position: sticky;
         top: 0;
@@ -455,16 +472,21 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           学习路径
         </a>
-        <a href="http://localhost:3000" target="_blank" rel="noreferrer">
+        <a id="open-gitea-link" href="http://localhost:3000" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           打开 Gitea
         </a>
-        <a href="http://localhost:8080" target="_blank" rel="noreferrer">
+        <a id="open-terminal-link" href="http://localhost:8080" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
           单独打开终端
         </a>
       </div>
     </header>
+
+    <div class="workspace-mode-banner" id="workspace-mode-banner">
+      <strong>本地实验模式</strong>
+      <span>工作台需要 Docker 实验环境（终端 8080 / Gitea 3000）。纯在线浏览请用课程页与测验。</span>
+    </div>
 
     <div class="workspace-guide-bar">
       <div class="workspace-guide-current">当前课程：<strong id="current-lesson-title">课程总览</strong></div>
@@ -512,7 +534,7 @@
             <span class="terminal-status-dot"></span>
             <span>未连接</span>
           </div>
-          <a href="http://localhost:8080" target="_blank" style="margin-left: auto; font-size: 13px; color: var(--ws-primary); text-decoration: none;">
+          <a id="open-terminal-external" href="http://localhost:8080" target="_blank" style="margin-left: auto; font-size: 13px; color: var(--ws-primary); text-decoration: none;">
             在新窗口打开 →
           </a>
         </div>
@@ -521,15 +543,14 @@
           <p>本地站点：<code>http://localhost:8081</code></p>
           <p>测试连接：<code>ssh -T git@localhost -p 2222</code></p>
           <p>克隆示例：<code>git clone ssh://git@localhost:2222/git/playground-hello.git</code></p>
-          <p>CI 示例仓库：<code>http://localhost:3000/git/playground-ci</code></p>
+          <p>CI 示例仓库：<code id="ssh-gitea-ci">http://localhost:3000/git/playground-ci</code></p>
         </div>
         <div class="pane-body">
           <div class="pane-loading" id="terminal-loading">
             <div class="pane-loading-spinner"></div>
             连接终端中...
+            <div style="font-size: 12px; margin-top: 8px;">若长时间无响应，请确认已执行 <code>make docker-up</code></div>
           </div>
-          <!-- Local development iframe: connects to local ttyd terminal for hands-on Git practice -->
-          <!-- This is intentionally a local service (localhost:8080) for the learning environment -->
           <iframe
             id="terminal-frame"
             src="http://localhost:8080"
@@ -543,19 +564,79 @@
     </main>
 
     <script>
-      // 学习进度追踪
-      const LearningProgress = {
-        STORAGE_KEY: 'git-workflow-lab-progress',
+      const SERVICE_URL_KEYS = {
+        terminal: 'git-workflow-lab-terminal-url',
+        gitea: 'git-workflow-lab-gitea-url'
+      };
+
+      function isAllowedServiceHost(hostname) {
+        const host = String(hostname || '').toLowerCase();
+        return host === 'localhost'
+          || host === '127.0.0.1'
+          || host === '[::1]'
+          || host === window.location.hostname.toLowerCase();
+      }
+
+      /**
+       * 仅允许 http(s) 且主机为 localhost / 本机 hostname。
+       * 通过拆解并重建 URL，避免把未校验字符串直接写入 href/src。
+       * @returns {string|null}
+       */
+      function sanitizeServiceUrl(raw) {
+        try {
+          const parsed = new URL(String(raw).trim(), window.location.origin);
+          if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            return null;
+          }
+          if (!isAllowedServiceHost(parsed.hostname)) {
+            return null;
+          }
+          const port = parsed.port ? `:${parsed.port}` : '';
+          const path = parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/$/, '');
+          return `${parsed.protocol}//${parsed.hostname}${port}${path}`;
+        } catch {
+          return null;
+        }
+      }
+
+      function resolveServiceUrl(kind, fallback) {
+        const fallbackUrl = sanitizeServiceUrl(fallback) || String(fallback).replace(/\/$/, '');
+        const params = new URLSearchParams(window.location.search);
+        const queryKey = kind === 'terminal' ? 'terminal' : 'gitea';
+        const fromQuery = params.get(queryKey);
+        if (fromQuery) {
+          const sanitized = sanitizeServiceUrl(fromQuery);
+          if (sanitized) {
+            localStorage.setItem(SERVICE_URL_KEYS[kind], sanitized);
+            return sanitized;
+          }
+          return fallbackUrl;
+        }
+        const saved = localStorage.getItem(SERVICE_URL_KEYS[kind]);
+        if (saved) {
+          return sanitizeServiceUrl(saved) || fallbackUrl;
+        }
+        return fallbackUrl;
+      }
+
+      const TERMINAL_URL = resolveServiceUrl('terminal', 'http://localhost:8080');
+      const GITEA_URL = resolveServiceUrl('gitea', 'http://localhost:3000');
+
+      function applyServiceUrls() {
+        const terminalFrame = document.getElementById('terminal-frame');
+        if (terminalFrame) terminalFrame.src = TERMINAL_URL;
+        document.getElementById('open-terminal-link')?.setAttribute('href', TERMINAL_URL);
+        document.getElementById('open-terminal-external')?.setAttribute('href', TERMINAL_URL);
+        document.getElementById('open-gitea-link')?.setAttribute('href', GITEA_URL);
+        const ci = document.getElementById('ssh-gitea-ci');
+        if (ci) ci.textContent = `${GITEA_URL}/git/playground-ci`;
+      }
+
+      const WorkspaceProgress = {
         TOTAL_LESSONS: 48,
 
-        getProgress() {
-          const data = localStorage.getItem(this.STORAGE_KEY);
-          return data ? JSON.parse(data) : {};
-        },
-
         getCompletedCount() {
-          const progress = this.getProgress();
-          return Object.values(progress).filter(p => p.completed).length;
+          return window.GitWorkflowLab?.LearningProgress?.getCompletedCount?.() || 0;
         },
 
         updateUI() {
@@ -1052,7 +1133,8 @@
 
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
-        LearningProgress.init();
+        applyServiceUrls();
+        WorkspaceProgress.init();
         loadLessons().then(() => {
           renderLessonPicker();
           const initialValue = getQueryParam('lesson') || 'lessons-overview.md';

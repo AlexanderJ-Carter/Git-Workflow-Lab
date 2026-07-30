@@ -24,13 +24,14 @@ for i in $(seq 1 60); do
     break
   fi
   if [[ "$i" -eq 60 ]]; then
-    echo "Gitea is not reachable" >&2
+    echo "Gitea is not reachable at ${GITEA_URL}" >&2
+    echo "Tip: ensure containers are up (make docker-up) and PUBLIC_GITEA_URL is reachable from this host." >&2
     exit 1
   fi
   sleep 2
 done
 
-create_repo() {
+ensure_repo() {
   local name=$1
   local desc=$2
   local code
@@ -39,9 +40,21 @@ create_repo() {
     -H "Content-Type: application/json" \
     -u "${ADMIN_USER}:${ADMIN_PASS}" \
     -d "{\"name\":\"${name}\",\"description\":\"${desc}\",\"private\":false,\"auto_init\":true,\"license\":\"MIT\",\"readme\":\"Default\"}")
-  echo "${name}: HTTP ${code}"
+
+  case "${code}" in
+    201)
+      echo "${name}: created (HTTP ${code})"
+      ;;
+    409)
+      echo "${name}: already exists (HTTP ${code}) — ok"
+      ;;
+    *)
+      echo "${name}: unexpected HTTP ${code}" >&2
+      return 1
+      ;;
+  esac
 }
 
-create_repo "playground-hello" "Git learning starter repository"
-create_repo "playground-ci" "CI/CD practice repository"
-echo "Done. User: ${ADMIN_USER}"
+ensure_repo "playground-hello" "Git learning starter repository"
+ensure_repo "playground-ci" "CI/CD practice repository"
+echo "Done. User: ${ADMIN_USER} @ ${GITEA_URL}"

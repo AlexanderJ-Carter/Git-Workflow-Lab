@@ -318,8 +318,28 @@
             color: inherit;
             transition: all 0.2s;
             display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .path-card-main {
+            display: flex;
             align-items: flex-start;
             gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .path-card-quiz {
+            margin-left: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--path-primary);
+            text-decoration: none;
+        }
+
+        .path-card-quiz:hover {
+            text-decoration: underline;
         }
 
         .path-card:hover {
@@ -537,22 +557,9 @@
 
         let LESSONS = [];
 
-        const LearningProgress = {
-            STORAGE_KEY: 'git-workflow-lab-progress',
-            getProgress() {
-                try {
-                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
-                } catch {
-                    return {};
-                }
-            },
-            isCompleted(id) {
-                return this.getProgress()[id]?.completed || false;
-            },
-            getCompletedCount() {
-                return Object.values(this.getProgress()).filter(p => p.completed).length;
-            }
-        };
+        function progressApi() {
+            return window.GitWorkflowLab?.LearningProgress;
+        }
 
         function escapeHtml(text) {
             const el = document.createElement('span');
@@ -591,18 +598,24 @@
                 const badge = STAGE_BADGES[stageIndex] || String(stageIndex);
                 const title = group.includes('·') ? group : `阶段 ${badge}：${group}`;
                 const cards = lessons.map((lesson) => {
-                    const isCompleted = LearningProgress.isCompleted(lesson.id);
+                    const isCompleted = progressApi()?.isCompleted?.(lesson.id) || false;
                     const quizResult = window.GitWorkflowLab?.QuizProgress?.getResult(lesson.id);
                     const quizText = quizResult ? ` · 测验 ${quizResult.score}%` : '';
                     const icon = isCompleted ? '✓' : escapeHtml(lesson.badge || lesson.id.replace('lesson-', ''));
+                    const quizLink = lesson.quizId
+                        ? `<a class="path-card-quiz" href="quiz.html?lesson=${encodeURIComponent(lesson.quizId)}">去测验</a>`
+                        : '';
                     return `
-                        <a href="docs/viewer.html?file=${encodeURIComponent(lesson.file)}" class="path-card${isCompleted ? ' completed' : ''}">
-                            <div class="path-card-icon">${icon}</div>
-                            <div class="path-card-content">
-                                <h4>${escapeHtml(lesson.title)}</h4>
-                                <p>${escapeHtml(lesson.desc)}${quizText}</p>
-                            </div>
-                        </a>
+                        <div class="path-card${isCompleted ? ' completed' : ''}">
+                            <a class="path-card-main" href="docs/viewer.html?file=${encodeURIComponent(lesson.file)}">
+                                <div class="path-card-icon">${icon}</div>
+                                <div class="path-card-content">
+                                    <h4>${escapeHtml(lesson.title)}</h4>
+                                    <p>${escapeHtml(lesson.desc)}${quizText}</p>
+                                </div>
+                            </a>
+                            ${quizLink}
+                        </div>
                     `;
                 }).join('');
 
@@ -635,7 +648,7 @@
         }
 
         function updateProgress() {
-            const completed = LearningProgress.getCompletedCount();
+            const completed = progressApi()?.getCompletedCount?.() || 0;
             const total = LESSONS.length || 1;
             const percentage = Math.round((completed / total) * 100);
 

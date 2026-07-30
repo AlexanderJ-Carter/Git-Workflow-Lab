@@ -859,75 +859,32 @@
             ]
         };
 
-        // 学习进度管理
-        const LearningProgress = {
-            STORAGE_KEY: 'git-workflow-lab-progress',
-            SKILL_PROGRESS_KEY: 'git-workflow-lab-skill-tree-progress',
-
-            getLessonProgress() {
-                try {
-                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
-                } catch {
-                    return {};
-                }
-            },
-
-            getSkillProgress() {
-                try {
-                    return JSON.parse(localStorage.getItem(this.SKILL_PROGRESS_KEY)) || {};
-                } catch {
-                    return {};
-                }
-            },
-
-            saveSkillProgress(progress) {
-                localStorage.setItem(this.SKILL_PROGRESS_KEY, JSON.stringify(progress));
-            },
-
+        // 学习进度：只读课程完成状态，不在 getSkillStatus 时写回派生缓存
+        const SkillProgress = {
             isLessonCompleted(lessonFile) {
-                const progress = this.getLessonProgress();
-                // 尝试多种匹配方式
-                for (const [key, value] of Object.entries(progress)) {
-                    if (value.completed && key.includes(lessonFile.replace('.md', ''))) {
-                        return true;
-                    }
-                }
-                return false;
+                const normalize = window.GitWorkflowLab?.normalizeLessonId
+                    || ((id) => String(id).replace(/\.md$/i, ''));
+                const target = normalize(lessonFile);
+                return window.GitWorkflowLab?.LearningProgress?.isCompleted?.(target) || false;
             },
 
             getSkillStatus(skill) {
-                const progress = this.getSkillProgress();
-
-                // 如果技能已有记录，优先使用
-                if (progress[skill.id]) {
-                    return progress[skill.id];
-                }
-
-                // 检查前置技能
-                const prereqsCompleted = skill.prereqs.every(prereqId => {
+                const prereqsCompleted = skill.prereqs.every((prereqId) => {
                     const prereq = findSkillById(prereqId);
                     if (!prereq) return true;
                     return this.getSkillStatus(prereq).status === 'mastered';
                 });
 
-                // 检查是否有相关课程完成
-                const hasCompletedCourse = skill.courses.some(course =>
+                const hasCompletedCourse = skill.courses.some((course) =>
                     this.isLessonCompleted(course.file)
                 );
 
-                // 计算状态
                 let status = 'locked';
                 if (skill.prereqs.length === 0) {
                     status = hasCompletedCourse ? 'mastered' : 'in-progress';
                 } else if (prereqsCompleted) {
                     status = hasCompletedCourse ? 'mastered' : 'in-progress';
-                } else {
-                    status = 'locked';
                 }
-
-                // 更新进度
-                progress[skill.id] = { status };
-                this.saveSkillProgress(progress);
 
                 return { status };
             }
@@ -944,7 +901,7 @@
 
         // 渲染技能节点
         function renderSkillNode(skill) {
-            const statusData = LearningProgress.getSkillStatus(skill);
+            const statusData = SkillProgress.getSkillStatus(skill);
             const status = statusData.status;
             const columnType = SKILLS.main.includes(skill) ? 'main' :
                 SKILLS.branch.includes(skill) ? 'branch' : 'expert';
@@ -1022,7 +979,7 @@
             const allSkills = [...SKILLS.main, ...SKILLS.branch, ...SKILLS.expert];
 
             allSkills.forEach(skill => {
-                const status = LearningProgress.getSkillStatus(skill).status;
+                const status = SkillProgress.getSkillStatus(skill).status;
                 if (status === 'mastered') mastered++;
                 else if (status === 'in-progress') inProgress++;
                 else locked++;
@@ -1037,103 +994,81 @@
             document.getElementById('locked-count').textContent = locked;
         }
 
-        // 技能详情弹窗
-        const tooltip = document.getElementById('skill-tooltip');
-        const tooltipTitle = tooltip.querySelector('.skill-tooltip-title');
-        const tooltipDesc = tooltip.querySelector('.skill-tooltip-desc');
-        const tooltipMeta = tooltip.querySelector('.skill-tooltip-meta');
-        const tooltipPrereq = tooltip.querySelector('.skill-tooltip-prereq');
+        function bindTooltips() {
+            const tooltip = document.getElementById('skill-tooltip');
+            const tooltipTitle = tooltip.querySelector('.skill-tooltip-title');
+            const tooltipDesc = tooltip.querySelector('.skill-tooltip-desc');
+            const tooltipMeta = tooltip.querySelector('.skill-tooltip-meta');
+            const tooltipPrereq = tooltip.querySelector('.skill-tooltip-prereq');
 
-        document.querySelectorAll('.skill-node').forEach(node => {
-            node.addEventListener('mouseenter', (e) => {
-                const skillId = node.dataset.skillId;
-                const skill = findSkillById(skillId);
-                if (!skill) return;
+            document.querySelectorAll('.skill-node').forEach((node) => {
+                node.addEventListener('mouseenter', () => {
+                    const skillId = node.dataset.skillId;
+                    const skill = findSkillById(skillId);
+                    if (!skill) return;
 
-                const status = LearningProgress.getSkillStatus(skill).status;
+                    const status = SkillProgress.getSkillStatus(skill).status;
+                    tooltipTitle.innerHTML = `${skill.icon} ${skill.name}`;
+                    tooltipDesc.textContent = skill.desc;
+                    tooltipMeta.innerHTML = `
+                        <span class="skill-tooltip-tag">${skill.difficulty}</span>
+                        <span class="skill-tooltip-tag">${skill.courses.length} 个课程</span>
+                        <span class="skill-tooltip-tag" style="background: ${status === 'mastered' ? 'rgba(16, 185, 129, 0.2)' : status === 'in-progress' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(148, 163, 184, 0.2)'}; color: ${status === 'mastered' ? '#10b981' : status === 'in-progress' ? '#f59e0b' : '#94a3b8'}">
+                            ${status === 'mastered' ? '✓ 已掌握' : status === 'in-progress' ? '◐ 进行中' : '○ 未解锁'}
+                        </span>
+                    `;
 
-                tooltipTitle.innerHTML = `${skill.icon} ${skill.name}`;
-                tooltipDesc.textContent = skill.desc;
+                    if (skill.prereqs.length > 0) {
+                        const prereqNames = skill.prereqs.map((id) => {
+                            const s = findSkillById(id);
+                            return s ? s.name : id;
+                        }).join('、');
+                        const prereqStatus = skill.prereqs.every((id) => {
+                            const s = findSkillById(id);
+                            if (!s) return true;
+                            return SkillProgress.getSkillStatus(s).status === 'mastered';
+                        }) ? '✓ 已完成' : '○ 未完成';
+                        tooltipPrereq.innerHTML = `<strong>前置技能：</strong>${prereqNames}<br><strong>状态：</strong>${prereqStatus}`;
+                    } else {
+                        tooltipPrereq.innerHTML = '<strong>前置技能：</strong>无';
+                    }
 
-                tooltipMeta.innerHTML = `
-                    <span class="skill-tooltip-tag">${skill.difficulty}</span>
-                    <span class="skill-tooltip-tag">${skill.courses.length} 个课程</span>
-                    <span class="skill-tooltip-tag" style="background: ${status === 'mastered' ? 'rgba(16, 185, 129, 0.2)' : status === 'in-progress' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(148, 163, 184, 0.2)'}; color: ${status === 'mastered' ? '#10b981' : status === 'in-progress' ? '#f59e0b' : '#94a3b8'}">
-                        ${status === 'mastered' ? '✓ 已掌握' : status === 'in-progress' ? '◐ 进行中' : '○ 未解锁'}
-                    </span>
-                `;
+                    const rect = node.getBoundingClientRect();
+                    const tooltipWidth = 300;
+                    const tooltipHeight = 200;
+                    let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                    let top = rect.bottom + 12;
+                    if (left < 10) left = 10;
+                    if (left + tooltipWidth > window.innerWidth - 10) {
+                        left = window.innerWidth - tooltipWidth - 10;
+                    }
+                    if (top + tooltipHeight > window.innerHeight) {
+                        top = rect.top - tooltipHeight - 12;
+                    }
+                    tooltip.style.left = `${left}px`;
+                    tooltip.style.top = `${top}px`;
+                    tooltip.classList.add('visible');
+                });
 
-                if (skill.prereqs.length > 0) {
-                    const prereqNames = skill.prereqs.map(id => {
-                        const s = findSkillById(id);
-                        return s ? s.name : id;
-                    }).join('、');
-
-                    const prereqStatus = skill.prereqs.every(id => {
-                        const s = findSkillById(id);
-                        if (!s) return true;
-                        return LearningProgress.getSkillStatus(s).status === 'mastered';
-                    }) ? '✓ 已完成' : '○ 未完成';
-
-                    tooltipPrereq.innerHTML = `<strong>前置技能：</strong>${prereqNames}<br><strong>状态：</strong>${prereqStatus}`;
-                } else {
-                    tooltipPrereq.innerHTML = '<strong>前置技能：</strong>无';
-                }
-
-                // 定位弹窗
-                const rect = node.getBoundingClientRect();
-                const tooltipWidth = 300;
-                const tooltipHeight = 200;
-
-                let left = rect.left + rect.width / 2 - tooltipWidth / 2;
-                let top = rect.bottom + 12;
-
-                // 边界检测
-                if (left < 10) left = 10;
-                if (left + tooltipWidth > window.innerWidth - 10) {
-                    left = window.innerWidth - tooltipWidth - 10;
-                }
-                if (top + tooltipHeight > window.innerHeight) {
-                    top = rect.top - tooltipHeight - 12;
-                }
-
-                tooltip.style.left = `${left}px`;
-                tooltip.style.top = `${top}px`;
-                tooltip.classList.add('visible');
+                node.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('visible');
+                });
             });
-
-            node.addEventListener('mouseleave', () => {
-                tooltip.classList.remove('visible');
-            });
-        });
+        }
 
         function refreshProgress() {
-            localStorage.removeItem('git-workflow-lab-skill-tree-progress');
             renderSkillColumns();
             updateStats();
+            bindTooltips();
         }
 
-        function softRefresh() {
-            renderSkillColumns();
-            updateStats();
-        }
-
-        window.addEventListener('storage', softRefresh);
+        window.addEventListener('storage', refreshProgress);
         window.addEventListener('git-workflow-lab:progress', refreshProgress);
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderSkillColumns();
-            updateStats();
-            window.lastProgress = localStorage.getItem('git-workflow-lab-progress');
+            refreshProgress();
         });
-
-        setInterval(() => {
-            const currentProgress = localStorage.getItem('git-workflow-lab-progress');
-            if (currentProgress !== window.lastProgress) {
-                window.lastProgress = currentProgress;
-                refreshProgress();
-            }
-        }, 5000);
     </script>
+    <script src="assets/js/main.js" defer></script>
 </body>
 </html>

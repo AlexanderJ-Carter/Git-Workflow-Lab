@@ -48,9 +48,14 @@ Git Workflow Lab 的核心目标是把常见 Git 学习内容拆成可实践的�
 
 2. **配置环境变量**
    ```bash
+   # 推荐：一键生成带随机密钥的 .env
+   make env-init
+
+   # 或手动复制后编辑
    cp .env.example .env
-   # 编辑 .env 文件，修改所有 REQUIRED 变量（密码、密钥等）
+   # 编辑 .env，修改所有 REQUIRED 变量（密码、密钥等）
    # 生成随机密码: openssl rand -base64 24
+   make env-check
    ```
 
 3. **启动实验环境**
@@ -59,12 +64,12 @@ Git Workflow Lab 的核心目标是把常见 Git 学习内容拆成可实践的�
    make docker-up
 
    # 或直接使用 Docker Compose
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. **访问服务**
    - 📚 教程网站: http://localhost:8081
-   - 🎓 学习工作台: http://localhost:8081/workspace.html
+   - 🎓 学习工作台: http://localhost:8081/workspace.html（需本地 Docker；可用 `?terminal=` / `?gitea=` 覆盖服务地址）
    - 🐙 Gitea 平台: http://localhost:3000
    - 💻 Web 终端: http://localhost:8080
 
@@ -72,7 +77,7 @@ Git Workflow Lab 的核心目标是把常见 Git 学习内容拆成可实践的�
    ```bash
    make docker-down
    # 或
-   docker-compose down
+   docker compose down
    ```
 
 详细配置请参考 [环境配置文档](docs/lesson-00-install-and-config.md)。

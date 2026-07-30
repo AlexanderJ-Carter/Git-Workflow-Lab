@@ -3682,6 +3682,31 @@ textarea.form-input {
     .code-block-actions {
         opacity: 1; /* 移动端始终显示 */
     }
+
+    .global-navbar-content {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .global-navbar-links {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .quiz-actions,
+    .achievements-grid,
+    .path-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .quiz-btn,
+    .achievement-card,
+    button,
+    .task-item {
+        min-height: 44px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

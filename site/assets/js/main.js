@@ -92,12 +92,28 @@
     // ============================================
 
     /**
-     * 学习进度管理
+     * 将文件名或课程 ID 归一为 lesson-* 形式。
+     * @param {string} fileOrId
+     * @returns {string}
+     */
+    function normalizeLessonId(fileOrId) {
+        const stem = String(fileOrId || '').replace(/\.md$/i, '');
+        if (stem === 'lesson-00-terminal-basics') {
+            return 'lesson-00b';
+        }
+        const match = stem.match(/^(lesson-\d+[a-z]?)/);
+        return match ? match[1] : stem;
+    }
+
+    /**
+     * 学习进度管理（仅表示课程阅读完成，与测验通过分离）。
      * @namespace LearningProgress
      */
     const LearningProgress = {
         /** @type {string} */
         STORAGE_KEY: 'git-workflow-lab-progress',
+
+        normalizeLessonId,
 
         /**
          * 获取存储的学习进度
@@ -123,16 +139,29 @@
                 return;
             }
             try {
+                const id = normalizeLessonId(lessonId);
                 const progress = this.getProgress();
-                progress[lessonId] = {
-                    completed,
+                progress[id] = {
+                    completed: Boolean(completed),
                     timestamp: Date.now()
                 };
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
-                ActivityProgress.notify('lesson', { lessonId, completed });
+                ActivityProgress.notify('lesson', { lessonId: id, completed: Boolean(completed) });
             } catch (error) {
                 console.warn('[LearningProgress] Failed to save progress:', error);
             }
+        },
+
+        /**
+         * 切换课程阅读完成状态。
+         * @param {string} lessonId
+         * @returns {boolean} 切换后是否完成
+         */
+        toggleComplete(lessonId) {
+            const id = normalizeLessonId(lessonId);
+            const next = !this.isCompleted(id);
+            this.saveProgress(id, next);
+            return next;
         },
 
         /**
@@ -142,7 +171,7 @@
          */
         isCompleted(lessonId) {
             const progress = this.getProgress();
-            return progress[lessonId]?.completed || false;
+            return progress[normalizeLessonId(lessonId)]?.completed || false;
         },
 
         /**
@@ -311,8 +340,84 @@
                 completedChallenges: challenge.completed.length,
                 challengeXp: challenge.xp,
                 flashcardsMastered: flashcard.mastered,
-                flashcardStreak: flashcard.streak
+                flashcardStreak: flashcard.streak,
+                streakDays: this.calculateStreak()
             };
+        },
+
+        /**
+         * 收集有学习活动的日历日（课程完成、测验、挑战、闪卡时间戳）。
+         * @returns {Set<string>}
+         */
+        getActiveDateStrings() {
+            const dates = new Set();
+            const addTs = (timestamp) => {
+                if (!timestamp) return;
+                dates.add(new Date(timestamp).toDateString());
+            };
+
+            Object.values(LearningProgress.getProgress()).forEach((item) => {
+                if (item?.completed) addTs(item.timestamp);
+            });
+            Object.values(QuizProgress.getResults()).forEach((item) => {
+                addTs(item?.timestamp);
+            });
+
+            if (supportsFeature('localStorage')) {
+                safeExecute(() => {
+                    const challengeRaw = localStorage.getItem(this.CHALLENGE_KEY);
+                    if (challengeRaw) {
+                        const parsed = JSON.parse(challengeRaw);
+                        addTs(parsed.updatedAt);
+                        if (Array.isArray(parsed.completedAt)) {
+                            parsed.completedAt.forEach(addTs);
+                        }
+                    }
+                    const flashRaw = localStorage.getItem(this.FLASHCARD_KEY);
+                    if (flashRaw) {
+                        const parsed = JSON.parse(flashRaw);
+                        addTs(parsed.updatedAt);
+                        addTs(parsed.lastReviewAt);
+                    }
+                });
+            }
+
+            return dates;
+        },
+
+        /**
+         * 连续学习天数：有学习活动的相邻日历日，且最近一天为今天或昨天。
+         * @returns {number}
+         */
+        calculateStreak() {
+            const dates = this.getActiveDateStrings();
+            if (dates.size === 0) return 0;
+
+            const sortedDates = Array.from(dates)
+                .map((d) => new Date(d))
+                .sort((a, b) => b - a);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const lastDate = new Date(sortedDates[0]);
+            lastDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            if (diffDays > 1) return 0;
+
+            let streak = 1;
+            for (let i = 1; i < sortedDates.length; i += 1) {
+                const current = new Date(sortedDates[i - 1]);
+                const previous = new Date(sortedDates[i]);
+                current.setHours(0, 0, 0, 0);
+                previous.setHours(0, 0, 0, 0);
+                const diff = Math.floor((current - previous) / (1000 * 60 * 60 * 24));
+                if (diff === 1) {
+                    streak += 1;
+                } else {
+                    break;
+                }
+            }
+            return streak;
         },
 
         /**
@@ -1745,6 +1850,7 @@
         QuizProgress,
         ActivityProgress,
         LessonCatalog,
+        normalizeLessonId,
         PageFadeIn,
         SiteChrome,
         ThemeManager,

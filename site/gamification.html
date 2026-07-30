@@ -1053,33 +1053,12 @@
                 return true;
             },
 
-            // 更新连续学习天数
+            // 更新连续学习天数（基于真实学习活动日，非页面访问）
             updateStreak() {
-                const data = this.getData();
-                const today = new Date().toDateString();
-                const lastVisit = data.lastVisit;
-
-                if (lastVisit === today) {
-                    // 今天已经计算过
-                    return data.streakDays;
-                }
-
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-
-                if (lastVisit === yesterday.toDateString()) {
-                    // 昨天学习过，连续天数 +1
-                    data.streakDays += 1;
-                } else if (lastVisit !== today) {
-                    // 中断了，重新开始
-                    data.streakDays = 1;
-                }
-
-                data.lastVisit = today;
-                this.saveToStorage(STORAGE_KEYS.streakDays, data.streakDays);
-                this.saveToStorage(STORAGE_KEYS.lastVisit, data.lastVisit);
-
-                return data.streakDays;
+                const streakDays = window.GitWorkflowLab?.ActivityProgress?.calculateStreak?.() || 0;
+                this.saveToStorage(STORAGE_KEYS.streakDays, streakDays);
+                this.saveToStorage(STORAGE_KEYS.lastVisit, new Date().toDateString());
+                return streakDays;
             },
 
             // 更新每日任务
@@ -1109,38 +1088,9 @@
                 return data.dailyTasks;
             },
 
-            // 完成每日任务
+            // 仅由 syncFromActivity 标记任务完成并发奖，禁止手动点击刷分
             completeTask(taskId) {
-                const data = this.getData();
-                const tasks = data.dailyTasks.tasks || {};
-
-                if (tasks[taskId]?.completed) {
-                    return false; // 已完成
-                }
-
-                const task = DAILY_TASKS.find(t => t.id === taskId);
-                if (!task) return false;
-
-                // 标记完成
-                tasks[taskId] = {
-                    completed: true,
-                    completedAt: Date.now()
-                };
-                data.dailyTasks.tasks = tasks;
-                this.saveToStorage(STORAGE_KEYS.dailyTasks, data.dailyTasks);
-
-                // 发放奖励
-                this.addExperience(task.exp, task.name);
-                this.addPoints(task.points, task.name);
-
-                // 更新每周挑战
-                this.updateWeeklyChallenge('week-lessons', 1);
-
-                // 更新 UI
-                this.updateUI();
-                this.renderTasks();
-
-                return true;
+                return this.markTaskDone(taskId);
             },
 
             // 更新每周挑战进度
@@ -1169,7 +1119,7 @@
             },
 
             /**
-             * 仅标记每日任务完成，不重复发奖（发奖由 syncFromActivity 统一处理）。
+             * 仅标记每日任务完成（经验由 syncFromActivity 按活动规则发放）。
              */
             markTaskDone(taskId) {
                 this.updateDailyTasks();
@@ -1228,18 +1178,20 @@
                     this.markTaskDone('streak-day');
                 }
 
-                // 用真实学习活跃日同步「持续学习」周挑战（不重复发周奖励：只抬进度）
-                const progress = lab.LearningProgress?.getProgress?.() || {};
-                const activeDays = new Set();
-                Object.values(progress).forEach(item => {
-                    if (item?.completed && item.timestamp) {
-                        activeDays.add(new Date(item.timestamp).toDateString());
-                    }
-                });
+                // 用真实学习活跃日同步「持续学习」周挑战
+                const activeDays = lab.ActivityProgress.getActiveDateStrings?.() || new Set();
                 const data = this.getData();
                 const weekStreak = data.weeklyChallenges.find(c => c.id === 'week-streak');
                 if (weekStreak) {
-                    weekStreak.current = Math.min(activeDays.size, weekStreak.target);
+                    const weekStart = new Date();
+                    weekStart.setHours(0, 0, 0, 0);
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                    let weekCount = 0;
+                    activeDays.forEach((dateStr) => {
+                        const d = new Date(dateStr);
+                        if (d >= weekStart) weekCount += 1;
+                    });
+                    weekStreak.current = Math.min(weekCount, weekStreak.target);
                     this.saveToStorage(STORAGE_KEYS.weeklyChallenges, data.weeklyChallenges);
                 }
 
@@ -1347,8 +1299,8 @@
                     if (isCompleted) completedCount++;
 
                     return `
-                        <div class="task-item ${isCompleted ? 'completed' : ''}" onclick="GameSystem.handleTaskClick('${task.id}')">
-                            <div class="task-checkbox ${isCompleted ? 'checked' : ''}" onclick="event.stopPropagation(); GameSystem.toggleTask('${task.id}')">
+                        <div class="task-item ${isCompleted ? 'completed' : ''}" title="通过完成课程、测验、挑战或闪卡自动完成">
+                            <div class="task-checkbox ${isCompleted ? 'checked' : ''}">
                                 ${isCompleted ? '✓' : ''}
                             </div>
                             <div class="task-info">
@@ -1365,30 +1317,6 @@
                 document.getElementById('tasks-badge').textContent = `${completedCount}/${DAILY_TASKS.length}`;
             },
 
-            // 处理任务点击
-            handleTaskClick(taskId) {
-                const data = this.getData();
-                const tasks = data.dailyTasks.tasks || {};
-
-                if (!tasks[taskId]?.completed) {
-                    this.completeTask(taskId);
-                }
-            },
-
-            // 切换任务状态（手动）
-            toggleTask(taskId) {
-                const data = this.getData();
-                const tasks = data.dailyTasks.tasks || {};
-
-                if (tasks[taskId]?.completed) {
-                    // 不允许取消完成
-                    return;
-                }
-
-                this.completeTask(taskId);
-            },
-
-            // 渲染每周挑战
             renderWeeklyChallenges() {
                 const data = this.getData();
                 const challenges = data.weeklyChallenges;
@@ -1419,7 +1347,6 @@
                 }).join('');
             },
 
-            // 渲染积分商城
             renderRewards() {
                 const data = this.getData();
                 const ownedRewards = data.ownedRewards;
@@ -1442,34 +1369,12 @@
                 }).join('');
             },
 
-            // 购买奖励
             purchaseReward(rewardId, cost) {
                 this.spendPoints(cost, rewardId);
             }
         };
 
-        // ==================== 页面初始化 ====================
-
-        // 为了测试，暴露一些全局函数
         window.GameSystem = GameSystem;
-
-        // 模拟完成课程（可从其他页面调用）
-        window.completeLesson = function() {
-            GameSystem.addExperience(EXP_RULES.completeLesson, '完成课程');
-            GameSystem.updateWeeklyChallenge('week-lessons', 1);
-            GameSystem.updateStreak();
-        };
-
-        // 模拟测验满分
-        window.quizPerfect = function() {
-            GameSystem.addExperience(EXP_RULES.quizPerfect, '测验满分');
-            GameSystem.updateWeeklyChallenge('week-quizzes', 1);
-        };
-
-        // 模拟练习命令
-        window.practiceCommand = function() {
-            GameSystem.addExperience(EXP_RULES.practiceCommand, '练习命令');
-        };
 
         function refreshGameUI() {
             GameSystem.init();
@@ -1478,10 +1383,8 @@
             GameSystem.renderRewards();
         }
 
-        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             refreshGameUI();
-
             window.addEventListener('storage', refreshGameUI);
             window.addEventListener('git-workflow-lab:progress', refreshGameUI);
         });

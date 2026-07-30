@@ -2,7 +2,7 @@
 # Git Workflow Lab - Makefile
 # ============================================
 
-.PHONY: help install build clean docs docs-clean docs-serve test test-cov lint docker-up docker-down docker-logs docker-restart fix-quotes format security-check watch
+.PHONY: help install build clean docs docs-clean docs-serve test test-cov lint docker-up docker-down docker-logs docker-restart fix-quotes format security-check watch env-init env-check
 
 # 默认目标
 help:
@@ -19,6 +19,8 @@ help:
 	@echo "    docs-serve       本地预览文档 (http://localhost:8000)"
 	@echo ""
 	@echo "  Docker:"
+	@echo "    env-init         从 .env.example 生成带随机密钥的 .env"
+	@echo "    env-check        校验 .env 必填项"
 	@echo "    docker-up        启动本地实验环境"
 	@echo "    docker-down      停止本地实验环境"
 	@echo "    docker-logs      查看服务日志"
@@ -67,21 +69,13 @@ docs-serve:
 # Docker 服务
 # ============================================
 
-docker-up:
-	@if [ ! -f .env ]; then \
-		echo "错误: .env 文件不存在"; \
-		echo "请复制 .env.example 为 .env 并配置必要的环境变量"; \
-		exit 1; \
-	fi
-	@missing=0; \
-	for key in GITEA_DB_PASSWORD GITEA_ADMIN_PASSWORD GITEA_SECRET_KEY; do \
-		val=$$(grep -E "^$${key}=" .env | cut -d= -f2-); \
-		if [ -z "$$val" ] || echo "$$val" | grep -q 'CHANGE_ME'; then \
-			echo "错误: $${key} 未配置（不能为空或 CHANGE_ME 占位）"; \
-			missing=1; \
-		fi; \
-	done; \
-	if [ "$$missing" -ne 0 ]; then exit 1; fi
+env-init:
+	bash scripts/check-env.sh --generate
+
+env-check:
+	bash scripts/check-env.sh --check
+
+docker-up: env-check
 	docker compose up -d --build
 	@echo ""
 	@echo "服务已启动:"
@@ -89,6 +83,7 @@ docker-up:
 	@echo "  - Web 终端: http://localhost:8080"
 	@echo "  - Gitea:    http://localhost:3000"
 	@echo "  - Gitea SSH: localhost:2222"
+	@echo "若演示仓库未自动创建，可运行: bash scripts/init-gitea-manual.sh"
 
 docker-down:
 	docker compose down

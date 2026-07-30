@@ -495,7 +495,7 @@
                 desc: '完成第一课',
                 icon: '🌟',
                 requirement: '完成 1 节课',
-                condition: (progress, stats) => stats.completedLessons >= 1,
+                condition: (_progress, stats) => stats.completedLessons >= 1,
                 tooltip: '恭喜你完成了第一课！这是学习 Git 的第一步，继续加油！'
             },
             {
@@ -503,8 +503,8 @@
                 name: '基础掌握',
                 desc: '完成阶段 0-1',
                 icon: '📚',
-                requirement: '完成 10 节课',
-                condition: (progress, stats) => stats.completedLessons >= 10,
+                requirement: '完成阶段 A-B 全部课程',
+                condition: (_progress, stats) => stats.stageCompleted[0] === true,
                 tooltip: '你已掌握 Git 基础！包括安装配置、仓库创建、提交和远程同步。'
             },
             {
@@ -512,8 +512,8 @@
                 name: '分支达人',
                 desc: '完成阶段 2',
                 icon: '🌿',
-                requirement: '完成 15 节课',
-                condition: (progress, stats) => stats.completedLessons >= 15,
+                requirement: '完成阶段 C 全部课程',
+                condition: (_progress, stats) => stats.stageCompleted[1] === true,
                 tooltip: '分支协作高手！你已经学会分支、PR、冲突解决和 rebase。'
             },
             {
@@ -521,8 +521,8 @@
                 name: '救火队长',
                 desc: '完成阶段 3',
                 icon: '🚒',
-                requirement: '完成 18 节课',
-                condition: (progress, stats) => stats.completedLessons >= 18,
+                requirement: '完成阶段 D 全部课程',
+                condition: (_progress, stats) => stats.stageCompleted[2] === true,
                 tooltip: '故障恢复专家！你掌握了 cherry-pick、revert、reflog 和 stash。'
             },
             {
@@ -530,8 +530,9 @@
                 name: 'CI/CD 工程师',
                 desc: '完成阶段 4-5',
                 icon: '⚡',
-                requirement: '完成 21 节课',
-                condition: (progress, stats) => stats.completedLessons >= 21,
+                requirement: '完成阶段 E 与 F 全部课程',
+                condition: (_progress, stats) =>
+                    stats.stageCompleted[4] === true && stats.stageCompleted[5] === true,
                 tooltip: '自动化大师！你已掌握 CI/CD 流水线、Secrets 和自动发布。'
             },
             {
@@ -540,17 +541,17 @@
                 desc: '完成所有课程',
                 icon: '🏆',
                 requirement: '完成全部课程',
-                condition: (progress, stats) => stats.completedLessons >= stats.totalLessons && stats.totalLessons > 0,
+                condition: (_progress, stats) => stats.completedLessons >= stats.totalLessons && stats.totalLessons > 0,
                 tooltip: '太棒了！你已完成所有课程，成为 Git 和 CI/CD 全栈工程师！'
             },
             {
                 id: 'command-master',
-                name: '命令达人',
-                desc: '使用所有主要 Git 命令',
+                name: '测验达人',
+                desc: '通过 15 场课程测验',
                 icon: '⌨️',
-                requirement: '完成全部课程',
-                condition: (progress, stats) => stats.completedLessons >= stats.totalLessons && stats.totalLessons > 0,
-                tooltip: '你已经使用过 Git 的所有核心命令：add, commit, push, pull, branch, merge, rebase, stash, tag 等。'
+                requirement: '通过 15 场测验',
+                condition: (_progress, stats) => stats.passedQuizzes >= 15,
+                tooltip: '你已经通过足够多的测验，核心命令与工作流掌握扎实。'
             },
             {
                 id: 'streak-7',
@@ -558,7 +559,7 @@
                 desc: '连续学习 7 天',
                 icon: '🔥',
                 requirement: '连续学习 7 天',
-                condition: (progress, stats) => stats.streakDays >= 7,
+                condition: (_progress, stats) => stats.streakDays >= 7,
                 tooltip: '坚持就是胜利！你已经连续学习 7 天了，保持这个好习惯！'
             },
             {
@@ -567,7 +568,7 @@
                 desc: '通过第一场测验',
                 icon: '📝',
                 requirement: '通过 1 场测验',
-                condition: (progress, stats) => stats.passedQuizzes >= 1,
+                condition: (_progress, stats) => stats.passedQuizzes >= 1,
                 tooltip: '不错！你已经开始用测验检验学习成果了。'
             },
             {
@@ -576,7 +577,7 @@
                 desc: '完成一个场景挑战',
                 icon: '⚔️',
                 requirement: '完成 1 个挑战',
-                condition: (progress, stats) => stats.completedChallenges >= 1,
+                condition: (_progress, stats) => stats.completedChallenges >= 1,
                 tooltip: '实战开局！继续挑战更难的场景吧。'
             },
             {
@@ -585,51 +586,13 @@
                 desc: '掌握 5 张闪卡',
                 icon: '🧠',
                 requirement: '掌握 5 张闪卡',
-                condition: (progress, stats) => stats.flashcardsMastered >= 5,
+                condition: (_progress, stats) => stats.flashcardsMastered >= 5,
                 tooltip: '间隔重复正在生效，继续巩固命令记忆！'
             }
         ];
 
-        // 课程数据
-        const LESSONS = [
-            { stage: 0, id: 'lesson-00' },
-            { stage: 0, id: 'lesson-00b' },
-            { stage: 0, id: 'lesson-01' },
-            { stage: 0, id: 'lesson-02' },
-            { stage: 0, id: 'lesson-03' },
-            { stage: 1, id: 'lesson-04' },
-            { stage: 1, id: 'lesson-05' },
-            { stage: 1, id: 'lesson-06' },
-            { stage: 1, id: 'lesson-06a' },
-            { stage: 1, id: 'lesson-06b' },
-            { stage: 2, id: 'lesson-07' },
-            { stage: 2, id: 'lesson-08' },
-            { stage: 2, id: 'lesson-09' },
-            { stage: 3, id: 'lesson-10' },
-            { stage: 3, id: 'lesson-11' },
-            { stage: 3, id: 'lesson-12' },
-            { stage: 3, id: 'lesson-13' },
-            { stage: 3, id: 'lesson-14' },
-            { stage: 3, id: 'lesson-15' },
-            { stage: 3, id: 'lesson-16' },
-            { stage: 3, id: 'lesson-17' },
-            { stage: 4, id: 'lesson-18' },
-            { stage: 4, id: 'lesson-19' },
-        ];
-
-        // 学习进度管理
-        const LearningProgress = {
-            STORAGE_KEY: 'git-workflow-lab-progress',
+        const AchievementStore = {
             ACHIEVEMENTS_KEY: 'git-workflow-lab-achievements',
-
-            getProgress() {
-                try {
-                    const data = localStorage.getItem(this.STORAGE_KEY);
-                    return data ? JSON.parse(data) : {};
-                } catch {
-                    return {};
-                }
-            },
 
             getAchievements() {
                 try {
@@ -649,75 +612,44 @@
                 localStorage.setItem(this.ACHIEVEMENTS_KEY, JSON.stringify(achievements));
             },
 
-            getStats() {
-                const progress = this.getProgress();
-                const completedLessons = Object.values(progress).filter(p => p.completed).length;
-                const streakDays = this.calculateStreak(progress);
+            buildStageCompleted(lessons, progress) {
+                const byStage = new Map();
+                lessons.forEach((lesson) => {
+                    const stage = lesson.stage ?? 0;
+                    if (!byStage.has(stage)) byStage.set(stage, []);
+                    byStage.get(stage).push(lesson.id);
+                });
+                const stageCompleted = {};
+                byStage.forEach((ids, stage) => {
+                    stageCompleted[stage] = ids.every((id) => progress[id]?.completed);
+                });
+                return stageCompleted;
+            },
+
+            getStats(lessons) {
+                const progress = window.GitWorkflowLab?.LearningProgress?.getProgress?.() || {};
                 const snapshot = window.GitWorkflowLab?.ActivityProgress?.getSnapshot?.() || {
+                    completedLessons: 0,
                     passedQuizzes: 0,
                     completedChallenges: 0,
-                    flashcardsMastered: 0
+                    flashcardsMastered: 0,
+                    streakDays: 0
                 };
+                const lessonIds = lessons.map((l) => l.id);
+                const completedLessons = lessonIds.filter((id) => progress[id]?.completed).length;
 
                 return {
                     completedLessons,
-                    totalLessons: LESSONS.length,
-                    streakDays,
-                    passedQuizzes: snapshot.passedQuizzes,
-                    completedChallenges: snapshot.completedChallenges,
-                    flashcardsMastered: snapshot.flashcardsMastered
+                    totalLessons: lessons.length,
+                    streakDays: snapshot.streakDays || 0,
+                    passedQuizzes: snapshot.passedQuizzes || 0,
+                    completedChallenges: snapshot.completedChallenges || 0,
+                    flashcardsMastered: snapshot.flashcardsMastered || 0,
+                    stageCompleted: this.buildStageCompleted(lessons, progress)
                 };
-            },
-
-            calculateStreak(progress) {
-                if (!progress || Object.keys(progress).length === 0) return 0;
-
-                // 获取所有有完成记录的日期
-                const dates = new Set();
-                Object.values(progress).forEach(p => {
-                    if (p.completed && p.timestamp) {
-                        const date = new Date(p.timestamp).toDateString();
-                        dates.add(date);
-                    }
-                });
-
-                if (dates.size === 0) return 0;
-
-                // 转换为日期数组并排序
-                const sortedDates = Array.from(dates).map(d => new Date(d)).sort((a, b) => b - a);
-
-                // 计算连续天数
-                let streak = 1;
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                const lastDate = sortedDates[0];
-                lastDate.setHours(0, 0, 0, 0);
-
-                // 如果最近完成不是今天或昨天，连续中断
-                const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                if (diffDays > 1) return 0;
-
-                // 从最新日期向前计算连续天数
-                for (let i = 1; i < sortedDates.length; i++) {
-                    const current = sortedDates[i - 1];
-                    const previous = sortedDates[i];
-                    current.setHours(0, 0, 0, 0);
-                    previous.setHours(0, 0, 0, 0);
-
-                    const diff = Math.floor((current - previous) / (1000 * 60 * 60 * 24));
-                    if (diff === 1) {
-                        streak++;
-                    } else {
-                        break;
-                    }
-                }
-
-                return streak;
             }
         };
 
-        // 格式化日期
         function formatDate(timestamp) {
             if (!timestamp) return '';
             const date = new Date(timestamp);
@@ -727,20 +659,20 @@
             return `${year}年${month}月${day}日`;
         }
 
-        // 渲染成就卡片
+        let CATALOG_LESSONS = [];
+
         function renderAchievements() {
             const grid = document.getElementById('achievements-grid');
-            const progress = LearningProgress.getProgress();
-            const savedAchievements = LearningProgress.getAchievements();
-            const stats = LearningProgress.getStats();
+            if (!grid || CATALOG_LESSONS.length === 0) return;
 
-            // 检查并更新成就状态
-            ACHIEVEMENTS.forEach(achievement => {
+            const progress = window.GitWorkflowLab?.LearningProgress?.getProgress?.() || {};
+            const savedAchievements = AchievementStore.getAchievements();
+            const stats = AchievementStore.getStats(CATALOG_LESSONS);
+
+            ACHIEVEMENTS.forEach((achievement) => {
                 const isUnlocked = achievement.condition(progress, stats);
-
-                // 如果成就状态发生变化，保存
                 if (isUnlocked !== savedAchievements[achievement.id]?.unlocked) {
-                    LearningProgress.saveAchievement(achievement.id, isUnlocked);
+                    AchievementStore.saveAchievement(achievement.id, isUnlocked);
                     savedAchievements[achievement.id] = {
                         unlocked: isUnlocked,
                         unlockedAt: isUnlocked ? Date.now() : null
@@ -748,10 +680,9 @@
                 }
             });
 
-            // 重新获取最新成就数据
-            const achievements = LearningProgress.getAchievements();
+            const achievements = AchievementStore.getAchievements();
 
-            grid.innerHTML = ACHIEVEMENTS.map(achievement => {
+            grid.innerHTML = ACHIEVEMENTS.map((achievement) => {
                 const achievementData = achievements[achievement.id] || {};
                 const isUnlocked = achievementData.unlocked;
                 const unlockedAt = achievementData.unlockedAt;
@@ -775,31 +706,36 @@
                 `;
             }).join('');
 
-            // 更新进度显示
-            updateProgressDisplay();
+            updateProgressDisplay(stats);
         }
 
-        // 更新进度显示
-        function updateProgressDisplay() {
-            const savedAchievements = LearningProgress.getAchievements();
-            const unlockedCount = Object.values(savedAchievements).filter(a => a.unlocked).length;
+        function updateProgressDisplay(learningStats) {
+            const savedAchievements = AchievementStore.getAchievements();
+            const unlockedCount = Object.values(savedAchievements).filter((a) => a.unlocked).length;
             const totalCount = ACHIEVEMENTS.length;
             const percentage = Math.round((unlockedCount / totalCount) * 100);
-            const learningStats = LearningProgress.getStats();
             const quizStats = window.GitWorkflowLab?.QuizProgress?.getStats?.() || {
                 passedCount: 0,
                 totalCount: 0
             };
 
             document.getElementById('unlocked-count').textContent = unlockedCount;
-            document.getElementById('completed-lessons-count').textContent = `${learningStats.completedLessons}/${learningStats.totalLessons}`;
-            document.getElementById('passed-quiz-count').textContent = `${quizStats.passedCount}/${quizStats.totalCount}`;
+            document.getElementById('completed-lessons-count').textContent =
+                `${learningStats.completedLessons}/${learningStats.totalLessons}`;
+            document.getElementById('passed-quiz-count').textContent =
+                `${quizStats.passedCount}/${quizStats.totalCount}`;
             document.getElementById('progress-fill').style.width = `${percentage}%`;
             document.getElementById('progress-percent').textContent = `${percentage}%`;
         }
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const catalog = await window.GitWorkflowLab.LessonCatalog.load();
+                CATALOG_LESSONS = catalog.filter((lesson) => String(lesson.id).startsWith('lesson-'));
+            } catch (error) {
+                console.error('[achievements] catalog load failed', error);
+                CATALOG_LESSONS = [];
+            }
             renderAchievements();
             window.addEventListener('storage', renderAchievements);
             window.addEventListener('git-workflow-lab:progress', renderAchievements);

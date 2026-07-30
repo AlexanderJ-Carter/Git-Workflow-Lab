@@ -1,4 +1,4 @@
-<!-- Canonical source for Docker overlay (/docs). Keep site/docs/viewer.html in sync for GitHub Pages. -->
+<!-- Canonical source: docs/viewer.html (Docker overlay); keep in sync for GitHub Pages. -->
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -502,7 +502,8 @@
         }
       }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../assets/js/vendor/marked.min.js"></script>
+    <script src="../assets/js/main.js"></script>
   </head>
   <body>
     <div class="layout">
@@ -561,49 +562,35 @@
 
     <script>
       function normalizeLessonId(fileOrId) {
-        const stem = String(fileOrId).replace(/\.md$/i, '');
-        if (stem === 'lesson-00-terminal-basics') return 'lesson-00b';
-        const match = stem.match(/^(lesson-\d+[a-z]?)/);
-        return match ? match[1] : stem;
+        return window.GitWorkflowLab?.normalizeLessonId?.(fileOrId)
+          || (() => {
+            const stem = String(fileOrId).replace(/\.md$/i, '');
+            if (stem === 'lesson-00-terminal-basics') return 'lesson-00b';
+            const match = stem.match(/^(lesson-\d+[a-z]?)/);
+            return match ? match[1] : stem;
+          })();
       }
 
-      // 学习进度管理
       const LearningProgress = {
-        STORAGE_KEY: 'git-workflow-lab-progress',
         TOTAL_LESSONS: 48,
 
         getProgress() {
-          try {
-            const data = localStorage.getItem(this.STORAGE_KEY);
-            return data ? JSON.parse(data) : {};
-          } catch {
-            return {};
-          }
+          return window.GitWorkflowLab?.LearningProgress?.getProgress?.() || {};
         },
 
         toggleComplete(lessonId) {
-          const id = normalizeLessonId(lessonId);
-          const progress = this.getProgress();
-          progress[id] = {
-            completed: !progress[id]?.completed,
-            timestamp: Date.now()
-          };
-          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
-          window.GitWorkflowLab?.ActivityProgress?.notify?.('lesson', {
-            lessonId: id,
-            completed: progress[id].completed
-          });
-          return progress[id].completed;
+          if (window.GitWorkflowLab?.LearningProgress?.toggleComplete) {
+            return window.GitWorkflowLab.LearningProgress.toggleComplete(lessonId);
+          }
+          return false;
         },
 
         isCompleted(lessonId) {
-          const progress = this.getProgress();
-          return progress[normalizeLessonId(lessonId)]?.completed || false;
+          return window.GitWorkflowLab?.LearningProgress?.isCompleted?.(lessonId) || false;
         },
 
         getCompletedCount() {
-          const progress = this.getProgress();
-          return Object.values(progress).filter(p => p.completed).length;
+          return window.GitWorkflowLab?.LearningProgress?.getCompletedCount?.() || 0;
         },
 
         updateUI() {
@@ -1183,7 +1170,18 @@
             return res.text();
           })
           .then((md) => {
-            contentEl.innerHTML = marked.parse(md);
+            if (typeof marked !== "undefined" && typeof marked.parse === "function") {
+              contentEl.innerHTML = marked.parse(md);
+              return;
+            }
+            const pre = document.createElement("pre");
+            pre.className = "md-fallback";
+            pre.style.whiteSpace = "pre-wrap";
+            pre.style.fontFamily = "inherit";
+            pre.textContent = md;
+            contentEl.replaceChildren(pre);
+            errorEl.style.display = "block";
+            errorEl.textContent = "Markdown 渲染库未加载，已显示原文。请检查网络或本地 vendor/marked.min.js。";
           })
           .catch((err) => {
             errorEl.style.display = "block";
@@ -1276,8 +1274,6 @@
       loadDoc(initialLesson.file, initialLesson.title, metaText);
     </script>
 
-    <!-- 加载主脚本和代码块增强 -->
-    <script src="../assets/js/main.js"></script>
     <script>
       // 文档加载完成后增强代码块
       document.addEventListener('DOMContentLoaded', function() {

@@ -2489,14 +2489,6 @@
                     saveQuizResultFallback(this.lessonId, score, correctCount, questions.length);
                 }
 
-                if (passed) {
-                    if (window.GitWorkflowLab?.LearningProgress) {
-                        window.GitWorkflowLab.LearningProgress.saveProgress(this.lessonId, true);
-                    } else {
-                        saveLessonProgressFallback(this.lessonId, true);
-                    }
-                }
-
                 let resultClass = 'partial';
                 let resultIcon = '🎉';
                 let resultTitle = '继续加油！';
@@ -2516,7 +2508,7 @@
                             <div class="quiz-result-title">${resultTitle}</div>
                             <div class="quiz-result-score">${score}%</div>
                             <div class="quiz-result-msg">${resultMsg} (${correctCount}/${questions.length} 题正确)</div>
-                            <div class="quiz-result-msg">${passed ? '本课已自动记为完成。' : '达到 60% 可自动记为完成。'}</div>
+                            <div class="quiz-result-msg">${passed ? '测验已通过（≥60%），成绩已记入测验进度。课程阅读完成请在课程页勾选。' : '达到 60% 可记为测验通过。课程阅读完成请在课程页勾选。'}</div>
                             <div class="quiz-actions">
                                 <button class="quiz-btn quiz-btn-primary" onclick="location.reload()">重新测验</button>
                                 <a href="${lessonHref}" class="quiz-btn quiz-btn-secondary">返回课程</a>
@@ -2660,16 +2652,6 @@
                 timestamp: Date.now()
             };
             localStorage.setItem(key, JSON.stringify(results));
-        }
-
-        function saveLessonProgressFallback(lessonId, completed) {
-            const key = 'git-workflow-lab-progress';
-            const progress = JSON.parse(localStorage.getItem(key) || '{}');
-            progress[lessonId] = {
-                completed,
-                timestamp: Date.now()
-            };
-            localStorage.setItem(key, JSON.stringify(progress));
         }
 
         // 初始化测验应用

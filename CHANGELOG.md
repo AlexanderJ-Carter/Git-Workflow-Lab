@@ -6,6 +6,19 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.7.2](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.7.1...v1.7.2) (2026-08-07)
+
+
+### Bug Fixes
+
+* raise requires-python to &gt;=3.10 for Dependabot ([885b83d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/885b83dfafec7ab8e57586d9f98804f7f06452d3))
+
+
+### Maintenance
+
+* **deps:** bump the uv group across 1 directory with 4 updates ([9303cdc](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/9303cdc30ce75c90f73a3b743c9870df343faf33))
+* **deps:** bump the uv group across 1 directory with 4 updates ([2c85e57](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/2c85e570bc7aa5b6242f8b6a9eb165d6e895d872))
+
 ## [1.7.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.7.0...v1.7.1) (2026-07-30)
 
 

@@ -6,6 +6,25 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.8.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.7.2...v1.8.0) (2026-08-15)
+
+
+### Features
+
+* add command palette, progress backup, and shared AI tutor ([bb1ef11](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/bb1ef11ec973a1c7d4c39d8fdad5dfae66b05a8e))
+* **ai:** allow keyless OpenAI-compatible endpoints (Ollama/vLLM/etc.) ([aa2b296](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/aa2b29681bbb3a1099086d107a6f688ed4989309))
+* command palette, progress backup, shared AI tutor ([fec98df](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/fec98dfe1dada26e30cbb297dda9ca4f7b4603b5))
+
+
+### Documentation
+
+* refresh README/README_EN/CONTRIBUTORS/CONTRIBUTING ([0320d17](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/0320d178f4cb39c36a85ff38ab3dd67d74b2fd43))
+
+
+### Maintenance
+
+* **ai:** document by-design key storage + retrigger CodeQL ([44d59ff](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/44d59ff39056694703f984ee416e8c1cb6e55002))
+
 ## [1.7.2](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.7.1...v1.7.2) (2026-08-07)
 
 

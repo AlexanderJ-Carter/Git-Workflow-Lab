@@ -286,6 +286,58 @@
         margin: 4px 0;
       }
 
+      /* AI 助教侧滑面板（fixed，不破坏双栏网格布局） */
+      .ai-tutor-panel {
+        position: fixed;
+        top: 0; right: 0; bottom: 0;
+        width: min(440px, 92vw);
+        background: var(--bg-primary, #fff);
+        color: var(--ws-text, #1e293b);
+        border-left: 1px solid var(--ws-border, #e2e8f0);
+        box-shadow: -12px 0 40px rgba(15, 23, 42, 0.18);
+        z-index: 1200;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(100%);
+        transition: transform var(--motion-duration-base, 0.25s) ease;
+      }
+      .ai-tutor-panel.visible { transform: translateX(0); }
+      .ai-tutor-panel__head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 16px; border-bottom: 1px solid var(--ws-border, #e2e8f0);
+      }
+      .ai-tutor-panel__head strong { font-size: 15px; }
+      .ai-tutor-linkbtn {
+        border: none; background: transparent; cursor: pointer;
+        color: var(--ws-primary, #4f46e5); font-size: 13px; margin-left: 12px;
+      }
+      .ai-tutor-hint {
+        font-size: 12px; color: var(--ws-text-muted, #94a3b8);
+        padding: 10px 16px 0; margin: 0; line-height: 1.5;
+      }
+      .ai-tutor-panel textarea {
+        margin: 10px 16px 0; width: calc(100% - 32px); box-sizing: border-box;
+        min-height: 76px; resize: vertical; font-family: var(--font-mono, monospace);
+        font-size: 13px; padding: 10px; border: 1px solid var(--ws-border, #e2e8f0);
+        border-radius: 8px; background: var(--bg-secondary, #f8fafc); color: inherit;
+      }
+      .ai-tutor-panel__actions { padding: 8px 16px 4px; }
+      .ai-tutor-output {
+        flex: 1; overflow-y: auto; padding: 12px 16px; font-size: 14px; line-height: 1.6;
+        border-top: 1px solid var(--ws-border, #e2e8f0); margin-top: 6px;
+      }
+      .ai-tutor-output.is-error { color: #dc2626; }
+      .ai-tutor-output.is-loading { color: var(--ws-text-muted, #94a3b8); }
+      .ai-tutor-output pre {
+        background: var(--bg-tertiary, #f1f5f9); padding: 10px; border-radius: 8px; overflow-x: auto;
+      }
+      .ai-tutor-output code { font-family: var(--font-mono, monospace); font-size: 13px; }
+      .ai-tutor-output p { margin: 6px 0; }
+      .ai-tutor-output ul, .ai-tutor-output ol { margin: 6px 0; padding-left: 20px; }
+      @media (max-width: 600px) {
+        .ai-tutor-panel { width: 100vw; }
+      }
+
       .workspace-layout {
         display: grid;
         grid-template-columns: 42% 58%;
@@ -493,6 +545,7 @@
       <div class="workspace-guide-actions">
         <a id="guide-quiz-link" href="quiz.html">打开测验</a>
         <button id="guide-ssh-toggle" type="button">SSH 说明</button>
+        <button id="guide-ai-toggle" type="button">AI 助教</button>
       </div>
     </div>
 
@@ -562,6 +615,22 @@
         </div>
       </section>
     </main>
+
+    <aside class="ai-tutor-panel" id="ai-tutor-panel" aria-hidden="true" data-no-global-nav="true">
+      <div class="ai-tutor-panel__head">
+        <strong>🤖 AI 助教</strong>
+        <div>
+          <button type="button" id="ai-tutor-settings" class="ai-tutor-linkbtn">设置</button>
+          <button type="button" id="ai-tutor-close" class="ai-tutor-linkbtn">关闭</button>
+        </div>
+      </div>
+      <p class="ai-tutor-hint">把你在终端遇到的报错或疑问贴进来，AI 会结合当前课程与项目知识作答。终端输出因跨源限制无法自动读取，请手动粘贴报错文本（当前课程正文会自动带上）。</p>
+      <textarea id="ai-tutor-input" placeholder="例如：git push 报 ! [rejected] 该怎么办？"></textarea>
+      <div class="ai-tutor-panel__actions">
+        <button type="button" id="ai-tutor-send" class="btn btn--primary">问 AI</button>
+      </div>
+      <div class="ai-tutor-output" id="ai-tutor-output" aria-live="polite"></div>
+    </aside>
 
     <script>
       const SERVICE_URL_KEYS = {
@@ -1146,6 +1215,80 @@
           document.getElementById('ssh-help-panel').classList.toggle('visible');
         });
 
+        // ===== AI 助教侧滑面板（结合当前课程与项目知识答疑） =====
+        (function () {
+          const panel = document.getElementById('ai-tutor-panel');
+          const toggle = document.getElementById('guide-ai-toggle');
+          if (!panel || !toggle) return;
+          const input = document.getElementById('ai-tutor-input');
+          const output = document.getElementById('ai-tutor-output');
+          const sendBtn = document.getElementById('ai-tutor-send');
+
+          function setPanel(open) {
+            panel.classList.toggle('visible', open);
+            panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+          }
+          toggle.addEventListener('click', () => setPanel(!panel.classList.contains('visible')));
+          document.getElementById('ai-tutor-close').addEventListener('click', () => setPanel(false));
+          document.getElementById('ai-tutor-settings').addEventListener('click', () => {
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            if (AIC) AIC.openSettings();
+          });
+
+          function setOutput(html, cls) {
+            output.innerHTML = html;
+            output.className = 'ai-tutor-output' + (cls ? ' ' + cls : '');
+          }
+
+          // 组装问题上下文：当前课程 + 课程正文（同源 docs-frame）+ 待运行命令 + 进度
+          // 终端（ttyd :8080）跨源，无法自动读取其输出，需用户粘贴。
+          function assembleContext() {
+            const parts = [];
+            const title = document.getElementById('current-lesson-title');
+            const picker = document.getElementById('lesson-picker');
+            if (title && title.textContent) parts.push('当前课程：' + title.textContent);
+            if (picker && picker.value) parts.push('课程文件：' + picker.value);
+            try {
+              const frame = document.getElementById('docs-frame');
+              const doc = frame && frame.contentDocument;
+              const inner = doc && doc.getElementById('doc-content');
+              if (inner) {
+                const body = (inner.innerText || '').slice(0, 4000);
+                if (body) parts.push('当前课程正文（截断至 4000 字）：\n' + body);
+              }
+            } catch (e) { /* 跨源或未就绪，跳过 */ }
+            const pending = document.getElementById('pending-command-text');
+            if (pending && pending.textContent) parts.push('待运行命令：' + pending.textContent);
+            try {
+              const LP = window.GitWorkflowLab && window.GitWorkflowLab.LearningProgress;
+              if (LP && LP.getProgress) {
+                const prog = LP.getProgress() || {};
+                const done = Object.values(prog).filter(x => x && x.completed).length;
+                parts.push('已完成课程数：' + done + ' / 48');
+              }
+            } catch (e) { /* 忽略 */ }
+            return parts.join('\n\n');
+          }
+
+          function ask() {
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            if (!AIC) { setOutput('AI 模块尚未加载，请稍候刷新页面。', 'is-error'); return; }
+            if (!AIC.isConfigured()) { AIC.openSettings({ onSaved: ask }); return; }
+            const q = (input.value || '').trim();
+            if (!q) { input.focus(); return; }
+            setOutput('思考中…', 'is-loading');
+            sendBtn.disabled = true;
+            AIC.ask({ userMessage: q, perPageContext: assembleContext() })
+              .then(r => setOutput(AIC.renderToHtml(r && r.text)))
+              .catch(e => setOutput(AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)), 'is-error'))
+              .finally(() => { sendBtn.disabled = false; });
+          }
+          sendBtn.addEventListener('click', ask);
+          input.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ask(); }
+          });
+        })();
+
         // 设置加载超时（15秒）
         setTimeout(handleLoadingTimeout, 15000);
 
@@ -1163,6 +1306,8 @@
       });
     </script>
       <script src="assets/js/main.js" defer></script>
+      <script src="assets/js/vendor/marked.min.js" defer></script>
+      <script src="assets/js/ai.js" defer></script>
 </body>
 </html>
 

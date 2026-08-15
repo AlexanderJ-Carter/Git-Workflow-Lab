@@ -107,6 +107,12 @@
                 <a class="btn" href="learning-path.html">学习路径</a>
                 <a class="btn" href="achievements.html">成就</a>
             </div>
+            <div class="dashboard-actions dashboard-actions--data">
+                <span class="dashboard-actions__hint">数据管理（仅存于本机浏览器）：</span>
+                <button type="button" class="btn" id="dash-export" data-action="export">导出进度</button>
+                <button type="button" class="btn" id="dash-import" data-action="import">导入进度</button>
+                <button type="button" class="btn btn--danger" id="dash-reset" data-action="reset">清空进度</button>
+            </div>
         </section>
 
         <section class="hub-section">
@@ -244,6 +250,19 @@
             document.getElementById('dash-quizzes').textContent = snap.passedQuizzes;
             document.getElementById('dash-challenges').textContent = snap.completedChallenges;
             document.getElementById('dash-flashcards').textContent = snap.flashcardsMastered;
+
+            const AP = window.GitWorkflowLab?.ActivityProgress;
+            const dataRow = document.querySelector('.dashboard-actions--data');
+            if (dataRow && AP) {
+                dataRow.addEventListener('click', (e) => {
+                    const btn = e.target.closest('[data-action]');
+                    if (!btn) return;
+                    const action = btn.dataset.action;
+                    if (action === 'export') AP.exportData?.();
+                    else if (action === 'import') AP.importFromPrompt?.();
+                    else if (action === 'reset') AP.resetAllWithConfirm?.();
+                });
+            }
         });
     </script>
 </body>

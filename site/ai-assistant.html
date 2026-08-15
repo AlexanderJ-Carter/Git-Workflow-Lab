@@ -905,60 +905,23 @@ ${selectedContent}
             }
         }
 
-        // 调用 AI API
+        // 调用 AI API（委托给共享 AIClient：自动注入项目自述 + 课程地图 + 用户勾选模块，
+        // 并修正原版 Anthropic 分支丢弃 system prompt 的问题、对 endpoint 做 http(s) 校验）
         async function callAI(userMessage) {
-            const messages = [
-                { role: 'system', content: buildSystemPrompt() },
-                ...state.messages.map(m => ({ role: m.role, content: m.content })),
-                { role: 'user', content: userMessage }
-            ];
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            if (!AIC) throw new Error('AI 模块尚未加载，请刷新页面重试');
 
-            let url, headers, body;
+            const selectedContent = state.selectedCourses
+                .map(id => { const c = COURSES.find(x => x.id === id); return c ? COURSE_CONTENT[c.key] : ''; })
+                .filter(Boolean)
+                .join('\n\n');
 
-            if (state.apiProvider === 'anthropic') {
-                url = 'https://api.anthropic.com/v1/messages';
-                headers = {
-                    'Content-Type': 'application/json',
-                    'x-api-key': state.apiKey,
-                    'anthropic-version': '2023-06-01'
-                };
-                body = JSON.stringify({
-                    model: state.model,
-                    max_tokens: 1024,
-                    messages: messages.slice(1)
-                });
-            } else {
-                // OpenAI 兼容
-                url = `${state.apiEndpoint}/chat/completions`;
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${state.apiKey}`
-                };
-                body = JSON.stringify({
-                    model: state.model,
-                    messages: messages,
-                    temperature: 0.7
-                });
-            }
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: headers,
-                body: body
+            const { text } = await AIC.ask({
+                userMessage,
+                perPageContext: selectedContent ? '用户关注的课程模块：\n' + selectedContent : '',
+                history: state.messages
             });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({}));
-                throw new Error(error.error?.message || `API 请求失败 (${response.status})`);
-            }
-
-            const data = await response.json();
-
-            if (state.apiProvider === 'anthropic') {
-                return data.content[0].text;
-            } else {
-                return data.choices[0].message.content;
-            }
+            return text;
         }
 
         // 添加消息
@@ -1046,5 +1009,7 @@ ${selectedContent}
         init();
     </script>
     <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/vendor/marked.min.js" defer></script>
+    <script src="assets/js/ai.js" defer></script>
 </body>
 </html>

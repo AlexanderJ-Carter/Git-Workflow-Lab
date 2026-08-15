@@ -484,3 +484,188 @@ def test_check_env_script_exists() -> None:
     text = script.read_text(encoding="utf-8")
     assert "--generate" in text
     assert "GITEA_SECRET_KEY" in text
+
+
+def test_main_js_exposes_command_palette() -> None:
+    """全站命令面板应在 main.js 中定义、初始化并暴露到全局命名空间。"""
+    text = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "const CommandPalette = {" in text
+    assert "CommandPalette.init();" in text
+    assert "CommandPalette.toggle()" in text  # 由 KeyboardShortcuts 在 Cmd/Ctrl+K 调用
+    # 暴露到 GitWorkflowLab 命名空间，便于页面按需调用
+    assert "CommandPalette," in text
+    # 模糊匹配与键盘导航核心能力齐备
+    assert "score(query, hay)" in text or "score(q, hay)" in text
+    assert "ArrowDown" in text and "ArrowUp" in text and "runActive" in text
+
+
+def test_command_palette_triggers_include_slash_and_k() -> None:
+    """命令面板应支持 Cmd/Ctrl+K 与 / 打开、? 显示帮助。"""
+    text = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "e.key === 'k'" in text and "CommandPalette.toggle()" in text
+    assert "e.key === '/'" in text and "CommandPalette.open()" in text
+    assert "e.key === '?'" in text and "showHelp" in text
+    # 旧版「Cmd/Ctrl+K 聚焦搜索框」的行为已退役，改为打开命令面板
+    assert "searchInput.focus()" not in text
+    assert "searchInput.select()" not in text
+
+
+def test_activity_progress_supports_backup_and_reset() -> None:
+    """ActivityProgress 应提供导出 / 导入 / 清空三类数据管理方法。"""
+    text = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "exportData()" in text
+    assert "importFromPrompt()" in text
+    assert "importData(jsonText)" in text
+    assert "resetAllWithConfirm()" in text
+    assert "collectData()" in text
+    # 导出文件名带备份前缀，且仅导出本应用命名空间键 + 主题
+    assert "git-workflow-lab-backup-" in text
+    assert "this.PREFIX" in text and "git-workflow-lab-" in text
+    # 清空仅作用于前缀键，不触碰主题
+    reset_block = text[text.find("resetAllWithConfirm"):]
+    assert "theme" in reset_block
+
+
+def test_index_dashboard_has_data_management() -> None:
+    """首页个人仪表盘应提供导出 / 导入 / 清空进度入口并接线。"""
+    text = (SITE_DIR / "index.html").read_text(encoding="utf-8")
+    assert 'dashboard-actions--data' in text
+    assert 'data-action="export"' in text
+    assert 'data-action="import"' in text
+    assert 'data-action="reset"' in text
+    assert 'btn--danger' in text
+    # 按钮点击应派发到 ActivityProgress 对应方法
+    assert "AP.exportData?.()" in text
+    assert "AP.importFromPrompt?.()" in text
+    assert "AP.resetAllWithConfirm?.()" in text
+
+
+def test_style_has_command_palette_rules() -> None:
+    """样式表应包含命令面板与危险按钮样式，且尊重减少动态效果。"""
+    css = (SITE_DIR / "assets" / "css" / "style.css").read_text(encoding="utf-8")
+    assert ".cmdk" in css
+    assert ".cmdk__panel" in css
+    assert ".cmdk__row.is-active" in css
+    assert ".btn--danger" in css
+    assert ".dashboard-actions--data" in css
+    # 命令面板动效在减少动态效果时被禁用
+    assert "prefers-reduced-motion: reduce" in css
+
+
+# ============================================
+# 共享 AI 客户端与集成（用户自备 Key + 注入项目知识）
+# ============================================
+
+def test_ai_client_module_exists_and_exposed() -> None:
+    """共享 AI 客户端模块应存在、可拷贝，并以增强方式挂载到 GitWorkflowLab。"""
+    ai = SITE_DIR / "assets" / "js" / "ai.js"
+    assert ai.is_file()
+    text = ai.read_text(encoding="utf-8")
+    assert ".AIClient = AIClient" in text  # 挂载到命名空间（增强而非覆盖，避免抹掉 main.js 字段）
+    assert "git-ai-settings" in text  # 复用现有设置键
+    assert "buildSystemPrompt" in text
+    assert "async ask(" in text
+    # 三层上下文：静态项目自述 + 课程地图 + 页面上下文
+    assert "Git Workflow Lab" in text and "48" in text and "阶段 A" in text
+
+
+def test_ai_client_request_shapes_preserve_providers() -> None:
+    """共享模块应忠实复刻 Anthropic / OpenAI 请求形态，并修复 system 字段丢失。"""
+    text = (SITE_DIR / "assets" / "js" / "ai.js").read_text(encoding="utf-8")
+    # Anthropic（Claude Messages API）
+    assert "api.anthropic.com/v1/messages" in text
+    assert "x-api-key" in text
+    assert "anthropic-version" in text
+    assert "system: systemPrompt" in text  # 修复：system 作为顶层字段传递
+    # OpenAI / OpenAI 兼容（含 custom）
+    assert "chat/completions" in text
+    assert "Authorization" in text and "Bearer" in text
+    # 旧版「删掉首条 system 消息」的实现不应残留
+    assert "messages.slice(1)" not in text
+    # endpoint 必须做 http(s) 校验，避免 javascript:/data: 注入
+    assert "sanitizeEndpoint" in text
+    assert "^https?" in text
+
+
+def test_ai_client_has_shared_settings_modal() -> None:
+    """约束 A：全站可用的设置弹窗与 isConfigured 守卫。"""
+    text = (SITE_DIR / "assets" / "js" / "ai.js").read_text(encoding="utf-8")
+    assert "openSettings(" in text
+    assert "isConfigured()" in text
+    assert "anthropic" in text and "openai" in text and "custom" in text
+
+
+def test_ai_pages_load_module() -> None:
+    """各 AI 集成页应加载共享 ai.js。"""
+    pages = [
+        "workspace.html",
+        "quiz.html",
+        "git-debugger.html",
+        "docs/viewer.html",
+        "ai-assistant.html",
+    ]
+    for name in pages:
+        text = (SITE_DIR / name).read_text(encoding="utf-8")
+        assert "assets/js/ai.js" in text, f"{name} missing ai.js"
+
+
+def test_workspace_ai_tutor_panel() -> None:
+    """工作台 AI 助教：侧滑面板 + 问题上下文组装（当前课程/正文/待运行命令）。"""
+    text = (SITE_DIR / "workspace.html").read_text(encoding="utf-8")
+    assert 'id="ai-tutor-panel"' in text
+    assert 'id="guide-ai-toggle"' in text
+    assert "assembleContext" in text
+    assert "GitWorkflowLab.AIClient" in text
+    # 如实告知终端跨源限制（ttyd :8080 与站点不同源，无法自动读取终端输出）
+    assert "跨源" in text or "无法自动读取" in text
+
+
+def test_quiz_ai_explain_on_wrong_answer() -> None:
+    """测验错答时提供 AI 解析。"""
+    text = (SITE_DIR / "quiz.html").read_text(encoding="utf-8")
+    assert "quiz-ai-explain-btn" in text
+    assert "quizExplainWithAI" in text
+    assert "AI 解析" in text
+
+
+def test_debugger_ai_explainer() -> None:
+    """错误排查页：每条规则 + 空状态兜底均接 AI。"""
+    text = (SITE_DIR / "git-debugger.html").read_text(encoding="utf-8")
+    assert "explainErrorWithAI" in text
+    assert "explainRawErrorWithAI" in text
+    assert "ai-explain-raw" in text  # 空状态输出容器
+
+
+def test_viewer_ai_qa_injects_lesson_md() -> None:
+    """课程阅读器：AI 问答注入当前课程原文 md。"""
+    text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
+    assert 'id="lesson-ai-toggle"' in text
+    assert 'id="lesson-ai-panel"' in text
+    assert "__gwlCurrentLesson" in text
+    assert "assets/js/ai.js" in text
+
+
+def test_ai_assistant_delegates_and_drops_buggy_slice() -> None:
+    """ai-assistant 页应委托共享模块，并移除旧版丢弃 system 的实现。"""
+    text = (SITE_DIR / "ai-assistant.html").read_text(encoding="utf-8")
+    assert "assets/js/ai.js" in text
+    assert "AIC.ask" in text or "AIClient.ask" in text
+    assert "messages.slice(1)" not in text
+
+
+def test_build_ships_ai_module_and_vendor() -> None:
+    """构建应拷贝 ai.js 与 vendor/marked.min.js 到 _site，并对 ai.js 做缓存破除。"""
+    import subprocess
+    import sys
+
+    root = Path(__file__).resolve().parents[1]
+    subprocess.run([sys.executable, str(root / "scripts" / "build-site.py")], cwd=root, check=True)
+    assert (root / "_site" / "assets" / "js" / "ai.js").is_file()
+    assert (root / "_site" / "assets" / "js" / "vendor" / "marked.min.js").is_file()
+    # 缓存破除 ?v=4 应用到 AI 页
+    for name in ("workspace.html", "quiz.html", "git-debugger.html", "ai-assistant.html"):
+        html = (root / "_site" / name).read_text(encoding="utf-8")
+        assert "assets/js/ai.js?v=4" in html, f"{name} missing ai.js?v=4"
+    # build script 递归拷贝子目录（修复 vendor 未上线的问题）
+    assert "shutil.copytree" in (root / "scripts" / "build-site.py").read_text(encoding="utf-8")
+

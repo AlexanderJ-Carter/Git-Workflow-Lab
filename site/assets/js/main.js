@@ -433,6 +433,141 @@
                     snapshot: this.getSnapshot()
                 }
             }));
+        },
+
+        /** 学习数据 localStorage 键前缀；主题（'theme'）单独保存，不计入重置。 */
+        PREFIX: 'git-workflow-lab-',
+
+        /**
+         * 收集当前浏览器中全部学习数据，用于导出备份。
+         * @returns {Object} 以键名为字段名的数据对象
+         */
+        collectData() {
+            const data = {};
+            const prefix = this.PREFIX;
+            for (let i = 0; i < localStorage.length; i += 1) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(prefix)) {
+                    data[key] = localStorage.getItem(key);
+                }
+            }
+            const theme = localStorage.getItem('theme');
+            if (theme) data.theme = theme;
+            return data;
+        },
+
+        /**
+         * 将全部学习数据导出为可下载的 JSON 备份文件。
+         */
+        exportData() {
+            if (!supportsFeature('localStorage')) {
+                alert('当前浏览器不支持本地存储，无法导出。');
+                return;
+            }
+            const payload = {
+                app: 'git-workflow-lab',
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                data: this.collectData()
+            };
+            const count = Object.keys(payload.data).length;
+            if (count === 0) {
+                alert('当前没有可导出的学习数据。');
+                return;
+            }
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `git-workflow-lab-backup-${payload.exportedAt.slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        },
+
+        /**
+         * 弹出文件选择器，从 JSON 备份恢复学习数据后刷新页面。
+         */
+        importFromPrompt() {
+            if (!supportsFeature('localStorage')) {
+                alert('当前浏览器不支持本地存储，无法导入。');
+                return;
+            }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json,.json';
+            input.style.display = 'none';
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const restored = this.importData(String(reader.result));
+                        alert(`已恢复 ${restored} 项数据，即将刷新页面。`);
+                        window.location.reload();
+                    } catch (err) {
+                        console.error('[ActivityProgress] 导入失败', err);
+                        alert('导入失败：文件格式不正确或已损坏。');
+                    }
+                };
+                reader.onerror = () => alert('读取文件失败，请重试。');
+                reader.readAsText(file);
+            });
+            document.body.appendChild(input);
+            input.click();
+            input.remove();
+        },
+
+        /**
+         * 从 JSON 文本恢复数据，仅写回本应用命名空间内的键。
+         * @param {string} jsonText
+         * @returns {number} 实际写入条数
+         */
+        importData(jsonText) {
+            const payload = JSON.parse(jsonText);
+            const data = payload && payload.data ? payload.data : payload;
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                throw new Error('invalid backup payload');
+            }
+            let count = 0;
+            Object.keys(data).forEach((key) => {
+                if (typeof data[key] !== 'string') return;
+                if (key.startsWith(this.PREFIX) || key === 'theme') {
+                    localStorage.setItem(key, data[key]);
+                    count += 1;
+                }
+            });
+            return count;
+        },
+
+        /**
+         * 二次确认后清空全部学习数据（保留主题），随后刷新页面。
+         */
+        resetAllWithConfirm() {
+            if (!supportsFeature('localStorage')) return;
+            const snap = this.getSnapshot();
+            const has = snap.completedLessons || snap.passedQuizzes
+                || snap.completedChallenges || snap.flashcardsMastered;
+            if (!has) {
+                alert('当前没有可清空的学习数据。');
+                return;
+            }
+            const ok = window.confirm(
+                '确定清空全部学习进度、测验、挑战、闪卡与成就吗？\n'
+                + '此操作不可撤销，建议先导出备份。'
+            );
+            if (!ok) return;
+            const prefix = this.PREFIX;
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i += 1) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(prefix)) keys.push(key);
+            }
+            keys.forEach((key) => localStorage.removeItem(key));
+            this.notify('reset');
+            window.location.reload();
         }
     };
 
@@ -1621,20 +1756,40 @@
          */
         init() {
             document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + K: 聚焦搜索框
+                // 面板打开时，除 Cmd/Ctrl+K 与 Esc 外，其余交由面板处理
+                if (CommandPalette.opened
+                    && !((e.ctrlKey || e.metaKey) && e.key === 'k')
+                    && e.key !== 'Escape') {
+                    return;
+                }
+
+                // Ctrl/Cmd + K: 打开 / 关闭命令面板
                 if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                     e.preventDefault();
-                    const searchInput = document.querySelector('.nav-search-input');
-                    if (searchInput) {
-                        searchInput.focus();
-                        searchInput.select();
-                    }
+                    CommandPalette.toggle();
+                    return;
                 }
 
                 // Ctrl/Cmd + /: 显示快捷键帮助
                 if ((e.ctrlKey || e.metaKey) && e.key === '/') {
                     e.preventDefault();
                     this.showHelp();
+                    return;
+                }
+
+                // / 打开命令面板、? 显示快捷键（仅在非输入态）
+                if (!e.ctrlKey && !e.metaKey && !e.altKey && !CommandPalette.opened) {
+                    const tag = (e.target.tagName || '').toLowerCase();
+                    const editing = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+                    if (!editing) {
+                        if (e.key === '/') {
+                            e.preventDefault();
+                            CommandPalette.open();
+                        } else if (e.key === '?') {
+                            e.preventDefault();
+                            this.showHelp();
+                        }
+                    }
                 }
 
                 // Ctrl/Cmd + D: 切换主题
@@ -1646,8 +1801,9 @@
                     }
                 }
 
-                // Escape: 关闭模态框/菜单
+                // Escape: 关闭命令面板或移动端菜单
                 if (e.key === 'Escape') {
+                    if (CommandPalette.opened) return; // 由面板自行关闭
                     const mobileMenu = document.querySelector('.global-navbar-menu');
                     if (mobileMenu?.classList.contains('active')) {
                         mobileMenu.classList.remove('active');
@@ -1680,15 +1836,19 @@
                     <div class="shortcut-list">
                         <div class="shortcut-item">
                             <kbd>Ctrl/⌘</kbd> + <kbd>K</kbd>
-                            <span>搜索</span>
+                            <span>命令面板</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>/</kbd>
+                            <span>打开命令面板</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>?</kbd>
+                            <span>显示快捷键帮助</span>
                         </div>
                         <div class="shortcut-item">
                             <kbd>Ctrl/⌘</kbd> + <kbd>D</kbd>
                             <span>切换主题</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Ctrl/⌘</kbd> + <kbd>/</kbd>
-                            <span>显示/隐藏帮助</span>
                         </div>
                         <div class="shortcut-item">
                             <kbd>Alt</kbd> + <kbd>1-9</kbd>
@@ -1696,7 +1856,7 @@
                         </div>
                         <div class="shortcut-item">
                             <kbd>Esc</kbd>
-                            <span>关闭菜单</span>
+                            <span>关闭面板 / 菜单</span>
                         </div>
                     </div>
                     <button class="shortcut-close" onclick="this.parentElement.parentElement.remove()">关闭</button>
@@ -1805,6 +1965,315 @@
     };
 
     // ============================================
+    // 命令面板（Ctrl/⌘ + K 或 /）
+    // ============================================
+
+    /**
+     * 全站命令面板：模糊搜索页面、课程与快捷操作，全键盘可导航。
+     * 面板 DOM 懒构建，仅在首次打开时注入；所有交互防御性包裹。
+     * @namespace CommandPalette
+     */
+    const CommandPalette = {
+        /** 站点页面目录，href 相对站点根。local 项仅在本地（localhost）显示。 */
+        PAGES: [
+            { title: '首页', href: 'index.html', group: '导航', icon: '🏠' },
+            { title: '课程中心', href: 'lessons/index.html', group: '导航', icon: '📚' },
+            { title: '学习路径', href: 'learning-path.html', group: '导航', icon: '🗺️' },
+            { title: '快速开始', href: 'quick-start.html', group: '导航', icon: '🚀', local: true },
+            { title: '学习工作台', href: 'workspace.html', group: '导航', icon: '🧪', local: true },
+            { title: '技能测验', href: 'quiz.html', group: '练习', icon: '✅' },
+            { title: '记忆闪卡', href: 'flashcards.html', group: '练习', icon: '🧠' },
+            { title: '命令练习场', href: 'playground.html', group: '练习', icon: '⚡' },
+            { title: '命令速查表', href: 'command-sheet.html', group: '练习', icon: '📋' },
+            { title: '场景挑战', href: 'challenges.html', group: '练习', icon: '⚔️' },
+            { title: '全局搜索', href: 'search.html', group: '工具', icon: '🔍' },
+            { title: 'Git 可视化', href: 'git-visualizer.html', group: '工具', icon: '🔀' },
+            { title: 'Git Flow 模拟', href: 'gitflow-simulator.html', group: '工具', icon: '🌊' },
+            { title: '命令生成器', href: 'command-builder.html', group: '工具', icon: '🛠️' },
+            { title: '错误排查', href: 'git-debugger.html', group: '工具', icon: '🔧' },
+            { title: '最佳实践', href: 'best-practices.html', group: '工具', icon: '📖' },
+            { title: '技能树', href: 'skill-tree.html', group: '工具', icon: '🌳' },
+            { title: '游戏化', href: 'gamification.html', group: '工具', icon: '🎯' },
+            { title: '成就徽章', href: 'achievements.html', group: '工具', icon: '🏆' },
+            { title: '学习笔记', href: 'notes.html', group: '工具', icon: '📓' },
+            { title: '面试题库', href: 'interview.html', group: '工具', icon: '💼' },
+            { title: '实战项目', href: 'projects.html', group: '工具', icon: '🚀' },
+            { title: '参考文档', href: 'reference.html', group: '工具', icon: '📚' },
+            { title: '每日学习计划', href: 'daily-plan.html', group: '工具', icon: '📅' },
+            { title: '环境状态', href: 'status.html', group: '本地', icon: '📡', local: true },
+            { title: '诊断工具', href: 'diagnostics.html', group: '本地', icon: '🩺', local: true }
+        ],
+
+        /** 快捷操作（非导航类），按需取用。 */
+        actions() {
+            return [
+                {
+                    title: '切换深色 / 浅色主题', group: '操作', icon: '🌗',
+                    keywords: '主题 theme dark 浅色 深色 切换',
+                    run: () => { const t = document.querySelector('.theme-toggle'); if (t) t.click(); }
+                },
+                {
+                    title: '回到页面顶部', group: '操作', icon: '⬆️',
+                    keywords: '顶部 top 回顶 scroll 滚动',
+                    run: () => window.scrollTo({ top: 0, behavior: 'smooth' })
+                },
+                {
+                    title: '显示键盘快捷键', group: '操作', icon: '⌨️',
+                    keywords: '快捷键 help 帮助 键盘 shortcuts',
+                    run: () => KeyboardShortcuts.showHelp()
+                },
+                {
+                    title: '导出学习进度（备份）', group: '数据', icon: '💾',
+                    keywords: '导出 备份 export backup 下载',
+                    run: () => ActivityProgress.exportData()
+                },
+                {
+                    title: '导入学习进度（恢复）', group: '数据', icon: '📥',
+                    keywords: '导入 恢复 import restore 上传',
+                    run: () => ActivityProgress.importFromPrompt()
+                },
+                {
+                    title: '清空全部学习进度', group: '数据', icon: '🗑️',
+                    keywords: '清空 重置 reset 删除 清除',
+                    run: () => ActivityProgress.resetAllWithConfirm()
+                }
+            ];
+        },
+
+        opened: false,
+        items: [],
+        active: 0,
+        lessonEntries: null,
+        els: null,
+
+        init() {
+            document.addEventListener('keydown', (e) => {
+                if (!this.opened) return;
+                switch (e.key) {
+                    case 'ArrowDown': e.preventDefault(); this.move(1); break;
+                    case 'ArrowUp': e.preventDefault(); this.move(-1); break;
+                    case 'Tab': e.preventDefault(); this.move(e.shiftKey ? -1 : 1); break;
+                    case 'Enter': e.preventDefault(); this.runActive(); break;
+                    case 'Escape': e.preventDefault(); this.close(); break;
+                    default: break;
+                }
+            });
+        },
+
+        /** 由 KeyboardShortcuts 调用：打开或关闭面板。 */
+        toggle() {
+            safeExecute(() => (this.opened ? this.close() : this.open()), undefined, 'CommandPalette.toggle');
+        },
+
+        open() {
+            safeExecute(() => this._open(), undefined, 'CommandPalette.open');
+        },
+
+        async _open() {
+            if (this.opened) return;
+            this.opened = true;
+            if (!this.els) this.build();
+            this.els.overlay.classList.add('is-open');
+            this.els.input.value = '';
+            this.active = 0;
+            this.items = this.baseEntries();
+            this.render();
+            this.els.input.focus();
+            if (this.lessonEntries) return; // 已加载过
+            this.lessonEntries = [];
+            try {
+                const lessons = await LessonCatalog.load();
+                this.lessonEntries = (lessons || []).map((l) => ({
+                    title: l.title,
+                    subtitle: l.desc,
+                    group: '课程',
+                    icon: l.badge,
+                    href: LessonCatalog.viewerHref(l.file),
+                    keywords: `${l.title} ${l.desc || ''} ${l.id} ${l.group || ''}`
+                }));
+            } catch (err) {
+                console.warn('[CommandPalette] 课程目录加载失败', err);
+            }
+            // 课程到位后，按当前输入重新渲染（含课程结果）
+            if (this.opened && this.els) {
+                this.items = this.filter(this.els.input.value.trim());
+                if (this.active >= this.items.length) {
+                    this.active = Math.max(0, this.items.length - 1);
+                }
+                this.render();
+            }
+        },
+
+        /** 组合页面目录与快捷操作，附上相对站点根解析后的 href。 */
+        baseEntries() {
+            const base = GlobalNavbar.resolveBasePath();
+            const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+            const pages = this.PAGES
+                .filter((p) => !p.local || isLocal)
+                .map((p) => ({
+                    title: p.title,
+                    group: p.group,
+                    icon: p.icon,
+                    href: base + p.href,
+                    keywords: `${p.title} ${p.group} ${p.href}`
+                }));
+            return [...pages, ...this.actions()];
+        },
+
+        build() {
+            const overlay = document.createElement('div');
+            overlay.className = 'cmdk';
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-modal', 'true');
+            overlay.setAttribute('aria-label', '命令面板');
+            overlay.innerHTML = `
+                <div class="cmdk__backdrop" data-cmdk-close></div>
+                <div class="cmdk__panel">
+                    <div class="cmdk__input-wrap">
+                        <svg class="cmdk__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" class="cmdk__input" placeholder="搜索页面、课程或操作…（Esc 关闭）" autocomplete="off" spellcheck="false" aria-label="搜索命令面板" />
+                        <kbd class="cmdk__esc">Esc</kbd>
+                    </div>
+                    <div class="cmdk__list" role="listbox" aria-label="结果"></div>
+                    <div class="cmdk__foot">
+                        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+                        <span><kbd>Enter</kbd> 打开</span>
+                        <span><kbd>Esc</kbd> 关闭</span>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            const list = overlay.querySelector('.cmdk__list');
+            const input = overlay.querySelector('.cmdk__input');
+
+            input.addEventListener('input', () => {
+                this.items = this.filter(input.value.trim());
+                this.active = 0;
+                this.render();
+            });
+            overlay.querySelector('[data-cmdk-close]').addEventListener('click', () => this.close());
+            list.addEventListener('mousemove', (e) => {
+                const row = e.target.closest('[data-idx]');
+                if (!row) return;
+                const idx = Number(row.dataset.idx);
+                if (idx !== this.active) { this.active = idx; this.render(); }
+            });
+            list.addEventListener('click', (e) => {
+                const row = e.target.closest('[data-idx]');
+                if (!row) return;
+                this.active = Number(row.dataset.idx);
+                this.runActive();
+            });
+
+            this.els = { overlay, input, list };
+        },
+
+        filter(query) {
+            const pool = [...this.baseEntries(), ...(this.lessonEntries || [])];
+            if (!query) return pool.slice(0, 50);
+            const q = query.toLowerCase();
+            const scored = [];
+            for (const item of pool) {
+                const hay = `${item.title} ${item.group || ''} ${item.subtitle || ''} ${item.keywords || ''}`.toLowerCase();
+                const s = this.score(q, hay);
+                if (s < 0) continue;
+                scored.push({ item, score: s });
+            }
+            scored.sort((a, b) => b.score - a.score);
+            return scored.slice(0, 50).map((x) => x.item);
+        },
+
+        /** 子序列模糊匹配；返回 -1 表示不匹配，分值越高越相关。 */
+        score(query, hay) {
+            if (!hay) return -1;
+            if (hay.includes(query)) {
+                return 100 + (query.length / Math.max(hay.length, 1)) * 10;
+            }
+            let qi = 0;
+            let score = 0;
+            let last = -2;
+            for (let i = 0; i < hay.length && qi < query.length; i += 1) {
+                if (hay[i] === query[qi]) {
+                    score += (i === last + 1) ? 4 : 2;
+                    if (i === 0 || /[\s/]/.test(hay[i - 1])) score += 3;
+                    last = i;
+                    qi += 1;
+                }
+            }
+            return qi === query.length ? score : -1;
+        },
+
+        render() {
+            const list = this.els.list;
+            list.innerHTML = '';
+            if (this.items.length === 0) {
+                list.innerHTML = '<div class="cmdk__empty">没有匹配项</div>';
+                return;
+            }
+            const frag = document.createDocumentFragment();
+            this.items.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = 'cmdk__row' + (idx === this.active ? ' is-active' : '');
+                row.dataset.idx = String(idx);
+                row.setAttribute('role', 'option');
+                row.setAttribute('aria-selected', idx === this.active ? 'true' : 'false');
+
+                const icon = document.createElement('span');
+                icon.className = 'cmdk__row-icon';
+                icon.textContent = item.icon || '·';
+
+                const body = document.createElement('span');
+                body.className = 'cmdk__row-body';
+                const title = document.createElement('span');
+                title.className = 'cmdk__row-title';
+                title.textContent = item.title;
+                body.appendChild(title);
+                if (item.subtitle) {
+                    const sub = document.createElement('span');
+                    sub.className = 'cmdk__row-sub';
+                    sub.textContent = item.subtitle;
+                    body.appendChild(sub);
+                }
+
+                const group = document.createElement('span');
+                group.className = 'cmdk__row-group';
+                group.textContent = item.group || '';
+
+                row.appendChild(icon);
+                row.appendChild(body);
+                row.appendChild(group);
+                frag.appendChild(row);
+            });
+            list.appendChild(frag);
+            const activeEl = list.querySelector('.is-active');
+            if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+        },
+
+        move(delta) {
+            if (this.items.length === 0) return;
+            this.active = (this.active + delta + this.items.length) % this.items.length;
+            this.render();
+        },
+
+        runActive() {
+            const item = this.items[this.active];
+            if (!item) return;
+            this.close();
+            if (typeof item.run === 'function') {
+                safeExecute(() => item.run(), undefined, 'CommandPalette action');
+            } else if (item.href) {
+                window.location.href = item.href;
+            }
+        },
+
+        close() {
+            if (!this.opened) return;
+            this.opened = false;
+            if (this.els) this.els.overlay.classList.remove('is-open');
+        }
+    };
+
+    // ============================================
     // 初始化入口
     // ============================================
 
@@ -1825,6 +2294,7 @@
         SidebarActive.init();
         CodeCopy.init();
         KeyboardShortcuts.init();
+        CommandPalette.init();
         MobileNav.init();
         PageTransition.init();
         ScrollProgress.init();
@@ -1858,6 +2328,7 @@
         ScrollAnimation,
         SidebarActive,
         CodeCopy,
+        CommandPalette,
         MobileNav,
         PageTransition,
         ScrollProgress,

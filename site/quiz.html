@@ -336,6 +336,32 @@
             border-color: var(--quiz-primary);
             background: rgba(99, 102, 241, 0.2);
         }
+
+        .quiz-ai-explain-btn {
+            margin-left: 8px;
+            padding: 4px 12px;
+            font-size: 13px;
+            color: var(--quiz-primary, #4f46e5);
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .quiz-ai-explain-btn:hover { background: rgba(99, 102, 241, 0.22); }
+        .quiz-ai-explain-btn:disabled { opacity: 0.6; cursor: default; }
+        .quiz-ai-output {
+            margin-top: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            line-height: 1.6;
+            background: var(--quiz-bg, #f8fafc);
+            border: 1px solid var(--quiz-border, #e2e8f0);
+            border-radius: 8px;
+        }
+        .quiz-ai-output:empty { display: none; }
+        .quiz-ai-output pre { background: #f1f5f9; padding: 10px; border-radius: 6px; overflow-x: auto; }
+        .quiz-ai-output code { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        .quiz-ai-output p { margin: 6px 0; }
     </style>
 </head>
 <body>
@@ -393,6 +419,8 @@
     </div>
 
     <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/vendor/marked.min.js" defer></script>
+    <script src="assets/js/ai.js" defer></script>
     <script>
         const LESSON_CONFIG = {
           "lesson-00": {
@@ -2392,6 +2420,23 @@
         };
 
         // 测验应用
+        // 错答 AI 解析：注入题目数据 + 用户作答，让 AI 讲解正确答案与误区
+        function quizExplainWithAI(question, selectedAnswer) {
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            const out = document.getElementById('quiz-ai-output');
+            const btn = document.getElementById('quiz-ai-explain-btn');
+            if (!AIC) { if (out) out.textContent = 'AI 模块未加载，请刷新页面。'; return; }
+            if (!AIC.isConfigured()) { AIC.openSettings({ onSaved: () => quizExplainWithAI(question, selectedAnswer) }); return; }
+            if (out) out.innerHTML = AIC.renderToHtml('正在生成解析…');
+            if (btn) btn.disabled = true;
+            const ctx = '这是一道 Git Workflow Lab 测验题，用户答错了。请讲解：正确答案为什么对、用户错在哪里、相关知识点。\n'
+                + `题目数据：${JSON.stringify(question)}\n用户作答：${selectedAnswer || '（空）'}`;
+            AIC.ask({ userMessage: '请用中文讲解这道题。', perPageContext: ctx })
+                .then(r => { if (out) out.innerHTML = AIC.renderToHtml(r && r.text); })
+                .catch(e => { if (out) out.innerHTML = AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)); })
+                .finally(() => { if (btn) btn.disabled = false; });
+        }
+
         class QuizApp {
             constructor(containerId, lessonId) {
                 this.container = document.getElementById(containerId);
@@ -2596,8 +2641,13 @@
                 if (explanation) {
                     explanation.innerHTML = isCorrect
                         ? `<strong>✅ 回答正确！</strong> ${question.explanation}`
-                        : `<strong>❌ 回答错误。</strong> ${question.explanation}`;
+                        : `<strong>❌ 回答错误。</strong> ${question.explanation} <button type="button" class="quiz-ai-explain-btn" id="quiz-ai-explain-btn">🤖 AI 解析</button><div class="quiz-ai-output" id="quiz-ai-output" aria-live="polite"></div>`;
                     explanation.classList.add('show');
+                    // 错答时绑定 AI 解析（innerHTML 每次作答都会重建，故每次重新绑定）
+                    const aiBtn = document.getElementById('quiz-ai-explain-btn');
+                    if (aiBtn) {
+                        aiBtn.addEventListener('click', () => quizExplainWithAI(question, selectedAnswer));
+                    }
                 }
 
                 // 更新进度点

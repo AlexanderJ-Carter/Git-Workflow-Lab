@@ -646,6 +646,11 @@ def patch_html_for_deploy(html: str, *, depth: int = 0) -> str:
         f'href="{prefix}assets/js/main.js"',
         f'href="{prefix}assets/js/main.js{STYLE_CACHE_BUST}"',
     )
+    # AI 客户端模块按需加载的页面同样需要缓存破除（用 src=，与 script 标签属性一致）
+    html = html.replace(
+        f'src="{prefix}assets/js/ai.js"',
+        f'src="{prefix}assets/js/ai.js{STYLE_CACHE_BUST}"',
+    )
     return html
 
 
@@ -695,6 +700,9 @@ def build_site() -> None:
             for item in src_dir.iterdir():
                 if item.is_file():
                     shutil.copy(item, dest_dir / item.name)
+                elif item.is_dir():
+                    # 递归拷贝子目录（如 vendor/marked.min.js），否则线上 Pages 取不到
+                    shutil.copytree(item, dest_dir / item.name, dirs_exist_ok=True)
         print("  Copied site/assets (js, data)")
 
     # 复制docs目录到_site/docs/，并用 site/docs/ 下的 HTML 覆盖（viewer、index 等）

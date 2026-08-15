@@ -20,6 +20,9 @@
 - 🐳 **完整实验环境** - 提供 Docker Compose 一键部署的 Gitea + Web 终端环境
 - 📦 **工程化实践** - 内置 Release Please、GitHub Actions、容器发布等完整 CI/CD 示例
 - 🌐 **双模式运行** - GitHub Pages 展示公开课程，本地环境提供完整实验体验
+- 🤖 **AI 助教** - 自备 API Key（兼容 OpenAI/Anthropic/本地 LLM），注入本课程项目知识；在工作台、测验、错误排查、课程页就地答疑
+- ⌨️ **命令面板** - `Ctrl/⌘+K` 或 `/` 全站跳转，模糊搜索页面、课程与快捷操作
+- 💾 **进度本地化** - 学习进度只存于浏览器，支持导出/导入备份与一键清空
 - 🔄 **持续更新** - 活跃的社区贡献和持续的内容迭代
 
 ## 项目简介
@@ -119,6 +122,9 @@ Sphinx 文档提供：
 - **F** CI/CD：首条流水线、修复失败、多阶段与 Secrets
 - **G** 安全：提交签名、Secrets 实践
 - **H** 进阶实用：fork/upstream、hotfix、submodule、fixup rebase、blame 考古、sparse-checkout
+- **I** 计算机基础：Shell 脚本、管道重定向、环境与 PATH、进程与作业、Docker、HTTP/curl、sed/awk、网络排障、JSON/YAML
+- **J** 编程与跨平台 CLI：Python 入门、PowerShell、Bash 与 PowerShell 对照
+- **K** 配置与文本处理：正则表达式、Git 别名与配置进阶、.gitattributes
 
 ## 📋 推荐阅读顺序
 
@@ -195,20 +201,21 @@ make fix-quotes     # 修复中文引号
 
 ## 🗺️ 项目路线图
 
-当前正在持续完善的方向：
+已落地的能力：
 
-- [x] 课程进度跟踪功能
-- [x] 互动式练习题
+- [x] 课程进度跟踪（本地存储）
+- [x] 互动式练习题、闪卡、场景挑战
+- [x] Git 进阶主题（子模块、工作树、bisect、sparse-checkout、interactive rebase 等）
+- [x] 计算机基础 / 编程与跨平台 CLI / 配置与文本处理阶段（I–K）
+- [x] 命令面板（`Ctrl/⌘+K`）、学习数据备份 / 恢复
+- [x] AI 助教（自备 Key，注入项目知识；工作台 / 测验 / 排查 / 课程页集成）
 - [x] 多语言支持（English）
-- [ ] 课程完成徽章
-- [ ] 视频教程补充
-- [ ] Git 进阶主题（子模块、工作树、bisect 等）
 
-当前优先级更高的是把已有互动页面和学习闭环打磨完整，包括：
+持续打磨的方向：
 
-- 修复互动页面脚本问题并补充最小自动化验证
-- 把课程学习、测验、进度和成就串成完整体验
-- 持续补充高价值进阶课程与教学指引
+- 互动页面稳定性与最小自动化验证
+- 把课程、测验、进度、成就串成完整闭环
+- 移动端体验与离线访问
 
 详细规划请查看 [ROADMAP.md](ROADMAP.md)。
 

@@ -20,6 +20,9 @@ A hands-on teaching repository for Git learning and collaboration practices, foc
 - 🐳 **Complete Lab Environment** - Docker Compose one-click deployment of Gitea + Web Terminal environment
 - 📦 **Engineering Practices** - Built-in Release Please, GitHub Actions, container publishing, and complete CI/CD examples
 - 🌐 **Dual-Mode Operation** - GitHub Pages for public courses, local environment for complete lab experience
+- 🤖 **AI Tutor** - Bring your own API key (OpenAI / Anthropic / local-LLM compatible); injects this project's own knowledge and answers in-context across the workspace, quiz, error debugger, and lesson viewer
+- ⌨️ **Command Palette** - `Ctrl/⌘+K` or `/` to jump anywhere; fuzzy-search pages, lessons, and actions
+- 💾 **Local-First Progress** - Learning progress lives in the browser, with export/import backup and one-click reset
 - 🔄 **Continuous Updates** - Active community contributions and continuous content iteration
 
 ## 📖 About This Project
@@ -110,11 +113,18 @@ Sphinx documentation provides:
 
 ## 📚 Course Content
 
-- **Stage 0-1**: Installation configuration, terminal basics, repository initialization, remote synchronization
-- **Stage 2**: Branch collaboration, Pull Requests, conflict resolution, rebase, SSH and collaboration standards
-- **Stage 3**: cherry-pick, revert, reflog, stash and other rescue and recovery scenarios
-- **Stage 4**: Tags and releases, project standards, Git hooks, large repository practices
-- **Stage 5**: CI basics, pipeline repair, multi-stage processes and release practices
+48 lessons across 11 stages (A–K):
+
+- **A–B** Environment & Basics: install/config, terminal, init/push, working tree, remote sync
+- **C** Branching & Collaboration: branches/PRs, conflicts, rebase, SSH, collaboration conventions
+- **D** Rescue & Recovery: cherry-pick, reflog, stash, bisect, worktree
+- **E** Engineering: tags/releases, project standards, hooks, large repos, Conventional Commits, code review
+- **F** CI/CD: first pipeline, fixing failures, multi-stage pipelines and Secrets
+- **G** Security: commit/tag signing, Secrets practices
+- **H** Advanced Practical: fork/upstream, hotfix, submodule, fixup rebase, blame archaeology, sparse-checkout
+- **I** Computer Basics: shell scripting, pipes/redirection, env & PATH, processes & jobs, Docker, HTTP/curl, sed/awk, networking, JSON/YAML
+- **J** Programming & Cross-platform CLI: Python intro, PowerShell, Bash vs PowerShell
+- **K** Config & Text Processing: regex, advanced Git config, .gitattributes
 
 ## 📋 Recommended Reading Order
 
@@ -190,14 +200,21 @@ Thanks to all developers who have contributed to this project!
 
 ## 🗺️ Project Roadmap
 
-We plan to add in the future:
+Already shipped:
 
-- [ ] Course progress tracking functionality
-- [ ] Interactive exercises
-- [ ] Multi-language support (English)
-- [ ] Course completion badges
-- [ ] Video tutorial supplements
-- [ ] Git advanced topics (submodules, worktrees, etc.)
+- [x] Course progress tracking (local storage)
+- [x] Interactive exercises, flashcards, scenario challenges
+- [x] Git advanced topics (submodules, worktrees, bisect, sparse-checkout, interactive rebase, etc.)
+- [x] Computer basics / programming & cross-platform CLI / config & text processing stages (I–K)
+- [x] Command palette (`Ctrl/⌘+K`), learning data backup / restore
+- [x] AI tutor (BYO key, project-knowledge context; integrated into workspace/quiz/debugger/viewer)
+- [x] Multi-language support (English)
+
+Continuously improving:
+
+- Interactive page stability and minimal automated verification
+- Tying lessons, quizzes, progress, and achievements into a complete loop
+- Mobile experience and offline access
 
 For detailed planning, see [ROADMAP.md](ROADMAP.md).
 

@@ -24,7 +24,7 @@
    git checkout -b feature/new-lesson
    ```
 3. **创建课程文件**
-   - 复制 `docs/_lesson-template.md` 作为模板
+   - 复制 `docs/_lesson_template.md` 作为模板
    - 命名格式：`docs/lesson-XX-topic-name.md`
    - 确保编号连续，不与现有课程冲突
 4. **更新课程总览**
@@ -112,26 +112,38 @@ feat: add learning path visualization
 
 提交 PR 前，请确认：
 
-- [ ] 代码/文档已通过本地预览
-- [ ] 提交信息符合规范
-- [ ] 新课程已添加到 `lessons-overview.md`
-- [ ] 文件命名符合规范
+- [ ] 本地通过 `make test`（站点完整性测试）
+- [ ] 改动涉及站点时通过 `make build`，并本地预览 `_site/`
+- [ ] 代码/文档已通过 `make lint`
+- [ ] 提交信息符合约定式提交规范
+- [ ] 新课程已添加到 `docs/lessons-overview.md` 与 `site/assets/data/lessons.json`
+- [ ] 文件命名符合规范（课程 `docs/lesson-XX-topic-name.md`）
 
 ## 🏗️ 项目结构
 
 ```
 .
-├── docs/                    # 课程文档
+├── docs/                    # 课程正文（Markdown）
 │   ├── lessons-overview.md  # 课程总览
-│   ├── _lesson-template.md  # 课程模板
-│   └── lesson-*.md          # 各课程文件
-├── site/                    # 静态网站
-├── scripts/                 # 构建脚本
-├── .github/                 # GitHub 配置
-│   └── workflows/           # Actions 工作流
+│   ├── _lesson_template.md  # 课程模板
+│   └── lesson-*.md          # 各课程文件（48 课时）
+├── site/                    # 静态站点源码
+│   ├── assets/              # 共享 CSS / JS / 数据
+│   │   ├── css/             # style.css / pages.css
+│   │   ├── js/              # main.js / ai.js / vendor/marked
+│   │   └── data/            # lessons.json 课程目录
+│   └── *.html               # 各功能页面
+├── _site/                   # 构建输出（Pages 部署，已 gitignore）
+├── scripts/                 # 构建与初始化脚本（build-site.py 等）
+├── tests/                   # 站点完整性测试（pytest）
+├── docker/                  # 终端容器定义
+├── docker-compose.yml       # 本地实验环境
+├── Makefile                 # 常用命令入口
+├── docs-sphinx/             # Sphinx 技术文档
+├── .github/                 # 协作模板与工作流
+│   └── workflows/          # GitHub Actions
 ├── CONTRIBUTING.md          # 本文件
-├── README.md                # 项目说明
-└── LICENSE                  # 许可证
+└── README.md                # 项目说明
 ```
 
 ## 🙋 获取帮助

@@ -493,8 +493,21 @@
         }
 
         /* 空状态 */
-        .empty-state {
-            text-align: center;
+        .ai-explain-output {
+            margin-top: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            line-height: 1.6;
+            background: var(--bg-secondary, #f8fafc);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+        }
+        .ai-explain-output:empty { display: none; }
+        .ai-explain-output pre { background: #f1f5f9; padding: 10px; border-radius: 6px; overflow-x: auto; }
+        .ai-explain-output code { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        .ai-explain-output p { margin: 6px 0; }
+
+        .empty-state {            text-align: center;
             padding: 60px 20px;
             color: var(--debugger-text-muted);
         }
@@ -857,7 +870,9 @@ You are in 'detached HEAD' state.`,
                             <path d="M21 21l-4.35-4.35"></path>
                         </svg>
                         <h3>未找到匹配的错误</h3>
-                        <p>请尝试其他关键词或清除搜索</p>
+                        <p>请尝试其他关键词或清除搜索，或让 AI 直接解释你遇到的报错。</p>
+                        <button class="btn btn-primary" style="margin-top: 12px; padding: 6px 16px; font-size: 13px;" onclick="explainRawErrorWithAI()">🤖 让 AI 解释这个报错</button>
+                        <div class="ai-explain-output" id="ai-explain-raw" aria-live="polite"></div>
                     </div>
                 `;
                 document.getElementById('resultsInfo').textContent = '没有找到匹配的错误';
@@ -924,6 +939,11 @@ You are in 'detached HEAD' state.`,
                             </div>
                         </div>
                         ` : ''}
+
+                        <div class="detail-section">
+                            <button class="btn" style="padding: 6px 16px; font-size: 13px;" onclick="explainErrorWithAI('${error.id}')">🤖 让 AI 解析此报错</button>
+                            <div class="ai-explain-output" id="ai-explain-${error.id}" aria-live="polite"></div>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -934,6 +954,40 @@ You are in 'detached HEAD' state.`,
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // AI 解析：按已匹配的错误规则，把规则字段作为上下文交给 AI 补充讲解
+        function explainErrorWithAI(errorId) {
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            const out = document.getElementById('ai-explain-' + errorId);
+            if (!AIC) { if (out) out.textContent = 'AI 模块未加载，请刷新页面。'; return; }
+            if (!AIC.isConfigured()) { AIC.openSettings({ onSaved: () => explainErrorWithAI(errorId) }); return; }
+            const error = gitErrors.find(e => e.id === errorId);
+            if (!error) return;
+            if (out) out.innerHTML = AIC.renderToHtml('正在解析…');
+            const ctx = '用户在 Git Workflow Lab 错误排查页打开了一条规则，希望 AI 在规则基础上补充讲解。\n'
+                + `标题：${error.title}\n描述：${error.desc || ''}\n报错示例：\n${error.errorMessage}\n`
+                + `原因：${(error.cause || '').replace(/^\d+\.\s*/gm, '')}\n解决步骤：${(error.steps || []).join('；')}`;
+            AIC.ask({ userMessage: '请用中文补充讲解这个 Git 报错的成因与最实用的修复步骤，给出可执行命令。', perPageContext: ctx })
+                .then(r => { if (out) out.innerHTML = AIC.renderToHtml(r && r.text); })
+                .catch(e => { if (out) out.innerHTML = AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)); });
+        }
+
+        // 空状态兜底：没有规则命中时，把用户输入的搜索词（通常是报错文本）交给 AI
+        function explainRawErrorWithAI() {
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            const out = document.getElementById('ai-explain-raw');
+            if (!AIC) { if (out) out.textContent = 'AI 模块未加载，请刷新页面。'; return; }
+            if (!AIC.isConfigured()) { AIC.openSettings({ onSaved: () => explainRawErrorWithAI() }); return; }
+            const raw = (document.getElementById('searchInput').value || '').trim();
+            if (!raw) { if (out) out.textContent = '请先在搜索框粘贴你的报错文本。'; return; }
+            if (out) out.innerHTML = AIC.renderToHtml('正在解析…');
+            AIC.ask({
+                userMessage: '这是一段 Git/终端报错，请用中文解释原因并给出修复步骤与命令：\n' + raw,
+                perPageContext: '用户在错误排查页未命中内置规则，直接粘贴了报错文本。'
+            })
+                .then(r => { if (out) out.innerHTML = AIC.renderToHtml(r && r.text); })
+                .catch(e => { if (out) out.innerHTML = AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)); });
         }
 
         // 切换卡片展开状态
@@ -1075,5 +1129,7 @@ You are in 'detached HEAD' state.`,
         });
     </script>
     <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/vendor/marked.min.js" defer></script>
+    <script src="assets/js/ai.js" defer></script>
 </body>
 </html>

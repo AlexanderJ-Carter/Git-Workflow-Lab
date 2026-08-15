@@ -504,6 +504,7 @@
     </style>
     <script src="../assets/js/vendor/marked.min.js"></script>
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/ai.js"></script>
   </head>
   <body>
     <div class="layout">
@@ -555,6 +556,16 @@
             <a id="lesson-quiz-link" href="../../quiz.html">本课测验</a>
             <a id="lesson-flashcards-link" href="../../flashcards.html">复习闪卡</a>
             <a id="lesson-workspace-link" href="../../workspace.html">打开工作台</a>
+            <button id="lesson-ai-toggle" class="mark-complete-btn" type="button" style="margin-left:auto;">🤖 AI 问答</button>
+          </div>
+          <div id="lesson-ai-panel" style="display:none; margin-top:12px;">
+            <p style="font-size:13px; color:var(--text-muted, #94a3b8); margin:0 0 8px;">结合当前课程正文向 AI 提问（Ctrl/⌘+Enter 发送）：</p>
+            <textarea id="lesson-ai-input" placeholder="关于本课你有什么疑问？" style="width:100%; min-height:64px; resize:vertical; font-family:inherit; padding:10px; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; box-sizing:border-box;"></textarea>
+            <div style="margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <button type="button" id="lesson-ai-send" class="mark-complete-btn">提问</button>
+              <button type="button" id="lesson-ai-settings" style="border:none; background:transparent; color:var(--accent-primary,#4f46e5); cursor:pointer; font-size:13px;">AI 设置</button>
+            </div>
+            <div id="lesson-ai-output" style="margin-top:10px; padding:12px 14px; font-size:14px; line-height:1.6; background:var(--bg-secondary,#f8fafc); border:1px solid var(--border-color,#e2e8f0); border-radius:8px;"></div>
           </div>
         </div>
       </main>
@@ -1170,6 +1181,8 @@
             return res.text();
           })
           .then((md) => {
+            // 暂存当前课程原文，供「AI 问答」作为上下文（比序列化 #doc-content 更干净，避免 enhanceCodeBlocks 注入的按钮文本）
+            window.__gwlCurrentLesson = { file: file, title: displayTitle, md: md };
             if (typeof marked !== "undefined" && typeof marked.parse === "function") {
               contentEl.innerHTML = marked.parse(md);
               return;
@@ -1298,6 +1311,58 @@
         childList: true,
         subtree: true
       });
+    </script>
+    <script>
+      // 「AI 问答」面板：结合当前课程正文（window.__gwlCurrentLesson.md）向 AI 提问
+      (function () {
+        var toggle = document.getElementById('lesson-ai-toggle');
+        var panel = document.getElementById('lesson-ai-panel');
+        if (!toggle || !panel) return;
+        var input = document.getElementById('lesson-ai-input');
+        var output = document.getElementById('lesson-ai-output');
+        var sendBtn = document.getElementById('lesson-ai-send');
+        var settingsBtn = document.getElementById('lesson-ai-settings');
+
+        function setOutput(html, isErr) {
+          if (!output) return;
+          output.innerHTML = html;
+          output.style.color = isErr ? '#dc2626' : '';
+        }
+
+        toggle.addEventListener('click', function () {
+          var open = panel.style.display === 'none';
+          panel.style.display = open ? 'block' : 'none';
+          if (open && input) input.focus();
+        });
+        if (settingsBtn) settingsBtn.addEventListener('click', function () {
+          var AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+          if (AIC) AIC.openSettings();
+        });
+
+        function ask() {
+          var AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+          if (!AIC) { setOutput('AI 模块未加载。', true); return; }
+          if (!AIC.isConfigured()) { AIC.openSettings({ onSaved: ask }); return; }
+          var q = (input && input.value || '').trim();
+          if (!q) { if (input) input.focus(); return; }
+          setOutput('思考中…');
+          if (sendBtn) sendBtn.disabled = true;
+          var lesson = window.__gwlCurrentLesson || {};
+          var ctx = '';
+          if (lesson.title || lesson.file) {
+            ctx += '当前课程：' + (lesson.title || '') + (lesson.file ? '（' + lesson.file + '）' : '') + '\n';
+          }
+          if (lesson.md) ctx += '课程正文：\n' + String(lesson.md).slice(0, 6000);
+          AIC.ask({ userMessage: q, perPageContext: ctx })
+            .then(function (r) { setOutput(AIC.renderToHtml(r && r.text)); })
+            .catch(function (e) { setOutput(AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)), true); })
+            .then(function () { if (sendBtn) sendBtn.disabled = false; });
+        }
+        if (sendBtn) sendBtn.addEventListener('click', ask);
+        if (input) input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ask(); }
+        });
+      })();
     </script>
   </body>
 </html>

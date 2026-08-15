@@ -104,6 +104,8 @@
                 apiEndpoint: merged.apiEndpoint,
                 model: merged.model
             };
+            // 明文存储用户自备 API Key（by-design：静态无后端站，存的是用户自己的 key 在自己的浏览器，
+            // 项目从不代理或经手密钥）。CodeQL js/clear-text-storage-of-sensitive-data 已按 false-positive dismiss。
             safeExecute(() => localStorage.setItem(this.STORAGE_KEY, JSON.stringify(persist)));
             return persist;
         },

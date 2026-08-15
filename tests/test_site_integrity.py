@@ -669,3 +669,16 @@ def test_build_ships_ai_module_and_vendor() -> None:
     # build script 递归拷贝子目录（修复 vendor 未上线的问题）
     assert "shutil.copytree" in (root / "scripts" / "build-site.py").read_text(encoding="utf-8")
 
+
+def test_ai_client_allows_keyless_compatible_endpoint() -> None:
+    """非 Anthropic 的兼容端点（如本地 Ollama/vLLM）应允许无 Key。"""
+    text = (SITE_DIR / "assets" / "js" / "ai.js").read_text(encoding="utf-8")
+    # ask() 仅对 Anthropic 强制 Key，兼容端点可无 Key
+    assert "apiProvider === 'anthropic' && !settings.apiKey" in text
+    # isConfigured 允许无 Key 的兼容端点
+    assert "s.apiProvider !== 'anthropic'" in text
+    # Authorization 仅在有 Key 时附加（本地无鉴权端点不送头）
+    assert "if (settings.apiKey)" in text and "headers['Authorization']" in text
+    # UI 文案体现兼容端点（含本地例子）
+    assert "Ollama" in text
+

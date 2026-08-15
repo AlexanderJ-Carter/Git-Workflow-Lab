@@ -108,9 +108,12 @@
             return persist;
         },
 
-        /** 是否已配置可用 API Key。 */
+        /** 是否已配置可用：有 Key 即可；或本地/兼容端点（如 Ollama）可无 Key。 */
         isConfigured() {
-            return !!this.getSettings().apiKey;
+            const s = this.getSettings();
+            if (s.apiKey) return true;
+            // 非 Anthropic 的 OpenAI 兼容端点（含本地 LLM）可不带 Key
+            return s.apiProvider !== 'anthropic' && !!this.sanitizeEndpoint(s.apiEndpoint);
         },
 
         // ---------------- 对话历史 ----------------
@@ -201,8 +204,9 @@
          */
         async ask(opts = {}) {
             const settings = opts.settings || this.getSettings();
-            if (!settings.apiKey) {
-                throw new Error('未配置 API Key，请先在 AI 设置中填写。');
+            // Anthropic 必须带 Key；OpenAI 兼容端点（含本地 LLM，如 Ollama/vLLM）可不带 Key
+            if (settings.apiProvider === 'anthropic' && !settings.apiKey) {
+                throw new Error('Anthropic 需要 API Key，请在 AI 设置中填写。');
             }
 
             const systemPrompt = await this.buildSystemPrompt({ perPageContext: opts.perPageContext || '' });
@@ -228,13 +232,14 @@
                     messages: convo
                 });
             } else {
-                // OpenAI / OpenAI 兼容（含 'custom'）
+                // OpenAI / OpenAI 兼容端点（含 'custom'：Ollama、vLLM、LM Studio、Azure 等）
                 const endpoint = this.sanitizeEndpoint(settings.apiEndpoint) || this.DEFAULTS.apiEndpoint;
                 url = `${endpoint}/chat/completions`;
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${settings.apiKey}`
-                };
+                headers = { 'Content-Type': 'application/json' };
+                // 有 Key 才带 Authorization（本地无鉴权端点可留空）
+                if (settings.apiKey) {
+                    headers['Authorization'] = `Bearer ${settings.apiKey}`;
+                }
                 body = JSON.stringify({
                     model: settings.model,
                     temperature: 0.7,
@@ -301,22 +306,22 @@
             overlay.innerHTML = `
                 <div class="ai-settings__panel">
                     <h3>AI 助教设置</h3>
-                    <p class="ai-settings__hint">API Key 仅存于本机浏览器，调用直接发往你选择的提供商，本项目不经手你的密钥。</p>
+                    <p class="ai-settings__hint">兼容任何 OpenAI 兼容接口或 Anthropic。API Key 仅存于本机浏览器，调用直连你填的端点，本项目不经手密钥。本地端点（如 Ollama）可留空 Key。</p>
                     <label class="ai-settings__field"><span>服务商</span>
                         <select class="ai-settings__provider">
-                            <option value="openai">OpenAI 兼容</option>
+                            <option value="openai">OpenAI 及兼容 API（可改端点）</option>
                             <option value="anthropic">Anthropic (Claude)</option>
-                            <option value="custom">自定义 OpenAI 兼容端点</option>
+                            <option value="custom">本地 / 自定义兼容端点（Ollama、vLLM 等，可无 Key）</option>
                         </select>
                     </label>
-                    <label class="ai-settings__field"><span>API Key</span>
-                        <input type="password" class="ai-settings__key" placeholder="sk-... / sk-ant-..." autocomplete="off" />
+                    <label class="ai-settings__field"><span>API Key（本地端点可留空）</span>
+                        <input type="password" class="ai-settings__key" placeholder="sk-... / sk-ant-... / 留空用于本地" autocomplete="off" />
                     </label>
                     <label class="ai-settings__field ai-settings__field--endpoint"><span>端点 (Endpoint)</span>
-                        <input type="text" class="ai-settings__endpoint" placeholder="https://api.openai.com/v1" autocomplete="off" />
+                        <input type="text" class="ai-settings__endpoint" placeholder="https://api.openai.com/v1 或 http://localhost:11434/v1" autocomplete="off" />
                     </label>
                     <label class="ai-settings__field"><span>模型 (Model)</span>
-                        <input type="text" class="ai-settings__model" placeholder="gpt-4o-mini / claude-sonnet-4-6 ..." autocomplete="off" />
+                        <input type="text" class="ai-settings__model" placeholder="gpt-4o-mini / claude-sonnet-4-6 / llama3 ..." autocomplete="off" />
                     </label>
                     <div class="ai-settings__actions">
                         <button type="button" class="ai-settings__cancel">取消</button>

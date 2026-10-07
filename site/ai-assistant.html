@@ -737,6 +737,7 @@ CI/CD 相关：
                 apiEndpoint: elements.apiEndpoint.value,
                 model: elements.apiModel.value
             };
+            // codeql[js/clear-text-storage-of-sensitive-data]: demo-only browser API key; no backend vault
             localStorage.setItem('git-ai-settings', JSON.stringify(settings));
             Object.assign(state, settings);
             alert('设置已保存！');

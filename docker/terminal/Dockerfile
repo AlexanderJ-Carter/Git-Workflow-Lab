@@ -1,4 +1,5 @@
 # Git Workflow Lab - Web Terminal
+# hadolint ignore=DL3018
 FROM alpine:3.21
 
 LABEL maintainer="Git Workflow Lab"

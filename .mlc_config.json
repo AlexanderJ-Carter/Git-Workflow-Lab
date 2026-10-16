@@ -16,6 +16,12 @@
       "pattern": "^https://lab\\.alexander\\.xin/.*$"
     },
     {
+      "pattern": "^https://api\\.star-history\\.com/.*$"
+    },
+    {
+      "pattern": "^https://star-history\\.com/.*$"
+    },
+    {
       "pattern": "^https://github\\.com/[^/]+/[^/]+/stargazers$"
     },
     {

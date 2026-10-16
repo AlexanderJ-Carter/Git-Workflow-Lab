@@ -12,7 +12,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/network/members)
 
-**[📖 在线课程](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** · **[🧪 在线练习场](https://alexanderj-carter.github.io/Git-Workflow-Lab/playground.html)** · **[🚀 快速开始](#-快速开始)** · **[🇺🇸 English](README_EN.md)**
+**[📖 在线课程](https://lab.alexander.xin/)** · **[🧪 在线练习场](https://lab.alexander.xin/playground.html)** · **[🚀 快速开始](#-快速开始)** · **[🇺🇸 English](README_EN.md)**
 
 </div>
 
@@ -49,7 +49,7 @@ Git Workflow Lab 的核心目标是把常见 Git 学习内容拆成可实践的�
 
 ### 在线学习（推荐新手）
 
-直接访问 **[在线课程网站](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** 浏览课程内容和文档。
+直接访问 **[在线课程网站](https://lab.alexander.xin/)** 浏览课程内容和文档。
 
 ### 本地实验环境（进阶用户）
 

@@ -12,7 +12,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/network/members)
 
-**[📖 Online Course](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** · **[🧪 Playground](https://alexanderj-carter.github.io/Git-Workflow-Lab/playground.html)** · **[🚀 Quick Start](#-quick-start)** · **[中文文档](README.md)**
+**[📖 Online Course](https://lab.alexander.xin/)** · **[🧪 Playground](https://lab.alexander.xin/playground.html)** · **[🚀 Quick Start](#-quick-start)** · **[中文文档](README.md)**
 
 </div>
 
@@ -49,7 +49,7 @@ You can use it as:
 
 ### Online Learning (Recommended for Beginners)
 
-Visit the **[Online Course Website](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** directly to browse course content and documentation.
+Visit the **[Online Course Website](https://lab.alexander.xin/)** directly to browse course content and documentation.
 
 ### Local Lab Environment (Advanced Users)
 

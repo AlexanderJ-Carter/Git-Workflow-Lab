@@ -34,7 +34,9 @@ from markdown.extensions.toc import TocExtension
 # 项目配置
 PROJECT_NAME = "Git Workflow Lab"
 REPO_URL = "https://github.com/AlexanderJ-Carter/Git-Workflow-Lab"
-SITE_URL = "https://alexanderj-carter.github.io/Git-Workflow-Lab"
+# 自定义域（GitHub Pages 后台已配置，CNAME 由构建写入以持久化）；
+# github.io 域 301 跳转到此，canonical/og 地址须指向最终域
+SITE_URL = "https://lab.alexander.xin"
 
 # 公开页面列表
 PUBLIC_PAGES: List[str] = [
@@ -855,6 +857,9 @@ def build_site() -> None:
         (LESSONS_DIR / "index.html").write_text(index_html, encoding="utf-8")
 
     print(f"Built {len(lessons)} lesson pages")
+
+    # 自定义域声明（与 Pages 后台配置一致，写入构建产物使配置可持久化）
+    (SITE_DIR / "CNAME").write_text("lab.alexander.xin\n", encoding="utf-8")
 
     # SEO 收尾：sitemap.xml / robots.txt + 各页 canonical/og:url（须在全部页面落盘后）
     generate_sitemap_and_robots()

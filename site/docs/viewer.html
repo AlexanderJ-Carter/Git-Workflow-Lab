@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
+    <!-- gwl-theme-boot: 在 CSS 渲染前应用已存主题，避免暗色用户首屏闪白 -->
+    <script>(function(){try{var t=localStorage.getItem('theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){t='dark';}if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
     <meta charset="UTF-8" />
     <title>Git Workflow Lab 文档中心</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1185,6 +1187,11 @@
             window.__gwlCurrentLesson = { file: file, title: displayTitle, md: md };
             if (typeof marked !== "undefined" && typeof marked.parse === "function") {
               contentEl.innerHTML = marked.parse(md);
+              // 渲染完成后立即增强代码块（复制/运行按钮、语言标签），
+              // 与内容同帧生效；末尾的 MutationObserver 仅作兜底。
+              if (typeof window.enhanceCodeBlocks === "function") {
+                window.enhanceCodeBlocks();
+              }
               return;
             }
             const pre = document.createElement("pre");
@@ -1288,17 +1295,8 @@
     </script>
 
     <script>
-      // 文档加载完成后增强代码块
-      document.addEventListener('DOMContentLoaded', function() {
-        // 等待一小段时间确保内容已加载
-        setTimeout(function() {
-          if (typeof window.enhanceCodeBlocks === 'function') {
-            window.enhanceCodeBlocks();
-          }
-        }, 500);
-      });
-
-      // 监听内容变化（用于动态加载的文档）
+      // 监听内容变化（兜底：loadDoc 渲染后已同步调用 enhanceCodeBlocks，
+      // 此处覆盖其他改动 #doc-content 的路径；enhanceCodeBlocks 幂等）
       const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
           if (mutation.addedNodes.length && typeof window.enhanceCodeBlocks === 'function') {
@@ -1353,7 +1351,13 @@
             ctx += '当前课程：' + (lesson.title || '') + (lesson.file ? '（' + lesson.file + '）' : '') + '\n';
           }
           if (lesson.md) ctx += '课程正文：\n' + String(lesson.md).slice(0, 6000);
-          AIC.ask({ userMessage: q, perPageContext: ctx })
+          // 流式问答：增量渲染；旧缓存里的 ai.js 无 askStream 时退回非流式
+          var call = (typeof AIC.askStream === 'function')
+            ? AIC.askStream({ userMessage: q, perPageContext: ctx }, function (delta, full) {
+                setOutput(AIC.renderToHtml(full));
+              })
+            : AIC.ask({ userMessage: q, perPageContext: ctx });
+          call
             .then(function (r) { setOutput(AIC.renderToHtml(r && r.text)); })
             .catch(function (e) { setOutput(AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)), true); })
             .then(function () { if (sendBtn) sendBtn.disabled = false; });

@@ -389,7 +389,7 @@ def test_build_site_includes_v3_assets() -> None:
     assert ".hero-v3" in style_css
     assert "bundled pages.css" in style_css
     index = (root / "_site" / "index.html").read_text(encoding="utf-8")
-    assert "assets/css/style.css?v=4" in index
+    assert "assets/css/style.css?v=5" in index
     assert "assets/css/pages.css" not in index
     assert "asset-base.js" in index
 
@@ -662,10 +662,11 @@ def test_build_ships_ai_module_and_vendor() -> None:
     subprocess.run([sys.executable, str(root / "scripts" / "build-site.py")], cwd=root, check=True)
     assert (root / "_site" / "assets" / "js" / "ai.js").is_file()
     assert (root / "_site" / "assets" / "js" / "vendor" / "marked.min.js").is_file()
-    # 缓存破除 ?v=4 应用到 AI 页
+    # 缓存破除 ?v=5 应用到 AI 页与全站脚本
     for name in ("workspace.html", "quiz.html", "git-debugger.html", "ai-assistant.html"):
         html = (root / "_site" / name).read_text(encoding="utf-8")
-        assert "assets/js/ai.js?v=4" in html, f"{name} missing ai.js?v=4"
+        assert "assets/js/ai.js?v=5" in html, f"{name} missing ai.js?v=5"
+        assert "assets/js/main.js?v=5" in html, f"{name} missing main.js?v=5"
     # build script 递归拷贝子目录（修复 vendor 未上线的问题）
     assert "shutil.copytree" in (root / "scripts" / "build-site.py").read_text(encoding="utf-8")
 
@@ -682,3 +683,140 @@ def test_ai_client_allows_keyless_compatible_endpoint() -> None:
     # UI 文案体现兼容端点（含本地例子）
     assert "Ollama" in text
 
+
+
+# ============================================
+# 性能与健壮性优化（读缓存 / 交互细节 / AI 请求）
+# ============================================
+
+def test_storage_json_reads_are_cached() -> None:
+    """进度读取应经 StorageCache 缓存：同键重复读只解析一次，写入写穿透。"""
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "const StorageCache = {" in main_js
+    assert "StorageCache.getJSON(this.STORAGE_KEY, {})" in main_js
+    assert "StorageCache.setJSON(this.STORAGE_KEY, progress)" in main_js
+    assert "StorageCache.setJSON(this.STORAGE_KEY, results)" in main_js
+    # 跨标签页写入失效缓存；导入恢复（批量直写）后整体失效
+    assert "addEventListener('storage'" in main_js
+    assert "StorageCache.clear()" in main_js
+
+
+def test_page_transition_keeps_modifier_clicks_native() -> None:
+    """站内链接不应再被 JS 拦截：修饰键/中键点击天然保留浏览器默认行为。"""
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "PageTransition" not in main_js
+    assert "transitionTo" not in main_js
+
+
+def test_code_copy_skips_enhanced_containers() -> None:
+    """CodeCopy 与 enhanceCodeBlocks 不应在同一代码块叠加两个复制按钮。"""
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "enhancedContainers" in main_js
+    assert "pre.closest(enhancedContainers)" in main_js
+
+
+def test_command_palette_hover_updates_without_full_rerender() -> None:
+    """命令面板鼠标移动高亮只切换 class，不整列表重建。"""
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "setActive(idx)" in main_js
+    assert "this.setActive(idx);" in main_js  # mousemove 走 setActive 而非 render
+
+
+def test_viewer_enhances_code_blocks_after_each_render() -> None:
+    """viewer 的 loadDoc 渲染完成后应同步增强代码块，替代 500ms 定时的一次性兜底。"""
+    text = (SITE_DIR / "docs" / "viewer.html").read_text(encoding="utf-8")
+    assert "window.enhanceCodeBlocks();" in text  # loadDoc 渲染分支内直调
+    assert "等一小段时间确保内容已加载" not in text  # 冗余的 500ms 定时兜底已移除
+
+
+def test_ai_client_has_request_timeout() -> None:
+    """AI 请求应有默认超时与可读的超时/取消错误，端点挂起时不无限等待。"""
+    ai_js = (SITE_DIR / "assets" / "js" / "ai.js").read_text(encoding="utf-8")
+    assert "AbortSignal.timeout" in ai_js
+    assert "TimeoutError" in ai_js
+    assert "AbortError" in ai_js
+
+
+def test_ai_default_model_follows_provider() -> None:
+    """切换服务商时默认模型应跟随，避免拿 OpenAI 模型名请求 Anthropic。"""
+    ai_js = (SITE_DIR / "assets" / "js" / "ai.js").read_text(encoding="utf-8")
+    assert "DEFAULT_MODELS" in ai_js
+    assert "claude-sonnet-5-5" in ai_js
+    assert "syncProvider" in ai_js
+    # 旧版保存的坏组合（anthropic + gpt-4o-mini）在 ask() 与 getSettings() 双重纠正
+    assert "settings.model === this.DEFAULT_MODELS.openai" in ai_js
+    assert "this.DEFAULT_MODELS[provider] || this.DEFAULTS.model" in ai_js
+
+
+# ============================================
+# 第二轮优化：AI 流式输出 / 导航延迟移除 / 主题首屏闪白
+# ============================================
+
+def test_ai_client_streams_sse() -> None:
+    """askStream 应请求 SSE 并解析 OpenAI 与 Anthropic 两种增量格式。"""
+    text = (SITE_DIR / "assets" / "js" / "ai.js").read_text(encoding="utf-8")
+    assert "async askStream(" in text
+    # 两种 provider 都置 stream: true
+    assert "stream: stream || undefined" in text  # Anthropic（undefined 时字段不发送）
+    assert "payload.stream = true" in text  # OpenAI 兼容
+    # OpenAI 增量 + [DONE] 哨兵
+    assert "[DONE]" in text
+    assert "delta.content" in text
+    # Anthropic content_block_delta 事件
+    assert "content_block_delta" in text
+    assert "delta.text" in text
+    # 无流式支持的环境退化为一次性返回
+    assert "getReader" in text
+
+
+def test_ai_assistant_streams_with_stop_button() -> None:
+    """AI 助手页应走流式渲染，生成中可停止并保留已生成部分。"""
+    text = (SITE_DIR / "ai-assistant.html").read_text(encoding="utf-8")
+    assert "AIC.askStream" in text
+    assert "askStream(askOpts, opts.onDelta)" in text
+    # 停止按钮：AbortController + 停止文案；pointer-events:none 已移除
+    assert "state.abortController = new AbortController()" in text
+    assert "'停止'" in text or '"停止"' in text
+    assert "pointer-events: none" not in text.split("ai-send-btn")[1].split("/* 加载动画 */")[0]
+    # 修复：历史取自入库前的快照，避免本次用户消息在对话中出现两次
+    assert "const history = state.messages.slice()" in text
+
+
+def test_no_artificial_navigation_delay() -> None:
+    """不应再有页面切换过渡模块（每次站内导航人为延迟 300ms + 全屏遮罩）。"""
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "PageTransition" not in main_js
+
+
+def test_theme_boot_prevents_dark_mode_flash() -> None:
+    """所有加载 main.js 的页面都应在 head 内同步应用主题，避免暗色用户闪白。"""
+    pages = [p for p in (SITE_DIR).rglob("*.html")
+             if "assets/js/main.js" in p.read_text(encoding="utf-8")]
+    assert len(pages) >= 25, "页面数量异常，检查站点结构"
+    for p in pages:
+        text = p.read_text(encoding="utf-8")
+        assert "gwl-theme-boot" in text, f"{p} missing theme boot snippet"
+        head = text.split("</head>")[0]
+        assert "prefers-color-scheme: dark" in head, f"{p} theme boot not in <head>"
+        assert "localStorage.getItem('theme')" in head
+
+
+def test_build_templates_have_theme_boot() -> None:
+    """构建模板生成的课时页/目录页同样要有主题引导。"""
+    build_py = (Path(__file__).resolve().parents[1] / "scripts" / "build-site.py").read_text(encoding="utf-8")
+    assert build_py.count("gwl-theme-boot") >= 2
+
+
+def test_build_cache_busts_main_js_via_src() -> None:
+    """main.js 缓存破除应匹配 <script src=（此前误写 href= 导致从未生效）。"""
+    build_py = (Path(__file__).resolve().parents[1] / "scripts" / "build-site.py").read_text(encoding="utf-8")
+    assert 'src="{prefix}assets/js/main.js"' in build_py
+    assert 'href="{prefix}assets/js/main.js"' not in build_py
+
+
+def test_command_palette_caches_base_entries_and_aria() -> None:
+    """命令面板：baseEntries 记忆化 + 键盘高亮同步 aria-activedescendant。"""
+    main_js = (SITE_DIR / "assets" / "js" / "main.js").read_text(encoding="utf-8")
+    assert "if (this._baseEntries) return this._baseEntries;" in main_js
+    assert "_syncActiveDescendant" in main_js
+    assert 'aria-activedescendant' in main_js

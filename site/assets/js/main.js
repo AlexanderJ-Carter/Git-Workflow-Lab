@@ -1,7 +1,7 @@
 /**
  * Git Workflow Lab - 主脚本
  * @description 提供学习进度管理、主题切换、页面动画等功能
- * @version 2.0.0
+ * @version 2.1.0
  * @author Git Workflow Lab Team
  */
 
@@ -88,6 +88,73 @@
     }
 
     // ============================================
+    // localStorage JSON 读取缓存模块
+    // ============================================
+
+    /**
+     * localStorage JSON 读取缓存：同键重复读只解析一次（课程导航一次渲染
+     * 会对同一份进度 JSON 解析几十次），写入/删除即时失效，跨标签页经
+     * storage 事件失效。返回值可能是共享引用，调用方只读不写。
+     * @namespace StorageCache
+     */
+    const StorageCache = {
+        /** @type {Map<string, {hit: boolean, value: *}>} */
+        _entries: new Map(),
+
+        /**
+         * 读取并缓存解析结果；未存储或损坏的 JSON 返回 fallback。
+         * @param {string} key
+         * @param {*} fallback
+         * @returns {*}
+         */
+        getJSON(key, fallback) {
+            if (this._entries.has(key)) {
+                const entry = this._entries.get(key);
+                return entry.hit ? entry.value : fallback;
+            }
+            const raw = safeExecute(() => localStorage.getItem(key), null);
+            const entry = raw === null
+                ? { hit: false, value: fallback }
+                : { hit: true, value: safeExecute(() => JSON.parse(raw), fallback) };
+            this._entries.set(key, entry);
+            return entry.hit ? entry.value : fallback;
+        },
+
+        /**
+         * 写入 JSON 并同步更新缓存（写穿透，避免写后读回旧值）。
+         * @param {string} key
+         * @param {*} value
+         */
+        setJSON(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+            this._entries.set(key, { hit: true, value });
+        },
+
+        /**
+         * 删除键并失效缓存。
+         * @param {string} key
+         */
+        remove(key) {
+            localStorage.removeItem(key);
+            this._entries.delete(key);
+        },
+
+        /** 清空缓存（导入恢复等批量直写 localStorage 后调用）。 */
+        clear() {
+            this._entries.clear();
+        }
+    };
+
+    // 跨标签页写入时失效对应缓存
+    window.addEventListener('storage', (e) => {
+        if (e.key === null) {
+            StorageCache.clear();
+        } else {
+            StorageCache._entries.delete(e.key);
+        }
+    });
+
+    // ============================================
     // 学习进度管理模块
     // ============================================
 
@@ -123,10 +190,7 @@
             if (!supportsFeature('localStorage')) {
                 return {};
             }
-            return safeExecute(() => {
-                const data = localStorage.getItem(this.STORAGE_KEY);
-                return data ? JSON.parse(data) : {};
-            }, {});
+            return StorageCache.getJSON(this.STORAGE_KEY, {});
         },
 
         /**
@@ -145,7 +209,7 @@
                     completed: Boolean(completed),
                     timestamp: Date.now()
                 };
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
+                StorageCache.setJSON(this.STORAGE_KEY, progress);
                 ActivityProgress.notify('lesson', { lessonId: id, completed: Boolean(completed) });
             } catch (error) {
                 console.warn('[LearningProgress] Failed to save progress:', error);
@@ -215,10 +279,7 @@
             if (!supportsFeature('localStorage')) {
                 return {};
             }
-            return safeExecute(() => {
-                const data = localStorage.getItem(this.STORAGE_KEY);
-                return data ? JSON.parse(data) : {};
-            }, {});
+            return StorageCache.getJSON(this.STORAGE_KEY, {});
         },
 
         /**
@@ -251,7 +312,7 @@
                     passed: score >= 60,
                     timestamp: Date.now()
                 };
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(results));
+                StorageCache.setJSON(this.STORAGE_KEY, results);
                 ActivityProgress.notify('quiz', {
                     lessonId,
                     score,
@@ -302,31 +363,29 @@
             if (!supportsFeature('localStorage')) {
                 return { completed: [], xp: 0 };
             }
-            return safeExecute(() => {
-                const data = localStorage.getItem(this.CHALLENGE_KEY);
-                if (!data) return { completed: [], xp: 0 };
-                const parsed = JSON.parse(data);
-                return {
-                    completed: Array.isArray(parsed.completed) ? parsed.completed : [],
-                    xp: Number(parsed.xp) || 0
-                };
-            }, { completed: [], xp: 0 });
+            const parsed = StorageCache.getJSON(this.CHALLENGE_KEY, null);
+            if (!parsed || typeof parsed !== 'object') {
+                return { completed: [], xp: 0 };
+            }
+            return {
+                completed: Array.isArray(parsed.completed) ? parsed.completed : [],
+                xp: Number(parsed.xp) || 0
+            };
         },
 
         getFlashcardStats() {
             if (!supportsFeature('localStorage')) {
                 return { today: 0, mastered: 0, streak: 0 };
             }
-            return safeExecute(() => {
-                const data = localStorage.getItem(this.FLASHCARD_KEY);
-                if (!data) return { today: 0, mastered: 0, streak: 0 };
-                const parsed = JSON.parse(data);
-                return {
-                    today: Number(parsed.today) || 0,
-                    mastered: Number(parsed.mastered) || 0,
-                    streak: Number(parsed.streak) || 0
-                };
-            }, { today: 0, mastered: 0, streak: 0 });
+            const parsed = StorageCache.getJSON(this.FLASHCARD_KEY, null);
+            if (!parsed || typeof parsed !== 'object') {
+                return { today: 0, mastered: 0, streak: 0 };
+            }
+            return {
+                today: Number(parsed.today) || 0,
+                mastered: Number(parsed.mastered) || 0,
+                streak: Number(parsed.streak) || 0
+            };
         },
 
         getSnapshot() {
@@ -365,19 +424,17 @@
 
             if (supportsFeature('localStorage')) {
                 safeExecute(() => {
-                    const challengeRaw = localStorage.getItem(this.CHALLENGE_KEY);
-                    if (challengeRaw) {
-                        const parsed = JSON.parse(challengeRaw);
-                        addTs(parsed.updatedAt);
-                        if (Array.isArray(parsed.completedAt)) {
-                            parsed.completedAt.forEach(addTs);
+                    const challenge = StorageCache.getJSON(this.CHALLENGE_KEY, null);
+                    if (challenge) {
+                        addTs(challenge.updatedAt);
+                        if (Array.isArray(challenge.completedAt)) {
+                            challenge.completedAt.forEach(addTs);
                         }
                     }
-                    const flashRaw = localStorage.getItem(this.FLASHCARD_KEY);
-                    if (flashRaw) {
-                        const parsed = JSON.parse(flashRaw);
-                        addTs(parsed.updatedAt);
-                        addTs(parsed.lastReviewAt);
+                    const flashcard = StorageCache.getJSON(this.FLASHCARD_KEY, null);
+                    if (flashcard) {
+                        addTs(flashcard.updatedAt);
+                        addTs(flashcard.lastReviewAt);
                     }
                 });
             }
@@ -539,6 +596,8 @@
                     count += 1;
                 }
             });
+            // 直写 localStorage 绕过了写穿透缓存，统一失效避免读到旧值
+            StorageCache.clear();
             return count;
         },
 
@@ -565,7 +624,7 @@
                 const key = localStorage.key(i);
                 if (key && key.startsWith(prefix)) keys.push(key);
             }
-            keys.forEach((key) => localStorage.removeItem(key));
+            keys.forEach((key) => StorageCache.remove(key));
             this.notify('reset');
             window.location.reload();
         }
@@ -904,8 +963,12 @@
          * 创建复制按钮
          */
         createButtons() {
+            // 文件末尾的 enhanceCodeBlocks() 会为这些容器内的代码块生成带语言
+            // 标签与运行按钮的完整操作条，此处跳过以免叠加第二个复制按钮。
+            const enhancedContainers = '.lesson-content, .article-content, .content, .markdown-body, #content';
             document.querySelectorAll('pre').forEach(pre => {
                 if (pre.querySelector('.copy-button')) return;
+                if (pre.closest(enhancedContainers)) return;
 
                 const button = document.createElement('button');
                 button.className = 'copy-button';
@@ -1008,69 +1071,6 @@
             navLinks.style.flexDirection = '';
             navLinks.style.padding = '';
             navLinks.style.borderBottom = '';
-        }
-    };
-
-    // ============================================
-    // 页面切换过渡模块
-    // ============================================
-
-    /**
-     * 页面切换过渡动画
-     * @namespace PageTransition
-     */
-    const PageTransition = {
-        /** @type {HTMLElement|null} */
-        overlay: null,
-
-        /**
-         * 初始化页面过渡
-         */
-        init() {
-            // 创建过渡遮罩
-            this.overlay = document.createElement('div');
-            this.overlay.className = 'page-transition-overlay';
-            this.overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: var(--bg-primary, #f5f5f5);
-                z-index: 9999;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease, visibility 0.3s ease;
-                pointer-events: none;
-            `;
-            document.body.appendChild(this.overlay);
-
-            // 拦截链接点击实现过渡效果
-            document.addEventListener('click', (e) => {
-                const link = e.target.closest('a:not([href^="#"]):not([target="_blank"])');
-                if (!link || link.hostname !== window.location.hostname) return;
-
-                // 排除外部链接和特殊链接
-                if (link.href.includes('#') || link.href.endsWith('.pdf')) return;
-
-                e.preventDefault();
-                this.transitionTo(link.href);
-            });
-        },
-
-        /**
-         * 执行页面过渡
-         * @param {string} url - 目标URL
-         */
-        transitionTo(url) {
-            if (!this.overlay) return;
-
-            this.overlay.style.visibility = 'visible';
-            this.overlay.style.opacity = '1';
-
-            setTimeout(() => {
-                window.location.href = url;
-            }, 300);
         }
     };
 
@@ -2044,6 +2044,8 @@
         items: [],
         active: 0,
         lessonEntries: null,
+        /** baseEntries 记忆化缓存：href 前缀在页面生命周期内不变，避免每次按键重建。 */
+        _baseEntries: null,
         els: null,
 
         init() {
@@ -2104,8 +2106,9 @@
             }
         },
 
-        /** 组合页面目录与快捷操作，附上相对站点根解析后的 href。 */
+        /** 组合页面目录与快捷操作（记忆化），附上相对站点根解析后的 href。 */
         baseEntries() {
+            if (this._baseEntries) return this._baseEntries;
             const base = GlobalNavbar.resolveBasePath();
             const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
             const pages = this.PAGES
@@ -2117,7 +2120,8 @@
                     href: base + p.href,
                     keywords: `${p.title} ${p.group} ${p.href}`
                 }));
-            return [...pages, ...this.actions()];
+            this._baseEntries = [...pages, ...this.actions()];
+            return this._baseEntries;
         },
 
         build() {
@@ -2156,7 +2160,7 @@
                 const row = e.target.closest('[data-idx]');
                 if (!row) return;
                 const idx = Number(row.dataset.idx);
-                if (idx !== this.active) { this.active = idx; this.render(); }
+                if (idx !== this.active) this.setActive(idx);
             });
             list.addEventListener('click', (e) => {
                 const row = e.target.closest('[data-idx]');
@@ -2215,6 +2219,7 @@
                 const row = document.createElement('div');
                 row.className = 'cmdk__row' + (idx === this.active ? ' is-active' : '');
                 row.dataset.idx = String(idx);
+                row.id = `cmdk-option-${idx}`;
                 row.setAttribute('role', 'option');
                 row.setAttribute('aria-selected', idx === this.active ? 'true' : 'false');
 
@@ -2245,14 +2250,44 @@
                 frag.appendChild(row);
             });
             list.appendChild(frag);
+            this._syncActiveDescendant();
             const activeEl = list.querySelector('.is-active');
             if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+        },
+
+        /** 同步输入框的 aria-activedescendant，屏幕阅读器可跟随键盘高亮。 */
+        _syncActiveDescendant() {
+            if (!this.els || !this.els.input) return;
+            this.els.input.setAttribute('aria-activedescendant',
+                this.items.length ? `cmdk-option-${this.active}` : '');
         },
 
         move(delta) {
             if (this.items.length === 0) return;
             this.active = (this.active + delta + this.items.length) % this.items.length;
             this.render();
+        },
+
+        /**
+         * 仅切换高亮行（mousemove 高频触发时避免整列表重建造成的闪烁与开销）。
+         * @param {number} idx
+         */
+        setActive(idx) {
+            if (idx === this.active) return;
+            const rows = this.els.list.querySelectorAll('.cmdk__row');
+            const prev = rows[this.active];
+            const next = rows[idx];
+            if (prev) {
+                prev.classList.remove('is-active');
+                prev.setAttribute('aria-selected', 'false');
+            }
+            if (next) {
+                next.classList.add('is-active');
+                next.setAttribute('aria-selected', 'true');
+                next.scrollIntoView({ block: 'nearest' });
+            }
+            this.active = idx;
+            this._syncActiveDescendant();
         },
 
         runActive() {
@@ -2296,7 +2331,6 @@
         KeyboardShortcuts.init();
         CommandPalette.init();
         MobileNav.init();
-        PageTransition.init();
         ScrollProgress.init();
         BackToTop.init();
         FullscreenReader.init();
@@ -2320,6 +2354,7 @@
         QuizProgress,
         ActivityProgress,
         LessonCatalog,
+        StorageCache,
         normalizeLessonId,
         PageFadeIn,
         SiteChrome,
@@ -2330,7 +2365,6 @@
         CodeCopy,
         CommandPalette,
         MobileNav,
-        PageTransition,
         ScrollProgress,
         BackToTop,
         FullscreenReader,

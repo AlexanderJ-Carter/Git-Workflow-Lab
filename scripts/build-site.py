@@ -92,6 +92,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- gwl-theme-boot: 在 CSS 渲染前应用已存主题，避免暗色用户首屏闪白 -->
+    <script>(function(){{try{{var t=localStorage.getItem('theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){{t='dark';}}if(t){{document.documentElement.setAttribute('data-theme',t);}}}}catch(e){{}}}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} - Git Workflow Lab</title>
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -142,6 +144,8 @@ LESSONS_INDEX_TEMPLATE = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- gwl-theme-boot: 在 CSS 渲染前应用已存主题，避免暗色用户首屏闪白 -->
+    <script>(function(){{try{{var t=localStorage.getItem('theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){{t='dark';}}if(t){{document.documentElement.setAttribute('data-theme',t);}}}}catch(e){{}}}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>课程目录 - Git Workflow Lab</title>
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -623,7 +627,7 @@ def bundle_stylesheets(src_css: Path, dest_css: Path) -> None:
 
 
 ASSET_BASE_SNIPPET = '<script src="{prefix}assets/js/asset-base.js"></script>'
-STYLE_CACHE_BUST = "?v=4"
+STYLE_CACHE_BUST = "?v=5"
 
 
 def patch_html_for_deploy(html: str, *, depth: int = 0) -> str:
@@ -642,9 +646,10 @@ def patch_html_for_deploy(html: str, *, depth: int = 0) -> str:
         f'href="{prefix}assets/css/style.css"',
         f'href="{prefix}assets/css/style.css{STYLE_CACHE_BUST}"',
     )
+    # main.js 经 <script src= 加载（此前误写成 href=，缓存破除从未生效）
     html = html.replace(
-        f'href="{prefix}assets/js/main.js"',
-        f'href="{prefix}assets/js/main.js{STYLE_CACHE_BUST}"',
+        f'src="{prefix}assets/js/main.js"',
+        f'src="{prefix}assets/js/main.js{STYLE_CACHE_BUST}"',
     )
     # AI 客户端模块按需加载的页面同样需要缓存破除（用 src=，与 script 标签属性一致）
     html = html.replace(

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <!-- gwl-theme-boot: 在 CSS 渲染前应用已存主题，避免暗色用户首屏闪白 -->
+    <script>(function(){try{var t=localStorage.getItem('theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){t='dark';}if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#6366f1">
@@ -378,9 +380,7 @@
             cursor: not-allowed;
         }
 
-        .ai-send-btn.loading {
-            pointer-events: none;
-        }
+        /* 生成中按钮即「停止」，保持可点击 */
 
         /* 加载动画 */
         .ai-typing {
@@ -668,7 +668,8 @@ CI/CD 相关：
             model: 'gpt-4o-mini',
             selectedCourses: ['basic', 'branch', 'remote', 'history', 'stash', 'cicd'],
             messages: [],
-            isLoading: false
+            isLoading: false,
+            abortController: null
         };
 
         // DOM 元素
@@ -880,13 +881,22 @@ ${selectedContent}
         // 发送消息
         async function sendMessage() {
             const content = elements.userInput.value.trim();
-            if (!content || state.isLoading) return;
-
-            // 检查 API 配置
-            if (!state.apiKey) {
-                alert('请先在左侧设置 API Key');
+            // 生成中再次点击发送按钮 = 停止生成（保留已生成的部分）
+            if (state.isLoading) {
+                if (state.abortController) state.abortController.abort();
                 return;
             }
+            if (!content) return;
+
+            // 检查 API 配置（本地兼容端点允许无 Key，与共享模块 isConfigured 一致）
+            const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+            if (AIC && !AIC.isConfigured()) {
+                alert('请先在左侧设置 API Key（本地兼容端点可留空）');
+                return;
+            }
+
+            // 先取历史再入库：避免本次用户输入在 convo 中出现两次
+            const history = state.messages.slice();
 
             // 添加用户消息
             addMessage('user', content);
@@ -895,20 +905,70 @@ ${selectedContent}
 
             // 显示加载状态
             setLoading(true);
+            state.abortController = new AbortController();
+
+            // 流式气泡：首个增量到达后替换打字指示器，rAF 节流重绘
+            let bubble = null;
+            let streamText = '';
+            let rafPending = false;
+            const paint = () => {
+                rafPending = false;
+                if (!bubble) return;
+                bubble.innerHTML = formatMessageContent(streamText);
+                elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            };
+            const onDelta = (delta, full) => {
+                streamText = full;
+                if (!bubble) {
+                    const typing = document.getElementById('typing-indicator');
+                    if (typing) typing.remove();
+                    bubble = document.createElement('div');
+                    bubble.className = 'ai-message assistant';
+                    elements.chatMessages.appendChild(bubble);
+                }
+                if (!rafPending) {
+                    rafPending = true;
+                    requestAnimationFrame(paint);
+                }
+            };
 
             try {
-                const response = await callAI(content);
-                addMessage('assistant', response);
+                const { text } = await callAI(content, {
+                    signal: state.abortController.signal,
+                    history,
+                    onDelta
+                });
+                streamText = text || streamText;
+                state.messages.push({ role: 'assistant', content: streamText });
+                localStorage.setItem('git-ai-messages', JSON.stringify(state.messages));
+                if (bubble) {
+                    requestAnimationFrame(paint);
+                } else {
+                    renderMessage('assistant', streamText);
+                }
             } catch (error) {
-                addMessage('error', `抱歉，发生了错误：${error.message}`);
+                const aborted = error && (error.name === 'AbortError' || /已取消/.test(error.message || ''));
+                if (aborted) {
+                    // 保留已流出的部分；一字未出时给出提示
+                    if (streamText) {
+                        state.messages.push({ role: 'assistant', content: streamText });
+                        localStorage.setItem('git-ai-messages', JSON.stringify(state.messages));
+                    } else if (!bubble) {
+                        addMessage('assistant', '（已停止生成）');
+                    }
+                } else {
+                    addMessage('error', `抱歉，发生了错误：${error.message}`);
+                }
             } finally {
+                state.abortController = null;
                 setLoading(false);
             }
         }
 
         // 调用 AI API（委托给共享 AIClient：自动注入项目自述 + 课程地图 + 用户勾选模块，
         // 并修正原版 Anthropic 分支丢弃 system prompt 的问题、对 endpoint 做 http(s) 校验）
-        async function callAI(userMessage) {
+        // 默认走流式：onDelta 增量渲染，网络或环境不支持时由 askStream 内部退化为一次性返回。
+        async function callAI(userMessage, opts = {}) {
             const AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
             if (!AIC) throw new Error('AI 模块尚未加载，请刷新页面重试');
 
@@ -917,12 +977,16 @@ ${selectedContent}
                 .filter(Boolean)
                 .join('\n\n');
 
-            const { text } = await AIC.ask({
+            const askOpts = {
                 userMessage,
                 perPageContext: selectedContent ? '用户关注的课程模块：\n' + selectedContent : '',
-                history: state.messages
-            });
-            return text;
+                history: opts.history
+            };
+            if (typeof AIC.askStream === 'function') {
+                return AIC.askStream(askOpts, opts.onDelta);
+            }
+            // 兜底：旧缓存里的 ai.js 没有流式接口
+            return AIC.ask(askOpts);
         }
 
         // 添加消息
@@ -980,12 +1044,13 @@ ${selectedContent}
             elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
 
-        // 设置加载状态
+        // 设置加载状态（生成中按钮变为「停止」，保持可点击以便中断）
         function setLoading(loading) {
             state.isLoading = loading;
-            elements.sendBtn.disabled = loading;
+            elements.sendBtn.disabled = false;
             elements.sendBtn.classList.toggle('loading', loading);
-            elements.sendBtn.querySelector('span:first-child').textContent = loading ? '思考中...' : '发送';
+            elements.sendBtn.querySelector('span:first-child').textContent = loading ? '停止' : '发送';
+            elements.sendBtn.setAttribute('aria-label', loading ? '停止生成' : '发送');
 
             if (loading) {
                 const typingDiv = document.createElement('div');

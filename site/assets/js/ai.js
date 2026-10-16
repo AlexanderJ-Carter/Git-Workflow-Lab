@@ -1,6 +1,6 @@
 /**
  * Git Workflow Lab - 共享 AI 客户端
- * @description 全站可复用的 AI 调用层：设置存储、项目知识上下文、按 provider 切换请求。
+ * @description 全站可复用的 AI 调用层：设置存储、项目知识上下文、按 provider 切换请求（ask 非流式 / askStream SSE 流式）。
  *   - 复用 main.js 的 GitWorkflowLab.supportsFeature / safeExecute / LessonCatalog；
  *   - 传输层从 ai-assistant.html 提取并修正两个 bug（Anthropic system 字段丢失、设置读取无 try/catch）；
  *   - 系统提示 = 静态项目自述 + 动态课程地图（来自 lessons.json）+ 调用方提供的 perPageContext；
@@ -73,6 +73,16 @@
             model: 'gpt-4o-mini'
         },
 
+        /**
+         * 各服务商默认模型：切换服务商时空值/旧默认自动替换，
+         * 避免拿着 OpenAI 的模型名去请求 Anthropic（必然 400）。
+         */
+        DEFAULT_MODELS: {
+            openai: 'gpt-4o-mini',
+            anthropic: 'claude-sonnet-5-5',
+            custom: 'llama3'
+        },
+
         /** 课程地图缓存（来自 lessons.json，经 LessonCatalog 加载）。 */
         _courseMap: null,
 
@@ -85,11 +95,13 @@
                 const raw = localStorage.getItem(this.STORAGE_KEY);
                 if (!raw) return { ...this.DEFAULTS };
                 const p = JSON.parse(raw);
+                const provider = p.apiProvider || this.DEFAULTS.apiProvider;
                 return {
-                    apiProvider: p.apiProvider || this.DEFAULTS.apiProvider,
+                    apiProvider: provider,
                     apiKey: p.apiKey || '',
                     apiEndpoint: p.apiEndpoint || this.DEFAULTS.apiEndpoint,
-                    model: p.model || this.DEFAULTS.model
+                    // 缺省模型跟随服务商（避免 Anthropic 用户拿到 OpenAI 默认模型名）
+                    model: p.model || this.DEFAULT_MODELS[provider] || this.DEFAULTS.model
                 };
             }, { ...this.DEFAULTS });
         },
@@ -195,6 +207,118 @@
         },
 
         /**
+         * 组装单次请求的 url/headers/body（ask 与 askStream 共用）。
+         * @private
+         * @param {Object} settings
+         * @param {string} systemPrompt
+         * @param {Array<{role:string,content:string}>} convo
+         * @param {boolean} stream 是否请求 SSE 流式响应
+         * @returns {{url:string, headers:Object, body:string}}
+         */
+        _buildRequest(settings, systemPrompt, convo, stream) {
+            if (settings.apiProvider === 'anthropic') {
+                // 修复：原版丢弃了首条 system 消息又未放入 system 字段，导致 Claude 从未收到
+                // 项目知识。这里用顶层 system 字段正确传递（而非删掉首条消息）。
+                return {
+                    url: 'https://api.anthropic.com/v1/messages',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': settings.apiKey,
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        max_tokens: 2048,
+                        stream: stream || undefined,
+                        system: systemPrompt,
+                        messages: convo
+                    })
+                };
+            }
+            // OpenAI / OpenAI 兼容端点（含 'custom'：Ollama、vLLM、LM Studio、Azure 等）
+            const endpoint = this.sanitizeEndpoint(settings.apiEndpoint) || this.DEFAULTS.apiEndpoint;
+            const headers = { 'Content-Type': 'application/json' };
+            // 有 Key 才带 Authorization（本地无鉴权端点可留空）
+            if (settings.apiKey) {
+                headers['Authorization'] = `Bearer ${settings.apiKey}`;
+            }
+            const payload = {
+                model: settings.model,
+                temperature: 0.7,
+                messages: [{ role: 'system', content: systemPrompt }, ...convo]
+            };
+            if (stream) payload.stream = true;
+            return { url: `${endpoint}/chat/completions`, headers, body: JSON.stringify(payload) };
+        },
+
+        /**
+         * 带默认超时的 POST；统一超时/取消的错误形态（取消保留 AbortError 名称供调用方识别）。
+         * @private
+         * @param {string} url
+         * @param {Object} headers
+         * @param {string} body
+         * @param {AbortSignal} [signal]
+         * @returns {Promise<Response>}
+         */
+        async _post(url, headers, body, signal) {
+            // 默认 120s 超时：端点无响应时避免请求无限挂起（调用方传 signal 时以其为准）
+            const timeoutSignal = (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function')
+                ? AbortSignal.timeout(120000)
+                : undefined;
+            try {
+                return await fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body,
+                    signal: signal || timeoutSignal
+                });
+            } catch (err) {
+                if (err && err.name === 'TimeoutError') {
+                    throw new Error('请求超时（120 秒无响应），请确认端点可用后重试。');
+                }
+                if (err && err.name === 'AbortError') {
+                    const cancelled = new Error('请求已取消。');
+                    cancelled.name = 'AbortError';
+                    throw cancelled;
+                }
+                throw err;
+            }
+        },
+
+        /** 非 2xx 时读取错误体并抛出可读错误。 */
+        async _httpError(response) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error((err && err.error && err.error.message) || `API 请求失败 (${response.status})`);
+        },
+
+        /** 从完整 JSON 响应中提取文本（ask 的非流式路径）。 */
+        _extractText(data, provider) {
+            const text = provider === 'anthropic'
+                ? (data && data.content && data.content[0] && data.content[0].text)
+                : (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content);
+            return text || '';
+        },
+
+        /** 校验设置并构建 convo（含本次用户输入），ask / askStream 共用。 */
+        async _prepare(opts) {
+            let settings = opts.settings || this.getSettings();
+            // 旧版保存可能把 OpenAI 默认模型名留给 Anthropic（必然 400），此处纠正
+            if (settings.apiProvider === 'anthropic' && settings.model === this.DEFAULT_MODELS.openai) {
+                settings = { ...settings, model: this.DEFAULT_MODELS.anthropic };
+            }
+            // Anthropic 必须带 Key；OpenAI 兼容端点（含本地 LLM，如 Ollama/vLLM）可不带 Key
+            if (settings.apiProvider === 'anthropic' && !settings.apiKey) {
+                throw new Error('Anthropic 需要 API Key，请在 AI 设置中填写。');
+            }
+            const systemPrompt = await this.buildSystemPrompt({ perPageContext: opts.perPageContext || '' });
+            const convo = (Array.isArray(opts.history) ? opts.history : [])
+                .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
+                .map((m) => ({ role: m.role, content: String(m.content) }));
+            convo.push({ role: 'user', content: String(opts.userMessage || '') });
+            return { settings, systemPrompt, convo };
+        },
+
+        /**
          * 单一入口：组装系统提示 + 按 provider 切换请求。
          * @param {Object} opts
          * @param {string} opts.userMessage 本次用户输入
@@ -205,60 +329,80 @@
          * @returns {Promise<{text:string}>}
          */
         async ask(opts = {}) {
-            const settings = opts.settings || this.getSettings();
-            // Anthropic 必须带 Key；OpenAI 兼容端点（含本地 LLM，如 Ollama/vLLM）可不带 Key
-            if (settings.apiProvider === 'anthropic' && !settings.apiKey) {
-                throw new Error('Anthropic 需要 API Key，请在 AI 设置中填写。');
-            }
+            const { settings, systemPrompt, convo } = await this._prepare(opts);
+            const { url, headers, body } = this._buildRequest(settings, systemPrompt, convo, false);
 
-            const systemPrompt = await this.buildSystemPrompt({ perPageContext: opts.perPageContext || '' });
-            const convo = (Array.isArray(opts.history) ? opts.history : [])
-                .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
-                .map((m) => ({ role: m.role, content: String(m.content) }));
-            convo.push({ role: 'user', content: String(opts.userMessage || '') });
-
-            let url, headers, body;
-            if (settings.apiProvider === 'anthropic') {
-                // 修复：原版丢弃了首条 system 消息又未放入 system 字段，导致 Claude 从未收到
-                // 项目知识。这里用顶层 system 字段正确传递（而非删掉首条消息）。
-                url = 'https://api.anthropic.com/v1/messages';
-                headers = {
-                    'Content-Type': 'application/json',
-                    'x-api-key': settings.apiKey,
-                    'anthropic-version': '2023-06-01'
-                };
-                body = JSON.stringify({
-                    model: settings.model,
-                    max_tokens: 2048,
-                    system: systemPrompt,
-                    messages: convo
-                });
-            } else {
-                // OpenAI / OpenAI 兼容端点（含 'custom'：Ollama、vLLM、LM Studio、Azure 等）
-                const endpoint = this.sanitizeEndpoint(settings.apiEndpoint) || this.DEFAULTS.apiEndpoint;
-                url = `${endpoint}/chat/completions`;
-                headers = { 'Content-Type': 'application/json' };
-                // 有 Key 才带 Authorization（本地无鉴权端点可留空）
-                if (settings.apiKey) {
-                    headers['Authorization'] = `Bearer ${settings.apiKey}`;
-                }
-                body = JSON.stringify({
-                    model: settings.model,
-                    temperature: 0.7,
-                    messages: [{ role: 'system', content: systemPrompt }, ...convo]
-                });
-            }
-
-            const response = await fetch(url, { method: 'POST', headers, body, signal: opts.signal });
+            const response = await this._post(url, headers, body, opts.signal);
             if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                throw new Error((err && err.error && err.error.message) || `API 请求失败 (${response.status})`);
+                await this._httpError(response);
             }
             const data = await response.json();
-            const text = settings.apiProvider === 'anthropic'
-                ? (data && data.content && data.content[0] && data.content[0].text)
-                : (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content);
-            return { text: text || '' };
+            return { text: this._extractText(data, settings.apiProvider) };
+        },
+
+        /**
+         * 流式问答：SSE 增量返回，每收到一段文本回调 onDelta(delta, fullText)。
+         * 首 token 即开始呈现，长回答不再需要盯着打字指示器干等。
+         * 环境不支持响应流（file:// 等）时自动退化为一次性返回。
+         * @param {Object} opts 同 ask()
+         * @param {Function} [onDelta] (delta: string, fullText: string) => void
+         * @returns {Promise<{text:string}>} 完整回答
+         */
+        async askStream(opts = {}, onDelta = () => {}) {
+            const { settings, systemPrompt, convo } = await this._prepare(opts);
+            const { url, headers, body } = this._buildRequest(settings, systemPrompt, convo, true);
+
+            const response = await this._post(url, headers, body, opts.signal);
+            if (!response.ok) {
+                await this._httpError(response);
+            }
+
+            // 无 body 流（老浏览器 / file:// 协议）时退化为一次性解析
+            if (!response.body || typeof response.body.getReader !== 'function') {
+                const data = await response.json();
+                const text = this._extractText(data, settings.apiProvider);
+                if (text) onDelta(text, text);
+                return { text };
+            }
+
+            const provider = settings.apiProvider;
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let full = '';
+            const emit = (delta) => {
+                if (!delta) return;
+                full += delta;
+                onDelta(delta, full);
+            };
+
+            // 逐行解析 SSE：OpenAI 兼容为 choices[0].delta.content + [DONE] 哨兵，
+            // Anthropic 为 content_block_delta 事件的 delta.text。
+            for (;;) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed.startsWith('data:')) continue;
+                    const payload = trimmed.slice(5).trim();
+                    if (!payload || payload === '[DONE]') continue;
+                    let json;
+                    try { json = JSON.parse(payload); } catch (e) { continue; }
+                    if (provider === 'anthropic') {
+                        if (json.type === 'content_block_delta' && json.delta && typeof json.delta.text === 'string') {
+                            emit(json.delta.text);
+                        }
+                    } else {
+                        const delta = json.choices && json.choices[0] && json.choices[0].delta
+                            && json.choices[0].delta.content;
+                        if (typeof delta === 'string') emit(delta);
+                    }
+                }
+            }
+            return { text: full };
         },
 
         // ---------------- 渲染辅助（供各集成页复用，避免重复实现 XSS 转义） ----------------
@@ -323,7 +467,7 @@
                         <input type="text" class="ai-settings__endpoint" placeholder="https://api.openai.com/v1 或 http://localhost:11434/v1" autocomplete="off" />
                     </label>
                     <label class="ai-settings__field"><span>模型 (Model)</span>
-                        <input type="text" class="ai-settings__model" placeholder="gpt-4o-mini / claude-sonnet-4-6 / llama3 ..." autocomplete="off" />
+                        <input type="text" class="ai-settings__model" placeholder="gpt-4o-mini / claude-sonnet-5-5 / llama3 ..." autocomplete="off" />
                     </label>
                     <div class="ai-settings__actions">
                         <button type="button" class="ai-settings__cancel">取消</button>
@@ -352,11 +496,19 @@
             key.value = s.apiKey;
             endpoint.value = s.apiEndpoint;
             model.value = s.model;
-            const syncEndpoint = () => {
+            const syncProvider = () => {
                 endpointField.style.display = (provider.value === 'anthropic') ? 'none' : '';
+                model.placeholder = this.DEFAULT_MODELS[provider.value] || this.DEFAULTS.model;
+                // 模型为空或仍是其他服务商的默认值时，自动切换到当前服务商的默认模型
+                const current = model.value.trim().toLowerCase();
+                const isOtherDefault = Object.keys(this.DEFAULT_MODELS).some((p) =>
+                    p !== provider.value && this.DEFAULT_MODELS[p].toLowerCase() === current);
+                if (!current || isOtherDefault) {
+                    model.value = this.DEFAULT_MODELS[provider.value] || '';
+                }
             };
-            syncEndpoint();
-            provider.addEventListener('change', syncEndpoint);
+            syncProvider();
+            provider.addEventListener('change', syncProvider);
 
             const close = () => { overlay.remove(); this._settingsEl = null; };
             overlay.querySelector('.ai-settings__cancel').addEventListener('click', close);
@@ -367,7 +519,7 @@
                     apiProvider: provider.value,
                     apiKey: key.value.trim(),
                     apiEndpoint: (provider.value === 'anthropic') ? this.DEFAULTS.apiEndpoint : (cleaned || endpoint.value.trim()),
-                    model: model.value.trim() || this.DEFAULTS.model
+                    model: model.value.trim() || this.DEFAULT_MODELS[provider.value] || this.DEFAULTS.model
                 });
                 close();
                 if (onSaved) { try { onSaved(); } catch (e) { /* 忽略回调错误 */ } }

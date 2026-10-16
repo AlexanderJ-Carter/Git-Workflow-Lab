@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import json
+import re
 
 SITE_DIR = Path(__file__).resolve().parents[1] / "site"
 
@@ -820,3 +821,66 @@ def test_command_palette_caches_base_entries_and_aria() -> None:
     assert "if (this._baseEntries) return this._baseEntries;" in main_js
     assert "_syncActiveDescendant" in main_js
     assert 'aria-activedescendant' in main_js
+
+
+# ============================================
+# 推广基建：分享卡片 / favicon / sitemap / robots
+# ============================================
+
+def test_pages_have_og_and_twitter_cards() -> None:
+    """全站页面应有 OG/Twitter 分享卡片与 favicon，便于社交平台预览。"""
+    pages = [p for p in SITE_DIR.rglob("*.html")
+             if "assets/js/main.js" in p.read_text(encoding="utf-8")]
+    assert len(pages) >= 25
+    for p in pages:
+        text = p.read_text(encoding="utf-8")
+        assert 'property="og:image"' in text, f"{p} missing og:image"
+        assert 'name="twitter:card"' in text, f"{p} missing twitter:card"
+        assert 'rel="icon"' in text, f"{p} missing favicon link"
+        assert 'apple-touch-icon' in text, f"{p} missing apple-touch-icon"
+        # og:title 取页面自身 title（各页不同，宣传时链接落到哪页都好看）
+        m_title = re.search(r'<title>(.*?)</title>', text)
+        m_og = re.search(r'property="og:title" content="([^"]*)"', text)
+        assert m_og and m_title and m_og.group(1) == m_title.group(1).strip(), \
+            f"{p} og:title mismatch"
+
+
+def test_og_image_assets_exist() -> None:
+    """分享卡片与 favicon 资产应存在且尺寸正确。"""
+    img = SITE_DIR / "assets" / "img"
+    assert (img / "og-image.png").is_file()
+    assert (img / "favicon.svg").is_file()
+    assert (img / "apple-touch-icon.png").is_file()
+    assert (img / "icon-192.png").is_file()
+
+
+def test_build_generates_sitemap_and_robots() -> None:
+    """构建应产出 sitemap.xml / robots.txt，并给页面注入 canonical 与 og:url。"""
+    import subprocess
+    import sys
+
+    root = Path(__file__).resolve().parents[1]
+    subprocess.run([sys.executable, str(root / "scripts" / "build-site.py")], cwd=root, check=True)
+
+    sitemap = (root / "_site" / "sitemap.xml").read_text(encoding="utf-8")
+    assert "<urlset" in sitemap and "<loc>" in sitemap
+    assert sitemap.count("<loc>") >= 70  # 29 页面 + 48 课时 + viewer 等
+    assert "lessons/lesson-01" in sitemap
+    robots = (root / "_site" / "robots.txt").read_text(encoding="utf-8")
+    assert "Sitemap: " in robots and "User-agent: *" in robots
+
+    for name in ("index.html", "quiz.html", "docs/viewer.html", "lessons/lesson-01-init-push.html"):
+        html = (root / "_site" / name).read_text(encoding="utf-8")
+        assert 'rel="canonical" href="https://' in html, f"{name} missing canonical"
+        assert 'property="og:url" content="https://' in html, f"{name} missing og:url"
+    # 图片资产进入构建产物
+    assert (root / "_site" / "assets" / "img" / "og-image.png").is_file()
+
+
+def test_readmes_have_banner_and_promo_assets() -> None:
+    """中英 README 应带 banner 图与 Star History，便于宣传。"""
+    root = Path(__file__).resolve().parents[1]
+    for name in ("README.md", "README_EN.md"):
+        text = (root / name).read_text(encoding="utf-8")
+        assert "site/assets/img/og-image.png" in text, f"{name} missing banner"
+        assert "star-history.com" in text, f"{name} missing star history"

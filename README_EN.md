@@ -1,29 +1,39 @@
+<div align="center">
+
+<img src="site/assets/img/og-image.png" alt="Git Workflow Lab" width="720">
+
 # Git Workflow Lab
+
+**Learn Git and collaboration by doing** — 48 lessons · 11 stages · from commit to CI/CD
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub release](https://img.shields.io/github/v/release/AlexanderJ-Carter/Git-Workflow-Lab?include_prereleases)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/releases)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/AlexanderJ-Carter/Git-Workflow-Lab/docker.yml?label=build)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/actions)
-[![Docker Pulls](https://img.shields.io/badge/ghcr.io-alexanderj--carter%2Fgit--workflow--lab-blue)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/pkgs/container/git-workflow-lab-gitea)
+[![CI](https://img.shields.io/github/actions/workflow/status/AlexanderJ-Carter/Git-Workflow-Lab/test.yml?label=tests)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/actions/workflows/test.yml)
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/AlexanderJ-Carter/Git-Workflow-Lab)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues)
 
-A hands-on teaching repository for Git learning and collaboration practices, focusing on "learning by doing" course experience. The repository covers a complete learning path from Git basics to team collaboration, history recovery, version releases, and CI/CD scenarios.
+**[📖 Online Course](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** · **[🧪 Playground](https://alexanderj-carter.github.io/Git-Workflow-Lab/playground.html)** · **[🚀 Quick Start](#-quick-start)** · **[中文文档](README.md)**
 
-**[📖 Online Course](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** | **[🚀 Quick Start](#-quick-start)** | **[📚 Learning Path](docs/learning-path.md)** | **[中文文档](README.md)**
+</div>
 
 ---
 
+A hands-on teaching repository for Git learning and collaboration practices, focusing on "learning by doing" course experience. The repository covers a complete learning path from Git basics to team collaboration, history recovery, version releases, and CI/CD scenarios.
+
 ## ✨ Features
 
-- 🎯 **Scenario-Based Learning** - Each lesson is designed around real-world development scenarios, not boring command lists
-- 🐳 **Complete Lab Environment** - Docker Compose one-click deployment of Gitea + Web Terminal environment
-- 📦 **Engineering Practices** - Built-in Release Please, GitHub Actions, container publishing, and complete CI/CD examples
-- 🌐 **Dual-Mode Operation** - GitHub Pages for public courses, local environment for complete lab experience
-- 🤖 **AI Tutor** - Bring your own API key (OpenAI / Anthropic / local-LLM compatible); injects this project's own knowledge and answers in-context across the workspace, quiz, error debugger, and lesson viewer
-- ⌨️ **Command Palette** - `Ctrl/⌘+K` or `/` to jump anywhere; fuzzy-search pages, lessons, and actions
-- 💾 **Local-First Progress** - Learning progress lives in the browser, with export/import backup and one-click reset
-- 🔄 **Continuous Updates** - Active community contributions and continuous content iteration
+| Feature | In one line |
+| :--- | :--- |
+| 🎯 **Scenario-Based Learning** | Each lesson is designed around real-world development scenarios, not boring command lists |
+| 🐳 **Complete Lab Environment** | Docker Compose one-click deployment of Gitea + Web Terminal environment |
+| 📦 **Engineering Practices** | Built-in Release Please, GitHub Actions, container publishing, and complete CI/CD examples |
+| 🌐 **Dual-Mode Operation** | GitHub Pages for public courses, local environment for complete lab experience |
+| 🤖 **AI Tutor** | Bring your own API key (OpenAI / Anthropic / local-LLM compatible, streaming output); injects this project's own knowledge and answers in-context across the workspace, quiz, error debugger, and lesson viewer |
+| ⌨️ **Command Palette** | `Ctrl/⌘+K` or `/` to jump anywhere; fuzzy-search pages, lessons, and actions |
+| 💾 **Local-First Progress** | Learning progress lives in the browser, with export/import backup and one-click reset |
+| 🔄 **Continuous Updates** | Active community contributions and continuous content iteration |
+
+**In 30 seconds**: read a lesson online → take the quiz → drill with flashcards → spin up the local Docker environment and practice branches & PRs against Gitea → run CI/CD in a real pipeline. Free, no sign-up.
 
 ## 📖 About This Project
 
@@ -231,6 +241,12 @@ This project is licensed under the [MIT License](LICENSE).
 - Thanks to [Gitea](https://gitea.io/) for providing a lightweight Git hosting platform
 - Thanks to all contributors for their efforts
 - If this project helps you, please give us a ⭐ Star!
+
+---
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=AlexanderJ-Carter/Git-Workflow-Lab&type=Date)](https://star-history.com/#AlexanderJ-Carter/Git-Workflow-Lab&Date)
 
 ---
 

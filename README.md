@@ -1,29 +1,39 @@
+<div align="center">
+
+<img src="site/assets/img/og-image.png" alt="Git Workflow Lab" width="720">
+
 # Git Workflow Lab
+
+**边看边做，掌握 Git 与协作流程** —— 48 课时 · 11 阶段 · 从 commit 到 CI/CD
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub release](https://img.shields.io/github/v/release/AlexanderJ-Carter/Git-Workflow-Lab?include_prereleases)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/releases)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/AlexanderJ-Carter/Git-Workflow-Lab/docker.yml?label=build)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/actions)
-[![Docker Pulls](https://img.shields.io/badge/ghcr.io-alexanderj--carter%2Fgit--workflow--lab-blue)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/pkgs/container/git-workflow-lab-gitea)
+[![CI](https://img.shields.io/github/actions/workflow/status/AlexanderJ-Carter/Git-Workflow-Lab/test.yml?label=tests)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/actions/workflows/test.yml)
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/AlexanderJ-Carter/Git-Workflow-Lab?style=social)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/AlexanderJ-Carter/Git-Workflow-Lab)](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues)
 
-一个面向 Git 学习与协作实践的教学仓库，聚焦”边看边做”的课程体验。仓库内容覆盖从 Git 基础到团队协作、历史修复、版本发布与 CI 场景的完整学习路径。
+**[📖 在线课程](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** · **[🧪 在线练习场](https://alexanderj-carter.github.io/Git-Workflow-Lab/playground.html)** · **[🚀 快速开始](#-快速开始)** · **[🇺🇸 English](README_EN.md)**
 
-**[📖 在线课程](https://alexanderj-carter.github.io/Git-Workflow-Lab/)** | **[🚀 快速开始](#-快速开始)** | **[📚 学习路径](docs/learning-path.md)** | **[🇺🇸 English](README_EN.md)**
+</div>
 
 ---
 
+一个面向 Git 学习与协作实践的教学仓库，聚焦”边看边做”的课程体验。仓库内容覆盖从 Git 基础到团队协作、历史修复、版本发布与 CI 场景的完整学习路径。
+
 ## ✨ 项目特点
 
-- 🎯 **场景化学习** - 每个关卡都围绕真实开发场景设计，而非枯燥的命令列表
-- 🐳 **完整实验环境** - 提供 Docker Compose 一键部署的 Gitea + Web 终端环境
-- 📦 **工程化实践** - 内置 Release Please、GitHub Actions、容器发布等完整 CI/CD 示例
-- 🌐 **双模式运行** - GitHub Pages 展示公开课程，本地环境提供完整实验体验
-- 🤖 **AI 助教** - 自备 API Key（兼容 OpenAI/Anthropic/本地 LLM），注入本课程项目知识；在工作台、测验、错误排查、课程页就地答疑
-- ⌨️ **命令面板** - `Ctrl/⌘+K` 或 `/` 全站跳转，模糊搜索页面、课程与快捷操作
-- 💾 **进度本地化** - 学习进度只存于浏览器，支持导出/导入备份与一键清空
-- 🔄 **持续更新** - 活跃的社区贡献和持续的内容迭代
+| 特点 | 一句话说明 |
+| :--- | :--- |
+| 🎯 **场景化学习** | 每个关卡都围绕真实开发场景设计，而非枯燥的命令列表 |
+| 🐳 **完整实验环境** | Docker Compose 一键部署的 Gitea + Web 终端环境 |
+| 📦 **工程化实践** | 内置 Release Please、GitHub Actions、容器发布等完整 CI/CD 示例 |
+| 🌐 **双模式运行** | GitHub Pages 展示公开课程，本地环境提供完整实验体验 |
+| 🤖 **AI 助教** | 自备 API Key（兼容 OpenAI/Anthropic/本地 LLM，流式输出），注入本课程项目知识；在工作台、测验、错误排查、课程页就地答疑 |
+| ⌨️ **命令面板** | `Ctrl/⌘+K` 或 `/` 全站跳转，模糊搜索页面、课程与快捷操作 |
+| 💾 **进度本地化** | 学习进度只存于浏览器，支持导出/导入备份与一键清空 |
+| 🔄 **持续更新** | 活跃的社区贡献和持续的内容迭代 |
+
+**30 秒看懂**：在线读课 → 随堂测验 → 闪卡巩固 → 本地 Docker 环境连 Gitea 实战分支与 PR → 在真实流水线里跑 CI/CD。全程免费，无需注册。
 
 ## 项目简介
 
@@ -232,6 +242,12 @@ This project is licensed under the [MIT License](LICENSE).
 - 感谢 [Gitea](https://gitea.io/) 提供轻量级的 Git 托管平台
 - 感谢所有贡献者的付出
 - 如果这个项目对你有帮助，请给我们一个 ⭐ Star！
+
+---
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=AlexanderJ-Carter/Git-Workflow-Lab&type=Date)](https://star-history.com/#AlexanderJ-Carter/Git-Workflow-Lab&Date)
 
 ---
 

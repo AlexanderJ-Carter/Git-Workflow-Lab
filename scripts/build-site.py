@@ -34,6 +34,7 @@ from markdown.extensions.toc import TocExtension
 # 项目配置
 PROJECT_NAME = "Git Workflow Lab"
 REPO_URL = "https://github.com/AlexanderJ-Carter/Git-Workflow-Lab"
+SITE_URL = "https://alexanderj-carter.github.io/Git-Workflow-Lab"
 
 # 公开页面列表
 PUBLIC_PAGES: List[str] = [
@@ -94,8 +95,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <!-- gwl-theme-boot: 在 CSS 渲染前应用已存主题，避免暗色用户首屏闪白 -->
     <script>(function(){{try{{var t=localStorage.getItem('theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){{t='dark';}}if(t){{document.documentElement.setAttribute('data-theme',t);}}}}catch(e){{}}}})();</script>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/icon-192.png">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} - Git Workflow Lab</title>
+    <meta name="description" content="{description}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Git Workflow Lab">
+    <meta property="og:title" content="{title} - Git Workflow Lab">
+    <meta property="og:description" content="{description}">
+    <meta property="og:image" content="__SITE_URL__/assets/img/og-image.png">
+    <meta property="og:url" content="__SITE_URL__/">
+    <meta property="og:locale" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{title} - Git Workflow Lab">
+    <meta name="twitter:description" content="{description}">
+    <meta name="twitter:image" content="__SITE_URL__/assets/img/og-image.png">
     <link rel="stylesheet" href="../assets/css/style.css">
     {extra_styles}
 </head>
@@ -517,13 +533,14 @@ def process_lesson_file(md_path: Path) -> Tuple[str, str]:
 
     full_html = HTML_TEMPLATE.format(
         title=title,
+        description=get_lesson_info(md_path)["description"],
         content=html_content,
         repo_url=REPO_URL,
         extra_styles=extra_styles,
         page_data_attrs=f'data-page-kind="lesson" data-lesson-id="{lesson_id}"',
         lesson_actions=lesson_actions,
         extra_script=extra_script,
-    )
+    ).replace("__SITE_URL__", SITE_URL)
 
     return title, full_html
 
@@ -543,13 +560,14 @@ def process_public_page(md_path: Path) -> Tuple[str, str]:
     html_content = convert_markdown_to_html(content)
     full_html = HTML_TEMPLATE.format(
         title=title,
+        description=f"{PROJECT_NAME} 公开页面：{title}",
         content=html_content,
         repo_url=REPO_URL,
         extra_styles="",
         page_data_attrs='data-page-kind="page"',
         lesson_actions="",
         extra_script="",
-    )
+    ).replace("__SITE_URL__", SITE_URL)
 
     return title, full_html
 
@@ -631,7 +649,7 @@ STYLE_CACHE_BUST = "?v=5"
 
 
 def patch_html_for_deploy(html: str, *, depth: int = 0) -> str:
-    """修正 Pages 部署 HTML：注入 base 脚本、合并样式表单链接、缓存破除。"""
+    """修正 Pages 部署 HTML：注入 base 脚本、合并样式表单链接、缓存破除、canonical。"""
     prefix = "../" * depth
     snippet = ASSET_BASE_SNIPPET.format(prefix=prefix)
     if "asset-base.js" not in html and "<head>" in html:
@@ -656,7 +674,67 @@ def patch_html_for_deploy(html: str, *, depth: int = 0) -> str:
         f'src="{prefix}assets/js/ai.js"',
         f'src="{prefix}assets/js/ai.js{STYLE_CACHE_BUST}"',
     )
+
+    # SEO：按页面深度补 canonical 与 og:url 绝对地址（站点源里统一写根路径，
+    # 构建时无法得知每个 HTML 的相对位置，故仅对 depth=0 的页面统一替换）
+    if 'rel="canonical"' not in html:
+        title_m = re.search(r"<title>(.*?)</title>", html, re.S)
+        if title_m:
+            pass  # canonical 在 generate_sitemap 阶段按实际文件路径统一注入
     return html
+
+
+def generate_sitemap_and_robots() -> None:
+    """生成 sitemap.xml 与 robots.txt：收录 _site 下全部 HTML（排除重定向壳页）。"""
+    changefreq = "weekly"
+    entries = []
+    for html_path in sorted(SITE_DIR.rglob("*.html")):
+        rel = html_path.relative_to(SITE_DIR).as_posix()
+        # 排除跳转壳页（无实际内容，被收录反而分散权重）
+        try:
+            text = html_path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if "location.replace" in text and len(text) < 3000:
+            continue
+        if rel == "404.html":
+            continue
+        url = f"{SITE_URL}/{rel}"
+        # canonical 注入（页面 head 内已有 head 结束标记）
+        if 'rel="canonical"' not in text and "</head>" in text:
+            text = text.replace(
+                "</head>",
+                f'    <link rel="canonical" href="{url}">\n</head>',
+                1,
+            )
+            # og:url 同步为当前页面地址（源文件里是站点根）
+            text = re.sub(
+                r'(<meta property="og:url" content=")[^"]*(")',
+                rf"\g<1>{url}\g<2>",
+                text,
+            )
+            html_path.write_text(text, encoding="utf-8")
+        entries.append((url, html_path.stat().st_mtime))
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for url, mtime in entries:
+        from datetime import datetime, timezone
+        lastmod = datetime.fromtimestamp(mtime, tz=timezone.utc).strftime("%Y-%m-%d")
+        lines.append(
+            f"  <url><loc>{url}</loc><lastmod>{lastmod}</lastmod>"
+            f"<changefreq>{changefreq}</changefreq></url>"
+        )
+    lines.append("</urlset>")
+    (SITE_DIR / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    robots = (
+        f"User-agent: *\n"
+        f"Allow: /\n\n"
+        f"Sitemap: {SITE_URL}/sitemap.xml\n"
+    )
+    (SITE_DIR / "robots.txt").write_text(robots, encoding="utf-8")
+    print(f"  Generated sitemap.xml ({len(entries)} URLs) and robots.txt")
 
 
 def build_site() -> None:
@@ -696,7 +774,7 @@ def build_site() -> None:
         if css_src.exists():
             bundle_stylesheets(css_src, ASSETS_DIR / "css")
             print("  Bundled site/assets/css (style.css + pages.css)")
-        for sub in ("js", "data"):
+        for sub in ("js", "data", "img"):
             src_dir = assets_src / sub
             if not src_dir.exists():
                 continue
@@ -777,6 +855,10 @@ def build_site() -> None:
         (LESSONS_DIR / "index.html").write_text(index_html, encoding="utf-8")
 
     print(f"Built {len(lessons)} lesson pages")
+
+    # SEO 收尾：sitemap.xml / robots.txt + 各页 canonical/og:url（须在全部页面落盘后）
+    generate_sitemap_and_robots()
+
     print(f"Output: {SITE_DIR.absolute()}")
 
 

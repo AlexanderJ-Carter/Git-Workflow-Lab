@@ -13,6 +13,9 @@
       "pattern": "^https://linux-command\\.alexander\\.xin/.*$"
     },
     {
+      "pattern": "^https://lab\\.alexander\\.xin/.*$"
+    },
+    {
       "pattern": "^https://github\\.com/[^/]+/[^/]+/stargazers$"
     },
     {

@@ -6,6 +6,18 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.9.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.8.0...v1.9.0) (2026-10-16)
+
+
+### Features
+
+* AI 流式输出、主题首屏防闪与全站性能优化 ([61224b7](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/61224b79916cde42a88b8e74ae4c3121aae4dc54))
+
+
+### Maintenance
+
+* **deps:** 升级 uv.lock 全量依赖 ([75dda5d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/75dda5d1063e4a6ae7badef9bc3f1298d3c0044e))
+
 ## [1.8.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.7.2...v1.8.0) (2026-08-15)
 
 

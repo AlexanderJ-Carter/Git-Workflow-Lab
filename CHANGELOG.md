@@ -6,6 +6,18 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.10.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.9.0...v1.10.0) (2026-10-16)
+
+
+### Features
+
+* **promo:** 分享卡片、favicon、sitemap 与 README 宣传升级 ([bfde2a7](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/bfde2a7cfe77cf5f4a589d9f38408bd192514a55))
+
+
+### Bug Fixes
+
+* **promo:** canonical/og 地址切到自定义域 lab.alexander.xin ([31fd535](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/31fd535488e1052740b83042d31f402f15da0fbf))
+
 ## [1.9.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.8.0...v1.9.0) (2026-10-16)
 
 

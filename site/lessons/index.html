@@ -30,7 +30,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body class="page lessons-page">
-    <main class="page-main">
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <main class="page-main" id="main">
         <header class="page-hero">
             <h1>课程中心</h1>
             <p>从零开始，循序渐进掌握 Git 和 CI/CD 技能。每个关卡都配有动手实验，让你在实践中学习。</p>
@@ -39,6 +40,19 @@
                 <div class="stat-cell"><strong>11</strong><span>学习阶段</span></div>
             </div>
         </header>
+
+        <nav class="lessons-stage-nav" aria-label="阶段快速跳转">
+            <a href="#stage-0">A-B 基础</a>
+            <a href="#stage-1">C 协作</a>
+            <a href="#stage-2">D 恢复</a>
+            <a href="#stage-3">E 工程</a>
+            <a href="#stage-4">F CI/CD</a>
+            <a href="#stage-5">G 安全</a>
+            <a href="#stage-6">H 进阶</a>
+            <a href="#stage-7">I 计基</a>
+            <a href="#stage-8">J CLI</a>
+            <a href="#stage-9">K 配置</a>
+        </nav>
 
         <div class="lessons-toolbar">
             <div class="lessons-progress">

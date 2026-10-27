@@ -2,30 +2,50 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
+    <!-- gwl-theme-boot: 在 CSS 渲染前应用已存主题，避免暗色用户首屏闪白 -->
+    <script>(function(){try{var t=localStorage.getItem('theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){t='dark';}if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
     <meta charset="UTF-8" />
     <title>Git Workflow Lab 文档中心</title>
+        <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/icon-192.png">
+    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Git Workflow Lab">
+    <meta property="og:title" content="Git Workflow Lab 文档中心">
+    <meta property="og:description" content="系统化 Git 课程、浏览器实验室与 CI/CD 实践，48 课时按阶段 A–K 循序渐进。">
+    <meta property="og:image" content="https://lab.alexander.xin/assets/img/og-image.png">
+    <meta property="og:url" content="https://lab.alexander.xin/">
+    <meta property="og:locale" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Git Workflow Lab 文档中心">
+    <meta name="twitter:description" content="系统化 Git 课程、浏览器实验室与 CI/CD 实践，48 课时按阶段 A–K 循序渐进。">
+    <meta name="twitter:image" content="https://lab.alexander.xin/assets/img/og-image.png">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/css/style.css" />
     <style>
       :root {
-        --viewer-primary: #6366f1;
-        --viewer-primary-dark: #4f46e5;
-        --viewer-secondary: #8b5cf6;
-        --viewer-bg: #f8fafc;
+        --viewer-primary: #15803d;
+        --viewer-primary-dark: #166534;
+        --viewer-secondary: #22c55e;
+        --viewer-bg: #fafafa;
         --viewer-bg-card: #ffffff;
-        --viewer-border: #e2e8f0;
-        --viewer-text: #1e293b;
-        --viewer-text-muted: #64748b;
-        --viewer-text-light: #94a3b8;
+        --viewer-border: #d4d4d8;
+        --viewer-text: #09090b;
+        --viewer-text-muted: #3f3f46;
+        --viewer-text-light: #71717a;
+        --viewer-radius: 4px;
       }
 
       [data-theme="dark"] {
-        --viewer-bg: #0f172a;
-        --viewer-bg-card: #1e293b;
-        --viewer-border: #334155;
-        --viewer-text: #f1f5f9;
-        --viewer-text-muted: #94a3b8;
-        --viewer-text-light: #64748b;
+        --viewer-primary: #4ade80;
+        --viewer-primary-dark: #22c55e;
+        --viewer-secondary: #86efac;
+        --viewer-bg: #09090b;
+        --viewer-bg-card: #18181b;
+        --viewer-border: #3f3f46;
+        --viewer-text: #fafafa;
+        --viewer-text-muted: #a1a1aa;
+        --viewer-text-light: #71717a;
       }
 
       * {
@@ -38,18 +58,20 @@
         background: var(--viewer-bg);
         color: var(--viewer-text);
         font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
       }
 
       .layout {
         display: grid;
-        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-columns: 260px minmax(0, 1fr);
         min-height: 100vh;
       }
 
       .sidebar {
         background: var(--viewer-bg-card);
         border-right: 1px solid var(--viewer-border);
-        padding: 20px 16px;
+        padding: 16px 12px;
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -64,15 +86,11 @@
       }
 
       .progress-section {
-        background: linear-gradient(135deg, #eef2ff, #f5f3ff);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 16px;
-      }
-
-      [data-theme="dark"] .progress-section {
-        background: linear-gradient(135deg, #312e81, #1e1b4b);
+        background: var(--viewer-bg);
+        border: 1px solid var(--viewer-border);
+        border-radius: var(--viewer-radius);
+        padding: 12px;
+        margin-bottom: 12px;
       }
 
       .progress-header {
@@ -239,12 +257,17 @@
 
       .lesson-link.active {
         background: var(--viewer-primary);
-        color: white;
+        color: #052e16;
+        font-weight: 600;
+      }
+
+      [data-theme="dark"] .lesson-link.active {
+        color: #052e16;
       }
 
       .lesson-link.active span.badge {
-        background: rgba(255,255,255,0.2);
-        color: white;
+        background: rgba(0, 0, 0, 0.12);
+        color: inherit;
       }
 
       .lesson-link:hover:not(.active) {
@@ -252,10 +275,11 @@
       }
 
       .content {
-        padding: 24px 40px 60px;
-        max-width: 900px;
-        background: var(--viewer-bg-card);
+        padding: 20px 28px 56px;
+        max-width: 52rem;
+        background: var(--viewer-bg);
         min-height: 100vh;
+        border-left: 1px solid var(--viewer-border);
       }
 
       .doc-meta {
@@ -369,9 +393,9 @@
 
       .doc-shell {
         background: var(--viewer-bg-card);
-        border-radius: 16px;
-        padding: 24px 28px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border-radius: var(--viewer-radius);
+        padding: 20px 22px;
+        box-shadow: none;
         border: 1px solid var(--viewer-border);
       }
 
@@ -504,6 +528,7 @@
     </style>
     <script src="../assets/js/vendor/marked.min.js"></script>
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/ai.js"></script>
   </head>
   <body>
     <div class="layout">
@@ -555,6 +580,16 @@
             <a id="lesson-quiz-link" href="../../quiz.html">本课测验</a>
             <a id="lesson-flashcards-link" href="../../flashcards.html">复习闪卡</a>
             <a id="lesson-workspace-link" href="../../workspace.html">打开工作台</a>
+            <button id="lesson-ai-toggle" class="mark-complete-btn" type="button" style="margin-left:auto;">🤖 AI 问答</button>
+          </div>
+          <div id="lesson-ai-panel" style="display:none; margin-top:12px;">
+            <p style="font-size:13px; color:var(--text-muted, #94a3b8); margin:0 0 8px;">结合当前课程正文向 AI 提问（Ctrl/⌘+Enter 发送）：</p>
+            <textarea id="lesson-ai-input" placeholder="关于本课你有什么疑问？" style="width:100%; min-height:64px; resize:vertical; font-family:inherit; padding:10px; border:1px solid var(--border-color,#e2e8f0); border-radius:8px; box-sizing:border-box;"></textarea>
+            <div style="margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <button type="button" id="lesson-ai-send" class="mark-complete-btn">提问</button>
+              <button type="button" id="lesson-ai-settings" style="border:none; background:transparent; color:var(--accent-primary,#4f46e5); cursor:pointer; font-size:13px;">AI 设置</button>
+            </div>
+            <div id="lesson-ai-output" style="margin-top:10px; padding:12px 14px; font-size:14px; line-height:1.6; background:var(--bg-secondary,#f8fafc); border:1px solid var(--border-color,#e2e8f0); border-radius:8px;"></div>
           </div>
         </div>
       </main>
@@ -1170,8 +1205,15 @@
             return res.text();
           })
           .then((md) => {
+            // 暂存当前课程原文，供「AI 问答」作为上下文（比序列化 #doc-content 更干净，避免 enhanceCodeBlocks 注入的按钮文本）
+            window.__gwlCurrentLesson = { file: file, title: displayTitle, md: md };
             if (typeof marked !== "undefined" && typeof marked.parse === "function") {
               contentEl.innerHTML = marked.parse(md);
+              // 渲染完成后立即增强代码块（复制/运行按钮、语言标签），
+              // 与内容同帧生效；末尾的 MutationObserver 仅作兜底。
+              if (typeof window.enhanceCodeBlocks === "function") {
+                window.enhanceCodeBlocks();
+              }
               return;
             }
             const pre = document.createElement("pre");
@@ -1275,17 +1317,8 @@
     </script>
 
     <script>
-      // 文档加载完成后增强代码块
-      document.addEventListener('DOMContentLoaded', function() {
-        // 等待一小段时间确保内容已加载
-        setTimeout(function() {
-          if (typeof window.enhanceCodeBlocks === 'function') {
-            window.enhanceCodeBlocks();
-          }
-        }, 500);
-      });
-
-      // 监听内容变化（用于动态加载的文档）
+      // 监听内容变化（兜底：loadDoc 渲染后已同步调用 enhanceCodeBlocks，
+      // 此处覆盖其他改动 #doc-content 的路径；enhanceCodeBlocks 幂等）
       const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
           if (mutation.addedNodes.length && typeof window.enhanceCodeBlocks === 'function') {
@@ -1298,6 +1331,64 @@
         childList: true,
         subtree: true
       });
+    </script>
+    <script>
+      // 「AI 问答」面板：结合当前课程正文（window.__gwlCurrentLesson.md）向 AI 提问
+      (function () {
+        var toggle = document.getElementById('lesson-ai-toggle');
+        var panel = document.getElementById('lesson-ai-panel');
+        if (!toggle || !panel) return;
+        var input = document.getElementById('lesson-ai-input');
+        var output = document.getElementById('lesson-ai-output');
+        var sendBtn = document.getElementById('lesson-ai-send');
+        var settingsBtn = document.getElementById('lesson-ai-settings');
+
+        function setOutput(html, isErr) {
+          if (!output) return;
+          output.innerHTML = html;
+          output.style.color = isErr ? '#dc2626' : '';
+        }
+
+        toggle.addEventListener('click', function () {
+          var open = panel.style.display === 'none';
+          panel.style.display = open ? 'block' : 'none';
+          if (open && input) input.focus();
+        });
+        if (settingsBtn) settingsBtn.addEventListener('click', function () {
+          var AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+          if (AIC) AIC.openSettings();
+        });
+
+        function ask() {
+          var AIC = window.GitWorkflowLab && window.GitWorkflowLab.AIClient;
+          if (!AIC) { setOutput('AI 模块未加载。', true); return; }
+          if (!AIC.isConfigured()) { AIC.openSettings({ onSaved: ask }); return; }
+          var q = (input && input.value || '').trim();
+          if (!q) { if (input) input.focus(); return; }
+          setOutput('思考中…');
+          if (sendBtn) sendBtn.disabled = true;
+          var lesson = window.__gwlCurrentLesson || {};
+          var ctx = '';
+          if (lesson.title || lesson.file) {
+            ctx += '当前课程：' + (lesson.title || '') + (lesson.file ? '（' + lesson.file + '）' : '') + '\n';
+          }
+          if (lesson.md) ctx += '课程正文：\n' + String(lesson.md).slice(0, 6000);
+          // 流式问答：增量渲染；旧缓存里的 ai.js 无 askStream 时退回非流式
+          var call = (typeof AIC.askStream === 'function')
+            ? AIC.askStream({ userMessage: q, perPageContext: ctx }, function (delta, full) {
+                setOutput(AIC.renderToHtml(full));
+              })
+            : AIC.ask({ userMessage: q, perPageContext: ctx });
+          call
+            .then(function (r) { setOutput(AIC.renderToHtml(r && r.text)); })
+            .catch(function (e) { setOutput(AIC.escapeHtml('出错：' + (e && e.message ? e.message : e)), true); })
+            .then(function () { if (sendBtn) sendBtn.disabled = false; });
+        }
+        if (sendBtn) sendBtn.addEventListener('click', ask);
+        if (input) input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ask(); }
+        });
+      })();
     </script>
   </body>
 </html>

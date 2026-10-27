@@ -24,24 +24,28 @@
     <link rel="stylesheet" href="../assets/css/style.css" />
     <style>
       :root {
-        --viewer-primary: #6366f1;
-        --viewer-primary-dark: #4f46e5;
-        --viewer-secondary: #8b5cf6;
-        --viewer-bg: #f8fafc;
+        --viewer-primary: #15803d;
+        --viewer-primary-dark: #166534;
+        --viewer-secondary: #22c55e;
+        --viewer-bg: #fafafa;
         --viewer-bg-card: #ffffff;
-        --viewer-border: #e2e8f0;
-        --viewer-text: #1e293b;
-        --viewer-text-muted: #64748b;
-        --viewer-text-light: #94a3b8;
+        --viewer-border: #d4d4d8;
+        --viewer-text: #09090b;
+        --viewer-text-muted: #3f3f46;
+        --viewer-text-light: #71717a;
+        --viewer-radius: 4px;
       }
 
       [data-theme="dark"] {
-        --viewer-bg: #0f172a;
-        --viewer-bg-card: #1e293b;
-        --viewer-border: #334155;
-        --viewer-text: #f1f5f9;
-        --viewer-text-muted: #94a3b8;
-        --viewer-text-light: #64748b;
+        --viewer-primary: #4ade80;
+        --viewer-primary-dark: #22c55e;
+        --viewer-secondary: #86efac;
+        --viewer-bg: #09090b;
+        --viewer-bg-card: #18181b;
+        --viewer-border: #3f3f46;
+        --viewer-text: #fafafa;
+        --viewer-text-muted: #a1a1aa;
+        --viewer-text-light: #71717a;
       }
 
       * {
@@ -54,18 +58,20 @@
         background: var(--viewer-bg);
         color: var(--viewer-text);
         font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
       }
 
       .layout {
         display: grid;
-        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-columns: 260px minmax(0, 1fr);
         min-height: 100vh;
       }
 
       .sidebar {
         background: var(--viewer-bg-card);
         border-right: 1px solid var(--viewer-border);
-        padding: 20px 16px;
+        padding: 16px 12px;
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -80,15 +86,11 @@
       }
 
       .progress-section {
-        background: linear-gradient(135deg, #eef2ff, #f5f3ff);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 16px;
-      }
-
-      [data-theme="dark"] .progress-section {
-        background: linear-gradient(135deg, #312e81, #1e1b4b);
+        background: var(--viewer-bg);
+        border: 1px solid var(--viewer-border);
+        border-radius: var(--viewer-radius);
+        padding: 12px;
+        margin-bottom: 12px;
       }
 
       .progress-header {
@@ -255,12 +257,17 @@
 
       .lesson-link.active {
         background: var(--viewer-primary);
-        color: white;
+        color: #052e16;
+        font-weight: 600;
+      }
+
+      [data-theme="dark"] .lesson-link.active {
+        color: #052e16;
       }
 
       .lesson-link.active span.badge {
-        background: rgba(255,255,255,0.2);
-        color: white;
+        background: rgba(0, 0, 0, 0.12);
+        color: inherit;
       }
 
       .lesson-link:hover:not(.active) {
@@ -268,10 +275,11 @@
       }
 
       .content {
-        padding: 24px 40px 60px;
-        max-width: 900px;
-        background: var(--viewer-bg-card);
+        padding: 20px 28px 56px;
+        max-width: 52rem;
+        background: var(--viewer-bg);
         min-height: 100vh;
+        border-left: 1px solid var(--viewer-border);
       }
 
       .doc-meta {
@@ -385,9 +393,9 @@
 
       .doc-shell {
         background: var(--viewer-bg-card);
-        border-radius: 16px;
-        padding: 24px 28px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border-radius: var(--viewer-radius);
+        padding: 20px 22px;
+        box-shadow: none;
         border: 1px solid var(--viewer-border);
       }
 

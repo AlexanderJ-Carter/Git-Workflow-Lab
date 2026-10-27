@@ -21,7 +21,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Git Workflow Lab - Git 与 CI/CD 教学仓库</title>
     <meta name="description" content="系统化 Git 课程、浏览器实验室与 CI/CD 实践，48 课时按阶段 A–K 循序渐进。">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
     <script src="assets/js/asset-base.js"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/pages.css">
@@ -72,9 +73,12 @@
     <main class="page-main" id="main">
         <header class="hero-v3">
             <div class="hero-v3__badge">
-                <span class="hero-v3__badge-dot"></span>
+                <span class="hero-v3__badge-dot" aria-hidden="true"></span>
                 48 课时 · 开源免费
             </div>
+            <p class="hero-v3__prompt" aria-hidden="true">
+                <span class="hero-v3__prompt-user">learner@gwl</span>:<span class="hero-v3__prompt-path">~/course</span>$ git workflow lab --open
+            </p>
             <h1>边看边做，掌握 Git 与协作流程</h1>
             <p class="hero-v3__lead">课程、测验、练习与本地 Docker 实验台组成完整闭环。公开站点阅读与自测，本地环境可连接 Gitea 与 Web 终端实战。</p>
             <div class="hero-v3__actions">

@@ -6,6 +6,13 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.11.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.10.0...v1.11.0) (2026-10-27)
+
+
+### Features
+
+* **site:** devkit visual redesign — home, nav, lesson chrome ([#35](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/issues/35)) ([46087e7](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/46087e7155d524bd8dc2a068270d463d950cfd44))
+
 ## [1.10.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.9.0...v1.10.0) (2026-10-16)
 
 

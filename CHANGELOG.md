@@ -6,6 +6,14 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 After the first automated release PR is merged, this file will be maintained by Release Please.
 
+## [1.11.1](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.11.0...v1.11.1) (2026-11-15)
+
+
+### Maintenance
+
+* **deps:** bump certifi ([526a572](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/526a572357c3744b1ab85664d233382f19c83289))
+* **deps:** bump certifi from 2026.7.22 to 2026.10.18 in the uv group across 1 directory ([ca02e7d](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/commit/ca02e7dd6a004f0341e9946770350f8d37b06565))
+
 ## [1.11.0](https://github.com/AlexanderJ-Carter/Git-Workflow-Lab/compare/v1.10.0...v1.11.0) (2026-10-27)
 
 
